@@ -95,19 +95,53 @@ def get_memory_client() -> Memory:
     Raises:
         ValueError: If required environment variables not set
     """
+    # Get configuration
+    llm_provider = os.getenv('LLM_PROVIDER', 'openai')
+    llm_api_key = os.getenv('LLM_API_KEY')
+    llm_model = os.getenv('LLM_CHOICE', 'gpt-4o-mini')
+
+    embedding_provider = os.getenv('EMBEDDING_PROVIDER', 'openai')
+    embedding_api_key = os.getenv('EMBEDDING_API_KEY')
+    embedding_model = os.getenv('EMBEDDING_MODEL_CHOICE', 'text-embedding-3-small')
+
+    database_url = os.getenv('DATABASE_URL')
+
+    if not database_url:
+        raise ValueError("DATABASE_URL required for mem0")
+
+    # Build config
     config = {
+        "llm": {
+            "provider": "openai",
+            "config": {
+                "model": llm_model,
+                "temperature": 0.2,
+                "max_tokens": 2000,
+            }
+        },
+        "embedder": {
+            "provider": "openai",
+            "config": {
+                "model": embedding_model,
+                "embedding_dims": 1536
+            }
+        },
         "vector_store": {
             "provider": "supabase",
             "config": {
-                "url": os.getenv('SUPABASE_URL'),
-                "api_key": os.getenv('SUPABASE_SERVICE_KEY'),
-                "collection_name": "memories"
+                "connection_string": database_url,
+                "collection_name": "mem0_memories",
+                "embedding_model_dims": 1536
             }
         }
     }
 
-    if not config["vector_store"]["config"]["url"] or not config["vector_store"]["config"]["api_key"]:
-        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY required for mem0")
+    # Set API keys in environment for mem0
+    if llm_api_key:
+        os.environ["OPENAI_API_KEY"] = llm_api_key
+    if embedding_api_key and embedding_api_key != llm_api_key:
+        # If they're different, prioritize LLM key for mem0
+        pass
 
     logger.info("Initializing mem0 Memory client")
 

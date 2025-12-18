@@ -7,6 +7,7 @@ A simple chat interface for testing the agent during MVP development.
 import streamlit as st
 import asyncio
 from agent import agent, create_agent_deps
+from clients import get_memory_client
 import logging
 
 # Setup logging
@@ -24,14 +25,20 @@ st.set_page_config(
 st.title("🥗 AI Nutrition Assistant")
 st.markdown("*Your personalized nutrition coach powered by science*")
 
+
+@st.cache_resource
+def initialize_mem0():
+    """Initialize and cache mem0 client for memory management."""
+    logger.info("Initializing mem0 memory client...")
+    return get_memory_client()
+
+
 # Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-if "agent_deps" not in st.session_state:
-    logger.info("Initializing agent dependencies...")
-    st.session_state.agent_deps = create_agent_deps()
-    logger.info("Agent dependencies initialized")
+if "user_id" not in st.session_state:
+    st.session_state.user_id = "streamlit_user"  # Could be dynamic based on auth later
 
 # Display chat history
 for message in st.session_state.messages:
@@ -51,12 +58,33 @@ if prompt := st.chat_input("Pose ta question nutritionnelle..."):
     with st.chat_message("assistant"):
         with st.spinner("💭 Je réfléchis..."):
             try:
+                # Initialize mem0 client
+                memory = initialize_mem0()
+                user_id = st.session_state.user_id
+
+                # Load relevant memories for context
+                logger.info(f"Loading memories for user: {user_id}")
+                relevant_memories = memory.search(
+                    query=prompt,
+                    user_id=user_id,
+                    limit=3
+                )
+
+                # Format memories as string
+                memories_str = ""
+                if relevant_memories and relevant_memories.get("results"):
+                    memories_str = "\n".join(
+                        f"- {entry['memory']}"
+                        for entry in relevant_memories["results"]
+                    )
+                    logger.info(f"Loaded {len(relevant_memories['results'])} memories")
+
+                # Create agent deps with memories
+                agent_deps = create_agent_deps(memories=memories_str)
+
                 # Run agent asynchronously
                 async def get_response():
-                    result = await agent.run(
-                        prompt,
-                        deps=st.session_state.agent_deps
-                    )
+                    result = await agent.run(prompt, deps=agent_deps)
                     return result.data
 
                 # Execute async function
@@ -70,6 +98,14 @@ if prompt := st.chat_input("Pose ta question nutritionnelle..."):
                     "role": "assistant",
                     "content": response
                 })
+
+                # Save new memories (user message only, not assistant response)
+                logger.info("Saving new memories...")
+                memory_messages = [
+                    {"role": "user", "content": prompt}
+                ]
+                memory.add(memory_messages, user_id=user_id)
+                logger.info("Memories saved successfully")
 
             except Exception as e:
                 error_msg = f"❌ Erreur: {str(e)}"
@@ -110,5 +146,22 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("---")
+
+    # Memory viewer
+    st.markdown("### 🧠 Mémoire Long-Terme")
+    if st.button("👁️ Voir mes mémoires"):
+        try:
+            memory = initialize_mem0()
+            all_memories = memory.get_all(user_id=st.session_state.user_id)
+            if all_memories and all_memories.get("results"):
+                st.markdown("**Mémoires sauvegardées:**")
+                for i, mem in enumerate(all_memories["results"][:5], 1):
+                    st.text(f"{i}. {mem.get('memory', 'N/A')}")
+            else:
+                st.info("Aucune mémoire sauvegardée pour le moment.")
+        except Exception as e:
+            st.error(f"Erreur: {e}")
+
+    st.markdown("---")
     st.markdown("**Version:** MVP 0.1")
-    st.markdown("**Stack:** Pydantic AI + Supabase + OpenAI")
+    st.markdown("**Stack:** Pydantic AI + Supabase + OpenAI + mem0")
