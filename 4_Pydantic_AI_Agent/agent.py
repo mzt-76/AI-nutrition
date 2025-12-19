@@ -29,6 +29,7 @@ from clients import (
 from tools import (
     calculate_nutritional_needs_tool,
     fetch_my_profile_tool,
+    update_my_profile_tool,
     retrieve_relevant_documents_tool,
     web_search_tool,
     image_analysis_tool
@@ -179,6 +180,79 @@ async def fetch_my_profile(ctx: RunContext[AgentDeps]) -> str:
     """
     logger.info("Tool called: fetch_my_profile")
     return await fetch_my_profile_tool(ctx.deps.supabase)
+
+
+@agent.tool
+async def update_my_profile(
+    ctx: RunContext[AgentDeps],
+    age: int = None,
+    gender: str = None,
+    weight_kg: float = None,
+    height_cm: int = None,
+    activity_level: str = None,
+    goals: dict = None,
+    allergies: list[str] = None,
+    diet_type: str = None,
+    disliked_foods: list[str] = None,
+    favorite_foods: list[str] = None,
+    max_prep_time: int = None,
+    preferred_cuisines: list[str] = None
+) -> str:
+    """
+    Update user profile in database with new information.
+
+    Use this tool when the user provides their personal information like age, weight, height,
+    activity level, food preferences, allergies, or any profile-related data.
+
+    Only provide the fields that need to be updated - all parameters are optional.
+
+    Args:
+        ctx: Run context with Supabase client
+        age: User age in years (18-100)
+        gender: "male"/"homme" or "female"/"femme"
+        weight_kg: Weight in kilograms (for BMR/TDEE calculations)
+        height_cm: Height in centimeters (for BMR/TDEE calculations)
+        activity_level: "sédentaire"/"sedentary", "léger"/"light", "modéré"/"moderate",
+                       "actif"/"active", "très actif"/"very_active"
+        goals: User's fitness/health goals as dict with weights 0-10 for each goal:
+               - "weight_loss": Perte de poids (0-10)
+               - "muscle_gain": Prise de muscle/musculation (0-10)
+               - "performance": Performance sportive (0-10)
+               - "maintenance": Santé/maintenance (0-10)
+               Example: {"weight_loss": 8, "maintenance": 3} for primary weight loss goal
+        allergies: List of allergen foods (e.g., ["arachides", "lactose"])
+        diet_type: Diet type (e.g., "omnivore", "végétarien", "vegan")
+        disliked_foods: List of foods to avoid (e.g., ["brocoli", "chou-fleur"])
+        favorite_foods: List of preferred foods
+        max_prep_time: Maximum cooking time in minutes
+        preferred_cuisines: List of cuisine types (e.g., ["méditerranéenne", "asiatique"])
+
+    Returns:
+        JSON string with success message and updated profile
+
+    Examples:
+        User: "J'ai 23 ans, je suis un homme de 86kg pour 1m91, sédentaire"
+        Agent: update_my_profile(age=23, gender="homme", weight_kg=86, height_cm=191, activity_level="sédentaire")
+
+        User: "Mon objectif principal est la prise de muscle"
+        Agent: update_my_profile(goals={"muscle_gain": 8, "maintenance": 2})
+    """
+    logger.info("Tool called: update_my_profile")
+    return await update_my_profile_tool(
+        ctx.deps.supabase,
+        age=age,
+        gender=gender,
+        weight_kg=weight_kg,
+        height_cm=height_cm,
+        activity_level=activity_level,
+        goals=goals,
+        allergies=allergies,
+        diet_type=diet_type,
+        disliked_foods=disliked_foods,
+        favorite_foods=favorite_foods,
+        max_prep_time=max_prep_time,
+        preferred_cuisines=preferred_cuisines
+    )
 
 
 @agent.tool
