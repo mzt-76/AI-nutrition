@@ -294,6 +294,26 @@ Use information-dense keywords for clarity:
 
 <Define testing approach based on project's test framework and patterns discovered in during research>
 
+### Edge Case Discovery (for Safety-Critical Features)
+
+If feature includes allergen validation, input sanitization, or security checks:
+
+**False Positive Enumeration:**
+1. List common variations of restricted items
+   - Example (allergens): Plant-based alternatives (lait d'amande, lait de soja)
+   - Example (allergens): Botanical false positives (noix de coco ≠ tree nut)
+2. Create parametrized tests for each variation
+3. Document expected behavior (allow/reject) with justification
+
+**Include in test plan:**
+```python
+@pytest.mark.parametrize("allergen,ingredient,should_reject", [
+    ("lactose", "lait", True),
+    ("lactose", "lait d'amande", False),  # Plant-based
+    ("fruits à coque", "noix de coco", False),  # Not a tree nut
+])
+```
+
 ### Unit Tests
 
 <Scope and requirements based on project standards>
@@ -312,29 +332,60 @@ Design unit tests with fixtures and assertions following existing testing approa
 
 ## VALIDATION COMMANDS
 
-<Define validation commands based on project's tools discovered in Phase 2>
+Execute validation in tiers. Tier 1 is **required** for shipping. Tier 2 is **recommended** but can be skipped if justified.
 
-Execute every command to ensure zero regressions and 100% feature correctness.
+### Tier 1: Required Validation (Must Pass)
 
-### Level 1: Syntax & Style
+<Project-specific commands that MUST pass before feature is considered complete>
 
-<Project-specific linting and formatting commands>
+**Syntax and Linting:**
+```bash
+# No errors allowed - must pass
+<linting commands like: ruff format . && ruff check .>
+```
 
-### Level 2: Unit Tests
+**Unit Tests:**
+```bash
+# 100% pass required
+<unit test commands like: pytest tests/test_<module>.py -v>
+```
 
-<Project-specific unit test commands>
+**Type Coverage:**
+```bash
+# 100% manual review if type checker unavailable
+# Only skip if all functions have explicit type hints
+<type checking commands like: mypy path/to/module.py>
+```
 
-### Level 3: Integration Tests
+### Tier 2: Recommended Validation (Best Effort)
 
-<Project-specific integration test commands>
+<Project-specific commands that are recommended but can be skipped with justification>
 
-### Level 4: Manual Validation
+**Type Checker:**
+```bash
+# Skip if type hints are 100% complete
+<mypy or similar>
+```
 
-<Feature-specific manual testing steps - API calls, UI testing, etc.>
+**Integration Tests:**
+```bash
+# Skip if environment blocker documented
+<integration test commands>
+```
 
-### Level 5: Additional Validation (Optional)
+**Manual Testing:**
+```bash
+# Skip if unit tests cover all paths
+<manual testing steps like: streamlit run app.py>
+```
 
-<MCP servers or additional CLI tools if available>
+**Additional Validation:**
+```bash
+# Optional - MCP servers or additional CLI tools if available
+<additional validation tools>
+```
+
+**Decision Rule:** Ship on Tier 1 pass. Document Tier 2 skips in execution report with justification.
 
 ---
 

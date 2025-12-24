@@ -11,6 +11,23 @@ Read plan file: `$ARGUMENTS`
 
 ## Execution Instructions
 
+### 0. Environment Pre-Check (Optional but Recommended)
+
+Before starting implementation, validate the environment if the feature requires specific libraries:
+
+**If feature uses Pydantic AI, agent tools, or LLM integrations:**
+```bash
+python -c "from agent import agent; print('✅ Agent initialization successful')"
+```
+
+**If validation fails:**
+- Document the blocker in execution report
+- Proceed with implementation and unit testing only
+- Mark integration tests as "blocked by environment"
+- User will validate when environment is fixed
+
+**Decision Rule:** Core implementation can proceed even if environment validation fails, as long as unit tests validate all logic paths.
+
 ### 1. Read and Understand
 
 - Read the ENTIRE plan carefully

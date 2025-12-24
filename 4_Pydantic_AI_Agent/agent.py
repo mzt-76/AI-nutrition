@@ -24,7 +24,7 @@ from clients import (
     get_embedding_client,
     get_http_client,
     get_brave_api_key,
-    get_searxng_base_url
+    get_searxng_base_url,
 )
 from tools import (
     calculate_nutritional_needs_tool,
@@ -32,19 +32,20 @@ from tools import (
     update_my_profile_tool,
     retrieve_relevant_documents_tool,
     web_search_tool,
-    image_analysis_tool
+    image_analysis_tool,
+    generate_weekly_meal_plan_tool,
+    generate_shopping_list_tool,
 )
 
 # Setup logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Load environment variables
 project_root = Path(__file__).resolve().parent
-dotenv_path = project_root / '.env'
+dotenv_path = project_root / ".env"
 load_dotenv(dotenv_path, override=True)
 
 
@@ -60,19 +61,16 @@ def get_model():
         LLM_BASE_URL: API base URL (default: https://api.openai.com/v1)
         LLM_API_KEY: API key (required)
     """
-    llm = os.getenv('LLM_CHOICE', 'gpt-4o-mini')
-    base_url = os.getenv('LLM_BASE_URL', 'https://api.openai.com/v1')
-    api_key = os.getenv('LLM_API_KEY')
+    llm = os.getenv("LLM_CHOICE", "gpt-4o-mini")
+    base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
+    api_key = os.getenv("LLM_API_KEY")
 
     if not api_key:
         raise ValueError("LLM_API_KEY not found in environment variables")
 
     logger.info(f"Initializing LLM: {llm} at {base_url}")
 
-    return OpenAIModel(
-        llm,
-        provider=OpenAIProvider(base_url=base_url, api_key=api_key)
-    )
+    return OpenAIModel(llm, provider=OpenAIProvider(base_url=base_url, api_key=api_key))
 
 
 @dataclass
@@ -88,6 +86,7 @@ class AgentDeps:
         searxng_base_url: SearXNG base URL (optional)
         memories: String containing user memories for context
     """
+
     supabase: any  # Supabase Client
     embedding_client: any  # AsyncOpenAI
     http_client: any  # AsyncClient
@@ -98,10 +97,7 @@ class AgentDeps:
 
 # Create the Pydantic AI agent
 agent = Agent(
-    get_model(),
-    system_prompt=AGENT_SYSTEM_PROMPT,
-    deps_type=AgentDeps,
-    retries=2
+    get_model(), system_prompt=AGENT_SYSTEM_PROMPT, deps_type=AgentDeps, retries=2
 )
 
 
@@ -131,7 +127,7 @@ async def calculate_nutritional_needs(
     activity_level: str,
     goals: dict = None,
     activities: list[str] = None,
-    context: str = None
+    context: str = None,
 ) -> str:
     """
     Calculate BMR, TDEE, and target macronutrients with automatic goal inference.
@@ -159,8 +155,7 @@ async def calculate_nutritional_needs(
     """
     logger.info("Tool called: calculate_nutritional_needs")
     return await calculate_nutritional_needs_tool(
-        age, gender, weight_kg, height_cm, activity_level,
-        goals, activities, context
+        age, gender, weight_kg, height_cm, activity_level, goals, activities, context
     )
 
 
@@ -196,7 +191,7 @@ async def update_my_profile(
     disliked_foods: list[str] = None,
     favorite_foods: list[str] = None,
     max_prep_time: int = None,
-    preferred_cuisines: list[str] = None
+    preferred_cuisines: list[str] = None,
 ) -> str:
     """
     Update user profile in database with new information.
@@ -251,14 +246,13 @@ async def update_my_profile(
         disliked_foods=disliked_foods,
         favorite_foods=favorite_foods,
         max_prep_time=max_prep_time,
-        preferred_cuisines=preferred_cuisines
+        preferred_cuisines=preferred_cuisines,
     )
 
 
 @agent.tool
 async def retrieve_relevant_documents(
-    ctx: RunContext[AgentDeps],
-    user_query: str
+    ctx: RunContext[AgentDeps], user_query: str
 ) -> str:
     """
     Search the nutritional knowledge base using RAG (semantic search).
@@ -276,9 +270,7 @@ async def retrieve_relevant_documents(
     """
     logger.info("Tool called: retrieve_relevant_documents")
     return await retrieve_relevant_documents_tool(
-        ctx.deps.supabase,
-        ctx.deps.embedding_client,
-        user_query
+        ctx.deps.supabase, ctx.deps.embedding_client, user_query
     )
 
 
@@ -300,18 +292,13 @@ async def web_search(ctx: RunContext[AgentDeps], query: str) -> str:
     """
     logger.info("Tool called: web_search")
     return await web_search_tool(
-        query,
-        ctx.deps.http_client,
-        ctx.deps.brave_api_key,
-        ctx.deps.searxng_base_url
+        query, ctx.deps.http_client, ctx.deps.brave_api_key, ctx.deps.searxng_base_url
     )
 
 
 @agent.tool
 async def image_analysis(
-    ctx: RunContext[AgentDeps],
-    image_url: str,
-    analysis_prompt: str
+    ctx: RunContext[AgentDeps], image_url: str, analysis_prompt: str
 ) -> str:
     """
     Analyze images using GPT-4 Vision (for body composition analysis).
@@ -330,9 +317,106 @@ async def image_analysis(
     """
     logger.info("Tool called: image_analysis")
     return await image_analysis_tool(
-        image_url,
-        analysis_prompt,
-        ctx.deps.embedding_client
+        image_url, analysis_prompt, ctx.deps.embedding_client
+    )
+
+
+@agent.tool
+async def generate_weekly_meal_plan(
+    ctx: RunContext[AgentDeps],
+    start_date: str,
+    target_calories_daily: int = None,
+    target_protein_g: int = None,
+    target_carbs_g: int = None,
+    target_fat_g: int = None,
+    meal_structure: str = "3_meals_2_snacks",
+    notes: str = None,
+) -> str:
+    """
+    Generate personalized 7-day meal plan with complete recipes.
+
+    Creates a weekly meal plan based on user profile, nutritional targets, allergies,
+    and preferences. Includes complete recipes with ingredients, quantities, instructions,
+    and nutritional information for each meal.
+
+    Args:
+        ctx: Run context with Supabase and OpenAI clients
+        start_date: Start date in YYYY-MM-DD format (Monday preferred), e.g. "2024-12-23"
+        target_calories_daily: Daily calorie target (if None, uses profile target)
+        target_protein_g: Daily protein target in grams
+        target_carbs_g: Daily carbs target in grams
+        target_fat_g: Daily fat target in grams
+        meal_structure: Meal distribution pattern:
+            - "3_meals_2_snacks": Breakfast, AM snack, Lunch, PM snack, Dinner (default)
+            - "4_meals": 4 equal meals throughout day
+            - "3_consequent_meals": 3 consecutive main meals (no snacks)
+            - "3_meals_1_preworkout": 3 meals + 1 snack before training
+        notes: Additional preferences (e.g., "pas de viande rouge cette semaine")
+
+    Returns:
+        JSON string with complete meal plan including all recipes, ingredients,
+        nutritional information, and weekly summary
+
+    Example:
+        User: "Crée-moi un plan pour cette semaine avec 3 repas + collation pré-training"
+        Agent: generate_weekly_meal_plan(
+            start_date="2024-12-23",
+            meal_structure="3_meals_1_preworkout"
+        )
+    """
+    logger.info("Tool called: generate_weekly_meal_plan")
+    return await generate_weekly_meal_plan_tool(
+        ctx.deps.supabase,
+        ctx.deps.embedding_client,
+        start_date,
+        target_calories_daily,
+        target_protein_g,
+        target_carbs_g,
+        target_fat_g,
+        meal_structure,
+        notes,
+    )
+
+
+@agent.tool
+async def generate_shopping_list(
+    ctx: RunContext[AgentDeps],
+    week_start: str,
+    selected_days: list[int] | None = None,
+    servings_multiplier: float = 1.0,
+) -> str:
+    """
+    Generate categorized shopping list from existing meal plan.
+
+    Extracts ingredients from a meal plan, aggregates quantities, and organizes
+    them by category (produce, proteins, grains, dairy, pantry, other).
+    Supports selecting specific days and adjusting quantities with a multiplier.
+
+    Args:
+        ctx: Run context with Supabase client
+        week_start: Meal plan start date in YYYY-MM-DD format (e.g., "2024-12-23")
+        selected_days: List of day indices to include (0=Monday to 6=Sunday),
+                      or None for all 7 days. Example: [0, 1, 2] for Mon-Wed
+        servings_multiplier: Multiplier for all quantities (default: 1.0).
+                           Use 2.0 for double portions, 0.5 for half portions
+
+    Returns:
+        JSON string with categorized shopping list, metadata, and total item count
+
+    Example:
+        User: "Génère la liste de courses pour cette semaine"
+        Agent: generate_shopping_list(week_start="2024-12-23")
+
+        User: "Liste de courses seulement pour lundi à mercredi, portions doubles"
+        Agent: generate_shopping_list(
+            week_start="2024-12-23",
+            selected_days=[0, 1, 2],
+            servings_multiplier=2.0
+        )
+    """
+    logger.info("Tool called: generate_shopping_list")
+    return await generate_shopping_list_tool(
+        ctx.deps.supabase, week_start, selected_days, servings_multiplier
     )
 
 
@@ -357,7 +441,7 @@ def create_agent_deps(memories: str = "") -> AgentDeps:
         http_client=get_http_client(),
         brave_api_key=get_brave_api_key(),
         searxng_base_url=get_searxng_base_url(),
-        memories=memories
+        memories=memories,
     )
 
 
@@ -371,7 +455,7 @@ if __name__ == "__main__":
 
         result = await agent.run(
             "Calcule mes besoins nutritionnels: 35 ans, homme, 87kg, 178cm, activité modérée",
-            deps=deps
+            deps=deps,
         )
 
         print("\n=== Agent Response ===")
