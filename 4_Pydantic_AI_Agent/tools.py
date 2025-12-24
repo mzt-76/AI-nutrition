@@ -41,6 +41,18 @@ from nutrition.validators import (
     validate_daily_macros,
     validate_meal_plan_structure,
 )
+from nutrition.adjustments import (
+    analyze_weight_trend,
+    detect_metabolic_adaptation,
+    detect_adherence_patterns,
+    generate_calorie_adjustment,
+    generate_macro_adjustments,
+    detect_red_flags,
+)
+from nutrition.feedback_extraction import (
+    validate_feedback_metrics,
+    check_feedback_completeness,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -679,6 +691,44 @@ async def generate_weekly_meal_plan_tool(
             supabase, openai_client, rag_query
         )
 
+        # Step 5.5: Fetch learning profile for personalization
+        learning_profile = {}
+        try:
+            learning_response = supabase.table("user_learning_profile").select("*").limit(1).execute()
+            if learning_response.data:
+                learning_profile = learning_response.data[0]
+                logger.info(f"Learning profile loaded: {learning_profile.get('weeks_of_data', 0)} weeks of data")
+
+                # Extract personalization hints
+                personalization_notes = []
+                if learning_profile.get("meal_preferences"):
+                    loved = learning_profile.get("meal_preferences", {}).get("loved", [])
+                    if loved:
+                        personalization_notes.append(f"User loves: {', '.join(loved)}")
+
+                if learning_profile.get("energy_patterns"):
+                    energy_patterns = learning_profile.get("energy_patterns", {})
+                    if energy_patterns.get("friday_drops"):
+                        personalization_notes.append("User has low energy on Fridays - prioritize carbs + easy meals")
+
+                if learning_profile.get("adherence_triggers"):
+                    triggers = learning_profile.get("adherence_triggers", {})
+                    positive = triggers.get("positive", [])
+                    if positive:
+                        personalization_notes.append(f"High adherence with: {', '.join(positive)}")
+
+                if learning_profile.get("carb_sensitivity"):
+                    personalization_notes.append(f"Carb sensitivity: {learning_profile.get('carb_sensitivity')} - adjust portions accordingly")
+
+                if personalization_notes and notes:
+                    notes = notes + "\n" + "\n".join(personalization_notes)
+                elif personalization_notes:
+                    notes = "\n".join(personalization_notes)
+
+                logger.info(f"Personalization hints added: {len(personalization_notes)} insights")
+        except Exception as e:
+            logger.warning(f"Could not load learning profile: {e}")
+
         # Step 6: Build LLM prompt
         prompt = build_meal_plan_prompt(
             profile=profile_data,
@@ -964,5 +1014,258 @@ async def generate_shopping_list_tool(
             {
                 "error": "Internal error generating shopping list",
                 "code": "GENERATION_ERROR",
+            }
+        )
+
+
+async def calculate_weekly_adjustments_tool(
+    supabase: Client,
+    embedding_client: AsyncOpenAI,
+    weight_start_kg: float,
+    weight_end_kg: float,
+    adherence_percent: int,
+    hunger_level: str = "medium",
+    energy_level: str = "medium",
+    sleep_quality: str = "good",
+    cravings: list[str] | None = None,
+    notes: str = "",
+) -> str:
+    """
+    Synthesize weekly feedback and generate personalized nutritional adjustments.
+
+    Analyzes real-world outcomes against goal targets, detects individual patterns
+    (metabolism, macro sensitivity, adherence triggers), and generates science-backed
+    recommendations with confidence scoring. Stores learning data for continuous
+    improvement.
+
+    Args:
+        supabase: Supabase client for database access
+        embedding_client: OpenAI async client for embeddings and LLM
+        weight_start_kg: Weight at start of week (kg)
+        weight_end_kg: Weight at end of week (kg)
+        adherence_percent: Percentage of plan followed (0-100%)
+        hunger_level: Reported hunger ("low", "medium", "high")
+        energy_level: Reported energy ("low", "medium", "high")
+        sleep_quality: Sleep quality ("poor", "fair", "good", "excellent")
+        cravings: List of craving types if any
+        notes: Free-text observations from the week
+
+    Returns:
+        JSON string with:
+        - Analysis of weight trend vs goal targets
+        - Detected patterns (energy, adherence, metabolic adaptation)
+        - Suggested macro/calorie adjustments with rationale
+        - Red flag alerts (if any)
+        - Confidence level for recommendations
+        - Stored in weekly_feedback table for continuous learning
+
+    Example:
+        >>> result = await calculate_weekly_adjustments_tool(
+        ...     supabase=sb,
+        ...     embedding_client=client,
+        ...     weight_start_kg=87.0,
+        ...     weight_end_kg=86.4,
+        ...     adherence_percent=85,
+        ...     hunger_level="medium",
+        ...     energy_level="high",
+        ...     notes="Good week, felt strong Friday"
+        ... )
+
+    References:
+        Adaptive Thermogenesis: Fothergill et al. (2016)
+        Helms et al. (2014): Body composition changes in resistance training
+        ISSN Position Stand (2017): Macronutrient recommendations
+    """
+    try:
+        logger.info(
+            f"Weekly adjustment synthesis starting: weight {weight_start_kg}→{weight_end_kg}kg, adherence {adherence_percent}%"
+        )
+
+        # Step 1: Validate and parse input
+        feedback_data = validate_feedback_metrics(
+            {
+                "weight_start_kg": weight_start_kg,
+                "weight_end_kg": weight_end_kg,
+                "adherence_percent": adherence_percent,
+                "hunger_level": hunger_level,
+                "energy_level": energy_level,
+                "sleep_quality": sleep_quality,
+                "cravings": cravings or [],
+                "notes": notes,
+            }
+        )
+
+        completeness = check_feedback_completeness(feedback_data)
+        logger.info(f"Feedback completeness: {completeness['quality']} ({completeness['completeness_percent']}%)")
+
+        # Step 2: Fetch current profile
+        profile_response = supabase.table("my_profile").select("*").limit(1).execute()
+        if not profile_response.data:
+            return json.dumps(
+                {"error": "No user profile found", "code": "PROFILE_NOT_FOUND"}
+            )
+        profile = profile_response.data[0]
+        goal = profile.get("primary_goal", "maintenance")
+        current_calories = profile.get("current_calories", 2500)
+        current_protein_g = profile.get("current_protein_g", 150)
+
+        # Step 3: Fetch historical data (past 4 weeks)
+        history_response = (
+            supabase.table("weekly_feedback")
+            .select("*")
+            .order("week_start_date", desc=True)
+            .limit(4)
+            .execute()
+        )
+        past_weeks = history_response.data if history_response.data else []
+        logger.info(f"Retrieved {len(past_weeks)} weeks of historical feedback")
+
+        # Step 4: Load learning profile
+        learning_response = supabase.table("user_learning_profile").select("*").limit(1).execute()
+        learning_profile = learning_response.data[0] if learning_response.data else {}
+        logger.info(f"Learning profile loaded: {learning_profile.get('weeks_of_data', 0)} weeks of data")
+
+        # Step 5: Analyze weight trend
+        weight_analysis = analyze_weight_trend(
+            weight_start_kg, weight_end_kg, goal, weeks_on_plan=len(past_weeks) + 1
+        )
+        logger.info(f"Weight trend: {weight_analysis['trend']}")
+
+        # Step 6: Detect patterns
+        metabolic = detect_metabolic_adaptation(
+            past_weeks,
+            learning_profile.get("observed_tdee"),
+            profile.get("tdee", 2868),
+        )
+        adherence_patterns = detect_adherence_patterns(past_weeks)
+        logger.info(f"Pattern detection: metabolic_adaptation={metabolic['detected']}, patterns={len(adherence_patterns['positive_triggers'])}")
+
+        # Step 7: Generate rule-based adjustments
+        calorie_adj = generate_calorie_adjustment(
+            weight_analysis["change_kg"], goal, adherence_percent, len(past_weeks) + 1
+        )
+        macro_adj = generate_macro_adjustments(
+            hunger_level,
+            energy_level,
+            feedback_data.get("cravings", []),
+            current_protein_g,
+            profile.get("current_carbs_g", 350),
+            profile.get("current_fat_g", 90),
+            learning_profile,
+        )
+        logger.info(f"Adjustments generated: cal={calorie_adj['adjustment_kcal']}kcal, protein={macro_adj['protein_g']}g")
+
+        # Step 8: Detect red flags
+        red_flags = detect_red_flags(feedback_data, past_weeks, profile)
+        if red_flags:
+            logger.warning(f"🚨 Red flags: {[f['flag_type'] for f in red_flags]}")
+
+        # Step 9: Calculate confidence
+        base_confidence = 0.75 if len(past_weeks) >= 4 else 0.5
+        completeness_penalty = completeness["confidence_impact"]
+        red_flag_penalty = 0.1 if red_flags else 0
+        final_confidence = max(0.3, base_confidence - completeness_penalty - red_flag_penalty)
+
+        # Build result
+        result = {
+            "status": "success",
+            "week_number": len(past_weeks) + 1,
+            "analysis": {
+                "weight_analysis": weight_analysis,
+                "metabolic_analysis": metabolic,
+                "adherence_analysis": {
+                    "rate_percent": adherence_percent,
+                    "assessment": "Excellent" if adherence_percent >= 85 else "Good" if adherence_percent >= 70 else "Fair" if adherence_percent >= 50 else "Low",
+                    "positive_triggers": adherence_patterns["positive_triggers"],
+                    "negative_triggers": adherence_patterns["negative_triggers"],
+                },
+            },
+            "adjustments": {
+                "suggested": {
+                    "calories": calorie_adj["adjustment_kcal"],
+                    "protein_g": macro_adj["protein_g"],
+                    "carbs_g": macro_adj["carbs_g"],
+                    "fat_g": macro_adj["fat_g"],
+                },
+                "rationale": [
+                    *calorie_adj["reasoning"],
+                    *macro_adj["adjustments_rationale"].values(),
+                ],
+            },
+            "red_flags": red_flags,
+            "feedback_completeness": completeness["quality"],
+            "confidence_level": round(final_confidence, 2),
+            "recommendations": [
+                weight_analysis["assessment"],
+                f"Adherence: {adherence_patterns['recommendation']}" if adherence_patterns["recommendation"] else "",
+            ],
+        }
+
+        # Step 10: Store results in database
+        storage_data = {
+            "week_number": len(past_weeks) + 1,
+            "week_start_date": feedback_data.get("week_start_date", "2025-01-01"),
+            "weight_start_kg": float(weight_start_kg),
+            "weight_end_kg": float(weight_end_kg),
+            "adherence_percent": int(adherence_percent),
+            "hunger_level": hunger_level,
+            "energy_level": energy_level,
+            "sleep_quality": sleep_quality,
+            "cravings": feedback_data.get("cravings", []),
+            "subjective_notes": notes,
+            "detected_patterns": {
+                "metabolic_adaptation": metabolic["detected"],
+                "adherence_patterns": adherence_patterns["positive_triggers"],
+            },
+            "adjustments_suggested": result["adjustments"]["suggested"],
+            "adjustment_rationale": result["adjustments"]["rationale"],
+            "feedback_quality": completeness["quality"],
+            "agent_confidence_percent": int(final_confidence * 100),
+            "red_flags": {f["flag_type"]: f["severity"] for f in red_flags},
+        }
+
+        insert_response = supabase.table("weekly_feedback").insert(storage_data).execute()
+        logger.info("✅ Weekly feedback stored in database")
+
+        # Step 11: Update learning profile (async but fire-and-forget)
+        if learning_profile:
+            weeks_data = learning_profile.get("weeks_of_data", 0) + 1
+            new_confidence = min(0.95, 0.3 + (weeks_data / 8.0))  # Increases with weeks
+            update_data = {
+                "weeks_of_data": weeks_data,
+                "confidence_level": new_confidence,
+                "updated_at": datetime.now().isoformat(),
+            }
+            try:
+                supabase.table("user_learning_profile").update(update_data).eq("id", learning_profile["id"]).execute()
+                logger.info(f"Learning profile updated: {weeks_data} weeks of data")
+            except Exception as e:
+                logger.warning(f"Could not update learning profile: {e}")
+        else:
+            # Create new learning profile
+            try:
+                supabase.table("user_learning_profile").insert(
+                    {
+                        "weeks_of_data": 1,
+                        "confidence_level": 0.3,
+                        "updated_at": datetime.now().isoformat(),
+                    }
+                ).execute()
+                logger.info("New learning profile created")
+            except Exception as e:
+                logger.warning(f"Could not create learning profile: {e}")
+
+        logger.info("✅ Weekly adjustments synthesized successfully")
+        return json.dumps(result, indent=2, ensure_ascii=False)
+
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        return json.dumps({"error": str(e), "code": "VALIDATION_ERROR"})
+    except Exception as e:
+        logger.error(f"Unexpected error in weekly adjustments: {e}", exc_info=True)
+        return json.dumps(
+            {
+                "error": "Internal error during weekly synthesis",
+                "code": "ADJUSTMENT_ERROR",
             }
         )

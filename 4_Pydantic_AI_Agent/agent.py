@@ -35,6 +35,7 @@ from tools import (
     image_analysis_tool,
     generate_weekly_meal_plan_tool,
     generate_shopping_list_tool,
+    calculate_weekly_adjustments_tool,
 )
 
 # Setup logging
@@ -417,6 +418,83 @@ async def generate_shopping_list(
     logger.info("Tool called: generate_shopping_list")
     return await generate_shopping_list_tool(
         ctx.deps.supabase, week_start, selected_days, servings_multiplier
+    )
+
+
+@agent.tool
+async def calculate_weekly_adjustments(
+    ctx: RunContext[AgentDeps],
+    weight_start_kg: float,
+    weight_end_kg: float,
+    adherence_percent: int,
+    hunger_level: str = "medium",
+    energy_level: str = "medium",
+    sleep_quality: str = "good",
+    cravings: list[str] | None = None,
+    notes: str = "",
+) -> str:
+    """
+    Synthesize weekly feedback and generate personalized nutritional adjustments.
+
+    Use this tool at the end of each week to analyze how the user did, detect patterns
+    in their response to nutrition, and generate personalized recommendations for
+    the next week. The tool stores weekly data for continuous learning.
+
+    Args:
+        ctx: Run context with Supabase and embedding clients
+        weight_start_kg: Weight at start of week (kg)
+        weight_end_kg: Weight at end of week (kg)
+        adherence_percent: Percentage of plan followed (0-100%)
+        hunger_level: Reported hunger level ("low", "medium", "high")
+        energy_level: Reported energy level ("low", "medium", "high")
+        sleep_quality: Sleep quality ("poor", "fair", "good", "excellent")
+        cravings: List of cravings if any (e.g., ["sweets", "carbs"])
+        notes: Free-text observations from the week
+
+    Returns:
+        JSON string with:
+        - Weight trend analysis against goal targets
+        - Detected patterns (metabolic, adherence, energy)
+        - Suggested adjustments (calories, macros) with scientific rationale
+        - Red flag alerts if concerning patterns detected
+        - Confidence level for recommendations
+        - Data stored for continuous learning
+
+    Examples:
+        User: "Cette semaine j'ai pesé 86.4kg au lieu de 87kg en début de semaine.
+               L'adhérence a été de 85%, j'avais pas mal d'énergie, bonne récupération"
+        Agent: calculate_weekly_adjustments(
+            weight_start_kg=87.0,
+            weight_end_kg=86.4,
+            adherence_percent=85,
+            hunger_level="medium",
+            energy_level="high",
+            sleep_quality="good",
+            notes="Bonne adhérence, bien récupéré"
+        )
+
+        User: "Semaine difficile, j'ai lutté avec la faim, seulement 60% adhérence"
+        Agent: calculate_weekly_adjustments(
+            weight_start_kg=85.2,
+            weight_end_kg=85.0,
+            adherence_percent=60,
+            hunger_level="high",
+            energy_level="low",
+            notes="Semaine difficile, beaucoup de faim"
+        )
+    """
+    logger.info("Tool called: calculate_weekly_adjustments")
+    return await calculate_weekly_adjustments_tool(
+        ctx.deps.supabase,
+        ctx.deps.embedding_client,
+        weight_start_kg,
+        weight_end_kg,
+        adherence_percent,
+        hunger_level,
+        energy_level,
+        sleep_quality,
+        cravings,
+        notes,
     )
 
 

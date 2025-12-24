@@ -296,6 +296,185 @@ export function useNutritionCalculation() {
 
 ---
 
+## 8.5: Weekly Feedback Analysis & Continuous Learning System
+
+### Overview
+The weekly feedback analysis system enables the AI Nutrition Assistant to continuously learn from user data, detect patterns over time, and generate highly personalized recommendations. This section documents the `calculate_weekly_adjustments_tool` and supporting infrastructure.
+
+### Weekly Adjustment Tool Workflow
+
+**Tool Signature:**
+```python
+@agent.tool
+async def calculate_weekly_adjustments(
+    ctx: RunContext[AgentDeps],
+    weight_start_kg: float,
+    weight_end_kg: float,
+    adherence_percent: int,
+    hunger_level: str = "medium",
+    energy_level: str = "medium",
+    sleep_quality: str = "good",
+    cravings: list[str] | None = None,
+    notes: str = "",
+) -> str:
+    """
+    Analyze weekly feedback and generate personalized nutrition adjustments.
+
+    Returns JSON with: analysis (pattern detection), adjustments (calorie/macro changes),
+    red_flags (safety alerts), confidence_level (0.3-1.0), recommendations (actionable tips)
+    """
+```
+
+**User Flow:**
+1. User provides weekly check-in data: weight change, adherence%, subjective metrics
+2. Tool validates input metrics and fetches user profile + 4-week history
+3. Analysis engine runs 6 core functions: weight_trend, metabolic_adaptation, adherence_patterns, calorie_adjustment, macro_adjustments, red_flag_detection
+4. System detects patterns + confidence scoring
+5. Stores feedback in `weekly_feedback` table, updates `user_learning_profile`
+6. Agent presents results warmly with scientific rationale
+
+### Safety Constraints for Adjustments
+
+All adjustment recommendations are **strictly bounded** to prevent metabolic shock and maintain adherence:
+
+```python
+# Calorie Adjustments (Primary)
+CALORIE_ADJUSTMENT_MAX = 300  # ±300 kcal/day maximum
+
+# Macro Adjustments (Secondary)
+PROTEIN_ADJUSTMENT_MAX = 30   # ±30g per day
+CARB_ADJUSTMENT_MAX = 50      # ±50g per day
+FAT_ADJUSTMENT_MAX = 15       # ±15g per day
+
+# Weight Loss Rate Targets (Goal-Specific)
+MUSCLE_GAIN_TARGET = (0.2, 0.5)      # kg/week, range
+WEIGHT_LOSS_TARGET = (-0.7, -0.3)    # kg/week, range (negative = loss)
+MAINTENANCE_TARGET = (-0.5, 0.5)     # kg/week, range
+```
+
+**Rationale:** Conservative adjustments enable habit formation, prevent diet fatigue, and allow accurate pattern detection over 4+ week cycles.
+
+### Red Flag Detection (6 Types)
+
+The system monitors for 6 categories of concerning patterns with tiered responses:
+
+```python
+# RED FLAG TYPE 1: Rapid Weight Loss
+# Trigger: Weight loss > 1.0 kg/week
+# Severity: CRITICAL
+# Action: Reduce calorie deficit by 200-300 kcal, recommend doctor consultation
+# Why: Risk of muscle loss, metabolic damage, nutrient deficiency
+# Reference: Fothergill et al. (2016) - rapid loss increases metabolic adaptation
+
+# RED FLAG TYPE 2: Extreme Hunger
+# Trigger: hunger_level = "extreme" for 2+ consecutive weeks
+# Severity: WARNING
+# Action: Increase calories by 150 kcal, boost protein/fat satiety factors
+# Why: Unsustainable deficit, adherence risk, quality of life concern
+
+# RED FLAG TYPE 3: Energy Crash
+# Trigger: energy_level = "low/crashed" + adherence > 80%
+# Severity: WARNING
+# Action: Reduce deficit by 100 kcal, check micronutrients, consider rest day
+# Why: Possible underfueling despite adherence, carb/electrolyte depletion
+
+# RED FLAG TYPE 4: Mood/Mental Health Shift
+# Trigger: mood = "depressed" or stress_level = "high"
+# Severity: CRITICAL
+# Action: Pause aggressive deficit, suggest mental health support, reduce deficit 20%
+# Why: Psychological safety > physical results, nutrition is secondary
+
+# RED FLAG TYPE 5: Abandonment Risk
+# Trigger: adherence drops >25% from prior week OR < 60% absolute
+# Severity: WARNING
+# Action: Simplify meal plan, reduce adjustment size, increase check-in frequency
+# Why: Pattern precedes dropout; early intervention essential
+
+# RED FLAG TYPE 6: Stress Overload
+# Trigger: stress_level = "extreme" + sleep_quality < "fair"
+# Severity: WARNING
+# Action: Maintain current targets (no changes), focus on sleep/stress management
+# Why: Stress + sleep deprivation impairs metabolism; changes ineffective
+```
+
+**Critical Rule:** Mental health flags (Types 4, 6) override all other recommendations. Always prioritize user wellbeing.
+
+### Learning Profile: Continuous Personalization
+
+The system maintains a per-user `user_learning_profile` table that accumulates insights:
+
+**Phase 1: First 4 Weeks (Learning Mode)**
+- Generic recommendations based on profile
+- Weekly_feedback table accumulates data
+- Confidence scoring: 0.5 (baseline, incomplete data)
+- Next tool uses: Meal planning, adjustment generation
+
+**Phase 2: 4+ Weeks (Adaptation Mode)**
+- Pattern detection activates with 4+ weekly records
+- Learning profile populated with discovered sensitivities
+- Confidence scoring: 0.75 base (can increase with perfect data)
+- Tool uses discovered patterns for personalization
+
+**Learned Insights Captured:**
+```python
+# Sensitivities (macro impact on weight/energy)
+protein_sensitivity_g_per_kg: float      # How sensitive to protein changes
+carb_sensitivity: str                    # "low" | "medium" | "high"
+fat_sensitivity: str                     # "low" | "medium" | "high"
+
+# Patterns (behavioral triggers)
+adherence_triggers: dict                 # What enables/blocks adherence
+energy_patterns: dict                    # When energy crashes, optimal macros
+meal_preferences: list[str]              # Preferred foods that fit macros
+psychological_patterns: dict             # Stress response, motivation patterns
+```
+
+**Example:** After 4 weeks, system detects "Carb sensitivity: HIGH". When adjusting macros, the system now:
+- Prefers fat/protein increases over carb increases
+- Suggests timing carbs around activity
+- Monitors energy closely when reducing carbs
+
+### Confidence Scoring System
+
+Recommendations include a confidence score (0.3-1.0) indicating recommendation reliability:
+
+```python
+# Base Confidence
+base_confidence = 0.75 if weeks_of_data >= 4 else 0.5
+
+# Penalties (Each reduces confidence by specified amount)
+incomplete_weight_data: -0.15     # Missing weight_start or weight_end
+incomplete_adherence: -0.15       # Adherence not provided
+no_subjective_metrics: -0.10      # Missing hunger/energy/sleep signals
+red_flags_present: -0.10          # Active warnings reduce confidence
+
+# Floor: Confidence never drops below 0.3
+# Ceiling: Confidence never exceeds 1.0
+
+# Interpretation Guide
+# 0.3-0.5: Very Low - Recommend doctor consultation, use baseline values
+# 0.5-0.7: Low - Use adjustments cautiously, verify with user
+# 0.7-0.85: Moderate - Standard recommendation, explain reasoning
+# 0.85-1.0: High - Confidence is high, can recommend proactively
+```
+
+**Usage:** Agent shows confidence in output: "High confidence (0.92): Based on 6 weeks of data..."
+
+### Integration Points
+
+**Meal Planning Enhancement:**
+The `generate_weekly_meal_plan_tool` now queries `user_learning_profile` for personalization hints:
+- Meal preferences: Suggests preferred foods that fit current macros
+- Energy patterns: Times carbs for optimal energy (e.g., higher carbs pre-workout if sensitive)
+- Adherence triggers: Incorporates what helped/hindered prior weeks
+- Macro sensitivity: Respects discovered sensitivities when generating meals
+
+**Database Tables:**
+- `weekly_feedback`: 27 columns, stores feedback + analysis + adjustments per week
+- `user_learning_profile`: 23 columns, stores accumulated patterns + psychological insights
+
+---
+
 ## 9. Development Commands
 
 **Backend:**
