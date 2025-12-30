@@ -19,7 +19,8 @@ from openai import AsyncOpenAI
 from httpx import AsyncClient
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
+import uuid
 
 from nutrition.calculations import (
     mifflin_st_jeor_bmr,
@@ -1161,10 +1162,25 @@ async def calculate_weekly_adjustments_tool(
             logger.warning(f"🚨 Red flags: {[f['flag_type'] for f in red_flags]}")
 
         # Step 9: Calculate confidence
-        base_confidence = 0.75 if len(past_weeks) >= 4 else 0.5
-        completeness_penalty = completeness["confidence_impact"]
-        red_flag_penalty = 0.1 if red_flags else 0
-        final_confidence = max(0.3, base_confidence - completeness_penalty - red_flag_penalty)
+        # Base: scale from 0.3 to 0.8 based on weeks of data
+        # With 8 weeks, reach max (0.8); less weeks = lower base confidence
+        weeks_count = len(past_weeks)
+        base_confidence = 0.3 + (min(weeks_count, 8) / 8) * 0.5  # 0.3-0.8 range
+
+        # Apply quality penalties (multiplicative for smoother scaling)
+        data_quality = completeness.get("quality", "incomplete")
+        if data_quality == "incomplete":
+            base_confidence *= 0.8  # 20% reduction for poor data
+        elif data_quality == "adequate":
+            base_confidence *= 0.9  # 10% reduction for adequate data
+        # "complete" gets no penalty (100% = no change)
+
+        # Red flag penalty: significant but don't make confidence unusable
+        if red_flags:
+            base_confidence = max(0.5, base_confidence - 0.2)  # Min 0.5 even with flags
+
+        # Final clamp: always 0.3-0.95 range
+        final_confidence = min(0.95, max(0.3, base_confidence))
 
         # Build result
         result = {
@@ -1202,9 +1218,18 @@ async def calculate_weekly_adjustments_tool(
         }
 
         # Step 10: Store results in database
+        # Calculate ISO week start if not provided
+        if feedback_data.get("week_start_date"):
+            week_start = datetime.fromisoformat(feedback_data["week_start_date"]).date()
+        else:
+            today = datetime.now().date()
+            week_start = today - timedelta(days=today.weekday())
+
+        week_number = week_start.isocalendar()[1]
+
         storage_data = {
-            "week_number": len(past_weeks) + 1,
-            "week_start_date": feedback_data.get("week_start_date", "2025-01-01"),
+            "week_number": week_number,
+            "week_start_date": str(week_start),
             "weight_start_kg": float(weight_start_kg),
             "weight_end_kg": float(weight_end_kg),
             "adherence_percent": int(adherence_percent),
@@ -1242,10 +1267,12 @@ async def calculate_weekly_adjustments_tool(
             except Exception as e:
                 logger.warning(f"Could not update learning profile: {e}")
         else:
-            # Create new learning profile
+            # Create new learning profile (upsert with fixed UUID for single user)
+            LEARNING_PROFILE_UUID = "550e8400-e29b-41d4-a716-446655440000"  # Fixed UUID for single user
             try:
-                supabase.table("user_learning_profile").insert(
+                supabase.table("user_learning_profile").upsert(
                     {
+                        "id": LEARNING_PROFILE_UUID,
                         "weeks_of_data": 1,
                         "confidence_level": 0.3,
                         "updated_at": datetime.now().isoformat(),
