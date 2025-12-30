@@ -339,7 +339,7 @@ All adjustment recommendations are **strictly bounded** to prevent metabolic sho
 
 ```python
 # Calorie Adjustments (Primary)
-CALORIE_ADJUSTMENT_MAX = 300  # ±300 kcal/day maximum
+CALORIE_ADJUSTMENT_MAX = 300  # ±300 kcal/day maximum (MVP - see note below)
 
 # Macro Adjustments (Secondary)
 PROTEIN_ADJUSTMENT_MAX = 30   # ±30g per day
@@ -353,6 +353,83 @@ MAINTENANCE_TARGET = (-0.5, 0.5)     # kg/week, range
 ```
 
 **Rationale:** Conservative adjustments enable habit formation, prevent diet fatigue, and allow accurate pattern detection over 4+ week cycles.
+
+---
+
+**IMPORTANT MVP NOTE - Adjustment Bounds Design (Subject to Change):**
+
+The adjustment bounds (300 kcal, 30g protein, 50g carbs, 15g fat) are **design choices optimized for MVP**, NOT direct recommendations from scientific literature.
+
+- **Scientific Basis:** Informed by principles in Fothergill et al. (2016), Helms et al. (2014), and ISSN (2017), but not explicitly prescribed by these sources
+- **MVP Rationale:** Conservative bounds allow habit formation over 4 weeks and enable accurate pattern detection
+- **Potential Future Changes (Phase 2+):**
+  - Make goal-specific: `weight_loss=±350 kcal`, `muscle_gain=±200 kcal`, `maintenance=±100 kcal`
+  - Make confidence-dependent: Smaller bounds in week 1, larger by week 4+
+  - Optimize based on real user data after 4+ weeks of use
+
+**How to Optimize Later:**
+1. Track whether users hit the 300 kcal cap frequently (indicates bounds too conservative)
+2. Monitor if larger adjustments would accelerate progress without harming adherence
+3. Analyze weight loss rate: if >1.0 kg/week, reduce to 250 kcal; if <0.2 kg/week, increase to 350 kcal
+4. Implement goal-specific bounds based on adherence patterns observed
+
+See `nutrition/adjustments.py` (lines 55-99) for detailed optimization guidelines.
+
+### Weekly Feedback Workflow
+
+The weekly feedback analysis workflow is the **core process** for continuous personalization:
+
+**User Experience (5 Steps):**
+1. **End of Week** - User mentions "week is done" or asks "how did I do?"
+2. **Conversational Collection** - Agent asks natural questions (not form-filling) to gather: weight change, adherence%, hunger, energy, sleep
+3. **Tool Invocation** - Agent calls `calculate_weekly_adjustments()` with explicit metrics
+4. **Result Presentation** - Agent presents analysis warmly + scientifically, explains adjustments, shows confidence level
+5. **Learning Update** - Profile auto-updates with discovered patterns for next week's personalization
+
+**Data Collected:**
+```python
+# Required (for valid analysis)
+weight_start_kg: float          # Weight at week start
+weight_end_kg: float            # Weight at week end
+adherence_percent: int (0-100)  # % of plan followed
+
+# Optional but valuable
+hunger_level: "low" | "medium" | "high"
+energy_level: "low" | "medium" | "high"
+sleep_quality: "poor" | "fair" | "good" | "excellent"
+cravings: list[str]             # ["chocolate", "pizza"]
+notes: str                      # Free-text observations
+```
+
+**Analysis Performed:**
+- **Weight Trend**: Compare to goal targets (Helms et al. 2014 recommendations)
+- **Metabolic Adaptation**: Detect if actual TDEE < calculated TDEE
+- **Adherence Patterns**: Identify recurring triggers (e.g., "Friday energy drops")
+- **Macro Sensitivity**: Discover individual protein/carb/fat response
+- **Red Flags**: 6-type safety check (rapid loss, hunger, energy, mood, abandonment, stress)
+
+**Output Format:**
+```json
+{
+  "status": "success",
+  "analysis": {
+    "weight_trend": {"change_kg": -0.6, "trend": "optimal"},
+    "patterns_detected": ["energy_stable", "hunger_managed"],
+    "new_insights": ["Friday routine consistent with adherence"]
+  },
+  "adjustments": {
+    "suggested": {"calories": 50, "protein_g": 20, "carbs_g": 0, "fat_g": 0},
+    "rationale": ["High hunger → increase protein for satiety", "Energy stable → no adjustment needed"]
+  },
+  "red_flags": [],
+  "confidence_level": 0.78,
+  "recommendations": [
+    "Your -0.6kg loss is exactly on target!",
+    "Adding 20g protein should help with hunger",
+    "Keep Friday routine—it's working for you"
+  ]
+}
+```
 
 ### Red Flag Detection (6 Types)
 
@@ -399,6 +476,99 @@ The system monitors for 6 categories of concerning patterns with tiered response
 
 **Critical Rule:** Mental health flags (Types 4, 6) override all other recommendations. Always prioritize user wellbeing.
 
+### Red Flag Response Protocol
+
+When a red flag is detected, follow this **priority-based response protocol**:
+
+**Priority 1: Immediate Safety (Critical Flags - Types 4 & 6)**
+
+Mental health or severe stress overload:
+```
+Actions:
+1. Acknowledge with EMPATHY (not fear)
+   ✅ "I notice you're stressed. Let's pause adjustments and focus on you."
+   ❌ "WARNING: Depression detected!"
+
+2. Offer SUPPORT (not diet advice)
+   ✅ "Would talking to someone help? Should we simplify things?"
+   ❌ "Just eat more protein and you'll feel better."
+
+3. PAUSE aggressive changes
+   - Maintain current targets
+   - Suggest rest day or stress management
+   - Follow up next week on wellbeing first
+
+4. Always document: Reason, response, follow-up date
+```
+
+**Priority 2: Pattern Monitoring (Warning Flags - Types 1, 2, 3, 5)**
+
+Physical patterns (rapid loss, hunger, energy, abandonment risk):
+```
+Actions:
+1. Explain MECHANISM (not judgment)
+   ✅ "Rapid loss triggers metabolic slowdown. Let's adjust gently."
+   ❌ "You're losing too fast—you're doing it wrong!"
+
+2. Suggest GRADUATED change (not dramatic)
+   ✅ "Try -100 kcal this week, see how you feel"
+   ❌ "Immediately cut 300 kcal and increase cardio"
+
+3. MONITOR closely for next report
+   - If pattern improves: celebrate + continue
+   - If pattern repeats: escalate to Priority 1
+
+4. Educate with SCIENCE and DATA
+   - "Helms et al. shows rapid loss increases abandonment"
+   - "Your -0.5kg/week average is actually perfect!"
+```
+
+**Priority 3: Informational (Positive Observations)**
+
+Patterns detected with no safety concern:
+```
+Response: Celebrate + educate. No action required.
+
+Examples:
+- "3 consecutive Fridays with high energy! Keep that pattern."
+- "You've discovered high carbs help your energy. Perfect insight!"
+- "Your weekend adherence is 90%—you're crushing it!"
+```
+
+**Response Template (for Red Flag Presentation):**
+```
+[If RED FLAG detected]
+
+I notice something: [OBSERVATION without judgment]
+
+Why it matters: [SCIENTIFIC BASIS from paper/research]
+
+My suggestion: [GRADUATED ACTION, not dramatic change]
+
+Your thoughts: [ASK FOR FEEDBACK AND BUY-IN]
+
+Example:
+---
+I noticed rapid weight loss this week (-1.2kg).
+This can trigger metabolic adaptation where your body adjusts.
+
+Helms et al. research shows slower loss (0.5kg/week) leads to
+better long-term results and less abandonment risk.
+
+How about we reduce by 100 kcal this week? We can check next
+week if you feel better.
+
+How does that sound? Any concerns?
+---
+```
+
+**Critical Safety Guardrails:**
+1. **Never blame**: "Hunger is normal at this deficit—let's adjust"
+2. **Never dismiss**: Investigate all patterns, even if user says "it's fine"
+3. **Never override consent**: Always ask "Does this work for you?"
+4. **Never delay Priority 1**: Stop everything if mental health flag appears
+5. **Always document**: Flag date, reason, action taken, next check-in date
+
 ### Learning Profile: Continuous Personalization
 
 The system maintains a per-user `user_learning_profile` table that accumulates insights:
@@ -433,6 +603,78 @@ psychological_patterns: dict             # Stress response, motivation patterns
 - Prefers fat/protein increases over carb increases
 - Suggests timing carbs around activity
 - Monitors energy closely when reducing carbs
+
+### Learning Profile Integration Pattern
+
+The learning profile automatically influences four key tools and workflows:
+
+**1. Meal Plan Generation** (`generate_weekly_meal_plan_tool`)
+```python
+# Before generating meal plan, fetch learning profile:
+learning_profile = supabase.table("user_learning_profile").select("*").execute()
+
+# Extract personalization hints:
+if learning_profile.get("meal_preferences"):
+    prompt += f"User loves: {learning_profile['meal_preferences']['loved']}"
+    prompt += f"User dislikes: {learning_profile['meal_preferences']['disliked']}"
+
+if learning_profile.get("energy_patterns"):
+    # "Friday energy drops with low carbs" → plan higher carbs Friday
+    if learning_profile["energy_patterns"].get("friday_drops"):
+        prompt += "Friday: Include higher carbs pre-activity"
+
+if learning_profile.get("carb_sensitivity") == "high":
+    # User performs better on higher carbs → optimize macro ratio
+    prompt += "This user responds well to 45%+ carbs"
+```
+
+**2. Adjustment Recommendation** (`calculate_weekly_adjustments_tool`)
+```python
+# Use learned macro sensitivity to refine suggestions:
+if learning_profile.get("carb_sensitivity") == "high":
+    # Don't suggest carb cuts → prefer protein/fat adjustments
+    adjustment_strategy = "adjust_protein_fat_first"
+elif learning_profile.get("protein_sensitivity_g_per_kg") == 2.5:
+    # User needs 2.5g/kg, not ISSN's 1.6g/kg → prioritize protein
+    adjustment_strategy = "boost_protein_aggressive"
+```
+
+**3. Red Flag Detection** (enhanced context)
+```python
+# Red flag thresholds can be personalized:
+# Generic: rapid loss = >1.0 kg/week
+# Personalized: if user has history of rapid adaptation, adjust threshold to >0.8 kg/week
+
+red_flag_thresholds = {
+    "rapid_weight_loss": learning_profile.get("rapid_loss_threshold", 1.0),
+    "extreme_hunger": learning_profile.get("hunger_threshold", "extreme"),
+    ...
+}
+```
+
+**4. Confidence Scoring** (account for profile maturity)
+```python
+# Confidence increases as profile becomes more predictive
+base_confidence = 0.5
+
+# Boost if learning profile is well-populated
+if learning_profile.get("weeks_of_data", 0) >= 4:
+    base_confidence = 0.75
+
+if learning_profile.get("macro_sensitivity_detected"):
+    base_confidence += 0.1  # More confident with known patterns
+
+if learning_profile.get("adherence_triggers"):
+    base_confidence += 0.05  # More confident with behavior triggers
+```
+
+**Integration Points Checklist:**
+- [ ] Meal plan tool queries learning profile before generating
+- [ ] Adjustment tool uses learned sensitivities when calculating macros
+- [ ] Red flag detection uses personalized thresholds (if available)
+- [ ] Confidence scoring accounts for profile completeness
+- [ ] Learning profile automatically updates after each weekly synthesis
+- [ ] Profile data never overwrites; only adds/refines patterns
 
 ### Confidence Scoring System
 
@@ -472,6 +714,94 @@ The `generate_weekly_meal_plan_tool` now queries `user_learning_profile` for per
 **Database Tables:**
 - `weekly_feedback`: 27 columns, stores feedback + analysis + adjustments per week
 - `user_learning_profile`: 23 columns, stores accumulated patterns + psychological insights
+
+### Phase 2-3 Roadmap: Learning System Evolution
+
+The MVP (Phase 1) establishes baseline patterns. Phase 2-3 optimize based on real user data.
+
+**Phase 2 Timeline: Weeks 4-8 (After First Batch of Users)**
+
+Prerequisite: 4 weeks of real user data collected
+
+**Phase 2 Goals:**
+1. **Validate MVP Bounds** - Are ±300 kcal bounds correct?
+   - Metric: Track if users hit cap frequently (>30% = too conservative)
+   - Metric: Monitor weight loss rate (should be -0.3 to -0.7 kg/week)
+   - Decision: Keep as-is, or implement goal-specific bounds?
+
+2. **Implement Goal-Specific Bounds** (Optional)
+   ```python
+   # Current: ±300 kcal for all goals
+   # Proposed: weight_loss=±350, muscle_gain=±200, maintenance=±100
+   # Reason: Different goals have different adherence requirements
+   ```
+
+3. **Personalize Red Flag Thresholds**
+   - Current: Fixed thresholds (e.g., >1.0 kg/week = rapid loss)
+   - Proposed: User-specific thresholds based on profile
+   - Example: "User A metabolizes fast; set threshold to >0.8 kg/week"
+
+**Phase 3 Timeline: Weeks 8-12 (After Pattern Confirmation)**
+
+Prerequisite: 8 weeks of data showing consistent patterns
+
+**Phase 3 Goals:**
+1. **Implement Confidence-Dependent Bounds**
+   - Week 1: ±100 kcal (very conservative)
+   - Weeks 2-3: ±150 kcal (moderate)
+   - Week 4+: ±300 kcal (full bounds)
+   - Reason: Early weeks lack data; later weeks have proven consistency
+
+2. **Enable Macro Personalization**
+   - Current: Recommend all users follow ISSN guidelines (1.6-3.1 g/kg protein)
+   - Proposed: Use learned `protein_sensitivity_g_per_kg` for custom targets
+   - Example: If user thrives on 2.5g/kg, recommend that instead
+
+3. **Activate Learning Profile Influence**
+   - Meal plans automatically incorporate learned preferences
+   - Adjustment recommendations respect discovered macro sensitivities
+   - Red flags use personalized thresholds
+
+**Transition from Phase to Phase:**
+1. **Phase 1→2**: Analyze metrics → Make decisions → Update constants in code
+2. **Phase 2→3**: Confirm patterns persist → Implement more complex logic
+3. **Phase 3→Production**: Run parallel tests (MVP bounds vs. new bounds) → Choose best performer
+
+**Detailed Roadmap Document:**
+See `/4_Pydantic_AI_Agent/ADJUSTMENT_BOUNDS_OPTIMIZATION.md` for:
+- 3 optimization options with trade-offs
+- Metrics to track for each phase
+- Decision flowchart for Phase 2
+- Timeline and ownership assignments
+
+**Key Metrics to Track Now (Phase 1):**
+```python
+# In weekly_feedback table, track these to inform Phase 2:
+
+# 1. Bound Saturation
+cap_hit_rate = count(abs(adjustment) >= 290) / total_weeks
+# If >30%: bounds too conservative → increase to 350
+# If <5%: bounds too loose → decrease to 250
+
+# 2. Weight Change Rate (by goal)
+avg_loss_rate = mean([abs(w['weight_change_kg']) for w in past_8_weeks])
+# For weight_loss: target -0.3 to -0.7 kg/week
+# For muscle_gain: target +0.2 to +0.5 kg/week
+# For maintenance: target -0.5 to +0.5 kg/week
+
+# 3. Adherence by Adjustment Size
+small_adjustments = [w for w in weeks if abs(adjustment) < 150]
+large_adjustments = [w for w in weeks if abs(adjustment) >= 250]
+# Compare adherence: do larger adjustments help or hurt?
+
+# 4. Red Flag Frequency by Goal
+red_flags_by_goal = {
+    "weight_loss": count(...),
+    "muscle_gain": count(...),
+    "maintenance": count(...)
+}
+# If muscle_gain has >50% red flag rate: bounds too aggressive
+```
 
 ---
 

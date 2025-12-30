@@ -8,6 +8,13 @@ References:
     Adaptive Thermogenesis: Fothergill et al. (2016)
     Helms et al. (2014): Body composition changes in resistance training
     ISSN Position Stand (2017): Macronutrient recommendations
+
+IMPORTANT - Adjustment Bounds Design Philosophy (MVP):
+    These bounds (MAX_CALORIE_ADJUSTMENT, MAX_PROTEIN_ADJUSTMENT_G, etc.) are
+    DESIGN CHOICES, not direct recommendations from scientific literature.
+
+    The bounds were chosen based on principles FROM those sources but are subject
+    to optimization in future versions. See ADJUSTMENT_BOUNDS_RATIONALE below.
 """
 
 import logging
@@ -46,6 +53,50 @@ MIN_WEEKS_FOR_METABOLIC_CONFIDENCE = 4
 MIN_CONSISTENCY_FOR_PATTERN = 3  # Pattern must repeat 3+ times to be reliable
 
 # Macro adjustment bounds (safety constraints)
+#
+# ADJUSTMENT_BOUNDS_RATIONALE:
+# ============================
+# These bounds are DESIGN CHOICES optimized for MVP (single-user, 4-week learning phase).
+# They are NOT directly from scientific literature but informed by these principles:
+#
+# 1. MAX_CALORIE_ADJUSTMENT = 300 kcal
+#    Rationale:
+#    - ~10% of typical 3000 kcal daily intake → feels sustainable, not shocking
+#    - Avoids triggering strong metabolic adaptation (Fothergill et al. 2016)
+#    - Allows habit formation (behavioral change literature: 2-4 weeks to adapt)
+#    - Enables pattern detection over 4 weeks (±300 kcal = slower detection than ±500)
+#    - Current user (individual) can sustain small changes; larger changes risk dropout
+#
+#    Potential future optimization (Phase 2):
+#    - Make goal-specific: weight_loss=±350, muscle_gain=±200, maintenance=±100
+#    - Make confidence-dependent: week1=±100, week4+=±300
+#    - Basis: Helms et al. (2014) shows muscle gain goals need tighter adherence
+#
+# 2. MAX_PROTEIN_ADJUSTMENT_G = 30
+#    Rationale:
+#    - ISSN (2017) recommends 1.6-3.1g/kg; 30g = ~0.35g/kg for 87kg user
+#    - Small enough to avoid digestive stress, large enough to address hunger
+#    - Satiety effect of protein is dose-dependent; 20-30g increments are validated
+#
+# 3. MAX_CARB_ADJUSTMENT_G = 50
+#    Rationale:
+#    - 50g carbs = ~200 kcal; moderate carb shift for energy/workout timing
+#    - Allows pre-workout carb timing without overloading
+#    - Individual carb sensitivity varies (Helms et al. 2014); 50g allows tuning
+#
+# 4. MAX_FAT_ADJUSTMENT_G = 15
+#    Rationale:
+#    - Fat is most satiating macro (9 kcal/g); small adjustments have large effect
+#    - 15g = 135 kcal; enough to address cravings, not enough to dominate adjustment
+#    - Prevents "fat loading" which can impair carb absorption
+#
+# NEXT STEPS FOR OPTIMIZATION:
+# 1. After 4 weeks real user data: Analyze if 300 kcal limit is appropriate
+# 2. Check: Do users hit the 300 kcal cap frequently? If yes, consider increasing
+# 3. Check: Do users struggle with small adjustments? If yes, consider increasing
+# 4. Check: Do users lose weight too fast? If yes, decrease to 250 kcal
+# 5. Implement goal-specific bounds based on findings (see Phase 2 above)
+#
 MAX_CALORIE_ADJUSTMENT = 300  # Don't suggest more than ±300 kcal at once
 MAX_PROTEIN_ADJUSTMENT_G = 30  # Don't suggest >±30g protein at once
 MAX_CARB_ADJUSTMENT_G = 50  # Don't suggest >±50g carbs at once

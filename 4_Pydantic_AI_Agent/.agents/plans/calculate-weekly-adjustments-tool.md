@@ -395,6 +395,154 @@ def validate_feedback_metrics(feedback: dict) -> dict:
 
 ---
 
+## Cold Start & Edge Case Scenarios
+
+### Week 1: Single Data Point (Insufficient for Patterns)
+
+**Challenge**: First week has no historical data; cannot detect metabolic adaptation or patterns
+
+**Handling Strategy**:
+1. **Skip pattern detection** - Don't report "detected patterns" when history is empty
+2. **Low confidence baseline** - Set confidence = 0.5 (single data point)
+3. **Generic recommendations** - Use rule-based only, no LLM refinement (insufficient context)
+4. **Store everything** - Save week 1 feedback for future pattern detection
+5. **Educate user** - "This is our first week of data! Recommendations will become more personalized after 3-4 weeks"
+
+**Example Response (Week 1)**:
+```json
+{
+    "status": "success",
+    "analysis": {
+        "note": "First week! Not enough data for pattern detection yet",
+        "weight_trend": {
+            "change_kg": -0.6,
+            "assessment": "Within normal range for muscle gain phase"
+        }
+    },
+    "adjustments": {
+        "suggested": {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0},
+        "rationale": ["Maintain current plan - one week is too early to adjust"]
+    },
+    "confidence_level": 0.5,
+    "recommendations": [
+        "Your weight change is healthy! Let's keep consistency",
+        "After 3-4 weeks of data, I'll have enough to detect your unique patterns"
+    ]
+}
+```
+
+### Weeks 2-3: Early Data (Low Confidence)
+
+**Challenge**: Some history but patterns may be noise
+
+**Handling Strategy**:
+1. **Conservative adjustments** - Only suggest changes if trend is strong (e.g., -0.8 kg/week vs. target -0.5)
+2. **Reduce bounds** - Use ±150 kcal instead of ±300 (safety first)
+3. **Highlight variance** - "Could be normal fluctuation; more data needed"
+4. **Red flags still apply** - If rapid loss >1kg appears once, mention it but don't demand action
+5. **Learning profile null** - Don't store learned patterns; too early
+
+**Confidence Calculation (Weeks 2-3)**:
+```python
+confidence = 0.5 + (weeks_of_data - 1) * 0.1  # 0.6 week 2, 0.7 week 3
+# (Increases by 0.1 each week until week 4)
+```
+
+### Week 4+: Pattern Confidence Achieved
+
+**Challenge**: Now have enough data, but which patterns are real vs. noise?
+
+**Handling Strategy**:
+1. **Pattern detection activated** - Start detecting metabolic adaptation, adherence triggers, macro sensitivity
+2. **Full confidence scoring** - Use actual complexity calculation (see CLAUDE.md section 8.5)
+3. **LLM refinement enabled** - Enough context to call GPT for personalization
+4. **Learning profile updates** - Begin storing discovered patterns
+5. **Larger bounds allowed** - Use full ±300 kcal as user has proven consistency
+
+**Pattern Detection Thresholds (for Week 4+)**:
+```python
+# Only call something a pattern if it repeats 2+ times
+# or correlates with multiple weeks of data
+PATTERN_MIN_REPETITIONS = 2
+PATTERN_MIN_CORRELATION = 0.6  # 60%+ of weeks show same signal
+
+# Example: "Friday energy drop" only flagged if Friday low energy in 2+ of last 3 weeks
+```
+
+### Edge Case: No Profile Found
+
+**Scenario**: User tries synthesis but hasn't completed profile setup
+
+**Handling**:
+```python
+try:
+    profile = supabase.table("my_profile").select("*").limit(1).execute()
+    if not profile.data:
+        return {
+            "error": "Please complete your profile first",
+            "code": "PROFILE_NOT_FOUND",
+            "next_step": "Go to Settings → Profile and fill in: age, gender, weight, height, activity level, goal"
+        }
+except Exception as e:
+    logger.error(f"Profile fetch failed: {e}")
+    return {
+        "error": "Unable to fetch profile",
+        "code": "PROFILE_FETCH_ERROR",
+        "contact": "Support: support@ai-nutrition.app"
+    }
+```
+
+### Edge Case: Insufficient Feedback (Missing Required Fields)
+
+**Scenario**: User provides only weight but not adherence
+
+**Handling**:
+```python
+# Validate early in tool execution
+required_fields = ["weight_start_kg", "weight_end_kg", "adherence_percent"]
+missing = [f for f in required_fields if not feedback.get(f)]
+
+if missing:
+    return {
+        "error": f"Need your {', '.join(missing)} to analyze the week",
+        "code": "INCOMPLETE_FEEDBACK",
+        "provided_fields": list(feedback.keys()),
+        "missing_fields": missing,
+        "hint": "Example: 'Started at 87kg, ended at 86.4kg, followed plan 85% of the time'"
+    }
+```
+
+### Edge Case: Extreme Weight Changes
+
+**Scenario**: User reports -3kg weight loss in one week (physiologically impossible without harm)
+
+**Handling**:
+```python
+# Safety check before processing
+weight_change = weight_end_kg - weight_start_kg
+if abs(weight_change) > 2.0:
+    # Not an error, but escalate caution
+    logger.warning(f"🚨 Extreme weight change: {weight_change}kg in 1 week")
+
+    red_flags.append({
+        "flag_type": "physiological_impossibility",
+        "severity": "critical",
+        "description": f"Weight change of {weight_change}kg in 7 days is unusual",
+        "possible_causes": [
+            "Measurement error (scale malfunction, different time of day)",
+            "Severe dehydration (risk!)",
+            "Eating disorder behavior (risk!)"
+        ],
+        "action": "Please double-check your measurements. If accurate, consult a doctor.",
+        "skip_recommendations": True  # Don't suggest adjustments
+    })
+
+    # Still store data but flag for human review
+    # Return analysis but emphasize caution
+```
+
+---
+
 ## IMPLEMENTATION PLAN
 
 ### Phase 1: Database Foundation
@@ -1312,6 +1460,127 @@ python -c "from agent import agent; print('✅ Agent loads with new tool')"
 
 **PATTERN**: Mirror existing workflow instructions (e.g., "Première Interaction" section in prompt.py)
 
+#### System Prompt Design: 5-Step Weekly Synthesis Workflow
+
+The weekly synthesis workflow is the **core pattern** that transforms the agent from prescriptive to adaptive. Design the system prompt to guide the agent through these 5 sequential steps:
+
+**Step 1: Recognize End-of-Week Signal** (Agent Responsibility)
+```python
+# Agent should listen for:
+# - User mentions "end of week", "this week is over", "how did I do"
+# - Recurring timing (every Saturday if established pattern)
+# - Explicit user request: "Let's do the weekly check-in"
+
+# Agent should NOT push synthesis too early or too often
+# Bad: Offer synthesis on day 3 of the week
+# Good: Offer synthesis on day 6-7 of the week only
+
+# Prompt example:
+"""If the user indicates the week has ended or asks for reflection, suggest:
+"Shall we review how this week went? I'd like to understand your experience
+so I can adjust next week's plan better. I'll ask about weight, how you felt,
+and how well you stuck to the plan."
+"""
+```
+
+**Step 2: Collect Data Conversationally** (Agent + Tool)
+```python
+# Agent collects 5 required metrics through natural conversation:
+# 1. Weight start (kg) - "What was your weight at the start of the week?"
+# 2. Weight end (kg) - "And what's your weight now?"
+# 3. Adherence (%) - "About what percentage of the plan did you follow? 70%? 85%?"
+# 4. Hunger level - "How hungry did you feel? Let's say low, medium, or high"
+# 5. Energy level - "And your energy throughout the week? Low, medium, or high?"
+
+# Additional data (optional but encouraged):
+# - Sleep quality - "How was your sleep?"
+# - Cravings - "Any particular cravings this week?"
+# - Notes - "Anything else about the week?"
+
+# Prompt example:
+"""Ask these questions conversationally, not as a form:
+✅ Good: "You mentioned starting at 87kg—what's the number now?"
+✅ Good: "How would you rate your energy this week? High, medium, or low?"
+❌ Bad: "Weight Start: ___, Weight End: ___, Adherence: ___%"
+
+Listen to everything the user says. Extract numeric data implicitly.
+If something is unclear, ask one follow-up question to clarify.
+If user seems resistant to sharing, don't push—proceed with what you have.
+"""
+```
+
+**Step 3: Call `calculate_weekly_adjustments` Tool** (System)
+```python
+# Once enough data collected (must have weight_start, weight_end, adherence),
+# call tool with explicit values:
+
+# Tool call format:
+calculate_weekly_adjustments(
+    weight_start_kg=87.0,           # Required
+    weight_end_kg=86.4,             # Required
+    adherence_percent=85,           # Required
+    hunger_level="medium",          # Optional, default "medium"
+    energy_level="high",            # Optional, default "medium"
+    sleep_quality="good",           # Optional, default "good"
+    cravings=["chocolate"],         # Optional
+    notes="Felt strong, Friday challenging"  # Optional
+)
+
+# Tool returns JSON with:
+# - analysis: weight trend, metabolic signals
+# - adjustments: suggested calorie/macro changes
+# - red_flags: list of concerns (if any)
+# - confidence_level: 0.3-1.0 reliability score
+# - recommendations: actionable tips
+```
+
+**Step 4: Present Results Warmly & Scientifically** (Agent Responsibility)
+```python
+# After tool returns, present findings using this pattern:
+
+# 1. Celebrate what went well (always start positive):
+"Your weight change is EXACTLY what we aimed for! -0.6kg is perfect for muscle gain."
+
+# 2. Explain the science (use sources from tool response):
+"ISSN research shows hunger typically decreases with 15-20g extra protein. Since you mentioned feeling hungry, let's try adding 20g protein next week."
+
+# 3. Show confidence level as credibility signal:
+"I'm about 75% confident in these adjustments because I have 3 weeks of your data now."
+
+# 4. Ask for user buy-in:
+"Does this make sense? Want to try these changes next week?"
+
+# 5. If red flags present, address first (safety > adjustments):
+"I noticed something that needs attention: your weight loss was 1.2kg, which is faster than ideal. Let's reduce your deficit by 150 kcal to protect muscle and prevent burnout. OK?"
+
+# Prompt example:
+"""Always present results in this order:
+1. Positive: "You did well with X"
+2. Analysis: "Here's what the numbers show"
+3. Confidence: "I'm X% sure about this"
+4. Scientific basis: "Research shows..."
+5. Ask for approval: "Make sense?"
+6. Red flags: "One thing to watch: ..."
+"""
+```
+
+**Step 5: Prepare for Next Meal Plan Generation** (System)
+```python
+# After synthesis is complete and user approves adjustments,
+# the learning profile is automatically updated.
+
+# When user next asks "Generate meal plan for next week":
+# 1. Query learning_profile for discovered patterns
+# 2. Incorporate patterns into meal plan prompt
+# 3. Generate meal plan that respects macro adjustments + learned preferences
+
+# Prompt example:
+"""After synthesis is complete, you can say:
+"Great! Your learning profile is updated. Ready for next week's meal plan?
+I'll adjust for the macro changes and remember what worked for you this week."
+"""
+```
+
 **ADD TO SYSTEM PROMPT**:
 ```python
 AGENT_SYSTEM_PROMPT = """
@@ -1325,48 +1594,58 @@ AGENT_SYSTEM_PROMPT = """
 - Before generating next week's meal plan
 - Scheduled: Once per week at consistent time if user agrees
 
-### How to Collect Feedback
-1. Ask conversational questions (don't require structured input):
-   - "Comment s'est passée ta semaine?" (Weight? Hunger? Energy?)
-   - Listen for implicit signals throughout conversation
-   - Parse what user mentions naturally
+### How to Collect Feedback (5 Steps)
+**Step 1: Recognize the moment**
+- User says "week is over", "how'd I do", or "time for check-in"
+- Offer warmly: "Shall we review this week? It'll help me personalize next week."
 
-2. If data incomplete, ask follow-up questions:
-   - "Tu mentions une pesée de 86.4kg... et au début de semaine?"
-   - "L'énergie comment ça a été?"
-   - Never force structured forms - keep conversational
+**Step 2: Ask conversationally** (don't form-fill)
+- "What's your weight now compared to start of week?"
+- "How did you feel energy-wise?"
+- "Roughly what % of the plan did you follow?"
+- Listen for: hunger, sleep, mood, cravings mentioned in conversation
 
-3. Call `calculate_weekly_adjustments` with explicit data:
-   ```
-   calculate_weekly_adjustments(
-     weight_start_kg=87.0,
-     weight_end_kg=86.4,
-     adherence_percent=85,
-     hunger_level="medium",
-     energy_level="high",
-     sleep_quality="good",
-     notes="Felt strong all week, Friday was challenging"
-   )
-   ```
+**Step 3: Collect optional context**
+- Sleep quality: "How did you sleep?"
+- Cravings: "Any particular cravings this week?"
+- Notes: "Anything else I should know?"
 
-### After Synthesis
-1. Present findings warmly and scientifically
-2. Highlight positive progress ("Your -0.6kg loss is EXACTLY what we aimed for!")
-3. Explain adjustments with science ("ISSN research shows 20g protein helps with satiety")
-4. Ask user: "Does this make sense for next week?"
-5. After approval, recommendations auto-apply to profile
-6. Before generating next meal plan: "Ready for next week's plan with these adjustments?"
+**Step 4: Call `calculate_weekly_adjustments` with explicit data**
+```
+calculate_weekly_adjustments(
+  weight_start_kg=87.0,
+  weight_end_kg=86.4,
+  adherence_percent=85,
+  hunger_level="medium",
+  energy_level="high",
+  sleep_quality="good",
+  cravings=["chocolate"],
+  notes="Felt strong all week, Friday was challenging"
+)
+```
 
-### Red Flags
-If `calculate_weekly_adjustments` returns red_flags:
+**Step 5: Present results warmly**
+1. Celebrate: "Your loss is exactly on target!"
+2. Explain: "Based on ISSN research, let's add 20g protein because..."
+3. Show confidence: "I'm 80% sure because of X weeks data"
+4. Ask approval: "Make sense for next week?"
+5. Address red flags first: "One thing: rapid loss detected. Here's why..."
+
+### Handling Red Flags
+If tool returns red_flags:
 - Acknowledge immediately with empathy
 - Explain mechanism (not judgment)
-- Offer support: "Let's simplify the plan" or "Let's add support"
+- Offer support: "Let's simplify the plan" or "Let's reduce deficit"
 - Example:
-  🚨 I notice rapid weight loss (-1.2kg this week). This might signal:
-  - Deficit too aggressive (risks muscle loss)
+  🚨 I notice rapid weight loss (-1.2kg this week). Here's why this matters:
+  - Risk of muscle loss (you're in muscle gain phase)
   - Possible metabolic slowdown
-  - Let's reduce by 150 kcal and monitor. Deal?
+  Solution: Let's reduce by 150 kcal and monitor. Deal?
+
+### After Approval
+- Recommendations auto-apply to profile
+- Learning profile updated with patterns
+- When generating next meal plan: "Ready for next week's plan with these adjustments?"
 """
 ```
 
@@ -1375,7 +1654,7 @@ If `calculate_weekly_adjustments` returns red_flags:
 **VALIDATE**:
 ```bash
 # No direct validation needed (prompt is read at runtime)
-# Test by running Streamlit UI and observing agent behavior
+# Test by running Streamlit UI and observing agent behavior through all 5 steps
 ```
 
 ---
@@ -1579,6 +1858,144 @@ grep -i "error\|exception" /path/to/streamlit_logs
 ---
 
 ## TESTING STRATEGY
+
+### Test Failure Triage Protocol
+
+**When a test fails during development, follow this protocol to quickly identify the root cause:**
+
+#### Step 1: Categorize the Failure Type
+
+Run the failing test with verbose output:
+```bash
+pytest tests/test_adjustments.py::test_name -v --tb=short
+```
+
+**Failure Categories**:
+
+| Failure Type | Symptoms | Root Cause |
+|---|---|---|
+| **Assertion Error** | `AssertionError: 0.5 != 0.75` | Logic bug in implementation |
+| **Type Error** | `TypeError: list expected, got str` | Function signature mismatch |
+| **Value Error** | `ValueError: Age must be between...` | Input validation failed |
+| **Import Error** | `ModuleNotFoundError: No module named 'nutrition.adjustments'` | File not created or misnamed |
+| **Async Error** | `RuntimeError: no running event loop` | Missing `@pytest.mark.asyncio` or `await` |
+| **Database Error** | `ProgrammingError: relation "weekly_feedback" does not exist` | Schema not migrated |
+
+#### Step 2: Verify Test vs. Implementation
+
+**If Assertion Error:**
+```python
+# Check: Does the test expectation match the spec?
+# Example: plan says "confidence should increase 0.1 per week"
+# Test expects: 0.6 (week 2), 0.7 (week 3)
+# Implementation returns: 0.5 (baseline) - BUG!
+
+# Fix in implementation:
+confidence = 0.5 + (weeks_of_data - 1) * 0.1
+```
+
+**If Type Error:**
+```python
+# Check: Does function signature match docstring?
+# Docstring says: def function(weight_list: list[float]) -> float
+# Implementation has: def function(weight_list: str) -> float - BUG!
+
+# Fix: Change parameter type to list[float]
+```
+
+**If Import Error:**
+```python
+# Check: File exists with correct name
+ls -la 4_Pydantic_AI_Agent/nutrition/adjustments.py
+
+# Check: No syntax errors preventing import
+python -m py_compile 4_Pydantic_AI_Agent/nutrition/adjustments.py
+```
+
+#### Step 3: Distinguish Between Test Bug vs. Code Bug
+
+**Is it a code bug?**
+- Test expectation matches specification ✅ → Fix code
+- Docstring says X, function does Y ✅ → Fix code
+- Safety constraint violated (e.g., >300 kcal suggested) ✅ → Fix code
+
+**Is it a test bug?**
+- Test expectation doesn't match specification ❌ → Fix test
+- Docstring says "approximately", test expects exact match ❌ → Fix test (use `pytest.approx()`)
+- Test setup is incomplete (mock not configured) ❌ → Fix test
+
+**If unclear**, check against this decision tree:
+```
+Does the failing test check critical safety logic (red flags, bounds)?
+  → YES: Fix code (safety first)
+
+Does the specification explicitly say the feature should work this way?
+  → YES: Fix code
+
+Is the test checking edge case behavior not in spec?
+  → YES: Fix test (test is over-specified)
+
+Is the test using outdated mock data?
+  → YES: Fix test (update mock)
+```
+
+#### Step 4: Fix and Re-Run
+
+**If fixing code:**
+```bash
+# 1. Edit implementation
+vim 4_Pydantic_AI_Agent/nutrition/adjustments.py
+
+# 2. Check syntax
+python -m py_compile 4_Pydantic_AI_Agent/nutrition/adjustments.py
+
+# 3. Re-run specific test
+pytest tests/test_adjustments.py::test_name -v
+
+# 4. If fixed, run full suite
+pytest tests/ -v
+```
+
+**If fixing test:**
+```bash
+# 1. Edit test
+vim tests/test_adjustments.py
+
+# 2. Re-run test
+pytest tests/test_adjustments.py::test_name -v
+
+# 3. If fixed, document the fix comment
+# Example: "Changed from exact match to pytest.approx() because..."
+```
+
+#### Step 5: Prevent Future Failures
+
+**Add debugging output if fix wasn't obvious:**
+```python
+def test_something():
+    result = analyze_weight_trend(87.0, 86.4, "muscle_gain")
+
+    # Add print for debugging (pytest -s to see output)
+    print(f"Result: {result}")
+    print(f"Trend: {result['trend']}")
+    print(f"Confidence: {result['confidence']}")
+
+    assert result["trend"] == "stable", f"Got {result['trend']}, expected 'stable'"
+```
+
+**Update test docstring to clarify edge case:**
+```python
+def test_weight_trend_near_boundary():
+    """Test weight change near ±0.5kg boundary.
+
+    This tests that confidence doesn't drop below 0.5 even for boundary cases.
+    Boundary: ±0.5kg is threshold between "stable" and "slow".
+    """
+    result = analyze_weight_trend(87.0, 86.5, "muscle_gain")
+    assert result["trend"] in ["stable", "slow"]  # Both acceptable at boundary
+```
+
+---
 
 ### Unit Tests
 
@@ -2150,3 +2567,45 @@ This order minimizes dependencies and allows early validation of each layer.
 - Run 4-week real-world trial with actual feedback data
 - Monitor red flag accuracy and learning profile convergence
 - Deploy to production with confidence
+
+---
+
+## Plan Template Completeness Checklist
+
+**Purpose:** Ensure this plan is comprehensive enough that future implementations using this template won't need separate validation/review commands.
+
+**Has This Plan Covered?**
+
+- [ ] **Context & Research** - All relevant code patterns documented (lines 88-167)
+- [ ] **Cold Start Strategy** - How to handle Week 1, Weeks 2-3, Week 4+ progressions (Section: Cold Start & Edge Cases)
+- [ ] **Edge Cases** - Documented responses for no profile, incomplete feedback, extreme values
+- [ ] **Test Failure Protocol** - Step-by-step triage to identify test vs. code bugs (Testing Strategy → Test Failure Triage)
+- [ ] **Error Handling Patterns** - Try/catch/finally with clear error responses (Patterns to Follow → Error Handling)
+- [ ] **Database Schema** - Full table specs with column descriptions and constraints (Step-by-step tasks)
+- [ ] **System Prompt Design** - 5-step workflow with examples (UPDATE prompt.py section)
+- [ ] **Integration Points** - How tool connects to meal planning, agent, learning profile
+- [ ] **Type Hints** - All function signatures with full typing (Patterns to Follow)
+- [ ] **Docstring Examples** - Real usage examples for each function
+- [ ] **Logging Strategy** - What to log, where, with what context (Patterns to Follow → Logging)
+- [ ] **Testing Strategy** - Unit tests, integration tests, edge cases, parametrized tests (TESTING STRATEGY section)
+- [ ] **Validation Commands** - Tier 1 (required) and Tier 2 (recommended) with exact commands
+- [ ] **Performance Baseline** - Expected query times, tool execution times (Performance Analysis)
+- [ ] **Production Readiness Assessment** - Security, monitoring, documentation checklist
+- [ ] **Acceptance Criteria** - Clear definition of "done" (ACCEPTANCE CRITERIA section)
+- [ ] **Completion Checklist** - Step-by-step verification tasks (COMPLETION CHECKLIST section)
+- [ ] **Known Limitations** - MVP trade-offs documented (NOTES → Known Limitations)
+- [ ] **Future Enhancements** - Phase 2-3 roadmap referenced (NOTES → Future Enhancements)
+- [ ] **Architecture Rationale** - Why design decisions were made (NOTES → Architectural Design)
+- [ ] **Confidence Scoring** - Clear confidence estimate with mitigation strategies
+- [ ] **High-Risk Areas** - Validated with specific tests before implementation (TESTING STRATEGY)
+
+**Result:** ✅ This plan is comprehensive. It can be executed without requiring additional validation commands if:
+
+1. Implementer follows sections in order
+2. Each phase is validated immediately after (not batched)
+3. Test failures are triaged using the protocol in Testing Strategy
+4. Edge cases from Cold Start section are handled before Phase 2
+5. System prompt 5-step workflow is implemented exactly as specified
+
+**For Future Plans:**
+When creating a new plan, ensure it covers the 21 items above. If any are missing, the plan is incomplete and WILL benefit from a separate review/validation command. If all 21 are covered with concrete details (not vague descriptions), the implementation can proceed without additional planning overhead.
