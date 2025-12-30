@@ -142,13 +142,16 @@ with col1:
         value=87.0,
         step=0.1
     )
-    adherence = st.slider(
-        "Adhérence au plan (%)",
-        min_value=0,
-        max_value=100,
-        value=85,
-        step=5
+    days_followed = st.slider(
+        "Jours suivis (sur 7)",
+        min_value=1,
+        max_value=7,
+        value=6,
+        step=1,
+        help="Nombre de jours où vous avez suivi votre plan nutritionnel"
     )
+    # Calculate adherence percentage from days followed
+    adherence = int((days_followed / 7) * 100)
 
 with col2:
     st.subheader("Ressenti")
@@ -170,11 +173,18 @@ with col2:
 
 # Additional fields
 st.subheader("Détails")
-cravings = st.multiselect(
-    "Envies (si applicables)",
-    options=["chocolate", "sweets", "carbs", "fat", "salty"],
-    default=[]
-)
+
+# Show cravings only if hunger is high
+if hunger == "high":
+    cravings = st.multiselect(
+        "Envies (si applicables)",
+        options=["chocolate", "sweets", "carbs", "fat", "salty"],
+        default=[],
+        help="Quels types d'aliments avez-vous particulièrement envie de manger?"
+    )
+else:
+    cravings = []  # Empty list if hunger is not high
+
 notes = st.text_area(
     "Notes personnelles",
     placeholder="Comment s'est passée votre semaine? Y a-t-il eu des défis?",
@@ -189,7 +199,7 @@ if st.button("📈 Analyser ma semaine", type="primary"):
 Mesures:
 - Poids début: {weight_start}kg
 - Poids fin: {weight_end}kg
-- Adhérence: {adherence}%
+- Jours suivis: {days_followed}/7 jours (adhérence estimée: {adherence}%)
 
 Ressenti:
 - Faim: {hunger}
@@ -207,7 +217,7 @@ Donne-moi une analyse détaillée avec des ajustements personnalisés."""
     # Display user message
     with st.chat_message("user"):
         st.markdown("📊 **Vérification Hebdomadaire Soumise**")
-        st.markdown(f"Poids: {weight_start}kg → {weight_end}kg | Adhérence: {adherence}%")
+        st.markdown(f"Poids: {weight_start}kg → {weight_end}kg | Jours suivis: {days_followed}/7 ({adherence}%)")
 
     # Get agent response
     with st.chat_message("assistant"):
