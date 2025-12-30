@@ -181,7 +181,15 @@ def analyze_weight_trend(
     # Note: For weight_loss, min_target is -0.7 and max_target is -0.3
     # So weight_change_kg between -0.7 and -0.3 is good
     min_target, max_target = target_range
-    if min_target <= weight_change_kg <= max_target:
+
+    # Special case: near-zero weight change is "stable" regardless of goal
+    # This handles normal weekly fluctuations (measurement error, hydration, etc.)
+    if abs(weight_change_kg) < 0.1:
+        trend = "stable"
+        is_optimal = False
+        assessment = f"No significant change this week ({weight_change_kg:+.1f}kg). This is normal variance - focus on the trend over 4 weeks."
+        confidence = CONFIDENCE_PATTERN_DETECTED
+    elif min_target <= weight_change_kg <= max_target:
         trend = "stable"
         is_optimal = abs(weight_change_kg - optimal) < 0.1
         if is_optimal:
@@ -703,16 +711,29 @@ def detect_red_flags(
 
     # Flag 3: Energy crash
     energy = current_week.get("energy_level", "medium")
-    if energy == "low" and len(past_weeks) > 0:
-        recent_energy = [w.get("energy_level") == "low" for w in past_weeks[-2:]]
-        if sum(recent_energy) >= RED_FLAG_ENERGY_CRASH_WEEKS - 1:
+    if energy == "low":
+        if len(past_weeks) > 0:
+            # Have historical data: check if low energy persists across weeks
+            recent_energy = [w.get("energy_level") == "low" for w in past_weeks[-2:]]
+            if sum(recent_energy) >= RED_FLAG_ENERGY_CRASH_WEEKS - 1:
+                flags.append(
+                    {
+                        "flag_type": "energy_crash",
+                        "severity": "warning",
+                        "description": f"Low energy for {RED_FLAG_ENERGY_CRASH_WEEKS}+ weeks; affects training and recovery",
+                        "action": "Check carbs (especially pre-workout), increase sleep, check stress levels",
+                        "scientific_basis": "Persistent low energy may indicate insufficient carbs or need for refeed day",
+                    }
+                )
+        else:
+            # Week 1: flag low energy as warning (no history to confirm pattern yet)
             flags.append(
                 {
                     "flag_type": "energy_crash",
                     "severity": "warning",
-                    "description": f"Low energy for {RED_FLAG_ENERGY_CRASH_WEEKS}+ weeks; affects training and recovery",
-                    "action": "Check carbs (especially pre-workout), increase sleep, check stress levels",
-                    "scientific_basis": "Persistent low energy may indicate insufficient carbs or need for refeed day",
+                    "description": "Low energy reported in week 1; monitor if this continues",
+                    "action": "Check carbs timing, sleep quality, and stress levels. If persists next week, we'll adjust",
+                    "scientific_basis": "Low energy in early stages may indicate underfueling or lifestyle factors",
                 }
             )
 
