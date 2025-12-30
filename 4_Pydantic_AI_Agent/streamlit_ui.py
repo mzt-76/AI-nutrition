@@ -45,6 +45,119 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# Image upload for body composition analysis
+st.markdown("---")
+col_upload, col_info = st.columns([3, 1])
+
+with col_upload:
+    uploaded_image = st.file_uploader(
+        "📸 Joindre une photo pour analyse de composition corporelle",
+        type=["png", "jpg", "jpeg"],
+        help="Upload une photo de profil (torse visible) pour une estimation du taux de masse grasse"
+    )
+
+with col_info:
+    if uploaded_image:
+        st.success("Photo chargée ✓")
+
+# Process uploaded image
+if uploaded_image is not None:
+    # Display the uploaded image
+    st.image(uploaded_image, caption="Photo uploadée", width=400)
+
+    if st.button("🔍 Analyser la composition corporelle", type="primary"):
+        # Add user message about image analysis
+        analysis_prompt = "Analyse ma composition corporelle à partir de cette photo. Donne-moi une estimation du taux de masse grasse et des conseils."
+        st.session_state.messages.append({"role": "user", "content": analysis_prompt})
+
+        # Display user message
+        with st.chat_message("user"):
+            st.markdown("📸 **Photo soumise pour analyse de composition corporelle**")
+            st.image(uploaded_image, width=300)
+
+        # Get agent response with image
+        with st.chat_message("assistant"):
+            with st.spinner("🔍 Analyse de la composition corporelle en cours..."):
+                try:
+                    # Initialize mem0 client
+                    memory = initialize_mem0()
+                    user_id = st.session_state.user_id
+
+                    # Create agent deps
+                    agent_deps = create_agent_deps()
+
+                    # Convert image to base64 data URI
+                    from PIL import Image
+                    import io
+                    import base64
+
+                    # Read and convert image
+                    image = Image.open(uploaded_image)
+                    # Convert to RGB if needed (remove alpha channel)
+                    if image.mode in ('RGBA', 'LA', 'P'):
+                        image = image.convert('RGB')
+
+                    buffered = io.BytesIO()
+                    image.save(buffered, format="JPEG")
+                    img_bytes = buffered.getvalue()
+                    img_base64 = base64.b64encode(img_bytes).decode()
+
+                    # Create data URI for the image
+                    image_data_uri = f"data:image/jpeg;base64,{img_base64}"
+
+                    # Import the image analysis tool
+                    from tools import image_analysis_tool
+                    from clients import get_openai_client
+
+                    # Create analysis query
+                    analysis_query = """Analyse cette photo pour estimer la composition corporelle.
+
+Instructions:
+- Estime le taux de masse grasse (donne une fourchette, ex: 15-18%)
+- Explique les indicateurs visuels que tu utilises (définition musculaire, vascularisation, etc.)
+- Donne des conseils constructifs et encourageants
+- Rappelle les limites de l'estimation visuelle
+- Suggère DEXA/impédancemétrie pour plus de précision
+
+Sois professionnel, bienveillant et scientifique. Réponds en français."""
+
+                    # Run image analysis
+                    async def get_response():
+                        openai_client = get_openai_client()
+                        result = await image_analysis_tool(
+                            image_url=image_data_uri,
+                            query=analysis_query,
+                            openai_client=openai_client
+                        )
+                        return result
+
+                    # Execute async function
+                    response = asyncio.run(get_response())
+
+                    # Display response
+                    st.markdown(response)
+
+                    # Add to chat history
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": response
+                    })
+
+                    # Save to memory
+                    logger.info("Saving body composition analysis to memory...")
+                    memory_messages = [{"role": "user", "content": "Photo de composition corporelle analysée"}]
+                    memory.add(memory_messages, user_id=user_id)
+
+                    # Clear the uploaded image after processing
+                    st.rerun()
+
+                except Exception as e:
+                    error_msg = f"❌ Erreur lors de l'analyse: {str(e)}"
+                    st.error(error_msg)
+                    logger.error(f"Image analysis error: {e}", exc_info=True)
+
+st.markdown("---")
+
 # Chat input
 if prompt := st.chat_input("Pose ta question nutritionnelle..."):
     # Add user message to chat history
