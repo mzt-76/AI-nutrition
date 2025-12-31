@@ -583,7 +583,7 @@ async def image_analysis_tool(
                     ],
                 }
             ],
-            max_tokens=500,
+            max_tokens=1500,  # Increased for complete analysis
         )
 
         result = response.choices[0].message.content
@@ -747,7 +747,7 @@ async def generate_weekly_meal_plan_tool(
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
             temperature=0.7,
-            max_tokens=4000,
+            max_tokens=12000,  # Increased for full 7-day plans with detailed recipes
         )
 
         meal_plan_json = json.loads(response.choices[0].message.content)
@@ -765,6 +765,19 @@ async def generate_weekly_meal_plan_tool(
                     "error": "Generated meal plan has invalid structure",
                     "code": "STRUCTURE_ERROR",
                     "details": structure_validation,
+                }
+            )
+
+        # Step 8.5: CRITICAL - Validate 7 days were generated
+        days_generated = len(meal_plan_json.get("days", []))
+        if days_generated < 7:
+            logger.error(f"🚨 Incomplete meal plan: only {days_generated}/7 days generated")
+            return json.dumps(
+                {
+                    "error": f"Meal plan must have exactly 7 days, but only {days_generated} were generated",
+                    "code": "INCOMPLETE_PLAN",
+                    "days_generated": days_generated,
+                    "instruction": "Please generate ALL 7 days as requested"
                 }
             )
 

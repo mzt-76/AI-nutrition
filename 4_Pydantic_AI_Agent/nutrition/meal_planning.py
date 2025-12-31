@@ -78,15 +78,26 @@ def build_meal_plan_prompt(
         True
     """
     # Extract profile data with safe defaults
-    allergies_str = ", ".join(profile.get("allergies", [])) or "AUCUNE"
-    disliked_str = ", ".join(profile.get("disliked_foods", [])) or "Aucun"
-    favorites_str = ", ".join(profile.get("favorite_foods", [])) or "Aucun"
-    cuisines_str = ", ".join(profile.get("preferred_cuisines", [])) or "Toutes"
+    # Ensure all list fields are actually lists (handle None, strings, etc.)
+    def ensure_list(value):
+        """Convert value to list if it's not already one."""
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return value
+        if isinstance(value, str):
+            return [value] if value else []
+        return []
 
-    calories = profile.get("target_calories", 2500)
-    protein = profile.get("target_protein_g", 150)
-    carbs = profile.get("target_carbs_g", 300)
-    fat = profile.get("target_fat_g", 80)
+    allergies_str = ", ".join(ensure_list(profile.get("allergies"))) or "AUCUNE"
+    disliked_str = ", ".join(ensure_list(profile.get("disliked_foods"))) or "Aucun"
+    favorites_str = ", ".join(ensure_list(profile.get("favorite_foods"))) or "Aucun"
+    cuisines_str = ", ".join(ensure_list(profile.get("preferred_cuisines"))) or "Toutes"
+
+    calories = profile.get("target_calories") or 2500
+    protein = profile.get("target_protein_g") or 150
+    carbs = profile.get("target_carbs_g") or 300
+    fat = profile.get("target_fat_g") or 80
 
     max_prep_time = profile.get("max_prep_time", 60)
     diet_type = profile.get("diet_type", "omnivore")
@@ -111,12 +122,51 @@ def build_meal_plan_prompt(
         ][day_dt.weekday()]
         days_of_week.append(f"{day_name} {day_dt.strftime('%Y-%m-%d')}")
 
+    # Build allergen details with explicit examples
+    allergen_details = []
+    allergen_mapping = {
+        "arachides": {
+            "avoid": ["arachide", "cacahuète", "beurre de cacahuète", "huile d'arachide"],
+            "safe_alt": ["beurre de tournesol", "beurre de soja"]
+        },
+        "fruits à coque": {
+            "avoid": ["amande", "noix", "noisette", "cajou", "pistache", "noix de pécan",
+                      "noix de macadamia", "noix du brésil", "lait d'amande", "beurre d'amande"],
+            "safe_alt": ["lait d'avoine", "lait de soja", "lait de riz"]
+        },
+        "lait": {
+            "avoid": ["lait", "yaourt", "fromage", "beurre", "crème", "lactosérum", "caséine"],
+            "safe_alt": ["lait d'avoine", "lait de soja", "yaourt végétal"]
+        },
+        "œufs": {
+            "avoid": ["œuf", "blanc d'œuf", "jaune d'œuf", "mayonnaise"],
+            "safe_alt": ["graines de lin moulues", "compote de pomme"]
+        }
+    }
+
+    if allergies_str != "AUCUNE":
+        user_allergens = [a.strip().lower() for a in allergies_str.split(",")]
+        for allergen in user_allergens:
+            if allergen in allergen_mapping:
+                details = allergen_mapping[allergen]
+                avoid_list = ", ".join(details["avoid"])
+                safe_list = ", ".join(details["safe_alt"])
+                allergen_details.append(
+                    f"  • {allergen.upper()}: ÉVITER ABSOLUMENT [{avoid_list}]\n"
+                    f"    ✅ Alternatives sûres: {safe_list}"
+                )
+
+    allergen_section = "\n".join(allergen_details) if allergen_details else "AUCUNE allergie"
+
     prompt = f"""Tu es un nutritionniste expert créant un plan de repas personnalisé pour 7 jours.
 
 🚨🚨🚨 CONTRAINTE CRITIQUE - ALLERGIES 🚨🚨🚨
 ALLERGIES DE L'UTILISATEUR : {allergies_str}
-CES ALLERGIES DOIVENT ÊTRE ABSOLUMENT ÉVITÉES - TOLÉRANCE ZÉRO
-NE JAMAIS inclure : {allergies_str} ni AUCUN aliment de leur famille
+{allergen_section}
+
+⚠️ TOLÉRANCE ZÉRO - Si tu utilises LAIT D'AMANDE, BEURRE D'AMANDE ou tout ingrédient contenant
+"amande", "noix", "cajou", etc., le plan sera REJETÉ. Utilise uniquement les alternatives sûres listées.
+
 Vérifie CHAQUE ingrédient avant de l'inclure dans une recette
 
 ═══════════════════════════════════════════════════════════════
@@ -160,17 +210,98 @@ INSTRUCTIONS DE GÉNÉRATION :
 2. CHAQUE recette doit inclure :
    - Nom de la recette (créatif et appétissant)
    - Liste complète des ingrédients avec quantités précises (en grammes de préférence)
-   - Instructions de préparation étape par étape
+   - Instructions de préparation (1 seule chaîne de texte, séparer les étapes par des points)
    - Informations nutritionnelles PRÉCISES (calories, protéines, glucides, lipides)
-3. ÉQUILIBRE les macros pour atteindre les cibles quotidiennes (±10% tolérance)
-4. VARIE les recettes (pas de répétitions exactes sur la semaine)
-5. RESPECTE le temps de préparation maximum
-6. ADAPTE au type de régime ({diet_type})
-7. 🚨 VÉRIFIE chaque ingrédient contre les allergies : {allergies_str}
+
+3. 🎯 MACROS OBLIGATOIRES (NON-NÉGOCIABLE) :
+   - Chaque jour DOIT atteindre : {calories} kcal (±5% MAX, pas ±10%)
+   - Protéines : {protein}g ±5% MAX (CRITIQUE pour prise de muscle - PRIORITÉ ABSOLUE)
+   - Glucides : {carbs}g ±10% MAX
+   - Lipides : {fat}g ±10% MAX
+
+   🚨🚨🚨 INSTRUCTION CRITIQUE - PROTÉINES 🚨🚨🚨
+   Pour atteindre {protein}g de protéines, utilise CETTE RÉPARTITION EXACTE :
+
+   RÉPARTITION PROTÉINES OBLIGATOIRE PAR REPAS :
+   ┌─────────────────┬──────────────┬───────────────────────────────┐
+   │ Repas           │ Protéines    │ Sources recommandées          │
+   ├─────────────────┼──────────────┼───────────────────────────────┤
+   │ Petit-déjeuner  │ 35-40g       │ Œufs (3-4) + yaourt grec 0%   │
+   │ Collation 1     │ 25-30g       │ Shaker protéine + banane      │
+   │ Déjeuner        │ 45-50g       │ Poulet 200g / Poisson 250g    │
+   │ Collation 2     │ 25-30g       │ Fromage blanc 200g + fruits   │
+   │ Dîner           │ 40-45g       │ Viande 200g / Poisson 250g    │
+   └─────────────────┴──────────────┴───────────────────────────────┘
+   TOTAL MINIMUM : 170g (donne marge de sécurité pour {protein}g cible)
+
+   **ALIMENTS RICHES EN PROTÉINES (utilise massivement) :**
+   - Poulet : 30g protéines / 100g
+   - Poisson blanc : 25g protéines / 100g
+   - Œufs : 6g protéines / œuf (utilise 3-4 par petit-déjeuner)
+   - Yaourt grec 0% : 10g protéines / 100g
+   - Fromage blanc 0% : 8g protéines / 100g
+   - Poudre protéine : 25g protéines / dose (AJOUTE si besoin)
+
+   **VÉRIFICATION FINALE AVANT DE GÉNÉRER LE JSON :**
+   1. ADDITIONNE les protéines : petit-déj + coll1 + déj + coll2 + dîner
+   2. Si total < {protein}g → AJOUTE shaker protéiné (25g) à une collation
+   3. Si total > {protein}g + 10% → RÉDUIS portions de viande
+   4. ÉCRIS le total dans daily_totals.protein_g
+   5. VÉRIFIE que daily_totals.protein_g est entre {int(protein * 0.95)}g et {int(protein * 1.05)}g
+
+4. 🎯 CALORIES OBLIGATOIRES : {calories} kcal/jour (±5% MAX)
+
+   RÉPARTITION CALORIES PAR REPAS :
+   - Petit-déjeuner : ~{int(calories * 0.20)} kcal (20%)
+   - Collation 1 : ~{int(calories * 0.10)} kcal (10%)
+   - Déjeuner : ~{int(calories * 0.35)} kcal (35%)
+   - Collation 2 : ~{int(calories * 0.10)} kcal (10%)
+   - Dîner : ~{int(calories * 0.25)} kcal (25%)
+
+   **VÉRIFICATION CALORIES FINALE :**
+   - ADDITIONNE : petit-déj + coll1 + déj + coll2 + dîner
+   - VÉRIFIE que daily_totals.calories est entre {int(calories * 0.95)} et {int(calories * 1.05)} kcal
+   - Si trop bas → AUGMENTE portions de glucides (riz, pâtes, pain)
+   - Si trop haut → RÉDUIS lipides (huile, fromage, avocat)
+
+5. VARIE les recettes (pas de répétitions exactes sur la semaine)
+6. RESPECTE le temps de préparation maximum
+7. ADAPTE au type de régime ({diet_type})
+8. 🚨 VÉRIFIE chaque ingrédient contre les allergies : {allergies_str}
+
+═══════════════════════════════════════════════════════════════
+
+🚨🚨🚨 VÉRIFICATION FINALE OBLIGATOIRE AVANT GÉNÉRATION 🚨🚨🚨
+
+AVANT de générer le JSON, pour CHAQUE jour, vérifie :
+
+✅ CHECKLIST MACROS (CRITIQUE) :
+   □ daily_totals.calories entre {int(calories * 0.95)} et {int(calories * 1.05)} kcal ?
+   □ daily_totals.protein_g entre {int(protein * 0.95)} et {int(protein * 1.05)}g ?
+   □ daily_totals.carbs_g entre {int(carbs * 0.90)} et {int(carbs * 1.10)}g ?
+   □ daily_totals.fat_g entre {int(fat * 0.90)} et {int(fat * 1.10)}g ?
+
+✅ CHECKLIST SÉCURITÉ :
+   □ AUCUN ingrédient avec allergènes : {allergies_str} ?
+   □ AUCUN aliment détesté : {disliked_str} ?
+
+✅ CHECKLIST QUALITÉ :
+   □ 5 repas définis (petit-déj, coll1, déj, coll2, dîner) ?
+   □ Chaque recette a nom, ingrédients, instructions, nutrition ?
+   □ 7 jours complets (pas de "...") ?
+
+Si UNE SEULE case n'est pas cochée → AJUSTE le plan avant de générer le JSON.
 
 ═══════════════════════════════════════════════════════════════
 
 FORMAT JSON REQUIS (STRUCTURE EXACTE) :
+
+⚠️ RÈGLES JSON CRITIQUES :
+- PAS de commentaires (//) dans le JSON
+- Utilise des guillemets doubles (") partout
+- Échappe les apostrophes dans le texte : utilise "l apostrophe" au lieu de "l'apostrophe"
+- Instructions en 1 seule chaîne de texte (pas de tableau)
+- GÉNÈRE LES 7 JOURS COMPLETS (pas de "...")
 
 {{
   "meal_plan_id": "plan_{start_date}",
@@ -190,27 +321,24 @@ FORMAT JSON REQUIS (STRUCTURE EXACTE) :
         {{
           "meal_type": "Petit-déjeuner",
           "time": "07:30",
-          "recipe_name": "Nom de la recette",
+          "recipe_name": "Omelette aux épinards et toast avocat",
           "servings": 1,
           "prep_time_min": 15,
           "ingredients": [
-            {{"name": "nom_ingredient", "quantity": 100, "unit": "g"}},
-            {{"name": "autre_ingredient", "quantity": 2, "unit": "pièces"}}
+            {{"name": "oeufs", "quantity": 3, "unit": "pièces"}},
+            {{"name": "épinards frais", "quantity": 50, "unit": "g"}},
+            {{"name": "pain complet", "quantity": 60, "unit": "g"}},
+            {{"name": "avocat", "quantity": 80, "unit": "g"}}
           ],
-          "instructions": [
-            "Étape 1 de préparation...",
-            "Étape 2 de préparation...",
-            "Étape 3 de préparation..."
-          ],
+          "instructions": "Battre les oeufs. Faire revenir les épinards dans une poêle. Ajouter les oeufs battus et cuire en omelette. Griller le pain et étaler l avocat. Servir ensemble.",
           "nutrition": {{
-            "calories": 420,
+            "calories": 520,
             "protein_g": 28,
-            "carbs_g": 35,
-            "fat_g": 18
+            "carbs_g": 45,
+            "fat_g": 24
           }},
           "tags": ["protéiné", "rapide", "petit-déjeuner"]
         }}
-        // ... autres repas du jour (selon la structure {meal_structure})
       ],
       "daily_totals": {{
         "calories": {calories},
@@ -219,19 +347,25 @@ FORMAT JSON REQUIS (STRUCTURE EXACTE) :
         "fat_g": {fat}
       }}
     }}
-    // ... 6 autres jours (du {days_of_week[0]} au {days_of_week[6]})
   ],
   "weekly_summary": {{
     "total_unique_recipes": 21,
     "avg_prep_time_min": 35,
-    "allergen_check": "PASSED - Aucun allergène détecté : {allergies_str}",
-    "adherence_tips": [
-      "Conseil pratique 1 pour suivre le plan",
-      "Conseil pratique 2 pour la préparation",
-      "Conseil pratique 3 pour l'organisation"
-    ]
+    "allergen_check": "PASSED",
+    "adherence_tips": "Préparer les ingrédients à l avance. Varier les sources de protéines. Ajuster les portions si nécessaire."
   }}
 }}
+
+🚨🚨🚨 INSTRUCTION CRITIQUE 🚨🚨🚨
+TU DOIS GÉNÉRER EXACTEMENT 7 JOURS COMPLETS DANS LE TABLEAU "days".
+- NE génère PAS seulement 1 ou 2 jours
+- NE mets PAS de "..." ou commentaires
+- CHAQUE jour doit avoir sa propre structure complète avec tous les repas
+- Si tu ne génères pas les 7 jours, ta réponse sera REJETÉE
+
+Les 7 jours sont : {", ".join(days_of_week)}
+
+COMMENCE MAINTENANT avec le Jour 1 ({days_of_week[0]}) et CONTINUE jusqu'au Jour 7 ({days_of_week[6]}).
 
 ═══════════════════════════════════════════════════════════════
 
