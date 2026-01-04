@@ -109,8 +109,16 @@ if uploaded_image is not None:
                     from tools import image_analysis_tool
                     from clients import get_openai_client
 
-                    # Create analysis query
-                    analysis_query = """Analyse cette photo pour estimer la composition corporelle.
+                    # Load improved analysis prompt
+                    from pathlib import Path
+                    prompt_path = Path(__file__).parent / "prompts" / "body_composition_analysis.txt"
+
+                    if prompt_path.exists():
+                        with open(prompt_path, 'r', encoding='utf-8') as f:
+                            analysis_query = f.read()
+                    else:
+                        # Fallback to basic prompt
+                        analysis_query = """Analyse cette photo pour estimer la composition corporelle.
 
 Instructions:
 - Estime le taux de masse grasse (donne une fourchette, ex: 15-18%)

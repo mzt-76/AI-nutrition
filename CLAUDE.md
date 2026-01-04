@@ -3,6 +3,8 @@
 **Stack:** Python 3.11+ | Pydantic AI | React 18 | TypeScript 5 | Supabase
 **Status:** Module 4 - Python Backend Development
 
+**⚠️ IMPORTANT:** Avant de modifier du code, lire `.claude/reference/dependency-safety-rules.md` pour éviter les breaking changes.
+
 ---
 
 ## 1. Core Principles

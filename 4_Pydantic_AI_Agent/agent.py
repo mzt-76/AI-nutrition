@@ -11,7 +11,7 @@ This module creates and configures the Pydantic AI agent with:
 
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.openai import OpenAIChatModel
 from dataclasses import dataclass
 from pathlib import Path
 from dotenv import load_dotenv
@@ -55,7 +55,7 @@ def get_model():
     Get configured LLM model from environment variables.
 
     Returns:
-        OpenAIModel: Configured model instance
+        OpenAIChatModel: Configured model instance
 
     Environment Variables:
         LLM_CHOICE: Model name (default: gpt-4o-mini)
@@ -71,7 +71,7 @@ def get_model():
 
     logger.info(f"Initializing LLM: {llm} at {base_url}")
 
-    return OpenAIModel(llm, provider=OpenAIProvider(base_url=base_url, api_key=api_key))
+    return OpenAIChatModel(llm, provider=OpenAIProvider(base_url=base_url, api_key=api_key))
 
 
 @dataclass

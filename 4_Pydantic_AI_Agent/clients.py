@@ -28,6 +28,30 @@ dotenv_path = project_root / '.env'
 load_dotenv(dotenv_path, override=True)
 
 
+def get_openai_client() -> AsyncOpenAI:
+    """
+    Create and return an async OpenAI client for general use (chat, vision, etc.).
+
+    Returns:
+        AsyncOpenAI: Configured OpenAI client
+
+    Raises:
+        ValueError: If LLM_API_KEY is not set
+    """
+    api_key = os.getenv('LLM_API_KEY')
+    base_url = os.getenv('LLM_BASE_URL', 'https://api.openai.com/v1')
+
+    if not api_key:
+        raise ValueError("LLM_API_KEY not found in environment variables")
+
+    logger.info(f"Initializing OpenAI client with base_url: {base_url}")
+
+    return AsyncOpenAI(
+        api_key=api_key,
+        base_url=base_url
+    )
+
+
 def get_embedding_client() -> AsyncOpenAI:
     """
     Create and return an async OpenAI client for embeddings.

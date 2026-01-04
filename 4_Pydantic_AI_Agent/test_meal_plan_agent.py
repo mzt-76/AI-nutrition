@@ -32,7 +32,7 @@ Utilise mon profil avec:
     try:
         result = await agent.run(prompt, deps=deps)
 
-        output = result.output
+        output = result.data
 
         print("\n" + "=" * 70)
         print("✅ AGENT RESPONSE:")
