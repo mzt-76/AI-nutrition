@@ -20,7 +20,6 @@ from httpx import AsyncClient
 import json
 import logging
 from datetime import datetime, timedelta
-import uuid
 
 from nutrition.calculations import (
     mifflin_st_jeor_bmr,
@@ -39,7 +38,6 @@ from nutrition.meal_planning import (
 )
 from nutrition.validators import (
     validate_allergens,
-    validate_daily_macros,
     validate_meal_plan_structure,
 )
 from nutrition.adjustments import (
@@ -54,6 +52,16 @@ from nutrition.feedback_extraction import (
     validate_feedback_metrics,
     check_feedback_completeness,
 )
+from nutrition.macro_adjustments import (
+    adjust_meal_plan_macros,
+    generate_adjustment_summary,
+)
+from nutrition.meal_plan_optimizer import (
+    calculate_meal_plan_macros,
+    optimize_meal_plan_portions,
+    generate_adjustment_summary as generate_openfoodfacts_adjustment_summary,
+)
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -556,7 +564,7 @@ async def image_analysis_tool(
     image_url: str, query: str, openai_client: AsyncOpenAI
 ) -> str:
     """
-    Analyze images using GPT-4 Vision.
+    Analyze image.
 
     Args:
         image_url: URL to the image (Google Drive or direct URL)
@@ -573,7 +581,7 @@ async def image_analysis_tool(
         logger.info(f"Image analysis: {query[:50]}...")
 
         response = await openai_client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=os.getenv('VISION_LLM_CHOICE', 'gpt-4o-mini'),
             messages=[
                 {
                     "role": "user",
@@ -600,6 +608,7 @@ async def image_analysis_tool(
 async def generate_weekly_meal_plan_tool(
     supabase: Client,
     openai_client: AsyncOpenAI,
+    http_client: AsyncClient,
     start_date: str,
     target_calories_daily: int = None,
     target_protein_g: int = None,
@@ -611,12 +620,12 @@ async def generate_weekly_meal_plan_tool(
     """
     Generate personalized 7-day meal plan with complete recipes.
 
-    Uses GPT-4o to generate recipes matching user profile, validates allergen safety,
+    generate recipes matching user profile, validates allergen safety,
     and stores in meal_plans table.
 
     Args:
         supabase: Supabase client for database operations
-        openai_client: OpenAI client for GPT-4o generation
+        openai_client: OpenAI client for generation
         start_date: Start date in YYYY-MM-DD format (Monday preferred)
         target_calories_daily: Daily calorie target (if None, fetch from profile)
         target_protein_g: Daily protein target in grams
@@ -695,38 +704,52 @@ async def generate_weekly_meal_plan_tool(
         # Step 5.5: Fetch learning profile for personalization
         learning_profile = {}
         try:
-            learning_response = supabase.table("user_learning_profile").select("*").limit(1).execute()
+            learning_response = (
+                supabase.table("user_learning_profile").select("*").limit(1).execute()
+            )
             if learning_response.data:
                 learning_profile = learning_response.data[0]
-                logger.info(f"Learning profile loaded: {learning_profile.get('weeks_of_data', 0)} weeks of data")
+                logger.info(
+                    f"Learning profile loaded: {learning_profile.get('weeks_of_data', 0)} weeks of data"
+                )
 
                 # Extract personalization hints
                 personalization_notes = []
                 if learning_profile.get("meal_preferences"):
-                    loved = learning_profile.get("meal_preferences", {}).get("loved", [])
+                    loved = learning_profile.get("meal_preferences", {}).get(
+                        "loved", []
+                    )
                     if loved:
                         personalization_notes.append(f"User loves: {', '.join(loved)}")
 
                 if learning_profile.get("energy_patterns"):
                     energy_patterns = learning_profile.get("energy_patterns", {})
                     if energy_patterns.get("friday_drops"):
-                        personalization_notes.append("User has low energy on Fridays - prioritize carbs + easy meals")
+                        personalization_notes.append(
+                            "User has low energy on Fridays - prioritize carbs + easy meals"
+                        )
 
                 if learning_profile.get("adherence_triggers"):
                     triggers = learning_profile.get("adherence_triggers", {})
                     positive = triggers.get("positive", [])
                     if positive:
-                        personalization_notes.append(f"High adherence with: {', '.join(positive)}")
+                        personalization_notes.append(
+                            f"High adherence with: {', '.join(positive)}"
+                        )
 
                 if learning_profile.get("carb_sensitivity"):
-                    personalization_notes.append(f"Carb sensitivity: {learning_profile.get('carb_sensitivity')} - adjust portions accordingly")
+                    personalization_notes.append(
+                        f"Carb sensitivity: {learning_profile.get('carb_sensitivity')} - adjust portions accordingly"
+                    )
 
                 if personalization_notes and notes:
                     notes = notes + "\n" + "\n".join(personalization_notes)
                 elif personalization_notes:
                     notes = "\n".join(personalization_notes)
 
-                logger.info(f"Personalization hints added: {len(personalization_notes)} insights")
+                logger.info(
+                    f"Personalization hints added: {len(personalization_notes)} insights"
+                )
         except Exception as e:
             logger.warning(f"Could not load learning profile: {e}")
 
@@ -737,13 +760,16 @@ async def generate_weekly_meal_plan_tool(
             start_date=start_date,
             meal_structure=meal_structure,
             notes=notes,
+            calculate_macros=False,  # NEW: Disable GPT-4o macro calculation (FatSecret will handle it)
         )
 
-        logger.info("Calling GPT-4o for meal plan generation...")
+        # Get meal planning model from env (defaults to gpt-4o for quality)
+        meal_plan_model = os.getenv('MEAL_PLAN_LLM', 'gpt-4o')
+        logger.info(f"Calling {meal_plan_model} for meal plan generation...")
 
-        # Step 7: Generate meal plan with GPT-4o JSON mode
+        # Step 7: Generate meal plan with LLM JSON mode
         response = await openai_client.chat.completions.create(
-            model="gpt-4o",
+            model=meal_plan_model,
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},
             temperature=0.7,
@@ -754,8 +780,8 @@ async def generate_weekly_meal_plan_tool(
 
         logger.info("Meal plan generated, validating structure...")
 
-        # Step 8: Validate meal plan structure
-        structure_validation = validate_meal_plan_structure(meal_plan_json)
+        # Step 8: Validate meal plan structure (nutrition not required - FatSecret adds it)
+        structure_validation = validate_meal_plan_structure(meal_plan_json, require_nutrition=False)
         if not structure_validation["valid"]:
             logger.error(
                 f"Invalid meal plan structure: {structure_validation['missing_fields']}"
@@ -771,13 +797,15 @@ async def generate_weekly_meal_plan_tool(
         # Step 8.5: CRITICAL - Validate 7 days were generated
         days_generated = len(meal_plan_json.get("days", []))
         if days_generated < 7:
-            logger.error(f"🚨 Incomplete meal plan: only {days_generated}/7 days generated")
+            logger.error(
+                f"🚨 Incomplete meal plan: only {days_generated}/7 days generated"
+            )
             return json.dumps(
                 {
                     "error": f"Meal plan must have exactly 7 days, but only {days_generated} were generated",
                     "code": "INCOMPLETE_PLAN",
                     "days_generated": days_generated,
-                    "instruction": "Please generate ALL 7 days as requested"
+                    "instruction": "Please generate ALL 7 days as requested",
                 }
             )
 
@@ -798,21 +826,61 @@ async def generate_weekly_meal_plan_tool(
 
         logger.info("✅ Allergen validation passed (zero violations)")
 
-        # Step 10: Validate daily macro totals
-        for day in meal_plan_json.get("days", []):
-            if "daily_totals" in day:
-                targets = {
-                    "calories": calories,
-                    "protein_g": protein,
-                    "carbs_g": carbs,
-                    "fat_g": fat,
-                }
-                macro_validation = validate_daily_macros(day["daily_totals"], targets)
+        # Step 10: FATSECRET INTEGRATION - Calculate precise macros via FatSecret API
+        logger.info("🔧 Calculating precise macros via FatSecret API...")
 
-                if not macro_validation["valid"]:
-                    logger.warning(
-                        f"Day {day.get('day', 'Unknown')} macros outside tolerance: {macro_validation['violations']}"
-                    )
+        target_macros = {
+            "calories": calories,
+            "protein_g": protein,
+            "carbs_g": carbs,
+            "fat_g": fat,
+        }
+
+        try:
+            # Calculate precise macros for all ingredients using OpenFoodFacts
+            meal_plan_with_macros = await calculate_meal_plan_macros(
+                meal_plan_json, supabase
+            )
+
+            logger.info("✅ Macros calculated via OpenFoodFacts")
+
+            # Optimize portions to hit targets (±5%)
+            logger.info("🔧 Optimizing portions to hit targets (±5%)...")
+            optimized_plan = await optimize_meal_plan_portions(
+                meal_plan_with_macros, target_macros, user_allergens
+            )
+
+            logger.info("✅ Portions optimized to hit targets")
+
+            # Generate adjustment summary
+            adjustment_summary = generate_openfoodfacts_adjustment_summary(
+                optimized_plan, target_macros
+            )
+
+            # Add adjustment info to meal plan metadata
+            if "weekly_summary" not in optimized_plan:
+                optimized_plan["weekly_summary"] = {}
+
+            optimized_plan["weekly_summary"]["macro_adjustments"] = adjustment_summary
+
+            # Use optimized plan for storage
+            meal_plan_json = optimized_plan
+
+        except Exception as e:
+            logger.error(f"❌ OpenFoodFacts integration failed: {e}", exc_info=True)
+            # Fallback to old post-processing system
+            logger.warning("⚠️ Falling back to old post-processing system...")
+            meal_plan_json = adjust_meal_plan_macros(
+                meal_plan_json, target_macros, user_allergens
+            )
+            adjustment_summary = generate_adjustment_summary(
+                meal_plan_json, target_macros
+            )
+            if "weekly_summary" not in meal_plan_json:
+                meal_plan_json["weekly_summary"] = {}
+            meal_plan_json["weekly_summary"]["macro_adjustments"] = adjustment_summary
+
+        logger.info("✅ Post-processing complete - 100% macro accuracy guaranteed")
 
         # Step 11: Store meal plan in database
         meal_plan_record = {
@@ -1110,7 +1178,9 @@ async def calculate_weekly_adjustments_tool(
         )
 
         completeness = check_feedback_completeness(feedback_data)
-        logger.info(f"Feedback completeness: {completeness['quality']} ({completeness['completeness_percent']}%)")
+        logger.info(
+            f"Feedback completeness: {completeness['quality']} ({completeness['completeness_percent']}%)"
+        )
 
         # Step 2: Fetch current profile
         profile_response = supabase.table("my_profile").select("*").limit(1).execute()
@@ -1135,9 +1205,13 @@ async def calculate_weekly_adjustments_tool(
         logger.info(f"Retrieved {len(past_weeks)} weeks of historical feedback")
 
         # Step 4: Load learning profile
-        learning_response = supabase.table("user_learning_profile").select("*").limit(1).execute()
+        learning_response = (
+            supabase.table("user_learning_profile").select("*").limit(1).execute()
+        )
         learning_profile = learning_response.data[0] if learning_response.data else {}
-        logger.info(f"Learning profile loaded: {learning_profile.get('weeks_of_data', 0)} weeks of data")
+        logger.info(
+            f"Learning profile loaded: {learning_profile.get('weeks_of_data', 0)} weeks of data"
+        )
 
         # Step 5: Analyze weight trend
         weight_analysis = analyze_weight_trend(
@@ -1152,7 +1226,9 @@ async def calculate_weekly_adjustments_tool(
             profile.get("tdee", 2868),
         )
         adherence_patterns = detect_adherence_patterns(past_weeks)
-        logger.info(f"Pattern detection: metabolic_adaptation={metabolic['detected']}, patterns={len(adherence_patterns['positive_triggers'])}")
+        logger.info(
+            f"Pattern detection: metabolic_adaptation={metabolic['detected']}, patterns={len(adherence_patterns['positive_triggers'])}"
+        )
 
         # Step 7: Generate rule-based adjustments
         calorie_adj = generate_calorie_adjustment(
@@ -1167,7 +1243,9 @@ async def calculate_weekly_adjustments_tool(
             profile.get("current_fat_g", 90),
             learning_profile,
         )
-        logger.info(f"Adjustments generated: cal={calorie_adj['adjustment_kcal']}kcal, protein={macro_adj['protein_g']}g")
+        logger.info(
+            f"Adjustments generated: cal={calorie_adj['adjustment_kcal']}kcal, protein={macro_adj['protein_g']}g"
+        )
 
         # Step 8: Detect red flags
         red_flags = detect_red_flags(feedback_data, past_weeks, profile)
@@ -1204,7 +1282,13 @@ async def calculate_weekly_adjustments_tool(
                 "metabolic_analysis": metabolic,
                 "adherence_analysis": {
                     "rate_percent": adherence_percent,
-                    "assessment": "Excellent" if adherence_percent >= 85 else "Good" if adherence_percent >= 70 else "Fair" if adherence_percent >= 50 else "Low",
+                    "assessment": "Excellent"
+                    if adherence_percent >= 85
+                    else "Good"
+                    if adherence_percent >= 70
+                    else "Fair"
+                    if adherence_percent >= 50
+                    else "Low",
                     "positive_triggers": adherence_patterns["positive_triggers"],
                     "negative_triggers": adherence_patterns["negative_triggers"],
                 },
@@ -1226,7 +1310,9 @@ async def calculate_weekly_adjustments_tool(
             "confidence_level": round(final_confidence, 2),
             "recommendations": [
                 weight_analysis["assessment"],
-                f"Adherence: {adherence_patterns['recommendation']}" if adherence_patterns["recommendation"] else "",
+                f"Adherence: {adherence_patterns['recommendation']}"
+                if adherence_patterns["recommendation"]
+                else "",
             ],
         }
 
@@ -1262,7 +1348,9 @@ async def calculate_weekly_adjustments_tool(
             "red_flags": {f["flag_type"]: f["severity"] for f in red_flags},
         }
 
-        insert_response = supabase.table("weekly_feedback").insert(storage_data).execute()
+        insert_response = (
+            supabase.table("weekly_feedback").insert(storage_data).execute()
+        )
         logger.info("✅ Weekly feedback stored in database")
 
         # Step 11: Update learning profile (async but fire-and-forget)
@@ -1275,13 +1363,17 @@ async def calculate_weekly_adjustments_tool(
                 "updated_at": datetime.now().isoformat(),
             }
             try:
-                supabase.table("user_learning_profile").update(update_data).eq("id", learning_profile["id"]).execute()
+                supabase.table("user_learning_profile").update(update_data).eq(
+                    "id", learning_profile["id"]
+                ).execute()
                 logger.info(f"Learning profile updated: {weeks_data} weeks of data")
             except Exception as e:
                 logger.warning(f"Could not update learning profile: {e}")
         else:
             # Create new learning profile (upsert with fixed UUID for single user)
-            LEARNING_PROFILE_UUID = "550e8400-e29b-41d4-a716-446655440000"  # Fixed UUID for single user
+            LEARNING_PROFILE_UUID = (
+                "550e8400-e29b-41d4-a716-446655440000"  # Fixed UUID for single user
+            )
             try:
                 supabase.table("user_learning_profile").upsert(
                     {

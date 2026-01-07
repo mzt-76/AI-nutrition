@@ -11,7 +11,7 @@ This module creates and configures the Pydantic AI agent with:
 
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.models.openai import OpenAIModel
 from dataclasses import dataclass
 from pathlib import Path
 from dotenv import load_dotenv
@@ -55,7 +55,7 @@ def get_model():
     Get configured LLM model from environment variables.
 
     Returns:
-        OpenAIChatModel: Configured model instance
+        OpenAIModel: Configured model instance
 
     Environment Variables:
         LLM_CHOICE: Model name (default: gpt-4o-mini)
@@ -71,7 +71,7 @@ def get_model():
 
     logger.info(f"Initializing LLM: {llm} at {base_url}")
 
-    return OpenAIChatModel(llm, provider=OpenAIProvider(base_url=base_url, api_key=api_key))
+    return OpenAIModel(llm, provider=OpenAIProvider(base_url=base_url, api_key=api_key))
 
 
 @dataclass
@@ -369,6 +369,7 @@ async def generate_weekly_meal_plan(
     return await generate_weekly_meal_plan_tool(
         ctx.deps.supabase,
         ctx.deps.embedding_client,
+        ctx.deps.http_client,
         start_date,
         target_calories_daily,
         target_protein_g,

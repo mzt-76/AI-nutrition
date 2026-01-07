@@ -245,12 +245,13 @@ def validate_daily_macros(
     return {"valid": valid, "violations": violations}
 
 
-def validate_meal_plan_structure(meal_plan: dict) -> dict:
+def validate_meal_plan_structure(meal_plan: dict, require_nutrition: bool = True) -> dict:
     """
     Validate meal plan has required JSON structure.
 
     Args:
         meal_plan: Generated meal plan dict
+        require_nutrition: Whether nutrition fields are required (False when using FatSecret)
 
     Returns:
         Dict with {"valid": bool, "missing_fields": list[str]}
@@ -299,8 +300,11 @@ def validate_meal_plan_structure(meal_plan: dict) -> dict:
                     "meal_type",
                     "recipe_name",
                     "ingredients",
-                    "nutrition",
                 ]
+
+                # nutrition is optional when using FatSecret (added after generation)
+                if require_nutrition:
+                    required_meal_fields.append("nutrition")
 
                 for field in required_meal_fields:
                     if field not in meal:

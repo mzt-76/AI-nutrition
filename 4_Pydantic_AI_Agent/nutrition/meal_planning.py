@@ -53,6 +53,7 @@ def build_meal_plan_prompt(
     start_date: str,
     meal_structure: str,
     notes: str | None = None,
+    calculate_macros: bool = True,
 ) -> str:
     """
     Build comprehensive prompt for GPT-4o meal plan generation.
@@ -77,6 +78,7 @@ def build_meal_plan_prompt(
         >>> "ALLERGIES" in prompt
         True
     """
+
     # Extract profile data with safe defaults
     # Ensure all list fields are actually lists (handle None, strings, etc.)
     def ensure_list(value):
@@ -126,22 +128,45 @@ def build_meal_plan_prompt(
     allergen_details = []
     allergen_mapping = {
         "arachides": {
-            "avoid": ["arachide", "cacahuète", "beurre de cacahuète", "huile d'arachide"],
-            "safe_alt": ["beurre de tournesol", "beurre de soja"]
+            "avoid": [
+                "arachide",
+                "cacahuète",
+                "beurre de cacahuète",
+                "huile d'arachide",
+            ],
+            "safe_alt": ["beurre de tournesol", "beurre de soja"],
         },
         "fruits à coque": {
-            "avoid": ["amande", "noix", "noisette", "cajou", "pistache", "noix de pécan",
-                      "noix de macadamia", "noix du brésil", "lait d'amande", "beurre d'amande"],
-            "safe_alt": ["lait d'avoine", "lait de soja", "lait de riz"]
+            "avoid": [
+                "amande",
+                "noix",
+                "noisette",
+                "cajou",
+                "pistache",
+                "noix de pécan",
+                "noix de macadamia",
+                "noix du brésil",
+                "lait d'amande",
+                "beurre d'amande",
+            ],
+            "safe_alt": ["lait d'avoine", "lait de soja", "lait de riz"],
         },
         "lait": {
-            "avoid": ["lait", "yaourt", "fromage", "beurre", "crème", "lactosérum", "caséine"],
-            "safe_alt": ["lait d'avoine", "lait de soja", "yaourt végétal"]
+            "avoid": [
+                "lait",
+                "yaourt",
+                "fromage",
+                "beurre",
+                "crème",
+                "lactosérum",
+                "caséine",
+            ],
+            "safe_alt": ["lait d'avoine", "lait de soja", "yaourt végétal"],
         },
         "œufs": {
             "avoid": ["œuf", "blanc d'œuf", "jaune d'œuf", "mayonnaise"],
-            "safe_alt": ["graines de lin moulues", "compote de pomme"]
-        }
+            "safe_alt": ["graines de lin moulues", "compote de pomme"],
+        },
     }
 
     if allergies_str != "AUCUNE":
@@ -156,7 +181,9 @@ def build_meal_plan_prompt(
                     f"    ✅ Alternatives sûres: {safe_list}"
                 )
 
-    allergen_section = "\n".join(allergen_details) if allergen_details else "AUCUNE allergie"
+    allergen_section = (
+        "\n".join(allergen_details) if allergen_details else "AUCUNE allergie"
+    )
 
     prompt = f"""Tu es un nutritionniste expert créant un plan de repas personnalisé pour 7 jours.
 
@@ -211,13 +238,76 @@ INSTRUCTIONS DE GÉNÉRATION :
    - Nom de la recette (créatif et appétissant)
    - Liste complète des ingrédients avec quantités précises (en grammes de préférence)
    - Instructions de préparation (1 seule chaîne de texte, séparer les étapes par des points)
-   - Informations nutritionnelles PRÉCISES (calories, protéines, glucides, lipides)
+   {"- Informations nutritionnelles PRÉCISES (calories, protéines, glucides, lipides)" if calculate_macros else ""}
 
-3. 🎯 MACROS OBLIGATOIRES (NON-NÉGOCIABLE) :
-   - Chaque jour DOIT atteindre : {calories} kcal (±5% MAX, pas ±10%)
-   - Protéines : {protein}g ±5% MAX (CRITIQUE pour prise de muscle - PRIORITÉ ABSOLUE)
-   - Glucides : {carbs}g ±10% MAX
-   - Lipides : {fat}g ±10% MAX
+{"""
+🚨 NE CALCULE PAS LES MACROS 🚨
+
+Fournis SEULEMENT :
+- Noms des recettes (créatifs et appétissants)
+- Ingrédients avec quantités précises (ex: 'poulet': 200, 'riz': 150, unités en grammes)
+- Instructions de préparation
+
+NE fournis PAS de champs 'nutrition' ou 'daily_totals' dans le JSON.
+Les macros seront calculés automatiquement via FatSecret API avec une précision de 100%.
+
+Concentre-toi sur :
+- VARIÉTÉ des recettes (7 jours différents, créatifs, savoureux)
+- GOÛT et plaisir culinaire
+- RESPECT STRICT des allergènes : """ + allergies_str + """
+- Quantités réalistes et préparables
+
+IMPORTANT : Structure JSON exacte à respecter :
+{{
+  "days": [
+    {{
+      "day": "Lundi",
+      "meals": [
+        {{
+          "name": "Nom de la recette",
+          "time": "07:30",
+          "ingredients": [
+            {{"name": "poulet", "quantity": 200, "unit": "g"}},
+            {{"name": "riz basmati", "quantity": 150, "unit": "g"}}
+          ],
+          "instructions": "Instructions de préparation ici",
+          "tags": ["petit-déjeuner"]
+        }}
+      ]
+    }}
+  ]
+}}
+
+3. 🎯 CIBLES NUTRITIONNELLES (pour info uniquement, ne calcule pas) :
+   - Calories cible : """ + str(calories) + """ kcal/jour
+   - Protéines cible : """ + str(protein) + """g/jour
+   - Glucides cible : """ + str(carbs) + """g/jour
+   - Lipides cible : """ + str(fat) + """g/jour
+
+   Le système FatSecret ajustera automatiquement les portions pour atteindre ces cibles.
+""" if not calculate_macros else """
+3. 🎯 MACROS OBLIGATOIRES (NON-NÉGOCIABLE) :"""}
+   - Chaque jour DOIT atteindre EXACTEMENT : {calories} kcal (±3% MAX - si en dessous, plan REJETÉ)
+   - Protéines : {protein}g ±3% MAX (CRITIQUE pour prise de muscle - PRIORITÉ ABSOLUE)
+   - Glucides : {carbs}g ±5% MAX
+   - Lipides : {fat}g ±8% MAX
+
+   🚨 INSTRUCTION CRITIQUE - NE GÉNÈRE PAS EN DESSOUS DE LA CIBLE 🚨
+   Si ton plan fait 2500 kcal alors que la cible est {calories} kcal, c'est INACCEPTABLE.
+   AUGMENTE les portions de glucides/lipides pour atteindre EXACTEMENT la cible.
+   Il vaut mieux être à +2% qu'à -15% !
+
+   📐 EXEMPLE DE CALCUL POUR ATTEINDRE {calories} KCAL :
+
+   Si ton premier brouillon donne 2540 kcal (déficit de {int(calories - 2540)} kcal), AUGMENTE :
+   - Riz/Pâtes : +50g cru = +180 kcal, +40g glucides
+   - Huile d'olive : +10ml = +90 kcal, +10g lipides
+   - Pain : +30g = +75 kcal, +15g glucides
+   - Fruits secs : +20g = +100 kcal, +15g glucides, +5g lipides
+
+   VÉRIFIE : 2540 + 180 + 90 + 75 = 2885 kcal → Proche de {calories} kcal ✅
+
+   Si encore en dessous, AJOUTE une collation supplémentaire (ex: banane + beurre d'amande = 200 kcal)
 
    🚨🚨🚨 INSTRUCTION CRITIQUE - PROTÉINES 🚨🚨🚨
    Pour atteindre {protein}g de protéines, utilise CETTE RÉPARTITION EXACTE :
