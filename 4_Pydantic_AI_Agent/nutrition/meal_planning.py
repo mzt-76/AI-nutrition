@@ -79,6 +79,55 @@ def build_meal_plan_prompt(
         True
     """
 
+    # Calculate dynamic macro distribution based on meal structure
+    structure_info = MEAL_STRUCTURES.get(meal_structure, MEAL_STRUCTURES["3_meals_2_snacks"])
+    meals = structure_info["meals"]
+    num_meals = len(meals)
+
+    # Classify meals as "main" or "snack" based on keywords
+    main_meals = [m for m in meals if any(word in m.lower() for word in ["petit-déjeuner", "déjeuner", "dîner", "repas"])]
+    snacks = [m for m in meals if "collation" in m.lower()]
+    num_main = len(main_meals)
+    num_snacks = len(snacks)
+
+    # Calculate protein distribution
+    # Main meals: Split 80% of protein, Snacks: Split 20% of protein
+    protein_target = profile.get("target_protein_g") or 150
+    calories_target = profile.get("target_calories") or 2500
+
+    if num_main > 0 and num_snacks > 0:
+        protein_per_main = int((protein_target * 0.80) / num_main)
+        protein_per_snack = int((protein_target * 0.20) / num_snacks)
+        calorie_per_main = int((calories_target * 0.75) / num_main)
+        calorie_per_snack = int((calories_target * 0.25) / num_snacks)
+    else:
+        # No snacks - split evenly among main meals
+        protein_per_main = int(protein_target / num_meals)
+        protein_per_snack = 0
+        calorie_per_main = int(calories_target / num_meals)
+        calorie_per_snack = 0
+
+    # Build dynamic distribution text
+    protein_distribution = "\n".join([
+        f"   - {meal}: ~{protein_per_main}g protein"
+        for meal in main_meals
+    ])
+    if snacks:
+        protein_distribution += "\n" + "\n".join([
+            f"   - {meal}: ~{protein_per_snack}g protein"
+            for meal in snacks
+        ])
+
+    calorie_distribution = "\n".join([
+        f"   - {meal}: ~{calorie_per_main} kcal"
+        for meal in main_meals
+    ])
+    if snacks:
+        calorie_distribution += "\n" + "\n".join([
+            f"   - {meal}: ~{calorie_per_snack} kcal"
+            for meal in snacks
+        ])
+
     # Extract profile data with safe defaults
     # Ensure all list fields are actually lists (handle None, strings, etc.)
     def ensure_list(value):
@@ -198,10 +247,17 @@ Vérifie CHAQUE ingrédient avant de l'inclure dans une recette
 
 ═══════════════════════════════════════════════════════════════
 
+🎯 PRIORITÉ #1 : PRÉCISION DES CALORIES
+Le système OpenFoodFacts ajustera les portions automatiquement, MAIS ton rôle est de fournir
+des quantités RÉALISTES qui se rapprochent des cibles. Ne propose PAS de repas trop légers
+(ex: 50g de poulet pour un repas principal = INACCEPTABLE).
+
+═══════════════════════════════════════════════════════════════
+
 PROFIL UTILISATEUR :
-- Objectif calorique quotidien : {calories} kcal (tolérance ±10%)
+- Objectif calorique quotidien : {calories} kcal (tolérance ±5% MAX)
 - Macronutriments cibles :
-  * Protéines : {protein}g/jour
+  * Protéines : {protein}g/jour (±5% MAX)
   * Glucides : {carbs}g/jour
   * Lipides : {fat}g/jour
 - 🚨 ALLERGIES : {allergies_str} (TOLÉRANCE ZÉRO - VÉRIFIER CHAQUE INGRÉDIENT)
@@ -244,9 +300,12 @@ INSTRUCTIONS DE GÉNÉRATION :
 🚨 NE CALCULE PAS LES MACROS 🚨
 
 Fournis SEULEMENT :
-- Noms des recettes (créatifs et appétissants)
-- Ingrédients avec quantités précises (ex: 'poulet': 200, 'riz': 150, unités en grammes)
-- Instructions de préparation
+- Noms des recettes (créatifs et appétissants, en français)
+- Ingrédients avec quantités précises (ex: 'chicken breast': 200, 'white rice': 150, unités en grammes)
+- Instructions de préparation (en français)
+
+⚠️ CRITIQUE : Les noms d'ingrédients doivent être en ANGLAIS (ex: "chicken breast" pas "poulet", "white rice" pas "riz")
+Ceci est nécessaire pour la base de données FatSecret qui est en anglais.
 
 NE fournis PAS de champs 'nutrition' ou 'daily_totals' dans le JSON.
 Les macros seront calculés automatiquement via FatSecret API avec une précision de 100%.
@@ -313,16 +372,14 @@ IMPORTANT : Structure JSON exacte à respecter :
    Pour atteindre {protein}g de protéines, utilise CETTE RÉPARTITION EXACTE :
 
    RÉPARTITION PROTÉINES OBLIGATOIRE PAR REPAS :
-   ┌─────────────────┬──────────────┬───────────────────────────────┐
-   │ Repas           │ Protéines    │ Sources recommandées          │
-   ├─────────────────┼──────────────┼───────────────────────────────┤
-   │ Petit-déjeuner  │ 35-40g       │ Œufs (3-4) + yaourt grec 0%   │
-   │ Collation 1     │ 25-30g       │ Shaker protéine + banane      │
-   │ Déjeuner        │ 45-50g       │ Poulet 200g / Poisson 250g    │
-   │ Collation 2     │ 25-30g       │ Fromage blanc 200g + fruits   │
-   │ Dîner           │ 40-45g       │ Viande 200g / Poisson 250g    │
-   └─────────────────┴──────────────┴───────────────────────────────┘
-   TOTAL MINIMUM : 170g (donne marge de sécurité pour {protein}g cible)
+   RÈGLE GÉNÉRALE :
+   - Repas principaux (petit-déj, déj, dîner) : Partage 80% des protéines totales
+   - Collations/snacks : Partage 20% des protéines totales
+   - Si pas de collations : Répartis équitablement entre tous les repas
+
+   RÉPARTITION POUR TA STRUCTURE ({meal_structure}) :
+{protein_distribution}
+   TOTAL : {protein}g/jour (±5% tolérance = {int(protein * 0.95)}-{int(protein * 1.05)}g)
 
    **ALIMENTS RICHES EN PROTÉINES (utilise massivement) :**
    - Poulet : 30g protéines / 100g
@@ -341,12 +398,14 @@ IMPORTANT : Structure JSON exacte à respecter :
 
 4. 🎯 CALORIES OBLIGATOIRES : {calories} kcal/jour (±5% MAX)
 
-   RÉPARTITION CALORIES PAR REPAS :
-   - Petit-déjeuner : ~{int(calories * 0.20)} kcal (20%)
-   - Collation 1 : ~{int(calories * 0.10)} kcal (10%)
-   - Déjeuner : ~{int(calories * 0.35)} kcal (35%)
-   - Collation 2 : ~{int(calories * 0.10)} kcal (10%)
-   - Dîner : ~{int(calories * 0.25)} kcal (25%)
+   RÈGLE GÉNÉRALE :
+   - Repas principaux : Partage 75% des calories totales ({int(calories * 0.75)} kcal)
+   - Collations/snacks : Partage 25% des calories totales ({int(calories * 0.25)} kcal)
+   - Si pas de collations : Répartis équitablement entre tous les repas
+
+   RÉPARTITION POUR TA STRUCTURE ({meal_structure}) :
+{calorie_distribution}
+   TOTAL : {calories} kcal/jour (±5% tolérance = {int(calories * 0.95)}-{int(calories * 1.05)} kcal)
 
    **VÉRIFICATION CALORIES FINALE :**
    - ADDITIONNE : petit-déj + coll1 + déj + coll2 + dîner

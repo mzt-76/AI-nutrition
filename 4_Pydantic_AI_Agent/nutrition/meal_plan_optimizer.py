@@ -25,8 +25,10 @@ from nutrition.macro_adjustments import (
 logger = logging.getLogger(__name__)
 
 # Portion scaling constraints
-MIN_SCALE_FACTOR = 0.75  # Don't scale down more than 25%
-MAX_SCALE_FACTOR = 1.25  # Don't scale up more than 25%
+# Increased from ±25% to ±50% for better macro accuracy
+# Still maintains recipe naturalness while giving optimizer more flexibility
+MIN_SCALE_FACTOR = 0.50  # Don't scale down more than 50%
+MAX_SCALE_FACTOR = 1.50  # Don't scale up more than 50%
 
 # Maximum complements to add per day (prefer scaling over complements)
 MAX_COMPLEMENTS_PER_DAY = 2
@@ -292,12 +294,32 @@ async def optimize_meal_plan_portions(
 
             day["optimization_summary"] = f"Portions scaled by {scale_factor:.2f}x"
 
-        # Step 4: Add complements if scaling insufficient
+        # Step 4: Add complements if scaling insufficient AND there's a deficit
+        # IMPORTANT: Only add complements for DEFICITS (negative), never for SURPLUSES (positive)
+        # SPECIAL CASE: If calories are already OVER target, don't add complements
+        # even if protein is low (adding protein also adds calories, worsening the surplus)
+        has_calorie_deficit = deficit.get("calories", 0) < 0
+        has_protein_deficit = deficit.get("protein_g", 0) < 0
+
+        # Only add complements if:
+        # 1. There's a calorie deficit (can safely add calories+protein), OR
+        # 2. Protein deficit AND calories within tolerance (won't push over limit)
+        calorie_tolerance = target_totals.get("calories", 1) * 0.05
+        calories_within_tolerance = abs(deficit.get("calories", 0)) <= calorie_tolerance
+
+        has_deficit = has_calorie_deficit or (has_protein_deficit and calories_within_tolerance)
+
+        logger.debug(
+            f"{day_name} deficit check: cal_deficit={has_calorie_deficit}, "
+            f"prot_deficit={has_protein_deficit}, cal_ok={calories_within_tolerance}, "
+            f"will_add_complements={has_deficit}"
+        )
+
         complements_added = 0
         iterations = 0
         max_iterations = MAX_COMPLEMENTS_PER_DAY
 
-        while any(needs.values()) and iterations < max_iterations:
+        while any(needs.values()) and has_deficit and iterations < max_iterations:
             complement_food = select_complement_food(
                 deficit, user_allergens, timing_preference="collation"
             )

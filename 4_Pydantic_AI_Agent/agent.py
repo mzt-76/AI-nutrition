@@ -21,6 +21,7 @@ import logging
 from prompt import AGENT_SYSTEM_PROMPT
 from clients import (
     get_supabase_client,
+    get_openai_client,
     get_embedding_client,
     get_http_client,
     get_brave_api_key,
@@ -81,6 +82,7 @@ class AgentDeps:
 
     Attributes:
         supabase: Supabase client for database operations
+        openai_client: OpenAI client for general use (chat, vision)
         embedding_client: OpenAI client for embeddings (RAG)
         http_client: HTTP client for web searches
         brave_api_key: Brave Search API key (optional)
@@ -89,7 +91,8 @@ class AgentDeps:
     """
 
     supabase: any  # Supabase Client
-    embedding_client: any  # AsyncOpenAI
+    openai_client: any  # AsyncOpenAI (general)
+    embedding_client: any  # AsyncOpenAI (embeddings)
     http_client: any  # AsyncClient
     brave_api_key: str | None
     searxng_base_url: str | None
@@ -318,7 +321,7 @@ async def image_analysis(
     """
     logger.info("Tool called: image_analysis")
     return await image_analysis_tool(
-        image_url, analysis_prompt, ctx.deps.embedding_client
+        image_url, analysis_prompt, ctx.deps.openai_client
     )
 
 
@@ -368,7 +371,7 @@ async def generate_weekly_meal_plan(
     logger.info("Tool called: generate_weekly_meal_plan")
     return await generate_weekly_meal_plan_tool(
         ctx.deps.supabase,
-        ctx.deps.embedding_client,
+        ctx.deps.openai_client,
         ctx.deps.http_client,
         start_date,
         target_calories_daily,
@@ -516,6 +519,7 @@ def create_agent_deps(memories: str = "") -> AgentDeps:
 
     return AgentDeps(
         supabase=get_supabase_client(),
+        openai_client=get_openai_client(),
         embedding_client=get_embedding_client(),
         http_client=get_http_client(),
         brave_api_key=get_brave_api_key(),

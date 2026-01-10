@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 
 # Macro tolerance thresholds for POST-PROCESSING activation (percentage)
 # Post-processing kicks in when GPT-4o deviates significantly from targets
-# These tolerances are balanced: not too strict (avoid over-correcting), not too loose (ensure accuracy)
-TOLERANCE_PROTEIN = 0.10  # ±10% tolerance for protein (critical for muscle goals)
-TOLERANCE_CALORIES = 0.10  # ±10% tolerance for calories (critical for weight goals)
-TOLERANCE_CARBS = 0.15    # ±15% tolerance for carbs (less critical)
-TOLERANCE_FAT = 0.15      # ±15% tolerance for fat (less critical)
+# NOTE: Different tolerances reflect nutritional priorities and natural variability
+TOLERANCE_PROTEIN = 0.15  # ±15% tolerance for protein (ISSN allows 1.4-2.0g/kg = ±18% range)
+TOLERANCE_CALORIES = 0.05  # ±5% tolerance for calories (CRITICAL for energy balance/weight goals)
+TOLERANCE_CARBS = 0.15    # ±15% tolerance for carbs (less critical, can flex for energy needs)
+TOLERANCE_FAT = 0.15      # ±15% tolerance for fat (less critical, can flex for satiety)
 
 # Complement food database (high protein efficiency)
 COMPLEMENT_FOODS = [
@@ -179,35 +179,34 @@ def needs_adjustment(
     """
     Determine which macros need adjustment based on tolerance thresholds.
 
-    IMPORTANT: Only flags TRUE if there's a DEFICIT (negative value) exceeding tolerance.
-    Does NOT flag if there's a surplus (positive value) - we don't want to over-add.
+    Flags TRUE if ANY deviation (deficit OR surplus) exceeds ±5% tolerance.
+    This allows portion scaling both UP (for deficits) and DOWN (for surpluses).
 
     Args:
-        deficit: Deficit dict from calculate_macro_deficit (negative = needs more)
+        deficit: Deficit dict from calculate_macro_deficit (negative = needs more, positive = has too much)
         target_totals: Target values for calculating percentage deviation
 
     Returns:
-        Dict with boolean flags for each macro (True only if deficit exceeds tolerance)
+        Dict with boolean flags for each macro (True if deviation exceeds ±5% tolerance)
 
     Example:
         >>> deficit = {"calories": -274, "protein_g": -36, "carbs_g": 10, "fat_g": 5}
         >>> target = {"calories": 2474, "protein_g": 156, "carbs_g": 280, "fat_g": 80}
         >>> needs = needs_adjustment(deficit, target)
-        >>> needs["protein_g"]  # -36g is a deficit
+        >>> needs["protein_g"]  # -36g is a deficit beyond tolerance
         True
-        >>> needs["carbs_g"]  # +10g is a surplus, no adjustment needed
+        >>> needs["carbs_g"]  # +10g is within tolerance (3.6%)
         False
     """
-    # Only adjust if there's a DEFICIT (negative) exceeding tolerance
-    # Don't adjust if there's a surplus (positive) - that's already above target
+    # Check if ABSOLUTE deviation exceeds tolerance (works for both deficit and surplus)
     needs = {
-        "calories": deficit["calories"] < 0 and abs(deficit["calories"]) > (target_totals["calories"] * TOLERANCE_CALORIES),
-        "protein_g": deficit["protein_g"] < 0 and abs(deficit["protein_g"]) > (target_totals["protein_g"] * TOLERANCE_PROTEIN),
-        "carbs_g": deficit["carbs_g"] < 0 and abs(deficit["carbs_g"]) > (target_totals["carbs_g"] * TOLERANCE_CARBS),
-        "fat_g": deficit["fat_g"] < 0 and abs(deficit["fat_g"]) > (target_totals["fat_g"] * TOLERANCE_FAT)
+        "calories": abs(deficit["calories"]) > (target_totals["calories"] * TOLERANCE_CALORIES),
+        "protein_g": abs(deficit["protein_g"]) > (target_totals["protein_g"] * TOLERANCE_PROTEIN),
+        "carbs_g": abs(deficit["carbs_g"]) > (target_totals["carbs_g"] * TOLERANCE_CARBS),
+        "fat_g": abs(deficit["fat_g"]) > (target_totals["fat_g"] * TOLERANCE_FAT)
     }
 
-    logger.debug(f"Adjustment needs (deficit only): {needs}")
+    logger.debug(f"Adjustment needs (±tolerance): {needs}")
     return needs
 
 
