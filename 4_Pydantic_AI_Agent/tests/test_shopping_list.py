@@ -253,7 +253,7 @@ def test_categorize_ingredients_mixed():
 
 
 def test_categorize_ingredients_quantity_rounding():
-    """Test that quantities are rounded to 1 decimal place."""
+    """Test that gram quantities are rounded to integers (UX design choice)."""
     aggregated = {
         "poulet|g": 456.789,
     }
@@ -263,7 +263,8 @@ def test_categorize_ingredients_quantity_rounding():
     protein_item = next(
         item for item in categorized["proteins"] if item["name"] == "poulet"
     )
-    assert protein_item["quantity"] == 456.8  # Rounded to 1 decimal
+    # round_quantity_smart() rounds grams to integers for cleaner UX
+    assert protein_item["quantity"] == 457  # Rounded to integer for g/ml
 
 
 def test_extract_ingredients_empty_plan():

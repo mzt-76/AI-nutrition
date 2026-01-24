@@ -182,6 +182,13 @@ def analyze_weight_trend(
     # So weight_change_kg between -0.7 and -0.3 is good
     min_target, max_target = target_range
 
+    # Determine if goal expects positive or negative weight change
+    # muscle_gain: expects positive (gaining weight)
+    # weight_loss: expects negative (losing weight)
+    # maintenance/performance: expects near zero
+    goal_expects_gain = goal == "muscle_gain"
+    goal_expects_loss = goal == "weight_loss"
+
     # Special case: near-zero weight change is "stable" regardless of goal
     # This handles normal weekly fluctuations (measurement error, hydration, etc.)
     if abs(weight_change_kg) < 0.1:
@@ -199,16 +206,40 @@ def analyze_weight_trend(
         else:
             assessment = f"Good! Your change ({weight_change_kg:.1f}kg) is within target range ({min_target}–{max_target}kg/week) for {goal}"
             confidence = CONFIDENCE_PATTERN_DETECTED
-    elif weight_change_kg < min_target:  # More negative than min = faster for weight_loss
-        trend = "too_fast"
-        is_optimal = False
-        assessment = f"Weight change too fast ({weight_change_kg:.1f}kg). Risk of muscle loss and metabolic slowdown. Target: {optimal}kg/week"
-        confidence = CONFIDENCE_CONFIRMED_PATTERN
-    else:  # weight_change_kg > max_target = less loss than min = slower
-        trend = "too_slow"
-        is_optimal = False
-        assessment = f"Weight change slower than optimal ({weight_change_kg:.1f}kg vs {optimal}kg target). Increase deficit slightly if goal is weight loss."
-        confidence = CONFIDENCE_CONFIRMED_PATTERN
+    elif weight_change_kg < min_target:
+        # Below min_target: meaning depends on goal direction
+        if goal_expects_gain:
+            # For muscle_gain: below min (0.2) means not gaining enough or losing
+            trend = "too_slow"
+            is_optimal = False
+            if weight_change_kg < 0:
+                assessment = f"You're losing weight ({weight_change_kg:+.1f}kg) instead of gaining. Increase calories to support muscle growth. Target: {optimal:+.1f}kg/week"
+            else:
+                assessment = f"Weight gain too slow ({weight_change_kg:+.1f}kg vs {optimal:+.1f}kg target). Consider increasing calories slightly."
+            confidence = CONFIDENCE_CONFIRMED_PATTERN
+        else:
+            # For weight_loss: below min (-0.7) means losing too fast
+            trend = "too_fast"
+            is_optimal = False
+            assessment = f"Weight loss too fast ({weight_change_kg:.1f}kg). Risk of muscle loss and metabolic slowdown. Target: {optimal}kg/week"
+            confidence = CONFIDENCE_CONFIRMED_PATTERN
+    else:  # weight_change_kg > max_target
+        # Above max_target: meaning depends on goal direction
+        if goal_expects_loss:
+            # For weight_loss: above max (-0.3) means not losing enough or gaining
+            trend = "too_slow"
+            is_optimal = False
+            if weight_change_kg > 0:
+                assessment = f"You're gaining weight ({weight_change_kg:+.1f}kg) instead of losing. Review calorie intake and adherence."
+            else:
+                assessment = f"Weight loss slower than optimal ({weight_change_kg:.1f}kg vs {optimal}kg target). Increase deficit slightly."
+            confidence = CONFIDENCE_CONFIRMED_PATTERN
+        else:
+            # For muscle_gain: above max (0.5) means gaining too fast (risk of fat)
+            trend = "too_fast"
+            is_optimal = False
+            assessment = f"Weight gain too fast ({weight_change_kg:+.1f}kg). May indicate excess fat gain. Target: {optimal:+.1f}kg/week"
+            confidence = CONFIDENCE_CONFIRMED_PATTERN
 
     rationale = [
         f"Week {weeks_on_plan}: {weight_change_kg:+.1f}kg change",
@@ -231,7 +262,7 @@ def analyze_weight_trend(
 def detect_metabolic_adaptation(
     past_weeks: list[dict],
     observed_tdee: float | None,
-    calculated_tdee: float,
+    calculated_tdee: float | None,
 ) -> dict:
     """
     Detect if user's metabolism is adapting (actual expenditure < calculated).
@@ -242,7 +273,7 @@ def detect_metabolic_adaptation(
     Args:
         past_weeks: Previous weekly_feedback records (dicts with weight_change_kg, adherence_percent)
         observed_tdee: Previously calculated actual TDEE (None on first detection)
-        calculated_tdee: TDEE from Mifflin-St Jeor formula
+        calculated_tdee: TDEE from Mifflin-St Jeor formula (can be None if profile incomplete)
 
     Returns:
         Dict with adaptation analysis:
@@ -271,6 +302,20 @@ def detect_metabolic_adaptation(
             "recommendation": "Continue tracking; metabolic confidence builds week by week",
         }
 
+    # Validate calculated_tdee is available
+    if calculated_tdee is None or calculated_tdee <= 0:
+        return {
+            "detected": False,
+            "confidence": CONFIDENCE_INSUFFICIENT_DATA,
+            "observed_tdee": None,
+            "adaptation_factor": None,
+            "rationale": [
+                "Cannot detect metabolic adaptation without baseline TDEE calculation",
+                "Profile data (age, weight, height, activity) required for TDEE calculation",
+            ],
+            "recommendation": "Complete profile data to enable metabolic adaptation detection",
+        }
+
     # Calculate average adherence and weight change
     avg_adherence = sum(w.get("adherence_percent", 50) for w in past_weeks) / len(
         past_weeks
@@ -292,14 +337,14 @@ def detect_metabolic_adaptation(
         if avg_adherence < 100:
             inferred_tdee = inferred_tdee * (100 / avg_adherence)
 
-        adaptation_factor = inferred_tdee / calculated_tdee if calculated_tdee > 0 else 1.0
+        adaptation_factor = (
+            inferred_tdee / calculated_tdee if calculated_tdee > 0 else 1.0
+        )
 
         # Threshold: >5% difference suggests adaptation
         detected = adaptation_factor < 0.95
         confidence = (
-            CONFIDENCE_PATTERN_DETECTED
-            if detected
-            else CONFIDENCE_SINGLE_DATA_POINT
+            CONFIDENCE_PATTERN_DETECTED if detected else CONFIDENCE_SINGLE_DATA_POINT
         )
 
         recommendation = (
@@ -321,7 +366,9 @@ def detect_metabolic_adaptation(
         "adaptation_factor": round(adaptation_factor, 2),
         "rationale": [
             f"Calculated TDEE: {calculated_tdee} kcal/day",
-            f"Observed TDEE (inferred): {inferred_tdee:.0f} kcal/day" if inferred_tdee else "",
+            f"Observed TDEE (inferred): {inferred_tdee:.0f} kcal/day"
+            if inferred_tdee
+            else "",
             f"Adaptation factor: {adaptation_factor:.2%}" if adaptation_factor else "",
         ],
         "recommendation": recommendation,
@@ -363,9 +410,7 @@ def detect_adherence_patterns(
     high_adherence_weeks = [
         w for w in past_weeks if w.get("adherence_percent", 0) >= 80
     ]
-    low_adherence_weeks = [
-        w for w in past_weeks if w.get("adherence_percent", 0) < 50
-    ]
+    low_adherence_weeks = [w for w in past_weeks if w.get("adherence_percent", 0) < 50]
 
     positive_triggers = []
     negative_triggers = []
@@ -373,9 +418,7 @@ def detect_adherence_patterns(
     # Look for energy/hunger patterns in high adherence weeks
     if high_adherence_weeks:
         avg_energy_high = sum(
-            1
-            for w in high_adherence_weeks
-            if w.get("energy_level") == "high"
+            1 for w in high_adherence_weeks if w.get("energy_level") == "high"
         ) / len(high_adherence_weeks)
         avg_hunger_low = sum(
             1 for w in high_adherence_weeks if w.get("hunger_level") == "low"
@@ -470,7 +513,9 @@ def generate_calorie_adjustment(
         if weight_change_kg > -0.3:
             # Too slow; increase deficit
             adjustment_kcal = -50  # Reduce calories (increase deficit)
-            reasoning.append(f"Weight loss {weight_change_kg:.1f}kg is slower than target -0.5kg/week")
+            reasoning.append(
+                f"Weight loss {weight_change_kg:.1f}kg is slower than target -0.5kg/week"
+            )
             reasoning.append("Increasing deficit by ~50 kcal/day")
         elif weight_change_kg < -1.0:
             # Too fast; reduce deficit
@@ -489,7 +534,9 @@ def generate_calorie_adjustment(
         elif weight_change_kg > 0.7:
             # Gaining too fast (too much fat)
             adjustment_kcal = -50
-            reasoning.append(f"Weight gain {weight_change_kg:.1f}kg is too fast; may indicate excess fat")
+            reasoning.append(
+                f"Weight gain {weight_change_kg:.1f}kg is too fast; may indicate excess fat"
+            )
             reasoning.append("Reducing surplus by ~50 kcal/day")
 
     # Clamp adjustment to safety limits
@@ -569,7 +616,9 @@ def generate_macro_adjustments(
     # Hunger management: increase protein
     if hunger_level == "high":
         protein_adj += 20
-        rationale["protein"] = "High hunger: +20g protein improves satiety signaling (ISSN)"
+        rationale[
+            "protein"
+        ] = "High hunger: +20g protein improves satiety signaling (ISSN)"
     elif hunger_level == "low":
         protein_adj -= 10
         rationale["protein"] = "Low hunger: -10g protein is sufficient for satiety"
@@ -577,7 +626,9 @@ def generate_macro_adjustments(
     # Energy management: increase carbs for low energy
     if energy_level == "low":
         carbs_adj += 30
-        rationale["carbs"] = "Low energy: +30g carbs support ATP production, especially pre-workout"
+        rationale[
+            "carbs"
+        ] = "Low energy: +30g carbs support ATP production, especially pre-workout"
     elif energy_level == "high":
         carbs_adj -= 10
         rationale["carbs"] = "High energy: -10g carbs, energy demand met"
@@ -587,22 +638,18 @@ def generate_macro_adjustments(
     if carb_sensitivity == "high" and energy_level == "low":
         carbs_adj += 15
         rationale["carbs"] = (
-            rationale.get("carbs", "")
-            + " (You respond well to higher carbs)"
+            rationale.get("carbs", "") + " (You respond well to higher carbs)"
         )
     elif carb_sensitivity == "low" and carbs_adj > 0:
         carbs_adj = max(0, carbs_adj - 10)
         rationale["carbs"] = (
-            rationale.get("carbs", "")
-            + " (You tolerate lower carbs well)"
+            rationale.get("carbs", "") + " (You tolerate lower carbs well)"
         )
 
     # Cravings: small adjustments
     if "sweets" in cravings or "sugar" in cravings:
         carbs_adj += 10
-        rationale["carbs"] = (
-            rationale.get("carbs", "") + " (Cravings suggest increase)"
-        )
+        rationale["carbs"] = rationale.get("carbs", "") + " (Cravings suggest increase)"
     if "fat" in cravings or "nuts" in cravings:
         fat_adj += 5
         rationale["fat"] = "Cravings suggest small fat increase (+5g)"

@@ -36,6 +36,7 @@ from tools import (
     image_analysis_tool,
     generate_weekly_meal_plan_tool,
     generate_shopping_list_tool,
+    fetch_stored_meal_plan_tool,
     calculate_weekly_adjustments_tool,
 )
 
@@ -320,9 +321,7 @@ async def image_analysis(
         Agent calls: image_analysis(url, "Estimate body fat percentage, provide feedback")
     """
     logger.info("Tool called: image_analysis")
-    return await image_analysis_tool(
-        image_url, analysis_prompt, ctx.deps.openai_client
-    )
+    return await image_analysis_tool(image_url, analysis_prompt, ctx.deps.openai_client)
 
 
 @agent.tool
@@ -333,7 +332,7 @@ async def generate_weekly_meal_plan(
     target_protein_g: int = None,
     target_carbs_g: int = None,
     target_fat_g: int = None,
-    meal_structure: str = "3_meals_2_snacks",
+    meal_structure: str = "3_consequent_meals",
     notes: str = None,
 ) -> str:
     """
@@ -351,9 +350,9 @@ async def generate_weekly_meal_plan(
         target_carbs_g: Daily carbs target in grams
         target_fat_g: Daily fat target in grams
         meal_structure: Meal distribution pattern:
-            - "3_meals_2_snacks": Breakfast, AM snack, Lunch, PM snack, Dinner (default)
+            - "3_consequent_meals": 3 consecutive main meals (no snacks) - DEFAULT
+            - "3_meals_2_snacks": Breakfast, AM snack, Lunch, PM snack, Dinner
             - "4_meals": 4 equal meals throughout day
-            - "3_consequent_meals": 3 consecutive main meals (no snacks)
             - "3_meals_1_preworkout": 3 meals + 1 snack before training
         notes: Additional preferences (e.g., "pas de viande rouge cette semaine")
 
@@ -422,6 +421,53 @@ async def generate_shopping_list(
     logger.info("Tool called: generate_shopping_list")
     return await generate_shopping_list_tool(
         ctx.deps.supabase, week_start, selected_days, servings_multiplier
+    )
+
+
+@agent.tool
+async def fetch_stored_meal_plan(
+    ctx: RunContext[AgentDeps],
+    week_start: str,
+    selected_days: list[int] | None = None,
+) -> str:
+    """
+    Retrieve an existing meal plan from database without regenerating.
+
+    Use this to show the user their current meal plan or specific days.
+    Much faster than generating a new plan (500ms vs 3-4 minutes).
+
+    Use this when:
+    - User asks "What should I eat today/this week?"
+    - User asks "Rappelle-moi mon plan de repas"
+    - User asks "Qu'est-ce que je mange mercredi ?"
+    - You need to check if a plan already exists before generating
+
+    Do NOT use when:
+    - User wants a NEW plan → Use generate_weekly_meal_plan
+    - User wants a shopping list → Use generate_shopping_list
+
+    Args:
+        ctx: Run context with Supabase client
+        week_start: Meal plan start date in YYYY-MM-DD format (e.g., "2025-01-20")
+        selected_days: List of day indices to retrieve (0=Lundi to 6=Dimanche),
+                      or None for all 7 days. Example: [2] for Wednesday only
+
+    Returns:
+        JSON string with meal plan data including recipes, macros, and instructions
+
+    Examples:
+        User: "Qu'est-ce que je mange aujourd'hui ?" (if today is Wednesday)
+        Agent: fetch_stored_meal_plan(week_start="2025-01-20", selected_days=[2])
+
+        User: "Montre-moi le plan de la semaine"
+        Agent: fetch_stored_meal_plan(week_start="2025-01-20")
+
+        User: "Rappelle-moi les repas de lundi et mardi"
+        Agent: fetch_stored_meal_plan(week_start="2025-01-20", selected_days=[0, 1])
+    """
+    logger.info("Tool called: fetch_stored_meal_plan")
+    return await fetch_stored_meal_plan_tool(
+        ctx.deps.supabase, week_start, selected_days
     )
 
 

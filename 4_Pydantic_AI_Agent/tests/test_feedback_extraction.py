@@ -156,7 +156,7 @@ class TestValidateFeedbackMetrics:
             "weight_start_kg": 87.0,
             "weight_end_kg": 86.4,
             "adherence_percent": 50,
-            "sleep_quality": "okay",  # Invalid
+            "sleep_quality": "blabla",  # Truly invalid (not in SLEEP_QUALITY_MAPPING)
         }
         with pytest.raises(ValueError, match="sleep_quality"):
             validate_feedback_metrics(feedback)
