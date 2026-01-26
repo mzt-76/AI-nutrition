@@ -22,6 +22,7 @@ print("=" * 60)
 # 1. Check Python version
 print("\n1. Python Version:")
 import platform
+
 python_version = platform.python_version()
 print(f"   ✅ Python {python_version}")
 if python_version < "3.11":
@@ -31,30 +32,35 @@ if python_version < "3.11":
 print("\n2. Core Dependencies:")
 try:
     import pydantic_ai
+
     print("   ✅ pydantic-ai installed")
 except ImportError as e:
     print(f"   ❌ pydantic-ai missing: {e}")
 
 try:
     import supabase
+
     print("   ✅ supabase installed")
 except ImportError as e:
     print(f"   ❌ supabase missing: {e}")
 
 try:
     import openai
+
     print("   ✅ openai installed")
 except ImportError as e:
     print(f"   ❌ openai missing: {e}")
 
 try:
     import streamlit
+
     print("   ✅ streamlit installed")
 except ImportError as e:
     print(f"   ❌ streamlit missing: {e}")
 
 try:
     import mem0
+
     print("   ✅ mem0 installed")
 except ImportError as e:
     print(f"   ❌ mem0 missing: {e}")
@@ -62,13 +68,14 @@ except ImportError as e:
 # 3. Check environment variables
 print("\n3. Environment Variables:")
 from dotenv import load_dotenv
+
 load_dotenv()
 
 required_vars = {
-    'LLM_API_KEY': 'OpenAI/LLM API Key',
-    'EMBEDDING_API_KEY': 'Embedding API Key',
-    'SUPABASE_URL': 'Supabase URL',
-    'SUPABASE_SERVICE_KEY': 'Supabase Service Key'
+    "LLM_API_KEY": "OpenAI/LLM API Key",
+    "EMBEDDING_API_KEY": "Embedding API Key",
+    "SUPABASE_URL": "Supabase URL",
+    "SUPABASE_SERVICE_KEY": "Supabase Service Key",
 }
 
 all_vars_present = True
@@ -82,8 +89,8 @@ for var, description in required_vars.items():
         all_vars_present = False
 
 optional_vars = {
-    'BRAVE_API_KEY': 'Brave Search API Key (optional)',
-    'SEARXNG_BASE_URL': 'SearXNG URL (optional)'
+    "BRAVE_API_KEY": "Brave Search API Key (optional)",
+    "SEARXNG_BASE_URL": "SearXNG URL (optional)",
 }
 
 for var, description in optional_vars.items():
@@ -98,6 +105,7 @@ for var, description in optional_vars.items():
 print("\n4. Core Modules:")
 try:
     from nutrition.calculations import mifflin_st_jeor_bmr, calculate_tdee
+
     bmr = mifflin_st_jeor_bmr(35, "male", 87, 178)
     tdee = calculate_tdee(bmr, "moderate")
     print(f"   ✅ nutrition.calculations works (BMR: {bmr}, TDEE: {tdee})")
@@ -106,12 +114,14 @@ except Exception as e:
 
 try:
     from clients import get_supabase_client
+
     print("   ✅ clients module imports correctly")
 except Exception as e:
     print(f"   ❌ clients module error: {e}")
 
 try:
     from prompt import AGENT_SYSTEM_PROMPT
+
     print(f"   ✅ prompt module loaded ({len(AGENT_SYSTEM_PROMPT)} chars)")
 except Exception as e:
     print(f"   ❌ prompt module error: {e}")
@@ -121,17 +131,18 @@ print("\n5. Database Connection:")
 if all_vars_present:
     try:
         from clients import get_supabase_client
+
         supabase = get_supabase_client()
         # Try a simple query
         result = supabase.table("my_profile").select("*").limit(1).execute()
         if result.data:
-            print(f"   ✅ Supabase connected (profile found)")
+            print("   ✅ Supabase connected (profile found)")
         else:
-            print(f"   ⚠️  Supabase connected but no profile found")
-            print(f"      → You'll need to create a profile in Supabase")
+            print("   ⚠️  Supabase connected but no profile found")
+            print("      → You'll need to create a profile in Supabase")
     except Exception as e:
         print(f"   ⚠️  Supabase connection issue: {e}")
-        print(f"      → Check your SUPABASE_URL and SUPABASE_SERVICE_KEY")
+        print("      → Check your SUPABASE_URL and SUPABASE_SERVICE_KEY")
 else:
     print("   ⏭️  Skipped (missing environment variables)")
 

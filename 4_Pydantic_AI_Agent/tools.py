@@ -30,7 +30,6 @@ from nutrition.calculations import (
     calculate_macros,
 )
 from nutrition.meal_planning import (
-    build_meal_plan_prompt,
     build_meal_plan_prompt_simple,
     format_meal_plan_response,
     MEAL_STRUCTURES,

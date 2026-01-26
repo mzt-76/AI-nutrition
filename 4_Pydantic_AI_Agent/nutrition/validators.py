@@ -152,7 +152,11 @@ def validate_allergens(meal_plan: dict, user_allergens: list[str]) -> list[str]:
             ingredients = meal.get("ingredients", [])
 
             for ingredient_idx, ingredient in enumerate(ingredients):
-                ingredient_name = ingredient.get("name", "").lower().strip()
+                raw_name = ingredient.get("name", "")
+                # Handle None or non-string values
+                if raw_name is None or not isinstance(raw_name, str):
+                    continue
+                ingredient_name = raw_name.lower().strip()
 
                 if not ingredient_name:
                     continue
@@ -245,7 +249,134 @@ def validate_daily_macros(
     return {"valid": valid, "violations": violations}
 
 
-def validate_meal_plan_structure(meal_plan: dict, require_nutrition: bool = True) -> dict:
+def validate_meal_plan_macros(
+    meal_plan: dict,
+    target_calories: float,
+    target_protein: float,
+    target_carbs: float,
+    target_fat: float,
+    protein_tolerance: float = 0.05,
+    carbs_tolerance: float = 0.10,
+    fat_tolerance: float = 0.10,
+) -> dict:
+    """
+    Validate all days in a meal plan have macros within tolerance.
+
+    Uses different tolerances for protein (stricter) vs other macros.
+
+    Args:
+        meal_plan: Full meal plan with days array
+        target_calories: Daily calorie target
+        target_protein: Daily protein target in grams
+        target_carbs: Daily carbs target in grams
+        target_fat: Daily fat target in grams
+        protein_tolerance: Tolerance for protein (default 5%)
+        carbs_tolerance: Tolerance for carbs (default 10%)
+        fat_tolerance: Tolerance for fat (default 10%)
+
+    Returns:
+        Dict with validation result:
+        {
+            "valid": bool,
+            "day_results": list of per-day results,
+            "violations": list of all violations across days
+        }
+
+    Example:
+        >>> result = validate_meal_plan_macros(plan, 2000, 150, 200, 70)
+        >>> result["valid"]
+        True
+    """
+    days = meal_plan.get("days", [])
+    all_violations = []
+    day_results = []
+
+    for day_idx, day_data in enumerate(days):
+        daily_totals = day_data.get("daily_totals", {})
+
+        # Normalize key names (support both protein and protein_g formats)
+        normalized_totals = {
+            "calories": daily_totals.get(
+                "calories", daily_totals.get("total_calories", 0)
+            ),
+            "protein_g": daily_totals.get("protein_g", daily_totals.get("protein", 0)),
+            "carbs_g": daily_totals.get("carbs_g", daily_totals.get("carbs", 0)),
+            "fat_g": daily_totals.get("fat_g", daily_totals.get("fat", 0)),
+        }
+
+        # Validate each macro with appropriate tolerance
+        day_violations = []
+
+        # Calories (use carbs tolerance)
+        cal_lower = target_calories * (1 - carbs_tolerance)
+        cal_upper = target_calories * (1 + carbs_tolerance)
+        actual_cal = normalized_totals["calories"]
+        if not (cal_lower <= actual_cal <= cal_upper):
+            dev = ((actual_cal - target_calories) / target_calories) * 100
+            day_violations.append(
+                f"Day {day_idx + 1} calories: {actual_cal:.0f} (target: {target_calories:.0f}, "
+                f"deviation: {dev:+.1f}%)"
+            )
+
+        # Protein (stricter tolerance)
+        prot_lower = target_protein * (1 - protein_tolerance)
+        prot_upper = target_protein * (1 + protein_tolerance)
+        actual_prot = normalized_totals["protein_g"]
+        if not (prot_lower <= actual_prot <= prot_upper):
+            dev = ((actual_prot - target_protein) / target_protein) * 100
+            day_violations.append(
+                f"Day {day_idx + 1} protein: {actual_prot:.0f}g (target: {target_protein:.0f}g, "
+                f"deviation: {dev:+.1f}%)"
+            )
+
+        # Carbs
+        carbs_lower = target_carbs * (1 - carbs_tolerance)
+        carbs_upper = target_carbs * (1 + carbs_tolerance)
+        actual_carbs = normalized_totals["carbs_g"]
+        if not (carbs_lower <= actual_carbs <= carbs_upper):
+            dev = ((actual_carbs - target_carbs) / target_carbs) * 100
+            day_violations.append(
+                f"Day {day_idx + 1} carbs: {actual_carbs:.0f}g (target: {target_carbs:.0f}g, "
+                f"deviation: {dev:+.1f}%)"
+            )
+
+        # Fat
+        fat_lower = target_fat * (1 - fat_tolerance)
+        fat_upper = target_fat * (1 + fat_tolerance)
+        actual_fat = normalized_totals["fat_g"]
+        if not (fat_lower <= actual_fat <= fat_upper):
+            dev = ((actual_fat - target_fat) / target_fat) * 100
+            day_violations.append(
+                f"Day {day_idx + 1} fat: {actual_fat:.0f}g (target: {target_fat:.0f}g, "
+                f"deviation: {dev:+.1f}%)"
+            )
+
+        day_results.append(
+            {
+                "day": day_idx + 1,
+                "valid": len(day_violations) == 0,
+                "violations": day_violations,
+            }
+        )
+        all_violations.extend(day_violations)
+
+    all_valid = len(all_violations) == 0
+
+    if all_valid:
+        logger.info("✅ All days pass macro validation")
+    else:
+        logger.warning(f"Macro validation issues in {len(all_violations)} instances")
+
+    return {
+        "valid": all_valid,
+        "day_results": day_results,
+        "violations": all_violations,
+    }
+
+
+def validate_meal_plan_structure(
+    meal_plan: dict, require_nutrition: bool = True
+) -> dict:
     """
     Validate meal plan has required JSON structure.
 
@@ -330,3 +461,192 @@ def validate_meal_plan_structure(meal_plan: dict, require_nutrition: bool = True
         logger.info("✅ Meal plan structure validation passed")
 
     return {"valid": valid, "missing_fields": missing_fields}
+
+
+def validate_meal_plan_complete(
+    meal_plan: dict,
+    target_macros: dict,
+    user_allergens: list[str],
+    meal_structure: str,
+    protein_tolerance: float = 0.05,
+    other_tolerance: float = 0.10,
+) -> dict:
+    """
+    Comprehensive 4-level validation of meal plan with custom tolerances.
+
+    This is the master validation function that runs all validation checks
+    in sequence. Returns detailed results for each level.
+
+    Validation Levels:
+    1. Structure: 7 days, required fields present
+    2. Allergens: Zero tolerance for user allergens
+    3. Macros: Protein ±5%, carbs/fat ±10% (configurable)
+    4. Completeness: Correct number of meals per day
+
+    Args:
+        meal_plan: Complete meal plan dict with structure:
+            {
+                "days": [
+                    {
+                        "day": "Lundi",
+                        "date": "YYYY-MM-DD",
+                        "meals": [...],
+                        "daily_totals": {"calories": int, "protein_g": int, ...}
+                    }
+                ],
+                "meal_structure": "3_meals_2_snacks"
+            }
+        target_macros: Daily target macros dict with keys:
+            - calories, protein_g, carbs_g, fat_g
+        user_allergens: List of user allergen strings (e.g., ["peanuts", "lactose"])
+        meal_structure: Meal structure key (e.g., "3_meals_2_snacks")
+        protein_tolerance: Protein tolerance as decimal (default: 0.05 = ±5%)
+        other_tolerance: Carbs/fat tolerance as decimal (default: 0.10 = ±10%)
+
+    Returns:
+        Dict with validation results:
+        {
+            "valid": bool,  # True only if ALL levels pass
+            "validations": {
+                "structure": {"valid": bool, "missing_fields": []},
+                "allergens": {"valid": bool, "violations": []},
+                "macros": {"valid": bool, "daily_deviations": []},
+                "completeness": {"valid": bool, "errors": []}
+            }
+        }
+
+    Example:
+        >>> plan = {
+        ...     "days": [...],  # 7 days with meals
+        ...     "meal_structure": "3_meals_2_snacks"
+        ... }
+        >>> targets = {"calories": 3000, "protein_g": 180, "carbs_g": 375, "fat_g": 83}
+        >>> result = validate_meal_plan_complete(
+        ...     plan, targets, ["peanuts"], "3_meals_2_snacks"
+        ... )
+        >>> result["valid"]
+        True
+        >>> result["validations"]["allergens"]["valid"]
+        True
+
+    References:
+        - ISSN Position Stand (2017): ±5% protein tolerance for athletes
+        - Plan: refactor-meal-plan-generation-workflow.md
+    """
+    logger.info(
+        f"Starting 4-level meal plan validation: "
+        f"protein_tolerance=±{protein_tolerance*100}%, "
+        f"other_tolerance=±{other_tolerance*100}%"
+    )
+
+    validations = {}
+
+    # Level 1: Structure validation
+    logger.info("Level 1/4: Validating structure...")
+    structure_result = validate_meal_plan_structure(meal_plan)
+    validations["structure"] = structure_result
+
+    # Level 2: Allergen validation
+    logger.info("Level 2/4: Validating allergens...")
+    allergen_violations = validate_allergens(meal_plan, user_allergens)
+    # Wrap list result in dict format for consistency
+    validations["allergens"] = {
+        "valid": len(allergen_violations) == 0,
+        "violations": allergen_violations,
+    }
+
+    # Level 3: Macro validation with custom tolerances
+    logger.info("Level 3/4: Validating macros...")
+    macro_result = validate_meal_plan_macros(
+        meal_plan,
+        target_macros["calories"],
+        target_macros["protein_g"],
+        target_macros["carbs_g"],
+        target_macros["fat_g"],
+        protein_tolerance=protein_tolerance,
+        carbs_tolerance=other_tolerance,
+        fat_tolerance=other_tolerance,
+    )
+    validations["macros"] = macro_result
+
+    # Level 4: Completeness validation (correct number of meals)
+    logger.info("Level 4/4: Validating completeness...")
+    completeness_result = validate_meal_plan_completeness(meal_plan, meal_structure)
+    validations["completeness"] = completeness_result
+
+    # Overall validation passes only if ALL levels pass
+    all_valid = all(
+        validation.get("valid", False) for validation in validations.values()
+    )
+
+    if all_valid:
+        logger.info("✅ ALL validation levels passed")
+    else:
+        failed_levels = [
+            level
+            for level, result in validations.items()
+            if not result.get("valid", False)
+        ]
+        logger.error(f"❌ Validation FAILED at levels: {failed_levels}")
+
+    return {
+        "valid": all_valid,
+        "validations": validations,
+    }
+
+
+def validate_meal_plan_completeness(meal_plan: dict, meal_structure: str) -> dict:
+    """
+    Validate that each day has the correct number of meals for the structure.
+
+    Args:
+        meal_plan: Meal plan dict with days array
+        meal_structure: Expected meal structure (e.g., "3_meals_2_snacks")
+
+    Returns:
+        Dict with validation result:
+        {
+            "valid": bool,
+            "errors": []  # List of error messages if validation fails
+        }
+
+    Example:
+        >>> plan = {"days": [{"meals": [{}, {}, {}]}]}
+        >>> result = validate_meal_plan_completeness(plan, "3_consequent_meals")
+        >>> result["valid"]
+        True
+    """
+    from nutrition.meal_planning import MEAL_STRUCTURES
+
+    errors = []
+
+    # Get expected number of meals
+    if meal_structure not in MEAL_STRUCTURES:
+        errors.append(f"Unknown meal structure: {meal_structure}")
+        return {"valid": False, "errors": errors}
+
+    expected_meal_count = len(MEAL_STRUCTURES[meal_structure]["meals"])
+
+    # Check each day
+    days = meal_plan.get("days", [])
+    for day_idx, day_data in enumerate(days):
+        meals = day_data.get("meals", [])
+        actual_count = len(meals)
+
+        if actual_count != expected_meal_count:
+            day_name = day_data.get("day", f"Day {day_idx+1}")
+            errors.append(
+                f"{day_name}: Expected {expected_meal_count} meals "
+                f"for {meal_structure}, got {actual_count}"
+            )
+
+    valid = len(errors) == 0
+
+    if not valid:
+        logger.error(f"Completeness validation failed: {errors}")
+    else:
+        logger.info(
+            f"✅ Completeness validation passed: {expected_meal_count} meals/day"
+        )
+
+    return {"valid": valid, "errors": errors}

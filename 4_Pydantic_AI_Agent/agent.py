@@ -15,6 +15,7 @@ from pydantic_ai.models.openai import OpenAIModel
 from dataclasses import dataclass
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 import os
 import logging
 
@@ -327,7 +328,7 @@ async def image_analysis(
 @agent.tool
 async def generate_weekly_meal_plan(
     ctx: RunContext[AgentDeps],
-    start_date: str,
+    start_date: str | None = None,
     target_calories_daily: int = None,
     target_protein_g: int = None,
     target_carbs_g: int = None,
@@ -344,7 +345,8 @@ async def generate_weekly_meal_plan(
 
     Args:
         ctx: Run context with Supabase and OpenAI clients
-        start_date: Start date in YYYY-MM-DD format (Monday preferred), e.g. "2024-12-23"
+        start_date: Start date in YYYY-MM-DD format (Monday preferred).
+            If None or omitted, uses the Monday of the current week automatically.
         target_calories_daily: Daily calorie target (if None, uses profile target)
         target_protein_g: Daily protein target in grams
         target_carbs_g: Daily carbs target in grams
@@ -361,13 +363,22 @@ async def generate_weekly_meal_plan(
         nutritional information, and weekly summary
 
     Example:
-        User: "Crée-moi un plan pour cette semaine avec 3 repas + collation pré-training"
-        Agent: generate_weekly_meal_plan(
-            start_date="2024-12-23",
-            meal_structure="3_meals_1_preworkout"
-        )
+        User: "Crée-moi un plan pour cette semaine"
+        Agent: generate_weekly_meal_plan()  # Uses current week automatically
+
+        User: "Crée-moi un plan pour la semaine prochaine avec 3 repas + collation"
+        Agent: generate_weekly_meal_plan(meal_structure="3_meals_1_preworkout")
     """
     logger.info("Tool called: generate_weekly_meal_plan")
+
+    # Calculate current week's Monday if start_date not provided
+    if start_date is None:
+        today = datetime.now().date()
+        monday = today - timedelta(days=today.weekday())
+        start_date = monday.strftime("%Y-%m-%d")
+        logger.info(
+            f"No start_date provided, using current week's Monday: {start_date}"
+        )
     return await generate_weekly_meal_plan_tool(
         ctx.deps.supabase,
         ctx.deps.openai_client,
@@ -385,7 +396,7 @@ async def generate_weekly_meal_plan(
 @agent.tool
 async def generate_shopping_list(
     ctx: RunContext[AgentDeps],
-    week_start: str,
+    week_start: str | None = None,
     selected_days: list[int] | None = None,
     servings_multiplier: float = 1.0,
 ) -> str:
@@ -398,7 +409,8 @@ async def generate_shopping_list(
 
     Args:
         ctx: Run context with Supabase client
-        week_start: Meal plan start date in YYYY-MM-DD format (e.g., "2024-12-23")
+        week_start: Meal plan start date in YYYY-MM-DD format.
+            If None or omitted, uses the Monday of the current week automatically.
         selected_days: List of day indices to include (0=Monday to 6=Sunday),
                       or None for all 7 days. Example: [0, 1, 2] for Mon-Wed
         servings_multiplier: Multiplier for all quantities (default: 1.0).
@@ -409,16 +421,22 @@ async def generate_shopping_list(
 
     Example:
         User: "Génère la liste de courses pour cette semaine"
-        Agent: generate_shopping_list(week_start="2024-12-23")
+        Agent: generate_shopping_list()  # Uses current week automatically
 
         User: "Liste de courses seulement pour lundi à mercredi, portions doubles"
-        Agent: generate_shopping_list(
-            week_start="2024-12-23",
-            selected_days=[0, 1, 2],
-            servings_multiplier=2.0
-        )
+        Agent: generate_shopping_list(selected_days=[0, 1, 2], servings_multiplier=2.0)
     """
     logger.info("Tool called: generate_shopping_list")
+
+    # Calculate current week's Monday if week_start not provided
+    if week_start is None:
+        today = datetime.now().date()
+        monday = today - timedelta(days=today.weekday())
+        week_start = monday.strftime("%Y-%m-%d")
+        logger.info(
+            f"No week_start provided, using current week's Monday: {week_start}"
+        )
+
     return await generate_shopping_list_tool(
         ctx.deps.supabase, week_start, selected_days, servings_multiplier
     )
@@ -427,7 +445,7 @@ async def generate_shopping_list(
 @agent.tool
 async def fetch_stored_meal_plan(
     ctx: RunContext[AgentDeps],
-    week_start: str,
+    week_start: str | None = None,
     selected_days: list[int] | None = None,
 ) -> str:
     """
@@ -448,7 +466,8 @@ async def fetch_stored_meal_plan(
 
     Args:
         ctx: Run context with Supabase client
-        week_start: Meal plan start date in YYYY-MM-DD format (e.g., "2025-01-20")
+        week_start: Meal plan start date in YYYY-MM-DD format.
+            If None or omitted, uses the Monday of the current week automatically.
         selected_days: List of day indices to retrieve (0=Lundi to 6=Dimanche),
                       or None for all 7 days. Example: [2] for Wednesday only
 
@@ -457,15 +476,25 @@ async def fetch_stored_meal_plan(
 
     Examples:
         User: "Qu'est-ce que je mange aujourd'hui ?" (if today is Wednesday)
-        Agent: fetch_stored_meal_plan(week_start="2025-01-20", selected_days=[2])
+        Agent: fetch_stored_meal_plan(selected_days=[2])  # Uses current week
 
         User: "Montre-moi le plan de la semaine"
-        Agent: fetch_stored_meal_plan(week_start="2025-01-20")
+        Agent: fetch_stored_meal_plan()  # Uses current week automatically
 
         User: "Rappelle-moi les repas de lundi et mardi"
-        Agent: fetch_stored_meal_plan(week_start="2025-01-20", selected_days=[0, 1])
+        Agent: fetch_stored_meal_plan(selected_days=[0, 1])
     """
     logger.info("Tool called: fetch_stored_meal_plan")
+
+    # Calculate current week's Monday if week_start not provided
+    if week_start is None:
+        today = datetime.now().date()
+        monday = today - timedelta(days=today.weekday())
+        week_start = monday.strftime("%Y-%m-%d")
+        logger.info(
+            f"No week_start provided, using current week's Monday: {week_start}"
+        )
+
     return await fetch_stored_meal_plan_tool(
         ctx.deps.supabase, week_start, selected_days
     )

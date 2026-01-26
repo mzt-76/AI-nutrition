@@ -34,6 +34,82 @@ MAX_SCALE_FACTOR = 1.50  # Don't scale up more than 50%
 MAX_COMPLEMENTS_PER_DAY = 2
 
 
+def round_quantity_smart(
+    quantity: float, unit: str, ingredient_name: str = ""
+) -> float:
+    """
+    Round quantity intelligently based on unit and ingredient type.
+
+    Args:
+        quantity: Raw quantity value
+        unit: Unit of measurement (g, ml, pièces, etc.)
+        ingredient_name: Name of ingredient (for context)
+
+    Returns:
+        Rounded quantity following UX guidelines
+
+    Rules:
+        - Countable items (pièces, oeufs, tranches): Always whole numbers
+        - Grams (g): Round to integer
+        - Milliliters (ml): Round to integer
+        - Small spices/seasonings (< 10g): Keep 1 decimal
+    """
+    unit_lower = unit.lower().strip()
+    name_lower = ingredient_name.lower().strip()
+
+    # Countable units: always whole numbers
+    countable_units = [
+        "pièces",
+        "piece",
+        "pieces",
+        "pièce",
+        "tranche",
+        "tranches",
+        "slice",
+        "oeuf",
+        "oeufs",
+        "egg",
+        "eggs",
+    ]
+    if any(u in unit_lower for u in countable_units):
+        return round(quantity)
+
+    # Grams and milliliters
+    if unit_lower in [
+        "g",
+        "gram",
+        "gramme",
+        "grammes",
+        "grams",
+        "ml",
+        "millilitre",
+        "millilitres",
+        "milliliter",
+        "milliliters",
+    ]:
+        # Exception: small quantities of spices/seasonings (< 10)
+        spice_keywords = [
+            "sel",
+            "salt",
+            "poivre",
+            "pepper",
+            "épice",
+            "spice",
+            "herbe",
+            "herb",
+            "cannelle",
+            "cinnamon",
+        ]
+        if quantity < 10 and any(keyword in name_lower for keyword in spice_keywords):
+            return round(quantity, 1)
+
+        # Default: round to integer
+        return round(quantity)
+
+    # Other units: keep 1 decimal as fallback
+    return round(quantity, 1)
+
+
 async def calculate_meal_plan_macros(
     meal_plan: dict[str, Any],
     supabase: Client,
@@ -247,8 +323,11 @@ async def optimize_meal_plan_portions(
                 # Scale ingredients
                 for ingredient in meal.get("ingredients", []):
                     if "quantity" in ingredient:
-                        ingredient["quantity"] = round(
-                            ingredient["quantity"] * scale_factor, 1
+                        scaled_qty = ingredient["quantity"] * scale_factor
+                        ingredient["quantity"] = round_quantity_smart(
+                            scaled_qty,
+                            ingredient.get("unit", "g"),
+                            ingredient.get("name", ""),
                         )
 
                     if "nutrition" in ingredient:
@@ -307,7 +386,9 @@ async def optimize_meal_plan_portions(
         calorie_tolerance = target_totals.get("calories", 1) * 0.05
         calories_within_tolerance = abs(deficit.get("calories", 0)) <= calorie_tolerance
 
-        has_deficit = has_calorie_deficit or (has_protein_deficit and calories_within_tolerance)
+        has_deficit = has_calorie_deficit or (
+            has_protein_deficit and calories_within_tolerance
+        )
 
         logger.debug(
             f"{day_name} deficit check: cal_deficit={has_calorie_deficit}, "

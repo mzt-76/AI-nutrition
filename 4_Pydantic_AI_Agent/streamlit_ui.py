@@ -15,11 +15,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Page configuration
-st.set_page_config(
-    page_title="AI Nutrition Assistant",
-    page_icon="🥗",
-    layout="wide"
-)
+st.set_page_config(page_title="AI Nutrition Assistant", page_icon="🥗", layout="wide")
 
 # Title
 st.title("🥗 AI Nutrition Assistant")
@@ -53,7 +49,7 @@ with col_upload:
     uploaded_image = st.file_uploader(
         "📸 Joindre une photo pour analyse de composition corporelle",
         type=["png", "jpg", "jpeg"],
-        help="Upload une photo de profil (torse visible) pour une estimation du taux de masse grasse"
+        help="Upload une photo de profil (torse visible) pour une estimation du taux de masse grasse",
     )
 
 with col_info:
@@ -94,8 +90,8 @@ if uploaded_image is not None:
                     # Read and convert image
                     image = Image.open(uploaded_image)
                     # Convert to RGB if needed (remove alpha channel)
-                    if image.mode in ('RGBA', 'LA', 'P'):
-                        image = image.convert('RGB')
+                    if image.mode in ("RGBA", "LA", "P"):
+                        image = image.convert("RGB")
 
                     buffered = io.BytesIO()
                     image.save(buffered, format="JPEG")
@@ -111,10 +107,15 @@ if uploaded_image is not None:
 
                     # Load improved analysis prompt
                     from pathlib import Path
-                    prompt_path = Path(__file__).parent / "prompts" / "body_composition_analysis.txt"
+
+                    prompt_path = (
+                        Path(__file__).parent
+                        / "prompts"
+                        / "body_composition_analysis.txt"
+                    )
 
                     if prompt_path.exists():
-                        with open(prompt_path, 'r', encoding='utf-8') as f:
+                        with open(prompt_path, "r", encoding="utf-8") as f:
                             analysis_query = f.read()
                     else:
                         # Fallback to basic prompt
@@ -135,7 +136,7 @@ Sois professionnel, bienveillant et scientifique. Réponds en français."""
                         result = await image_analysis_tool(
                             image_url=image_data_uri,
                             query=analysis_query,
-                            openai_client=openai_client
+                            openai_client=openai_client,
                         )
                         return result
 
@@ -146,14 +147,18 @@ Sois professionnel, bienveillant et scientifique. Réponds en français."""
                     st.markdown(response)
 
                     # Add to chat history
-                    st.session_state.messages.append({
-                        "role": "assistant",
-                        "content": response
-                    })
+                    st.session_state.messages.append(
+                        {"role": "assistant", "content": response}
+                    )
 
                     # Save to memory
                     logger.info("Saving body composition analysis to memory...")
-                    memory_messages = [{"role": "user", "content": "Photo de composition corporelle analysée"}]
+                    memory_messages = [
+                        {
+                            "role": "user",
+                            "content": "Photo de composition corporelle analysée",
+                        }
+                    ]
                     memory.add(memory_messages, user_id=user_id)
 
                     # Clear the uploaded image after processing
@@ -186,17 +191,14 @@ if prompt := st.chat_input("Pose ta question nutritionnelle..."):
                 # Load relevant memories for context
                 logger.info(f"Loading memories for user: {user_id}")
                 relevant_memories = memory.search(
-                    query=prompt,
-                    user_id=user_id,
-                    limit=3
+                    query=prompt, user_id=user_id, limit=3
                 )
 
                 # Format memories as string
                 memories_str = ""
                 if relevant_memories and relevant_memories.get("results"):
                     memories_str = "\n".join(
-                        f"- {entry['memory']}"
-                        for entry in relevant_memories["results"]
+                        f"- {entry['memory']}" for entry in relevant_memories["results"]
                     )
                     logger.info(f"Loaded {len(relevant_memories['results'])} memories")
 
@@ -215,16 +217,13 @@ if prompt := st.chat_input("Pose ta question nutritionnelle..."):
                 st.markdown(response)
 
                 # Add to chat history
-                st.session_state.messages.append({
-                    "role": "assistant",
-                    "content": response
-                })
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": response}
+                )
 
                 # Save new memories (user message only, not assistant response)
                 logger.info("Saving new memories...")
-                memory_messages = [
-                    {"role": "user", "content": prompt}
-                ]
+                memory_messages = [{"role": "user", "content": prompt}]
                 memory.add(memory_messages, user_id=user_id)
                 logger.info("Memories saved successfully")
 
@@ -234,15 +233,16 @@ if prompt := st.chat_input("Pose ta question nutritionnelle..."):
                 logger.error(f"Agent error: {e}", exc_info=True)
 
                 # Add error to chat history
-                st.session_state.messages.append({
-                    "role": "assistant",
-                    "content": error_msg
-                })
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": error_msg}
+                )
 
 # Weekly Check-in Section
 st.divider()
 st.header("📊 Vérification Hebdomadaire")
-st.markdown("*Partagez comment s'est passée votre semaine pour des ajustements personnalisés*")
+st.markdown(
+    "*Partagez comment s'est passée votre semaine pour des ajustements personnalisés*"
+)
 
 # Create two columns for the form
 col1, col2 = st.columns(2)
@@ -254,14 +254,14 @@ with col1:
         min_value=40.0,
         max_value=300.0,
         value=87.0,
-        step=0.1
+        step=0.1,
     )
     weight_end = st.number_input(
         "Poids en fin de semaine (kg)",
         min_value=40.0,
         max_value=300.0,
         value=87.0,
-        step=0.1
+        step=0.1,
     )
     days_followed = st.slider(
         "Jours suivis (sur 7)",
@@ -269,7 +269,7 @@ with col1:
         max_value=7,
         value=6,
         step=1,
-        help="Nombre de jours où vous avez suivi votre plan nutritionnel"
+        help="Nombre de jours où vous avez suivi votre plan nutritionnel",
     )
     # Calculate adherence percentage from days followed
     adherence = int((days_followed / 7) * 100)
@@ -277,19 +277,15 @@ with col1:
 with col2:
     st.subheader("Ressenti")
     hunger = st.select_slider(
-        "Niveau de faim",
-        options=["low", "medium", "high"],
-        value="medium"
+        "Niveau de faim", options=["low", "medium", "high"], value="medium"
     )
     energy = st.select_slider(
-        "Niveau d'énergie",
-        options=["low", "medium", "high"],
-        value="medium"
+        "Niveau d'énergie", options=["low", "medium", "high"], value="medium"
     )
     sleep = st.select_slider(
         "Qualité du sommeil",
         options=["poor", "fair", "good", "excellent"],
-        value="good"
+        value="good",
     )
 
 # Additional fields
@@ -301,7 +297,7 @@ if hunger == "high":
         "Envies (si applicables)",
         options=["chocolate", "sweets", "carbs", "fat", "salty"],
         default=[],
-        help="Quels types d'aliments avez-vous particulièrement envie de manger?"
+        help="Quels types d'aliments avez-vous particulièrement envie de manger?",
     )
 else:
     cravings = []  # Empty list if hunger is not high
@@ -309,7 +305,7 @@ else:
 notes = st.text_area(
     "Notes personnelles",
     placeholder="Comment s'est passée votre semaine? Y a-t-il eu des défis?",
-    height=80
+    height=80,
 )
 
 # Submit button
@@ -338,7 +334,9 @@ Donne-moi une analyse détaillée avec des ajustements personnalisés."""
     # Display user message
     with st.chat_message("user"):
         st.markdown("📊 **Vérification Hebdomadaire Soumise**")
-        st.markdown(f"Poids: {weight_start}kg → {weight_end}kg | Jours suivis: {days_followed}/7 ({adherence}%)")
+        st.markdown(
+            f"Poids: {weight_start}kg → {weight_end}kg | Jours suivis: {days_followed}/7 ({adherence}%)"
+        )
 
     # Get agent response
     with st.chat_message("assistant"):
@@ -354,7 +352,7 @@ Donne-moi une analyse détaillée avec des ajustements personnalisés."""
                 # Run agent asynchronously
                 async def get_response():
                     result = await agent.run(checkin_prompt, deps=agent_deps)
-                    return result.data
+                    return result.output
 
                 # Execute async function
                 response = asyncio.run(get_response())
@@ -363,10 +361,9 @@ Donne-moi une analyse détaillée avec des ajustements personnalisés."""
                 st.markdown(response)
 
                 # Add to chat history
-                st.session_state.messages.append({
-                    "role": "assistant",
-                    "content": response
-                })
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": response}
+                )
 
                 # Save to memory
                 logger.info("Saving check-in to memory...")
@@ -383,7 +380,8 @@ Donne-moi une analyse détaillée avec des ajustements personnalisés."""
 with st.sidebar:
     st.markdown("### 📋 Commandes Rapides")
 
-    st.markdown("""
+    st.markdown(
+        """
     **Exemples de questions:**
 
     - "Calcule mes besoins nutritionnels: 35 ans, homme, 87kg, 178cm"
@@ -398,7 +396,8 @@ with st.sidebar:
     - ✅ Profil utilisateur (Supabase)
     - 🔄 Ajustements hebdomadaires (à venir)
     - 🔄 Analyse de composition corporelle (à venir)
-    """)
+    """
+    )
 
     st.markdown("---")
 

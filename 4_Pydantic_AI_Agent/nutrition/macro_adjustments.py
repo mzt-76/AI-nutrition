@@ -18,10 +18,16 @@ logger = logging.getLogger(__name__)
 # Macro tolerance thresholds for POST-PROCESSING activation (percentage)
 # Post-processing kicks in when GPT-4o deviates significantly from targets
 # NOTE: Different tolerances reflect nutritional priorities and natural variability
-TOLERANCE_PROTEIN = 0.15  # ±15% tolerance for protein (ISSN allows 1.4-2.0g/kg = ±18% range)
-TOLERANCE_CALORIES = 0.05  # ±5% tolerance for calories (CRITICAL for energy balance/weight goals)
-TOLERANCE_CARBS = 0.15    # ±15% tolerance for carbs (less critical, can flex for energy needs)
-TOLERANCE_FAT = 0.15      # ±15% tolerance for fat (less critical, can flex for satiety)
+TOLERANCE_PROTEIN = (
+    0.15  # ±15% tolerance for protein (ISSN allows 1.4-2.0g/kg = ±18% range)
+)
+TOLERANCE_CALORIES = (
+    0.05  # ±5% tolerance for calories (CRITICAL for energy balance/weight goals)
+)
+TOLERANCE_CARBS = (
+    0.15  # ±15% tolerance for carbs (less critical, can flex for energy needs)
+)
+TOLERANCE_FAT = 0.15  # ±15% tolerance for fat (less critical, can flex for satiety)
 
 # Complement food database (high protein efficiency)
 COMPLEMENT_FOODS = [
@@ -29,120 +35,79 @@ COMPLEMENT_FOODS = [
         "name": "Shaker protéine whey",
         "category": "protein_supplement",
         "portion_size": "1 dose (30g)",
-        "nutrition": {
-            "calories": 120,
-            "protein_g": 25,
-            "carbs_g": 3,
-            "fat_g": 1.5
-        },
+        "nutrition": {"calories": 120, "protein_g": 25, "carbs_g": 3, "fat_g": 1.5},
         "allergens": ["lait"],  # Whey is dairy-based
         "prep_note": "Mélanger avec 250ml d'eau ou lait",
-        "timing": "collation"  # Best as snack
+        "timing": "collation",  # Best as snack
     },
     {
         "name": "Blanc de poulet grillé",
         "category": "lean_protein",
         "portion_size": "100g",
-        "nutrition": {
-            "calories": 165,
-            "protein_g": 31,
-            "carbs_g": 0,
-            "fat_g": 3.6
-        },
+        "nutrition": {"calories": 165, "protein_g": 31, "carbs_g": 0, "fat_g": 3.6},
         "allergens": [],
         "prep_note": "Grillé sans huile, assaisonné avec herbes",
-        "timing": "meal"  # Can be added to main meals
+        "timing": "meal",  # Can be added to main meals
     },
     {
         "name": "Yaourt grec 0%",
         "category": "dairy_protein",
         "portion_size": "200g",
-        "nutrition": {
-            "calories": 110,
-            "protein_g": 20,
-            "carbs_g": 8,
-            "fat_g": 0
-        },
+        "nutrition": {"calories": 110, "protein_g": 20, "carbs_g": 8, "fat_g": 0},
         "allergens": ["lait"],
         "prep_note": "Nature, peut ajouter fruits",
-        "timing": "collation"
+        "timing": "collation",
     },
     {
         "name": "Œufs durs",
         "category": "whole_protein",
         "portion_size": "2 œufs",
-        "nutrition": {
-            "calories": 140,
-            "protein_g": 12,
-            "carbs_g": 1,
-            "fat_g": 10
-        },
+        "nutrition": {"calories": 140, "protein_g": 12, "carbs_g": 1, "fat_g": 10},
         "allergens": ["œufs"],
         "prep_note": "Cuire 10 min dans eau bouillante",
-        "timing": "collation"
+        "timing": "collation",
     },
     {
         "name": "Fromage blanc 0%",
         "category": "dairy_protein",
         "portion_size": "200g",
-        "nutrition": {
-            "calories": 90,
-            "protein_g": 16,
-            "carbs_g": 6,
-            "fat_g": 0
-        },
+        "nutrition": {"calories": 90, "protein_g": 16, "carbs_g": 6, "fat_g": 0},
         "allergens": ["lait"],
         "prep_note": "Nature ou avec édulcorant",
-        "timing": "collation"
+        "timing": "collation",
     },
     {
         "name": "Thon au naturel",
         "category": "fish_protein",
         "portion_size": "1 boîte (120g égoutté)",
-        "nutrition": {
-            "calories": 120,
-            "protein_g": 28,
-            "carbs_g": 0,
-            "fat_g": 1
-        },
+        "nutrition": {"calories": 120, "protein_g": 28, "carbs_g": 0, "fat_g": 1},
         "allergens": [],
         "prep_note": "Égoutter, assaisonner avec citron",
-        "timing": "meal"
+        "timing": "meal",
     },
     {
         "name": "Tranches de dinde",
         "category": "lean_protein",
         "portion_size": "100g",
-        "nutrition": {
-            "calories": 110,
-            "protein_g": 24,
-            "carbs_g": 1,
-            "fat_g": 1.5
-        },
+        "nutrition": {"calories": 110, "protein_g": 24, "carbs_g": 1, "fat_g": 1.5},
         "allergens": [],
         "prep_note": "Prêt à consommer",
-        "timing": "collation"
+        "timing": "collation",
     },
     {
         "name": "Edamame (fèves de soja)",
         "category": "plant_protein",
         "portion_size": "150g cuit",
-        "nutrition": {
-            "calories": 180,
-            "protein_g": 18,
-            "carbs_g": 14,
-            "fat_g": 8
-        },
+        "nutrition": {"calories": 180, "protein_g": 18, "carbs_g": 14, "fat_g": 8},
         "allergens": ["soja"],
         "prep_note": "Cuire 5 min à la vapeur, saler légèrement",
-        "timing": "collation"
-    }
+        "timing": "collation",
+    },
 ]
 
 
 def calculate_macro_deficit(
-    actual_totals: Dict[str, float],
-    target_totals: Dict[str, float]
+    actual_totals: Dict[str, float], target_totals: Dict[str, float]
 ) -> Dict[str, float]:
     """
     Calculate deficit between actual and target macros.
@@ -163,9 +128,10 @@ def calculate_macro_deficit(
     """
     deficit = {
         "calories": actual_totals.get("calories", 0) - target_totals.get("calories", 0),
-        "protein_g": actual_totals.get("protein_g", 0) - target_totals.get("protein_g", 0),
+        "protein_g": actual_totals.get("protein_g", 0)
+        - target_totals.get("protein_g", 0),
         "carbs_g": actual_totals.get("carbs_g", 0) - target_totals.get("carbs_g", 0),
-        "fat_g": actual_totals.get("fat_g", 0) - target_totals.get("fat_g", 0)
+        "fat_g": actual_totals.get("fat_g", 0) - target_totals.get("fat_g", 0),
     }
 
     logger.debug(f"Macro deficit calculated: {deficit}")
@@ -173,8 +139,7 @@ def calculate_macro_deficit(
 
 
 def needs_adjustment(
-    deficit: Dict[str, float],
-    target_totals: Dict[str, float]
+    deficit: Dict[str, float], target_totals: Dict[str, float]
 ) -> Dict[str, bool]:
     """
     Determine which macros need adjustment based on tolerance thresholds.
@@ -200,10 +165,13 @@ def needs_adjustment(
     """
     # Check if ABSOLUTE deviation exceeds tolerance (works for both deficit and surplus)
     needs = {
-        "calories": abs(deficit["calories"]) > (target_totals["calories"] * TOLERANCE_CALORIES),
-        "protein_g": abs(deficit["protein_g"]) > (target_totals["protein_g"] * TOLERANCE_PROTEIN),
-        "carbs_g": abs(deficit["carbs_g"]) > (target_totals["carbs_g"] * TOLERANCE_CARBS),
-        "fat_g": abs(deficit["fat_g"]) > (target_totals["fat_g"] * TOLERANCE_FAT)
+        "calories": abs(deficit["calories"])
+        > (target_totals["calories"] * TOLERANCE_CALORIES),
+        "protein_g": abs(deficit["protein_g"])
+        > (target_totals["protein_g"] * TOLERANCE_PROTEIN),
+        "carbs_g": abs(deficit["carbs_g"])
+        > (target_totals["carbs_g"] * TOLERANCE_CARBS),
+        "fat_g": abs(deficit["fat_g"]) > (target_totals["fat_g"] * TOLERANCE_FAT),
     }
 
     logger.debug(f"Adjustment needs (±tolerance): {needs}")
@@ -213,7 +181,7 @@ def needs_adjustment(
 def select_complement_food(
     deficit: Dict[str, float],
     user_allergens: List[str],
-    timing_preference: Literal["collation", "meal", "any"] = "any"
+    timing_preference: Literal["collation", "meal", "any"] = "any",
 ) -> Dict | None:
     """
     Select optimal complement food based on deficit and allergen constraints.
@@ -246,12 +214,15 @@ def select_complement_food(
 
     # Filter by allergen safety
     safe_foods = [
-        food for food in COMPLEMENT_FOODS
+        food
+        for food in COMPLEMENT_FOODS
         if not any(allergen in user_allergens_lower for allergen in food["allergens"])
     ]
 
     if not safe_foods:
-        logger.warning("No safe complement foods available (all conflict with allergens)")
+        logger.warning(
+            "No safe complement foods available (all conflict with allergens)"
+        )
         return None
 
     # Filter by timing if specified
@@ -295,9 +266,7 @@ def select_complement_food(
 
 
 def adjust_meal_plan_macros(
-    meal_plan: Dict,
-    target_totals: Dict[str, float],
-    user_allergens: List[str] = None
+    meal_plan: Dict, target_totals: Dict[str, float], user_allergens: List[str] = None
 ) -> Dict:
     """
     Post-process meal plan to ensure macro accuracy via complement foods.
@@ -333,7 +302,9 @@ def adjust_meal_plan_macros(
 
         # Skip if day is already within tolerance
         if not any(needs.values()):
-            logger.debug(f"Day {day.get('day', 'Unknown')} within tolerance, no adjustment needed")
+            logger.debug(
+                f"Day {day.get('day', 'Unknown')} within tolerance, no adjustment needed"
+            )
             continue
 
         logger.info(
@@ -350,10 +321,14 @@ def adjust_meal_plan_macros(
             iteration += 1
 
             # Select appropriate complement food
-            complement_food = select_complement_food(deficit, user_allergens, "collation")
+            complement_food = select_complement_food(
+                deficit, user_allergens, "collation"
+            )
 
             if not complement_food:
-                logger.warning(f"Cannot adjust {day.get('day')}: no safe complement foods available")
+                logger.warning(
+                    f"Cannot adjust {day.get('day')}: no safe complement foods available"
+                )
                 break
 
             # Create complement meal entry
@@ -364,16 +339,12 @@ def adjust_meal_plan_macros(
                 "servings": 1,
                 "prep_time_min": 5,
                 "ingredients": [
-                    {
-                        "name": complement_food["name"],
-                        "quantity": 1,
-                        "unit": "portion"
-                    }
+                    {"name": complement_food["name"], "quantity": 1, "unit": "portion"}
                 ],
                 "instructions": complement_food["prep_note"],
                 "nutrition": complement_food["nutrition"],
                 "tags": ["complement", "ajusté_automatiquement"],
-                "note": f"✨ Ajouté automatiquement pour atteindre vos objectifs protéines ({target_totals.get('protein_g', 0)}g/jour)"
+                "note": f"✨ Ajouté automatiquement pour atteindre vos objectifs protéines ({target_totals.get('protein_g', 0)}g/jour)",
             }
 
             # Add to meals list
@@ -407,8 +378,7 @@ def adjust_meal_plan_macros(
 
 
 def generate_adjustment_summary(
-    meal_plan: Dict,
-    target_totals: Dict[str, float]
+    meal_plan: Dict, target_totals: Dict[str, float]
 ) -> str:
     """
     Generate user-friendly summary of macro adjustments made.
@@ -431,8 +401,7 @@ def generate_adjustment_summary(
     for day in meal_plan.get("days", []):
         day_name = day.get("day", "Unknown")
         has_complement = any(
-            "complement" in meal.get("tags", [])
-            for meal in day.get("meals", [])
+            "complement" in meal.get("tags", []) for meal in day.get("meals", [])
         )
 
         if has_complement:

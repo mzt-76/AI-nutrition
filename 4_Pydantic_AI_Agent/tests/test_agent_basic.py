@@ -13,35 +13,35 @@ class TestAgentBasicFunctionality:
     """Test basic agent operations to catch API changes."""
 
     @pytest.mark.asyncio
-    async def test_agent_returns_result_with_output_attribute(self):
+    async def test_agent_returns_result_with_data_attribute(self):
         """
-        Test that agent.run() returns a result with .output attribute.
+        Test that agent.run() returns a result with .data attribute.
 
         This test catches breaking changes in Pydantic AI's API.
-        Note: Pydantic AI uses .output for the result (not .data).
+        Note: Pydantic AI 0.0.53 uses .data for the result (not .output).
         """
         deps = create_agent_deps()
 
         result = await agent.run("Dis-moi bonjour en une phrase", deps=deps)
 
-        # CRITICAL: Test that result has .output attribute
-        assert hasattr(result, "output"), (
-            "AgentRunResult should have 'output' attribute. "
+        # CRITICAL: Test that result has .data attribute
+        assert hasattr(result, "data"), (
+            "AgentRunResult should have 'data' attribute. "
             "If this fails, check Pydantic AI version and API changes."
         )
 
-        # Test that .output returns a string
+        # Test that .data returns a string
         assert isinstance(
-            result.output, str
-        ), f"result.output should be string, got {type(result.output)}"
+            result.data, str
+        ), f"result.data should be string, got {type(result.data)}"
 
         # Test that response is not empty
-        assert len(result.output) > 0, "Agent response should not be empty"
+        assert len(result.data) > 0, "Agent response should not be empty"
 
     @pytest.mark.asyncio
-    async def test_agent_result_output_is_string(self):
+    async def test_agent_result_data_is_string(self):
         """
-        Test that agent.run() result.output is a non-empty string.
+        Test that agent.run() result.data is a non-empty string.
 
         This ensures the agent produces valid responses.
         """
@@ -49,12 +49,10 @@ class TestAgentBasicFunctionality:
 
         result = await agent.run("Réponds juste 'OK'", deps=deps)
 
-        # Verify output exists and is string
-        assert hasattr(
-            result, "output"
-        ), "AgentRunResult should have 'output' attribute"
-        assert isinstance(result.output, str), "result.output should be a string"
-        assert len(result.output) > 0, "Agent response should not be empty"
+        # Verify data exists and is string
+        assert hasattr(result, "data"), "AgentRunResult should have 'data' attribute"
+        assert isinstance(result.data, str), "result.data should be a string"
+        assert len(result.data) > 0, "Agent response should not be empty"
 
 
 class TestAgentDependencies:

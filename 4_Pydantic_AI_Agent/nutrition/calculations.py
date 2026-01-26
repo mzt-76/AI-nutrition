@@ -17,27 +17,24 @@ logger = logging.getLogger(__name__)
 
 # Activity level multipliers (based on research)
 ACTIVITY_MULTIPLIERS = {
-    "sedentary": 1.2,      # Little to no exercise
-    "light": 1.375,        # Light exercise 1-3 days/week
-    "moderate": 1.55,      # Moderate exercise 3-5 days/week
-    "active": 1.725,       # Heavy exercise 6-7 days/week
-    "very_active": 1.9     # Very heavy exercise, physical job
+    "sedentary": 1.2,  # Little to no exercise
+    "light": 1.375,  # Light exercise 1-3 days/week
+    "moderate": 1.55,  # Moderate exercise 3-5 days/week
+    "active": 1.725,  # Heavy exercise 6-7 days/week
+    "very_active": 1.9,  # Very heavy exercise, physical job
 }
 
 # Protein targets (g/kg body weight) - ISSN guidelines
 PROTEIN_TARGETS = {
-    "maintenance": (1.4, 2.0),      # General fitness
-    "muscle_gain": (1.6, 2.2),       # Hypertrophy (plateau at ~1.6g/kg)
-    "weight_loss": (2.3, 3.1),       # Preserve lean mass during deficit
-    "performance": (1.6, 2.0)        # Athletic performance
+    "maintenance": (1.4, 2.0),  # General fitness
+    "muscle_gain": (1.6, 2.2),  # Hypertrophy (plateau at ~1.6g/kg)
+    "weight_loss": (2.3, 3.1),  # Preserve lean mass during deficit
+    "performance": (1.6, 2.0),  # Athletic performance
 }
 
 
 def mifflin_st_jeor_bmr(
-    age: int,
-    gender: Literal["male", "female"],
-    weight_kg: float,
-    height_cm: int
+    age: int, gender: Literal["male", "female"], weight_kg: float, height_cm: int
 ) -> int:
     """
     Calculate Basal Metabolic Rate using Mifflin-St Jeor equation.
@@ -83,7 +80,9 @@ def mifflin_st_jeor_bmr(
     else:
         raise ValueError(f"Gender must be 'male' or 'female', got {gender}")
 
-    logger.info(f"Calculated BMR: {int(bmr)} kcal (age={age}, gender={gender}, weight={weight_kg}kg, height={height_cm}cm)")
+    logger.info(
+        f"Calculated BMR: {int(bmr)} kcal (age={age}, gender={gender}, weight={weight_kg}kg, height={height_cm}cm)"
+    )
 
     return int(bmr)
 
@@ -109,7 +108,9 @@ def calculate_tdee(bmr: int, activity_level: str) -> int:
     """
     if activity_level not in ACTIVITY_MULTIPLIERS:
         valid_levels = ", ".join(ACTIVITY_MULTIPLIERS.keys())
-        raise ValueError(f"Activity level must be one of: {valid_levels}, got {activity_level}")
+        raise ValueError(
+            f"Activity level must be one of: {valid_levels}, got {activity_level}"
+        )
 
     multiplier = ACTIVITY_MULTIPLIERS[activity_level]
     tdee = bmr * multiplier
@@ -122,7 +123,7 @@ def calculate_tdee(bmr: int, activity_level: str) -> int:
 def infer_goals_from_context(
     activities: list[str] | None = None,
     context: str | None = None,
-    explicit_goals: Dict[str, int] | None = None
+    explicit_goals: Dict[str, int] | None = None,
 ) -> Dict[str, int]:
     """
     Infer user goals from activities and context using keyword matching.
@@ -144,11 +145,12 @@ def infer_goals_from_context(
     if explicit_goals:
         return explicit_goals
 
+    # Default: Maintenance/Health (if no context provided)
     goals = {
         "muscle_gain": 0,
         "weight_loss": 0,
-        "maintenance": 3,  # Default baseline
-        "performance": 0
+        "maintenance": 7,  # Default: Health & maintenance (balanced nutrition)
+        "performance": 0,
     }
 
     # Combine activities and context for analysis
@@ -159,24 +161,59 @@ def infer_goals_from_context(
         text += " " + context.lower()
 
     # Keyword matching for goal inference
-    muscle_keywords = ["muscul", "muscle", "hypertrophie", "prise de masse", "bulk", "grossir", "prendre du poids"]
-    loss_keywords = ["maigrir", "perte", "déficit", "secher", "cut", "perdre du poids", "mincir"]
-    performance_keywords = ["sport", "performance", "compétition", "basket", "foot", "course", "endurance"]
+    muscle_keywords = [
+        "muscul",
+        "muscle",
+        "hypertrophie",
+        "prise de masse",
+        "bulk",
+        "grossir",
+        "prendre du poids",
+    ]
+    loss_keywords = [
+        "maigrir",
+        "perte",
+        "déficit",
+        "secher",
+        "cut",
+        "perdre du poids",
+        "mincir",
+    ]
+    performance_keywords = [
+        "sport",
+        "performance",
+        "compétition",
+        "basket",
+        "foot",
+        "course",
+        "endurance",
+    ]
+
+    # Track if we found a specific goal
+    specific_goal_found = False
 
     for keyword in muscle_keywords:
         if keyword in text:
             goals["muscle_gain"] = 7
+            goals["maintenance"] = 0  # Override default when specific goal is set
+            specific_goal_found = True
             break
 
     for keyword in loss_keywords:
         if keyword in text:
             goals["weight_loss"] = 7
             goals["muscle_gain"] = 0  # Conflicting goal
+            goals["maintenance"] = 0  # Override default when specific goal is set
+            specific_goal_found = True
             break
 
     for keyword in performance_keywords:
         if keyword in text:
             goals["performance"] = 7
+            if (
+                not specific_goal_found
+            ):  # Keep maintenance lower when performance is set
+                goals["maintenance"] = 3  # Can combine performance with maintenance
 
     logger.info(f"Inferred goals from context: {goals}")
 
@@ -184,9 +221,7 @@ def infer_goals_from_context(
 
 
 def calculate_protein_target(
-    weight_kg: float,
-    primary_goal: str,
-    use_intermediate: bool = True
+    weight_kg: float, primary_goal: str, use_intermediate: bool = True
 ) -> tuple[int, float, tuple[int, int]]:
     """
     Calculate protein target based on weight and primary goal with adaptive ranges.
@@ -222,8 +257,8 @@ def calculate_protein_target(
             # Start at 2.5g/kg (middle of 2.3-3.1 range) for better adherence
             protein_per_kg = 2.5
         elif primary_goal == "muscle_gain":
-            # Start at 1.8g/kg (middle of 1.6-2.2 range)
-            protein_per_kg = 1.8
+            # Start at 1.8g/kg (middle of 1.6-2.4 range)
+            protein_per_kg = 2
         else:
             # Use middle of range for other goals
             protein_per_kg = (min_protein_per_kg + max_protein_per_kg) / 2
@@ -247,9 +282,7 @@ def calculate_protein_target(
 
 
 def calculate_macros(
-    target_calories: int,
-    protein_g: int,
-    goal_type: str = "muscle_gain"
+    target_calories: int, protein_g: int, goal_type: str = "muscle_gain"
 ) -> Dict[str, int]:
     """
     Calculate carb and fat targets based on calories and protein.

@@ -6,7 +6,6 @@ gracefully and provides clear error messages for validation failures.
 """
 
 import logging
-from typing import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -58,31 +57,164 @@ def validate_feedback_metrics(feedback: dict) -> dict:
     if not (0 <= adherence <= 100):
         raise ValueError(f"adherence_percent must be 0-100% (you provided {adherence})")
 
-    # Validate enum fields with defaults
+    # Natural language normalization mappings for bilingual support
+    HUNGER_LEVEL_MAPPING = {
+        # English
+        "low": "low",
+        "little": "low",
+        "not hungry": "low",
+        "satisfied": "low",
+        "medium": "medium",
+        "moderate": "medium",
+        "ok": "medium",
+        "normal": "medium",
+        "average": "medium",
+        "high": "high",
+        "hungry": "high",
+        "very hungry": "high",
+        "starving": "high",
+        # French
+        "faible": "low",
+        "peu": "low",
+        "pas faim": "low",
+        "rassasié": "low",
+        "rassasiée": "low",
+        "moyenne": "medium",
+        "modérée": "medium",
+        "normale": "medium",
+        "correct": "medium",
+        "correcte": "medium",
+        "forte": "high",
+        "très faim": "high",
+        "affamé": "high",
+        "affamée": "high",
+    }
+
+    ENERGY_LEVEL_MAPPING = {
+        # English
+        "low": "low",
+        "bad": "low",
+        "poor": "low",
+        "tired": "low",
+        "fatigued": "low",
+        "exhausted": "low",
+        "medium": "medium",
+        "ok": "medium",
+        "okay": "medium",
+        "normal": "medium",
+        "average": "medium",
+        "good": "medium",
+        "fine": "medium",
+        "decent": "medium",
+        "high": "high",
+        "great": "high",
+        "excellent": "high",
+        "very good": "high",
+        "energetic": "high",
+        "energized": "high",
+        # French
+        "basse": "low",
+        "faible": "low",
+        "mauvaise": "low",
+        "fatigué": "low",
+        "fatiguée": "low",
+        "épuisé": "low",
+        "épuisée": "low",
+        "moyenne": "medium",
+        "normale": "medium",
+        "correct": "medium",
+        "correcte": "medium",
+        "bonne": "medium",
+        "bien": "medium",
+        # "ok" already defined in English section
+        "haute": "high",
+        "excellente": "high",
+        "très bonne": "high",
+        "énergique": "high",
+    }
+
+    SLEEP_QUALITY_MAPPING = {
+        # English
+        "poor": "poor",
+        "bad": "poor",
+        "terrible": "poor",
+        "awful": "poor",
+        "fair": "fair",
+        "ok": "fair",
+        "okay": "fair",
+        "average": "fair",
+        "medium": "fair",
+        "good": "good",
+        "well": "good",
+        "fine": "good",
+        "decent": "good",
+        "excellent": "excellent",
+        "great": "excellent",
+        "very good": "excellent",
+        "perfect": "excellent",
+        # French
+        "mauvais": "poor",
+        "mauvaise": "poor",
+        # "terrible" already defined in English section
+        "horrible": "poor",
+        "moyen": "fair",
+        "moyenne": "fair",
+        "correct": "fair",
+        "correcte": "fair",
+        "passable": "fair",
+        "bon": "good",
+        "bonne": "good",
+        "bien": "good",
+        # "excellent" already defined in English section
+        "excellente": "excellent",
+        "très bon": "excellent",
+        "très bonne": "excellent",
+        "parfait": "excellent",
+        "parfaite": "excellent",
+    }
+
+    # Validate and normalize hunger_level
     valid_hunger = ["low", "medium", "high"]
     if "hunger_level" in feedback:
-        if feedback["hunger_level"] not in valid_hunger:
+        original_hunger = feedback["hunger_level"]
+        normalized_hunger = HUNGER_LEVEL_MAPPING.get(
+            str(original_hunger).lower().strip(), original_hunger
+        )
+        if normalized_hunger not in valid_hunger:
             raise ValueError(
-                f"hunger_level must be one of {valid_hunger} (you provided {feedback['hunger_level']})"
+                f"hunger_level must be one of {valid_hunger} (you provided '{original_hunger}')"
             )
+        feedback["hunger_level"] = normalized_hunger
     else:
         feedback["hunger_level"] = "medium"
 
+    # Validate and normalize energy_level
     valid_energy = ["low", "medium", "high"]
     if "energy_level" in feedback:
-        if feedback["energy_level"] not in valid_energy:
+        original_energy = feedback["energy_level"]
+        normalized_energy = ENERGY_LEVEL_MAPPING.get(
+            str(original_energy).lower().strip(), original_energy
+        )
+        if normalized_energy not in valid_energy:
             raise ValueError(
-                f"energy_level must be one of {valid_energy} (you provided {feedback['energy_level']})"
+                f"energy_level must be one of {valid_energy} (you provided '{original_energy}', consider using: 'low'/'faible', 'medium'/'bonne', 'high'/'excellente')"
             )
+        feedback["energy_level"] = normalized_energy
     else:
         feedback["energy_level"] = "medium"
 
+    # Validate and normalize sleep_quality
     valid_sleep = ["poor", "fair", "good", "excellent"]
     if "sleep_quality" in feedback:
-        if feedback["sleep_quality"] not in valid_sleep:
+        original_sleep = feedback["sleep_quality"]
+        normalized_sleep = SLEEP_QUALITY_MAPPING.get(
+            str(original_sleep).lower().strip(), original_sleep
+        )
+        if normalized_sleep not in valid_sleep:
             raise ValueError(
-                f"sleep_quality must be one of {valid_sleep} (you provided {feedback['sleep_quality']})"
+                f"sleep_quality must be one of {valid_sleep} (you provided '{original_sleep}')"
             )
+        feedback["sleep_quality"] = normalized_sleep
     else:
         feedback["sleep_quality"] = "good"
 
@@ -154,9 +286,7 @@ def extract_feedback_from_text(text: str) -> dict:
         "flat",
     ]
 
-    high_energy_matches = sum(
-        1 for kw in high_energy_keywords if kw in text_lower
-    )
+    high_energy_matches = sum(1 for kw in high_energy_keywords if kw in text_lower)
     low_energy_matches = sum(1 for kw in low_energy_keywords if kw in text_lower)
 
     if high_energy_matches > low_energy_matches:
