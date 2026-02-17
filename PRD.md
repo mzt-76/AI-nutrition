@@ -1,8 +1,8 @@
 # Product Requirements Document: AI Nutrition Assistant
 
-**Version:** 1.0
-**Date:** December 14, 2024
-**Status:** Active Development - Module 4 (Python Migration)
+**Version:** 2.0
+**Date:** February 17, 2026
+**Status:** Active Development - Skills Architecture + Eval-Driven Refactoring
 **Author:** AI-Nutrition Team
 
 ---
@@ -16,7 +16,7 @@ The product combines advanced AI agent capabilities (RAG, long-term memory, tool
 **Core Value Proposition:**
 > "A nutritionist AI that knows you, adapts to you, and generates weekly personalized meal plans with recipes and shopping lists - accounting for your preferences and real-world results."
 
-**MVP Goal:** Migrate the functional n8n prototype to production-ready Python code (Pydantic AI), implementing all core nutrition tools, RAG system, and conversational capabilities, with a Streamlit interface for testing.
+**MVP Goal:** Production-ready Python agent (Pydantic AI) with skill-based progressive disclosure architecture, eval-validated tool scripts, and adaptive weekly coaching — accessible via Streamlit and CLI.
 
 ---
 
@@ -245,67 +245,79 @@ Agent: *Recalculates with new activity multiplier → "Ton TDEE passerait de 286
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Directory Structure (Module 4)
+### Directory Structure (Current)
 
 ```
 AI-nutrition/
-├── 4_Pydantic_AI_Agent/           # Main Python implementation
-│   ├── .env                        # Environment configuration
-│   ├── requirements.txt            # Python dependencies
-│   ├── agent.py                    # Pydantic AI agent core
-│   ├── clients.py                  # LLM, DB, memory clients
+├── src/                            # Main agent package
+│   ├── agent.py                    # Pydantic AI agent (loads skill scripts via importlib)
+│   ├── tools.py                    # Agent tool wrappers (@agent.tool decorators)
 │   ├── prompt.py                   # System prompt template
-│   ├── tools.py                    # Tool implementations
+│   ├── clients.py                  # LLM, DB, memory clients
+│   ├── cli.py                      # CLI entry point
 │   ├── streamlit_ui.py             # Streamlit interface
-│   │
-│   ├── RAG_Pipeline/               # Document processing
-│   │   ├── requirements.txt
-│   │   ├── common/
-│   │   │   ├── db_handler.py       # Supabase operations
-│   │   │   └── text_processor.py   # Text chunking, embeddings
-│   │   ├── Google_Drive/
-│   │   │   ├── main.py             # Google Drive watcher entry
-│   │   │   ├── drive_watcher.py    # Drive file monitoring
-│   │   │   ├── config.json         # Folder IDs, settings
-│   │   │   └── credentials.json    # Google OAuth credentials
-│   │   └── Local_Files/
-│   │       ├── main.py             # Local file watcher entry
-│   │       ├── file_watcher.py     # File system monitoring
-│   │       └── config.json
-│   │
-│   └── sql/                        # Database schema
-│       ├── documents.sql
-│       ├── document_metadata.sql
-│       ├── document_rows.sql
-│       └── execute_sql_rpc.sql
+│   ├── skill_loader.py             # Skill discovery & progressive disclosure
+│   ├── skill_tools.py              # Skill agent tools (load, read, list)
+│   ├── nutrition/                  # Domain logic (pure functions)
+│   │   ├── calculations.py         # BMR, TDEE, protein, macros
+│   │   ├── adjustments.py          # Weight trends, red flags, adjustments
+│   │   ├── feedback_extraction.py  # Feedback parsing & completeness
+│   │   ├── validators.py           # Input validation
+│   │   ├── meal_planning.py        # Meal plan generation
+│   │   ├── meal_distribution.py    # Macro distribution across meals
+│   │   ├── meal_plan_optimizer.py  # Optimization constraints
+│   │   ├── meal_plan_formatter.py  # Output formatting
+│   │   ├── openfoodfacts_client.py # Open Food Facts API
+│   │   ├── fatsecret_client.py     # FatSecret API (legacy)
+│   │   └── error_logger.py         # Error tracking
+│   └── RAG_Pipeline/               # Document sync
+│       ├── common/ (db_handler, text_processor)
+│       ├── Google_Drive/ (drive_watcher)
+│       └── Local_Files/ (file_watcher)
 │
-├── prototype/                      # n8n reference & frontend
-│   ├── AI Agent nutrition prototype weeklyfeedback(1).json
-│   ├── fiche_de_synthese_V2.1.md
-│   └── loveable_interface/         # React/TypeScript frontend (future integration)
-│       └── src/
-│           ├── components/chat/
-│           ├── hooks/useChat.ts
-│           └── pages/Index.tsx
+├── skills/                         # Skill-based progressive disclosure
+│   ├── nutrition-calculating/      # BMR/TDEE/macro calculation
+│   │   ├── SKILL.md                # Metadata + when to use
+│   │   ├── scripts/calculate_nutritional_needs.py
+│   │   └── references/formulas.md
+│   ├── meal-planning/              # Weekly plans, shopping lists
+│   │   ├── SKILL.md
+│   │   ├── scripts/ (generate_weekly_meal_plan, shopping_list, fetch_stored)
+│   │   └── references/ (presentation, allergens, shopping format)
+│   ├── weekly-coaching/            # Adaptive weekly adjustments
+│   │   ├── SKILL.md
+│   │   ├── scripts/calculate_weekly_adjustments.py
+│   │   └── references/red_flag_protocol.md
+│   ├── knowledge-searching/        # RAG + web search
+│   │   ├── SKILL.md
+│   │   └── scripts/ (retrieve_relevant_documents, web_search)
+│   ├── body-analyzing/             # GPT-4 Vision analysis
+│   │   ├── SKILL.md
+│   │   └── scripts/image_analysis.py
+│   └── skill-creator/              # Meta: create new skills
 │
-├── nutrition references/           # Knowledge base documents
-│   ├── nutritional_knowledge_base.md
-│   ├── AI nutrion agent best practices
-│   └── Nutritional Fundamentals.pdf
+├── evals/                          # Pydantic-evals structured evaluations
+│   ├── test_skill_loading.py       # Skill discovery & loading (5 datasets)
+│   └── test_skill_scripts.py       # Script execution (5 datasets, 28 cases)
 │
-└── ai-agent-mastery/              # Course materials (reference)
-    ├── 3_n8n_Agents/
-    ├── 4_Pydantic_AI_Agent/
-    └── ...
+├── tests/                          # Pytest unit/integration tests
+├── sql/                            # DB schema migrations
+├── prototype/                      # n8n reference & Lovable frontend
+│   └── loveable_interface/         # React/TypeScript frontend
+│
+└── Configuration files
+    ├── .env, requirements.txt, pytest.ini, CLAUDE.md, PRD.md
 ```
 
 ### Key Design Patterns
 
-**1. Tool-Based Agent Architecture**
-- Each capability (nutrition calculation, RAG query, web search) is an isolated tool
-- Tools are self-contained with clear inputs/outputs (JSON schemas)
-- Agent orchestrator decides which tools to call based on user intent
-- Enables easy testing, debugging, and extension
+**1. Skill-Based Progressive Disclosure Architecture**
+- Each domain (nutrition, meal-planning, coaching, etc.) is a **skill** with its own directory
+- Skills contain: `SKILL.md` (metadata/when-to-use), `scripts/` (executable functions), `references/` (domain docs)
+- Scripts are standalone `async execute(**kwargs)` functions loaded via `importlib`
+- Agent tools (`src/tools.py`) are thin wrappers that delegate to skill scripts
+- `SkillLoader` discovers skills at startup and provides metadata for agent context
+- Enables independent testing, eval coverage per script, and modular development
 
 **2. RAG (Retrieval-Augmented Generation)**
 - Knowledge base documents stored as embeddings in Supabase pgvector
@@ -325,10 +337,12 @@ AI-nutrition/
 - On first message: fetch profile + query memories for context
 - New preferences/restrictions automatically stored
 
-**5. Hybrid Calculation Strategy**
-- Validated formulas (Mifflin-St Jeor) in JavaScript tools for transparency
-- Complex calculations use `execute_code` tool for flexibility
-- Safety constraints hardcoded (minimum calories, allergen checks)
+**5. Eval-Driven Development**
+- All skill scripts validated with pydantic-evals structured evaluations
+- Custom evaluators (IsValidJSON, CaloriesInRange, JSONErrorCode, etc.) verify outputs
+- 28 eval cases across 5 datasets cover happy paths, edge cases, and error handling
+- Mocked external dependencies (Supabase, OpenAI, HTTP) for deterministic testing
+- Safety constraints validated in evals (min calories, allergen checks, weight validation)
 
 ---
 
@@ -529,18 +543,26 @@ AI-nutrition/
 
 ---
 
-### Tool 5: `memories` (RAG - Conversation History)
+### Tool 5: `memories` (Long-Term Memory via mem0)
 
-**Purpose:** Search past conversations to maintain context across sessions.
+**Purpose:** Maintain context across sessions using mem0 for intelligent memory management.
 
-**Operations:**
-- ✅ Query Supabase vectorstore using `match_memories` function
-- ✅ Stores: user preferences, restrictions, past goals, feedback patterns
-- ✅ Automatic storage of important information from conversations
+**Implementation:** Uses **mem0** library instead of a separate vectorstore. mem0 provides:
+- ✅ Automatic extraction of important information from conversations
+- ✅ Memory consolidation and deduplication
+- ✅ Cross-session context persistence
+- ✅ Injected into system prompt via `add_memories()` function
 
-**Example Query:** "What are this user's dietary restrictions?"
+**How it works:**
+```python
+# In agent.py - memories are loaded from mem0 and injected into system prompt
+@agent.system_prompt
+def add_memories(ctx: RunContext[AgentDeps]) -> str:
+    if ctx.deps.memories:
+        return f"\n\n## User Memories (Long-Term Context)\n{ctx.deps.memories}"
+```
 
-**Returns:** "Allergic to peanuts, dislikes fish, prefers Mediterranean and Asian cuisines, maximum prep time 45 minutes."
+**Example Context Provided:** "Allergic to peanuts, dislikes fish, prefers Mediterranean and Asian cuisines, maximum prep time 45 minutes, goal is muscle gain."
 
 ---
 
@@ -1435,29 +1457,32 @@ The Module 4 migration is successful when:
 ```
 AI-nutrition/
 ├── PRD.md                          # This document
+├── CLAUDE.md                       # Development guide (instructions for AI)
 ├── README.md                       # Project overview
-├── .gitignore                      # Git ignore (includes .env)
+├── requirements.txt                # Python dependencies
+├── pytest.ini                      # Test configuration
 │
-├── 4_Pydantic_AI_Agent/            # Main implementation (Module 4)
-│   ├── .env.example
-│   ├── agent.py
-│   ├── tools.py
-│   ├── clients.py
-│   ├── prompt.py
-│   ├── streamlit_ui.py
-│   ├── requirements.txt
-│   └── RAG_Pipeline/
+├── src/                            # Main agent package
+│   ├── agent.py, tools.py          # Core agent + tool wrappers
+│   ├── skill_loader.py             # Skill discovery system
+│   └── nutrition/                  # Domain logic (calculations, adjustments)
 │
-├── prototype/                      # Reference materials
-│   ├── fiche_de_synthese_V2.1.md
-│   ├── AI Agent nutrition prototype weeklyfeedback(1).json
+├── skills/                         # 6 skill domains with scripts + references
+│   ├── nutrition-calculating/
+│   ├── meal-planning/
+│   ├── weekly-coaching/
+│   ├── knowledge-searching/
+│   ├── body-analyzing/
+│   └── skill-creator/
+│
+├── evals/                          # Pydantic-evals structured evaluations
+├── tests/                          # Pytest unit/integration tests
+├── sql/                            # Database schema
+│
+├── prototype/                      # n8n reference + Lovable frontend
 │   └── loveable_interface/
 │
-├── nutrition references/           # Knowledge base
-│   ├── nutritional_knowledge_base.md
-│   └── AI nutrion agent best practices
-│
-└── ai-agent-mastery/              # Course materials (reference)
+└── ai-agent-mastery/               # Course materials (reference)
 ```
 
 ### Contact & Support
@@ -1469,20 +1494,19 @@ AI-nutrition/
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** December 14, 2024
-**Next Review:** After Module 4 completion
-**Status:** Active - Ready for Implementation
+---
+
+## Next Steps (February 2026)
+
+1. **Weekplan total refactoring** — Redesign meal plan generation workflow end-to-end (generation, optimization, formatting, storage, retrieval)
+2. **Skill redesign based on eval results** — Analyze eval coverage gaps, optimize scripts where evals reveal issues, add missing edge case coverage
+3. **Context optimization** — Reduce token usage in agent system prompts and skill metadata; evaluate progressive disclosure efficiency
+4. **OpenFoodFacts integration** — Complete migration from FatSecret to Open Food Facts for ingredient data
+5. **Frontend integration** — Connect Lovable React prototype to Python backend API
 
 ---
 
-## Next Steps
-
-1. **Review this PRD** - Validate scope, architecture, and success criteria
-2. **Set up Python environment** - Follow Module 4 course instructions
-3. **Begin Phase 1** - Foundation setup (environment, database, basic agent)
-4. **Iterative development** - Complete Phases 2-6 systematically
-5. **User testing** - Personal use to validate all functionality
-6. **Prepare for Module 5** - Frontend integration planning
-
-**Good luck building your AI Nutrition Assistant!** 🚀
+**Document Version:** 2.0
+**Last Updated:** February 17, 2026
+**Next Review:** After weekplan refactoring completion
+**Status:** Active - Skills Architecture Established, Eval-Driven Refactoring Phase

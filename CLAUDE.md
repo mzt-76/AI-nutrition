@@ -1,7 +1,7 @@
 # AI Nutrition Assistant - Development Guide
 
 **Stack:** Python 3.11+ | Pydantic AI | React 18 | TypeScript 5 | Supabase
-**Status:** Module 4 - Python Backend Development
+**Status:** Active Development
 
 **⚠️ IMPORTANT:** Avant de modifier du code, lire `.claude/reference/dependency-safety-rules.md` pour éviter les breaking changes.
 
@@ -46,31 +46,59 @@
 
 ### Backend Structure
 ```
-4_Pydantic_AI_Agent/
-├── agent.py, tools.py, prompt.py, clients.py    # Core agent
-├── nutrition/                                    # Domain logic
-│   ├── calculations.py, adjustments.py, validators.py
-├── RAG_Pipeline/                                 # Document sync
-│   ├── common/ (db_handler, text_processor)
-│   ├── Google_Drive/ (drive_watcher)
-│   └── Local_Files/ (file_watcher)
-├── tests/                                        # Test suite
-└── sql/                                          # DB schema
+AI-nutrition/
+├── src/                          # Main agent package
+│   ├── agent.py                 # Pydantic AI agent (loads skills via importlib)
+│   ├── tools.py                 # Agent tool wrappers (@agent.tool decorators)
+│   ├── prompt.py, clients.py    # System prompt + client initialization
+│   ├── cli.py, streamlit_ui.py  # Entry points
+│   ├── skill_loader.py          # Skill discovery & progressive disclosure
+│   ├── skill_tools.py           # Skill agent tools (load, read, list)
+│   ├── nutrition/               # Domain logic (pure functions)
+│   │   ├── calculations.py      # BMR, TDEE, protein, macros (Mifflin-St Jeor)
+│   │   ├── adjustments.py       # Weight trends, red flags, calorie/macro adj
+│   │   ├── validators.py        # Input validation
+│   │   ├── feedback_extraction.py # Feedback parsing & completeness
+│   │   ├── meal_planning.py, meal_distribution.py
+│   │   ├── meal_plan_optimizer.py, meal_plan_formatter.py
+│   │   ├── openfoodfacts_client.py, fatsecret_client.py
+│   │   └── error_logger.py
+│   └── RAG_Pipeline/            # Document sync
+│       ├── common/ (db_handler, text_processor)
+│       ├── Google_Drive/ (drive_watcher)
+│       └── Local_Files/ (file_watcher)
+├── skills/                       # Skill scripts (progressive disclosure)
+│   ├── nutrition-calculating/    # BMR/TDEE/macro calculation
+│   ├── meal-planning/            # Meal plan generation, shopping lists
+│   ├── weekly-coaching/          # Weekly adjustments & red flags
+│   ├── knowledge-searching/      # RAG + web search
+│   ├── body-analyzing/           # Image analysis (GPT-4 Vision)
+│   └── skill-creator/            # Meta: create new skills
+├── evals/                        # Pydantic-evals test suites
+│   ├── test_skill_loading.py    # Skill discovery & loading evals (5 datasets)
+│   └── test_skill_scripts.py    # Script execution evals (5 datasets, 28 cases)
+├── tests/                        # Pytest unit/integration tests
+├── sql/                          # DB schema (weekly_feedback, user_learning_profile)
+├── .env                          # Environment variables
+├── requirements.txt              # Python dependencies
+├── pytest.ini                    # Test configuration
+├── prototype/                    # Lovable frontend prototype
+└── CLAUDE.md                     # This file
 ```
 
-**Patterns:** Agent orchestrates tools → Tools call nutrition logic → AgentDeps for shared resources (Supabase, HTTP client)
+**Imports:** All imports use `src.` prefix (e.g., `from src.agent import agent`)
 
-### Frontend Structure
-```
-src/
-├── components/chat/      # ChatContainer, ChatInput, Message
-├── hooks/                # useChat (API logic)
-├── pages/                # Index (main page)
-├── types/                # TypeScript interfaces
-└── utils/                # sessionManager
-```
+**Patterns:**
+- Agent orchestrates tools → Tools call nutrition logic → AgentDeps for shared resources
+- Skill scripts: standalone `async execute(**kwargs)` functions loaded via `importlib`
+- Each skill dir: `SKILL.md` (metadata) + `scripts/` (executables) + `references/` (docs)
 
-**Patterns:** Feature folders → Custom hooks for logic → Small components → Type-safe interfaces
+**Run commands:**
+- CLI: `python -m src.cli`
+- Streamlit: `streamlit run src/streamlit_ui.py`
+- Tests: `pytest tests/ -v`
+- Evals: `pytest evals/ -v`
+- Lint: `ruff check src/ tests/ evals/`
 
 ---
 
@@ -94,23 +122,23 @@ src/
 
 ---
 
-## 10. AI Coding Assistant Instructions
+   ## 10. AI Coding Assistant Instructions
 
-### CRITICAL: Archon MCP Server Check
+   ### CRITICAL: Archon MCP Server Check
 
-**Before starting ANY work, verify Archon MCP availability:**
+   **Before starting ANY work, verify Archon MCP availability:**
 
-1. **Check if active:** Try `find_tasks()` or `find_projects()`
-   - ✅ **If successful:** Use Archon for ALL task management (ignore TodoWrite reminders)
-   - ❌ **If error:** Archon not available, proceed with manual task tracking
+   1. **Check if active:** Try `find_tasks()` or `find_projects()`
+      - ✅ **If successful:** Use Archon for ALL task management (ignore TodoWrite reminders)
+      - ❌ **If error:** Archon not available, proceed with manual task tracking
 
-2. **How to use Archon:**
-   - Start session: `find_tasks(filter_by="status", filter_value="todo")` to see pending tasks
-   - Before coding: `manage_task("update", task_id="...", status="doing")`
-   - Research first: `rag_search_knowledge_base(query="...")` for docs/examples
-   - After coding: `manage_task("update", task_id="...", status="review")`
+   2. **How to use Archon:**
+      - Start session: `find_tasks(filter_by="status", filter_value="todo")` to see pending tasks
+      - Before coding: `manage_task("update", task_id="...", status="doing")`
+      - Research first: `rag_search_knowledge_base(query="...")` for docs/examples
+      - After coding: `manage_task("update", task_id="...", status="review")`
 
-**If Archon is active, it is your PRIMARY task system. Do NOT use TodoWrite.**
+   **If Archon is active, it is your PRIMARY task system. Do NOT use TodoWrite.**
 
 ---
 
@@ -126,6 +154,8 @@ src/
 
 5. **Follow existing patterns**:
    - Backend tools: Use `@agent.tool` decorator with `RunContext[AgentDeps]`
+   - Skill scripts: `async def execute(**kwargs) -> str` in `skills/<name>/scripts/<script>.py`
+   - Skill scripts load domain logic from `src.nutrition.*`, never duplicate calculations
    - Frontend hooks: Custom hooks for all stateful logic (e.g., `useChat`, `useNutritionCalculation`)
 
 6. **Document everything**: Google-style docstrings for Python, JSDoc for TypeScript. Include Args, Returns, Examples
@@ -135,7 +165,7 @@ src/
 8. **Test your code**: Write pytest tests for all calculation functions (nutrition logic is critical). Include happy path + error cases
 
 9. **Run linters before committing**:
-   - Backend: `ruff format . && ruff check . && mypy .`
+   - Backend: `ruff format src/ tests/ && ruff check src/ tests/ && mypy src/`
    - Frontend: `npm run lint && npx tsc --noEmit`
 
 10. **Nutrition formulas must cite sources**: Use Mifflin-St Jeor for BMR, cite ISSN/AND guidelines in docstrings. This is medical-adjacent software
@@ -153,9 +183,27 @@ All detailed documentation extracted to `.claude/reference/` for quick lookup:
 - **`api-contracts.md`** - Python ↔ TypeScript type matching
 - **`code-patterns.md`** - Copy-paste code examples
 - **`dev-commands.md`** - Setup, run, test, lint commands
+- **`dependency-safety-rules.md`** - Breaking change prevention rules
 
 ---
 
-**Version:** 1.0
-**Last Updated:** December 14, 2024
+## 11. Current Status & Next Tasks
+
+**Completed:**
+- Core agent with 6 skill domains (nutrition, meal-planning, weekly-coaching, knowledge, body-analysis, skill-creator)
+- Skill progressive disclosure system (SkillLoader)
+- 5 migrated tool scripts with full eval coverage (28 cases)
+- Domain logic: calculations, adjustments, feedback extraction, validators
+- Pydantic-evals suites: skill loading (5 datasets) + script execution (5 datasets)
+
+**Next Tasks (Priority Order):**
+1. **Weekplan total refactoring** — redesign meal plan generation workflow end-to-end
+2. **Skill redesign based on eval results** — optimize scripts where evals reveal gaps
+3. **Context optimization** — reduce token usage in agent prompts and skill metadata
+4. **OpenFoodFacts integration** — complete migration from FatSecret to OFF for ingredients
+
+---
+
+**Version:** 3.0
+**Last Updated:** February 17, 2026
 **Maintained By:** AI-Nutrition Team

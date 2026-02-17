@@ -1,6 +1,14 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(git mv:*)",
+      "Bash(python:*)",
+      "WebFetch(domain:ai.pydantic.dev)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "supabase"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

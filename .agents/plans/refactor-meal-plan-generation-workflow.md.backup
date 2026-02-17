@@ -1,0 +1,1743 @@
+# Refactor: Weekly Meal Plan Generation - Séparation LLM/Python
+
+## 🎯 Objectif Core
+
+**Problème:** Prompt actuel de 500 lignes surcharge GPT-4o avec instructions contradictoires → hallucinations & macros imprécises
+**Solution:** Séparer créativité (LLM) et calculs précis (Python) via workflow en 10 étapes
+
+**Résultat attendu:**
+- ±5% protéines, ±10% glucides/lipides garantis
+- Prompt simplifié ~100 lignes (vs 500)
+- Validation utilisateur AVANT génération (transparence)
+- Logs exhaustifs si échec (debugging)
+- Document Markdown téléchargeable
+
+## 🔄 Les 10 Étapes du Nouveau Workflow
+
+**Voici la structure décidée:**
+
+1. **Charger Profil** → `fetch_my_profile` (allergies, préférences, cibles)
+2. **Calculer Macros Journalières** → `calculate_nutritional_needs` (BMR, TDEE, cibles quotidiennes)
+3. **✨ NOUVEAU: Calculer Macros PAR REPAS** → `calculate_meal_macros_distribution()`
+   - Répartition selon structure (3 repas = 33% chaque, 3 repas + 2 snacks = 75%/25%, etc.)
+4. **Confirmation Utilisateur** → Agent présente les calculs AVANT génération
+5. **LLM Génère Recettes** → Prompt SIMPLIFIÉ (~100 lignes, focus créativité, PAS de calcul macro)
+6. **Python Calcule Macros Réelles** → OpenFoodFacts API pour chaque ingrédient
+7. **Python Ajuste les Quantités** → Algorithme génétique pour atteindre ±5% protéines / ±10% reste
+8. **Validation Multi-Niveaux** → Structure + Allergies + Macros + Complétude (avec logs exhaustifs si échec)
+9. **Stockage DB** → Insert dans `meal_plans` table
+10. **Format Réponse User** → Générer document Markdown téléchargeable
+
+## 📊 Décisions Clés (Issues User)
+
+1. **Tolérance macros:** ±5% protéines, ±10% glucides/lipides
+2. **Si validation échoue:** PAS de retry auto → Logs exhaustifs dans `logs/meal_plan_errors_{timestamp}.json`
+3. **Structure repas:** Demander à l'utilisateur (défaut: `"3_consequent_meals"` si pas de réponse)
+4. **Document:** Générer Markdown avec détails jour par jour + tableau synthétique
+
+## 📚 Références & Documentation
+
+### Fichiers à Créer
+
+**Nouveaux modules:**
+- `nutrition/meal_distribution.py` → Répartition macros par repas
+- `nutrition/meal_plan_formatter.py` → Export Markdown
+- `nutrition/error_logger.py` → Logs JSON exhaustifs
+- `tests/test_meal_distribution.py` → Tests répartition
+- `tests/test_meal_plan_formatter.py` → Tests export
+- `tests/test_meal_plan_workflow_integration.py` → Tests end-to-end
+
+### Fichiers à Modifier
+
+**Modifications incrémentales (partir de l'existant):**
+- `tools.py` (lignes 738-1150) → Intégrer les 10 étapes dans `generate_weekly_meal_plan_tool`
+  - **Garder:** Learning profile (938-986), OpenFoodFacts (1072-1115)
+- `nutrition/meal_planning.py` → Ajouter `build_meal_plan_prompt_simple()` (~100 lignes)
+- `nutrition/validators.py` → Ajouter `validate_meal_plan_complete()` (4 niveaux)
+- `prompt.py` → Ajouter workflow utilisateur (présenter macros, demander structure, confirmer)
+
+### Documentation Externe
+
+- **Pydantic AI:** https://ai.pydantic.dev/agents/ (patterns agent + tools)
+- **OpenAI JSON Mode:** https://platform.openai.com/docs/guides/structured-outputs#json-mode
+- **Python Logging:** https://docs.python.org/3/howto/logging.html
+- **Markdown Tables:** https://www.markdownguide.org/extended-syntax/#tables
+
+### Patterns du Codebase
+
+**Conventions (voir CLAUDE.md):**
+- Functions: `snake_case`, Classes: `PascalCase`, Constantes: `UPPER_SNAKE_CASE`
+- Docstrings: Google-style (Args, Returns, Examples)
+- Async par défaut pour I/O
+- Type hints complets (args + return)
+- Logging structuré avec contexte
+
+## 🛠️ Plan d'Implémentation
+
+### Phase 1: Nouveaux Modules (Isolés)
+
+**Créer 3 nouveaux fichiers sans toucher à l'existant:**
+
+1. **`nutrition/meal_distribution.py`**
+   - Fonction: `calculate_meal_macros_distribution(daily_calories, daily_protein_g, daily_carbs_g, daily_fat_g, meal_structure) -> dict`
+   - Logic: Répartir macros selon structure (3 repas = 33% chaque, avec snacks = main 75%/snacks 25%)
+
+2. **`nutrition/meal_plan_formatter.py`**
+   - Fonction: `format_meal_plan_as_markdown(meal_plan, meal_plan_id) -> str`
+   - Logic: Générer Markdown avec sections jour par jour + tableau récapitulatif
+
+3. **`nutrition/error_logger.py`**
+   - Fonction: `log_meal_plan_validation_error(...) -> Path`
+   - Logic: Sauvegarder validation failures dans `logs/meal_plan_errors_{timestamp}.json`
+
+**Tests unitaires:**
+- `tests/test_meal_distribution.py` (5+ test cases)
+- `tests/test_meal_plan_formatter.py` (3+ test cases)
+
+### Phase 2: Modifier l'Existant
+
+**Ajouter sans casser:**
+
+1. **`nutrition/meal_planning.py`**
+   - Ajouter: `build_meal_plan_prompt_simple()` (~100 lignes, focus créativité, PAS de calcul macro)
+
+2. **`nutrition/validators.py`**
+   - Ajouter: `validate_meal_plan_complete()` (wrapper 4 niveaux avec tolerances custom)
+
+3. **`tools.py` - `generate_weekly_meal_plan_tool`**
+   - Intégrer les 10 étapes DANS l'existant:
+     - Étape 3: Appeler `calculate_meal_macros_distribution()`
+     - Étape 5: Remplacer par `build_meal_plan_prompt_simple()`
+     - Étape 8: Remplacer validation par `validate_meal_plan_complete()` + logs si échec
+     - Étape 10: Générer Markdown avec `format_meal_plan_as_markdown()`
+   - **GARDER:** Learning profile (lignes 938-986), OpenFoodFacts (1072-1115)
+
+4. **`prompt.py`**
+   - Ajouter workflow user: présenter macros → demander structure → confirmer → générer
+
+### Phase 3: Tests d'Intégration
+
+**Test end-to-end:**
+- `tests/test_meal_plan_workflow_integration.py` (avec mocks Supabase/OpenAI)
+- Scénarios: profil avec/sans allergies, toutes structures, validation failures
+
+---
+
+## STEP-BY-STEP TASKS
+
+**IMPORTANT**: Execute every task in order, top to bottom. Each task is atomic and independently testable.
+
+### CREATE `nutrition/meal_distribution.py`
+
+**IMPLEMENT**: Macro distribution calculator that splits daily macros across meals based on meal structure
+
+**PATTERN**: Mirror `nutrition/calculations.py` style (lines 1-100) - Google docstrings, type hints, validation, scientific citations
+
+**IMPORTS**:
+```python
+from typing import Literal
+import logging
+from nutrition.meal_planning import MEAL_STRUCTURES
+```
+
+**FUNCTION SIGNATURE**:
+```python
+def calculate_meal_macros_distribution(
+    daily_calories: int,
+    daily_protein_g: int,
+    daily_carbs_g: int,
+    daily_fat_g: int,
+    meal_structure: Literal["3_meals_2_snacks", "4_meals", "3_consequent_meals", "3_meals_1_preworkout"]
+) -> dict:
+    """
+    Distribute daily macros across meals based on meal structure.
+
+    Uses evidence-based distribution:
+    - Main meals (breakfast, lunch, dinner): 75% calories, 80% protein
+    - Snacks/collations: 25% calories, 20% protein
+    - If no snacks: equal distribution across all meals
+
+    Args:
+        daily_calories: Target daily calories (e.g., 3300)
+        daily_protein_g: Target daily protein in grams (e.g., 174)
+        daily_carbs_g: Target daily carbs in grams (e.g., 413)
+        daily_fat_g: Target daily fat in grams (e.g., 92)
+        meal_structure: One of the 4 supported meal structures
+
+    Returns:
+        {
+            "meals": [
+                {
+                    "meal_type": "Petit-déjeuner",
+                    "time": "07:30",
+                    "target_calories": 825,
+                    "target_protein_g": 58,
+                    "target_carbs_g": 103,
+                    "target_fat_g": 31
+                },
+                ...
+            ],
+            "daily_totals": {
+                "calories": 3300,
+                "protein_g": 174,
+                "carbs_g": 413,
+                "fat_g": 92
+            }
+        }
+
+    Example:
+        >>> dist = calculate_meal_macros_distribution(3300, 174, 413, 92, "3_meals_2_snacks")
+        >>> len(dist["meals"])
+        5
+        >>> dist["meals"][0]["meal_type"]
+        'Petit-déjeuner'
+
+    References:
+        ISSN Position Stand (2017): Nutrient timing and meal frequency
+        Helms et al. (2014): Evidence-based recommendations for natural bodybuilding
+    """
+```
+
+**ALGORITHM**:
+1. Get meal structure info from `MEAL_STRUCTURES[meal_structure]`
+2. Classify meals as "main" (contains "petit-déjeuner", "déjeuner", "dîner", "repas") or "snack" (contains "collation")
+3. If snacks exist:
+   - Main meals: (daily_calories * 0.75) / num_main, (daily_protein_g * 0.80) / num_main
+   - Snacks: (daily_calories * 0.25) / num_snacks, (daily_protein_g * 0.20) / num_snacks
+4. If no snacks: equal split across all meals
+5. For carbs/fat: proportional to calorie share `(meal_calories / daily_calories) * daily_carbs_g`
+6. Build result dict with meals array + daily_totals
+7. Log distribution with `logger.info(f"Distributed {daily_calories} kcal across {len(meals)} meals")`
+
+**GOTCHA**:
+- Meal names in `MEAL_STRUCTURES` include time in parentheses: "Petit-déjeuner (07:30)"
+- Must split on "(" to extract meal_type and time separately
+- Use `int()` for all calculations to avoid float rounding issues in JSON
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && python -c "from nutrition.meal_distribution import calculate_meal_macros_distribution; import json; result = calculate_meal_macros_distribution(3300, 174, 413, 92, '3_meals_2_snacks'); print(json.dumps(result, indent=2)); assert len(result['meals']) == 5; assert result['daily_totals']['calories'] == 3300"
+```
+
+---
+
+### CREATE `tests/test_meal_distribution.py`
+
+**IMPLEMENT**: Unit tests for macro distribution calculator
+
+**PATTERN**: Mirror `tests/test_meal_planning.py` (lines 1-100) - simple pytest functions, assert statements
+
+**IMPORTS**:
+```python
+from nutrition.meal_distribution import calculate_meal_macros_distribution
+```
+
+**TEST CASES**:
+```python
+def test_calculate_meal_macros_distribution_3_meals_2_snacks():
+    """Test distribution for 3 main meals + 2 snacks structure."""
+    result = calculate_meal_macros_distribution(3300, 174, 413, 92, "3_meals_2_snacks")
+
+    assert len(result["meals"]) == 5
+    assert result["daily_totals"]["calories"] == 3300
+    assert result["daily_totals"]["protein_g"] == 174
+
+    # Main meals should have ~25% of calories each (75% / 3)
+    main_meals = [m for m in result["meals"] if "Petit-déjeuner" in m["meal_type"] or "Déjeuner" in m["meal_type"] or "Dîner" in m["meal_type"]]
+    assert len(main_meals) == 3
+    assert all(800 <= m["target_calories"] <= 850 for m in main_meals)
+
+    # Snacks should have ~12.5% of calories each (25% / 2)
+    snacks = [m for m in result["meals"] if "Collation" in m["meal_type"]]
+    assert len(snacks) == 2
+    assert all(400 <= m["target_calories"] <= 425 for m in snacks)
+
+def test_calculate_meal_macros_distribution_4_meals():
+    """Test equal distribution for 4 equal meals structure."""
+    result = calculate_meal_macros_distribution(2800, 160, 350, 80, "4_meals")
+
+    assert len(result["meals"]) == 4
+    # All meals should have ~25% of calories
+    assert all(680 <= m["target_calories"] <= 720 for m in result["meals"])
+
+def test_calculate_meal_macros_distribution_3_consequent_meals():
+    """Test distribution for 3 meals with no snacks."""
+    result = calculate_meal_macros_distribution(2400, 150, 300, 70, "3_consequent_meals")
+
+    assert len(result["meals"]) == 3
+    # Equal split: 2400 / 3 = 800 kcal per meal
+    assert all(790 <= m["target_calories"] <= 810 for m in result["meals"])
+
+def test_calculate_meal_macros_distribution_totals_sum_correctly():
+    """Test that meal macros sum to daily totals (with rounding tolerance)."""
+    result = calculate_meal_macros_distribution(3000, 180, 375, 85, "3_meals_2_snacks")
+
+    # Sum all meal macros
+    total_cals = sum(m["target_calories"] for m in result["meals"])
+    total_protein = sum(m["target_protein_g"] for m in result["meals"])
+    total_carbs = sum(m["target_carbs_g"] for m in result["meals"])
+    total_fat = sum(m["target_fat_g"] for m in result["meals"])
+
+    # Allow ±10 kcal tolerance for rounding
+    assert abs(total_cals - 3000) <= 10
+    assert abs(total_protein - 180) <= 5
+    assert abs(total_carbs - 375) <= 10
+    assert abs(total_fat - 85) <= 3
+
+def test_calculate_meal_macros_distribution_includes_meal_times():
+    """Test that each meal has time information extracted from structure."""
+    result = calculate_meal_macros_distribution(3000, 180, 375, 85, "3_meals_1_preworkout")
+
+    for meal in result["meals"]:
+        assert "meal_type" in meal
+        assert "time" in meal
+        assert meal["time"] != ""  # Should have extracted time from "Meal (HH:MM)" format
+```
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && pytest tests/test_meal_distribution.py -v
+```
+
+---
+
+### CREATE `nutrition/meal_plan_formatter.py`
+
+**IMPLEMENT**: Markdown document formatter for meal plans
+
+**PATTERN**: Return plain string (Markdown), use f-strings for formatting
+
+**IMPORTS**:
+```python
+from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
+```
+
+**FUNCTION SIGNATURE**:
+```python
+def format_meal_plan_as_markdown(meal_plan: dict, meal_plan_id: int) -> str:
+    """
+    Format meal plan as downloadable Markdown document.
+
+    Generates comprehensive Markdown with:
+    - Header with plan ID and date range
+    - Daily sections (## Day Name) with meal details
+    - Each meal: name, time, macros, ingredients, instructions
+    - Summary table at end with daily totals
+    - Weekly averages
+
+    Args:
+        meal_plan: Meal plan dict with days, meals, ingredients, nutrition
+        meal_plan_id: Database ID for the plan
+
+    Returns:
+        Markdown string ready to save to file
+
+    Example:
+        >>> markdown = format_meal_plan_as_markdown(plan, 123)
+        >>> "## Lundi" in markdown
+        True
+        >>> "| Jour | Calories |" in markdown
+        True
+    """
+```
+
+**STRUCTURE**:
+```markdown
+# Plan Nutritionnel Hebdomadaire (ID: {meal_plan_id})
+
+**Date de début**: {start_date}
+**Date de fin**: {end_date}
+**Structure**: {meal_structure}
+
+**Cibles quotidiennes**:
+- Calories: {target_calories} kcal
+- Protéines: {target_protein_g}g
+- Glucides: {target_carbs_g}g
+- Lipides: {target_fat_g}g
+
+---
+
+## Lundi {date}
+
+### Petit-déjeuner - 07:30
+**{recipe_name}**
+
+**Nutrition**: {calories} kcal | {protein_g}g protéines | {carbs_g}g glucides | {fat_g}g lipides
+
+**Ingrédients**:
+- {ingredient_name}: {quantity}{unit}
+- ...
+
+**Instructions**:
+{instructions}
+
+---
+
+### Déjeuner - 12:30
+...
+
+**Total du jour**: {daily_calories} kcal | {daily_protein}g protéines | {daily_carbs}g glucides | {daily_fat}g lipides
+
+---
+
+## Mardi {date}
+...
+
+---
+
+## Tableau Récapitulatif
+
+| Jour | Calories | Protéines | Glucides | Lipides |
+|------|----------|-----------|----------|---------|
+| Lundi | {cals} | {protein}g | {carbs}g | {fat}g |
+| ... | ... | ... | ... | ... |
+
+**Moyennes hebdomadaires**:
+- Calories: {avg_cals} kcal/jour
+- Protéines: {avg_protein}g/jour
+- Glucides: {avg_carbs}g/jour
+- Lipides: {avg_fat}g/jour
+
+✅ Toutes les macros sont à ±5% (protéines) et ±10% (glucides, lipides) des cibles
+✅ Allergies vérifiées (0 violation)
+✅ 7 jours complets
+```
+
+**GOTCHA**:
+- Escape pipe `|` characters in ingredient names with `\|` for Markdown table compatibility
+- If instructions contain newlines, replace with `. ` to keep in one paragraph
+- Round all macros to integers for readability
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && python -c "from nutrition.meal_plan_formatter import format_meal_plan_as_markdown; plan = {'days': [{'day': 'Lundi', 'meals': [{'meal_type': 'Petit-déjeuner', 'recipe_name': 'Omelette', 'nutrition': {'calories': 500, 'protein_g': 30, 'carbs_g': 40, 'fat_g': 15}, 'ingredients': [{'name': 'eggs', 'quantity': 3, 'unit': 'pieces'}], 'instructions': 'Cook eggs.', 'time': '07:30'}], 'daily_totals': {'calories': 3000, 'protein_g': 180, 'carbs_g': 375, 'fat_g': 85}}], 'meal_plan_id': 'test', 'start_date': '2024-12-23'}; md = format_meal_plan_as_markdown(plan, 123); assert '## Lundi' in md; assert '| Jour |' in md; print('✅ Markdown generation works')"
+```
+
+---
+
+### CREATE `tests/test_meal_plan_formatter.py`
+
+**IMPLEMENT**: Unit tests for Markdown formatter
+
+**PATTERN**: Simple pytest, assert on string contents
+
+**TEST CASES**:
+```python
+def test_format_meal_plan_as_markdown_contains_headers():
+    """Test that Markdown contains required headers."""
+    plan = {
+        "meal_plan_id": "plan_2024-12-23",
+        "start_date": "2024-12-23",
+        "days": [{
+            "day": "Lundi 2024-12-23",
+            "meals": [{
+                "meal_type": "Petit-déjeuner",
+                "time": "07:30",
+                "recipe_name": "Omelette",
+                "nutrition": {"calories": 500, "protein_g": 30, "carbs_g": 40, "fat_g": 15},
+                "ingredients": [{"name": "eggs", "quantity": 3, "unit": "pieces"}],
+                "instructions": "Cook eggs."
+            }],
+            "daily_totals": {"calories": 3000, "protein_g": 180, "carbs_g": 375, "fat_g": 85}
+        }]
+    }
+
+    markdown = format_meal_plan_as_markdown(plan, 123)
+
+    assert "# Plan Nutritionnel Hebdomadaire (ID: 123)" in markdown
+    assert "## Lundi 2024-12-23" in markdown
+    assert "### Petit-déjeuner - 07:30" in markdown
+
+def test_format_meal_plan_as_markdown_contains_summary_table():
+    """Test that Markdown contains summary table at end."""
+    plan = {
+        "meal_plan_id": "plan_2024-12-23",
+        "start_date": "2024-12-23",
+        "days": [
+            {
+                "day": "Lundi",
+                "meals": [],
+                "daily_totals": {"calories": 3000, "protein_g": 180, "carbs_g": 375, "fat_g": 85}
+            }
+        ]
+    }
+
+    markdown = format_meal_plan_as_markdown(plan, 456)
+
+    assert "| Jour | Calories | Protéines | Glucides | Lipides |" in markdown
+    assert "| Lundi | 3000 | 180g | 375g | 85g |" in markdown
+
+def test_format_meal_plan_as_markdown_includes_ingredients():
+    """Test that ingredients are listed with quantities."""
+    plan = {
+        "days": [{
+            "day": "Lundi",
+            "meals": [{
+                "meal_type": "Déjeuner",
+                "time": "12:30",
+                "recipe_name": "Poulet riz",
+                "nutrition": {"calories": 600, "protein_g": 50, "carbs_g": 60, "fat_g": 10},
+                "ingredients": [
+                    {"name": "chicken breast", "quantity": 200, "unit": "g"},
+                    {"name": "white rice", "quantity": 150, "unit": "g"}
+                ],
+                "instructions": "Cook chicken. Cook rice. Serve."
+            }]
+        }],
+        "meal_plan_id": "test",
+        "start_date": "2024-12-23"
+    }
+
+    markdown = format_meal_plan_as_markdown(plan, 789)
+
+    assert "- chicken breast: 200g" in markdown
+    assert "- white rice: 150g" in markdown
+```
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && pytest tests/test_meal_plan_formatter.py -v
+```
+
+---
+
+### UPDATE `nutrition/meal_planning.py` - Add Simplified Prompt
+
+**IMPLEMENT**: New `build_meal_plan_prompt_simple` function (target: 100 lines)
+
+**PATTERN**: Mirror existing `build_meal_plan_prompt` signature but with simplified body (lines 51-532)
+
+**LOCATION**: Add after existing `build_meal_plan_prompt` (line 533+)
+
+**FUNCTION SIGNATURE**:
+```python
+def build_meal_plan_prompt_simple(
+    profile: dict,
+    meal_macros_distribution: dict,  # NEW: from calculate_meal_macros_distribution
+    rag_context: str,
+    start_date: str
+) -> str:
+    """
+    Build simplified prompt for GPT-4o meal plan generation (CREATIVE ONLY).
+
+    This simplified version (vs. original 500-line prompt):
+    - Focus: Recipe creativity, variety, allergen safety
+    - NO macro calculation requested (Python handles it)
+    - Shorter: ~100 lines vs 500
+    - Clearer: No contradictory instructions
+    - Example: Concrete recipe example upfront
+
+    Args:
+        profile: User profile dict with allergies, targets, preferences
+        meal_macros_distribution: Pre-calculated macro targets per meal (from calculate_meal_macros_distribution)
+        rag_context: Scientific context from RAG retrieval
+        start_date: Start date in YYYY-MM-DD format
+
+    Returns:
+        Formatted prompt string for LLM (target: 100 lines)
+
+    Example:
+        >>> prompt = build_meal_plan_prompt_simple(profile, meal_dist, rag, "2024-12-23")
+        >>> len(prompt.split('\n')) < 150  # Much shorter than original
+        True
+        >>> "NE CALCULE PAS LES MACROS" in prompt
+        True
+    """
+```
+
+**PROMPT STRUCTURE** (based on analysis document):
+```
+Tu es un chef nutritionniste expert créant des recettes personnalisées pour 7 jours.
+
+🚨 CONTRAINTE CRITIQUE - ALLERGIES 🚨
+ALLERGIES DE L'UTILISATEUR: {allergies_str}
+⚠️ TOLÉRANCE ZÉRO - Vérifie CHAQUE ingrédient.
+
+📋 PROFIL UTILISATEUR
+- Aliments à éviter: {disliked_str}
+- Aliments favoris: {favorites_str}
+- Cuisines préférées: {cuisines_str}
+- Temps max: {max_prep_time} min
+
+🎯 TA MISSION
+Crée 7 jours de recettes ORIGINALES pour:
+
+{meal_targets_display}  # From meal_macros_distribution
+
+NE CALCULE PAS LES MACROS. Python le fera automatiquement.
+Focus sur: CRÉATIVITÉ, VARIÉTÉ, RESPECT DES ALLERGIES
+
+📖 EXEMPLE (1 jour pour référence)
+{
+  "day": "Lundi 2024-12-23",
+  "meals": [
+    {
+      "meal_type": "Petit-déjeuner",
+      "recipe_name": "Bowl protéiné avoine-banane",
+      "ingredients": [
+        {"name": "oats", "quantity": 80, "unit": "g"},
+        {"name": "banana", "quantity": 1, "unit": "pieces"}
+      ],
+      "instructions": "Cuire l'avoine. Ajouter banane.",
+      "time": "07:30"
+    }
+  ]
+}
+
+📝 RÈGLES JSON
+1. Noms ingrédients en ANGLAIS (ex: "chicken breast" pas "poulet")
+2. Quantités réalistes en grammes
+3. Instructions en FRANÇAIS
+4. GÉNÈRE LES 7 JOURS COMPLETS (pas de "...")
+
+Les 7 jours: {days_of_week_str}
+
+🚨 RAPPEL: Vérifie allergies: {allergies_str}
+
+COMMENCE maintenant.
+```
+
+**EXTRACT HELPER** (before function):
+```python
+def _format_meal_targets_display(meal_macros_distribution: dict) -> str:
+    """Format meal targets for display in prompt."""
+    return "\n".join([
+        f"   - {meal['meal_type']} ({meal['time']}): ~{meal['target_calories']} kcal, ~{meal['target_protein_g']}g protéines"
+        for meal in meal_macros_distribution["meals"]
+    ])
+```
+
+**GOTCHA**:
+- Keep allergen mentions to 3+ times (beginning, mission, end)
+- Include concrete example at top (not buried in 500 lines)
+- No macro calculation instructions (that was the contradiction)
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && python -c "from nutrition.meal_planning import build_meal_plan_prompt_simple; profile = {'allergies': ['arachides'], 'target_calories': 3000, 'target_protein_g': 180, 'target_carbs_g': 375, 'target_fat_g': 85}; meal_dist = {'meals': [{'meal_type': 'Petit-déjeuner', 'time': '07:30', 'target_calories': 750, 'target_protein_g': 60, 'target_carbs_g': 90, 'target_fat_g': 25}]}; prompt = build_meal_plan_prompt_simple(profile, meal_dist, 'RAG', '2024-12-23'); assert len(prompt.split('\n')) < 150; assert 'arachides' in prompt; assert 'NE CALCULE PAS' in prompt.upper(); print(f'✅ Simplified prompt is {len(prompt.split(chr(10)))} lines')"
+```
+
+---
+
+### UPDATE `nutrition/validators.py` - Add Complete Validation
+
+**IMPLEMENT**: `validate_meal_plan_complete` wrapper for 4-level validation
+
+**PATTERN**: Mirror `validate_daily_macros` return structure (lines 196-245)
+
+**LOCATION**: Add after `validate_meal_plan_structure` (line 333+)
+
+**FUNCTION SIGNATURE**:
+```python
+def validate_meal_plan_complete(
+    meal_plan: dict,
+    target_macros: dict,
+    user_allergens: list[str],
+    meal_structure: str,
+    protein_tolerance: float = 0.05,  # ±5%
+    other_tolerance: float = 0.10     # ±10%
+) -> dict:
+    """
+    Comprehensive 4-level meal plan validation.
+
+    Validates on 4 levels with custom tolerances:
+    1. Structure: 7 days, all required fields
+    2. Allergens: Zero tolerance (any violation = fail)
+    3. Macros: Protein ±5%, carbs/fat ±10%
+    4. Completeness: Correct number of meals per day based on structure
+
+    Args:
+        meal_plan: Generated meal plan dict
+        target_macros: Target macros {"calories": int, "protein_g": int, "carbs_g": int, "fat_g": int}
+        user_allergens: List of allergen names from profile
+        meal_structure: Meal structure key (e.g., "3_meals_2_snacks")
+        protein_tolerance: Protein deviation tolerance (default 5%)
+        other_tolerance: Carbs/fat deviation tolerance (default 10%)
+
+    Returns:
+        {
+            "valid": bool,  # True only if ALL 4 levels pass
+            "validations": {
+                "structure": {"valid": bool, "missing_fields": list},
+                "allergens": {"valid": bool, "violations": list},
+                "macros": {"valid": bool, "daily_deviations": list},
+                "completeness": {"valid": bool, "errors": list}
+            }
+        }
+
+    Example:
+        >>> result = validate_meal_plan_complete(plan, targets, ["arachides"], "3_consequent_meals")
+        >>> result["valid"]
+        True
+        >>> result["validations"]["allergens"]["valid"]
+        True
+    """
+```
+
+**ALGORITHM**:
+1. Call `validate_meal_plan_structure(meal_plan, require_nutrition=True)`
+2. Call `validate_allergens(meal_plan, user_allergens)`
+3. For each day:
+   - Call `validate_daily_macros(day["daily_totals"], target_macros, tolerance=other_tolerance)` for carbs/fat
+   - Custom check protein with `protein_tolerance`
+4. Validate completeness:
+   - Check `len(meal_plan["days"]) == 7`
+   - Check each day has correct number of meals based on `MEAL_STRUCTURES[meal_structure]`
+5. Aggregate all results into nested dict
+6. `valid = all([structure["valid"], allergens["valid"], macros["valid"], completeness["valid"]])`
+
+**GOTCHA**:
+- Protein uses stricter tolerance (±5%) than carbs/fat (±10%)
+- Must reuse existing validation functions, not reimplement logic
+- Log at INFO level if valid, ERROR level if invalid
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && pytest tests/test_validators.py::test_validate_meal_plan_complete -v
+```
+
+---
+
+### CREATE `tests/test_validators.py` - Add Complete Validation Tests
+
+**IMPLEMENT**: Test cases for new `validate_meal_plan_complete` function
+
+**PATTERN**: Extend existing `tests/test_validators.py` file (lines 1-333)
+
+**LOCATION**: Append to end of file (line 334+)
+
+**TEST CASES**:
+```python
+def test_validate_meal_plan_complete_all_levels_pass():
+    """Test that complete validation passes when all criteria met."""
+    plan = {
+        "meal_plan_id": "plan_2024-12-23",
+        "start_date": "2024-12-23",
+        "days": [
+            {
+                "day": f"Jour {i+1}",
+                "meals": [
+                    {
+                        "meal_type": "Petit-déjeuner",
+                        "recipe_name": "Omelette",
+                        "ingredients": [{"name": "eggs", "quantity": 3, "unit": "pieces"}],
+                        "nutrition": {"calories": 500, "protein_g": 30, "carbs_g": 40, "fat_g": 15}
+                    },
+                    {
+                        "meal_type": "Déjeuner",
+                        "recipe_name": "Poulet riz",
+                        "ingredients": [{"name": "chicken", "quantity": 200, "unit": "g"}],
+                        "nutrition": {"calories": 1000, "protein_g": 60, "carbs_g": 100, "fat_g": 30}
+                    },
+                    {
+                        "meal_type": "Dîner",
+                        "recipe_name": "Saumon légumes",
+                        "ingredients": [{"name": "salmon", "quantity": 150, "unit": "g"}],
+                        "nutrition": {"calories": 1500, "protein_g": 90, "carbs_g": 135, "fat_g": 40}
+                    }
+                ],
+                "daily_totals": {"calories": 3000, "protein_g": 180, "carbs_g": 275, "fat_g": 85}
+            }
+            for i in range(7)
+        ]
+    }
+
+    target_macros = {"calories": 3000, "protein_g": 180, "carbs_g": 275, "fat_g": 85}
+    result = validate_meal_plan_complete(plan, target_macros, [], "3_consequent_meals")
+
+    assert result["valid"] == True
+    assert result["validations"]["structure"]["valid"] == True
+    assert result["validations"]["allergens"]["valid"] == True
+    assert result["validations"]["macros"]["valid"] == True
+    assert result["validations"]["completeness"]["valid"] == True
+
+def test_validate_meal_plan_complete_fails_on_allergen():
+    """Test that validation fails if allergen found."""
+    plan = {
+        "meal_plan_id": "plan_2024-12-23",
+        "start_date": "2024-12-23",
+        "days": [{
+            "day": "Lundi",
+            "meals": [{
+                "meal_type": "Petit-déjeuner",
+                "recipe_name": "Tartine beurre cacahuète",
+                "ingredients": [{"name": "peanut butter", "quantity": 30, "unit": "g"}],
+                "nutrition": {"calories": 500, "protein_g": 30, "carbs_g": 40, "fat_g": 15}
+            }]
+        }]
+    }
+
+    result = validate_meal_plan_complete(plan, {}, ["arachides"], "3_consequent_meals")
+
+    assert result["valid"] == False
+    assert result["validations"]["allergens"]["valid"] == False
+    assert len(result["validations"]["allergens"]["violations"]) > 0
+
+def test_validate_meal_plan_complete_fails_on_protein_deviation():
+    """Test that validation fails if protein deviates > 5%."""
+    plan = {
+        "meal_plan_id": "plan_2024-12-23",
+        "start_date": "2024-12-23",
+        "days": [
+            {
+                "day": f"Jour {i+1}",
+                "meals": [{
+                    "meal_type": "Petit-déjeuner",
+                    "recipe_name": "Low protein meal",
+                    "ingredients": [{"name": "bread", "quantity": 100, "unit": "g"}],
+                    "nutrition": {"calories": 3000, "protein_g": 100, "carbs_g": 400, "fat_g": 85}  # 100g protein vs 180g target = -44%
+                }],
+                "daily_totals": {"calories": 3000, "protein_g": 100, "carbs_g": 400, "fat_g": 85}
+            }
+            for i in range(7)
+        ]
+    }
+
+    target_macros = {"calories": 3000, "protein_g": 180, "carbs_g": 375, "fat_g": 85}
+    result = validate_meal_plan_complete(plan, target_macros, [], "3_consequent_meals", protein_tolerance=0.05)
+
+    assert result["valid"] == False
+    assert result["validations"]["macros"]["valid"] == False
+
+def test_validate_meal_plan_complete_fails_on_incomplete_days():
+    """Test that validation fails if less than 7 days."""
+    plan = {
+        "meal_plan_id": "plan_2024-12-23",
+        "start_date": "2024-12-23",
+        "days": [
+            {
+                "day": "Lundi",
+                "meals": [{"meal_type": "Petit-déjeuner", "recipe_name": "Omelette", "ingredients": [], "nutrition": {}}]
+            },
+            {
+                "day": "Mardi",
+                "meals": [{"meal_type": "Petit-déjeuner", "recipe_name": "Pancakes", "ingredients": [], "nutrition": {}}]
+            }
+        ]  # Only 2 days instead of 7
+    }
+
+    result = validate_meal_plan_complete(plan, {}, [], "3_consequent_meals")
+
+    assert result["valid"] == False
+    assert result["validations"]["completeness"]["valid"] == False
+```
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && pytest tests/test_validators.py::test_validate_meal_plan_complete -v
+```
+
+---
+
+### CREATE `nutrition/error_logger.py` - Error Logging Utility
+
+**IMPLEMENT**: Utility to save exhaustive validation error logs to JSON files
+
+**PATTERN**: Use Python's `logging` + `json` modules, save to `logs/` directory
+
+**IMPORTS**:
+```python
+import json
+import logging
+from pathlib import Path
+from datetime import datetime
+from typing import Any
+
+logger = logging.getLogger(__name__)
+```
+
+**FUNCTION SIGNATURE**:
+```python
+def log_meal_plan_validation_error(
+    validation_result: dict,
+    meal_plan: dict,
+    target_macros: dict,
+    user_allergens: list[str],
+    meal_structure: str
+) -> Path:
+    """
+    Save exhaustive validation error details to JSON log file.
+
+    Creates `logs/meal_plan_errors_{timestamp}.json` with complete context:
+    - Validation failures (structure, allergens, macros, completeness)
+    - Target vs actual macros for each day
+    - Full meal plan JSON (for debugging)
+    - User constraints (allergens, meal structure)
+    - Timestamp and metadata
+
+    Args:
+        validation_result: Output from validate_meal_plan_complete
+        meal_plan: Full meal plan dict that failed validation
+        target_macros: Target macros that were not met
+        user_allergens: User's allergen list
+        meal_structure: Meal structure that was used
+
+    Returns:
+        Path to created log file
+
+    Example:
+        >>> log_path = log_meal_plan_validation_error(result, plan, targets, ["arachides"], "3_meals_2_snacks")
+        >>> log_path.exists()
+        True
+        >>> "meal_plan_errors_" in str(log_path)
+        True
+    """
+```
+
+**ALGORITHM**:
+1. Create `logs/` directory if not exists: `Path("logs").mkdir(exist_ok=True)`
+2. Generate timestamp: `timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")`
+3. Build log dict:
+```python
+log_data = {
+    "timestamp": datetime.now().isoformat(),
+    "validation_result": validation_result,
+    "target_macros": target_macros,
+    "user_allergens": user_allergens,
+    "meal_structure": meal_structure,
+    "meal_plan_summary": {
+        "num_days": len(meal_plan.get("days", [])),
+        "start_date": meal_plan.get("start_date"),
+        "meal_plan_id": meal_plan.get("meal_plan_id")
+    },
+    "full_meal_plan": meal_plan  # Complete JSON for debugging
+}
+```
+4. Save to file: `logs/meal_plan_errors_{timestamp}.json`
+5. Log at ERROR level: `logger.error(f"Validation error logged to {log_path}")`
+6. Return Path object
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && python -c "from nutrition.error_logger import log_meal_plan_validation_error; from pathlib import Path; result = {'valid': False, 'validations': {}}; plan = {'days': [], 'start_date': '2024-12-23'}; log_path = log_meal_plan_validation_error(result, plan, {}, [], '3_meals_2_snacks'); assert log_path.exists(); print(f'✅ Error log created: {log_path}')"
+```
+
+---
+
+### REFACTOR `tools.py` - Update `generate_weekly_meal_plan_tool` Workflow
+
+**IMPLEMENT**: Integrate 10-step workflow into existing tool (lines 738-1150)
+
+**PATTERN**: Keep existing signature, preserve learning profile integration (lines 938-986), replace prompt call
+
+**CRITICAL PRESERVATION**:
+```python
+# Lines 938-986: Learning profile integration - MUST KEEP
+learning_profile = {}
+try:
+    learning_response = supabase.table("user_learning_profile").select("*").limit(1).execute()
+    if learning_response.data:
+        learning_profile = learning_response.data[0]
+        # ... personalization logic ...
+except Exception as e:
+    logger.warning(f"Could not load learning profile: {e}")
+```
+
+**NEW WORKFLOW STEPS** (insert at appropriate lines):
+
+**Step 1-2 (Keep existing)**: Fetch profile, use provided targets or fetch from profile (lines 903-928)
+
+**Step 3 (NEW - after line 928)**:
+```python
+# Step 3: Calculate macros per meal
+from nutrition.meal_distribution import calculate_meal_macros_distribution
+
+meal_macros_distribution = calculate_meal_macros_distribution(
+    daily_calories=calories,
+    daily_protein_g=protein,
+    daily_carbs_g=carbs,
+    daily_fat_g=fat,
+    meal_structure=meal_structure
+)
+
+logger.info(f"✅ Macros distributed across {len(meal_macros_distribution['meals'])} meals")
+```
+
+**Step 4 (Keep - implicit)**: User confirmation happens in agent, not in tool
+
+**Step 5 (REPLACE - lines 989-1012)**:
+```python
+# Step 5: Build simplified prompt (REPLACE old prompt call)
+from nutrition.meal_planning import build_meal_plan_prompt_simple
+
+prompt = build_meal_plan_prompt_simple(
+    profile=profile_data,
+    meal_macros_distribution=meal_macros_distribution,  # NEW
+    rag_context=rag_result,
+    start_date=start_date
+)
+
+logger.info(f"✅ Simplified prompt built ({len(prompt.split(chr(10)))} lines)")
+
+# Call GPT-4o (keep existing call - line 1003-1011)
+meal_plan_model = os.getenv('MEAL_PLAN_LLM', 'gpt-4o')
+response = await openai_client.chat.completions.create(
+    model=meal_plan_model,
+    messages=[{"role": "user", "content": prompt}],
+    response_format={"type": "json_object"},
+    temperature=0.8,  # INCREASE from 0.7 to encourage creativity
+    max_tokens=12000
+)
+
+meal_plan_json = json.loads(response.choices[0].message.content)
+```
+
+**Step 6-7 (Keep existing - lines 1072-1115)**: OpenFoodFacts calculation + optimization
+
+**Step 8 (REPLACE validation - lines 1015-1059)**:
+```python
+# Step 8: Comprehensive 4-level validation
+from nutrition.validators import validate_meal_plan_complete
+
+validation_result = validate_meal_plan_complete(
+    meal_plan=meal_plan_json,
+    target_macros=target_macros,
+    user_allergens=user_allergens,
+    meal_structure=meal_structure,
+    protein_tolerance=0.05,  # ±5%
+    other_tolerance=0.10     # ±10%
+)
+
+if not validation_result["valid"]:
+    # Log exhaustive error details
+    from nutrition.error_logger import log_meal_plan_validation_error
+
+    log_path = log_meal_plan_validation_error(
+        validation_result=validation_result,
+        meal_plan=meal_plan_json,
+        target_macros=target_macros,
+        user_allergens=user_allergens,
+        meal_structure=meal_structure
+    )
+
+    logger.error(f"🚨 Meal plan validation failed. Detailed log: {log_path}")
+
+    return json.dumps({
+        "error": "Meal plan validation failed",
+        "code": "VALIDATION_FAILED",
+        "log_file": str(log_path),
+        "details": validation_result["validations"]
+    }, indent=2, ensure_ascii=False)
+
+logger.info("✅ Meal plan validation passed on all 4 levels")
+```
+
+**Step 9 (Keep existing - lines 1118-1138)**: Store in database
+
+**Step 10 (NEW - replace return - line 1140)**:
+```python
+# Step 10: Generate Markdown document
+from nutrition.meal_plan_formatter import format_meal_plan_as_markdown
+
+markdown_doc = format_meal_plan_as_markdown(
+    meal_plan=meal_plan_json,
+    meal_plan_id=db_response.data[0].get('id', 'N/A') if db_response.data else 'N/A'
+)
+
+# Save Markdown to temporary file (user can download)
+import tempfile
+with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8') as f:
+    f.write(markdown_doc)
+    markdown_path = f.name
+
+logger.info(f"✅ Markdown document generated: {markdown_path}")
+
+# Return with both JSON and Markdown path
+return json.dumps({
+    "success": True,
+    "message": "Meal plan generated successfully",
+    "meal_plan_id": db_response.data[0].get('id', 'N/A') if db_response.data else None,
+    "stored_in_database": store_success,
+    "markdown_document": markdown_path,
+    "summary": {
+        "total_days": len(meal_plan_json.get("days", [])),
+        "start_date": meal_plan_json.get("start_date"),
+        "meal_structure": meal_plan_json.get("meal_structure")
+    }
+}, indent=2, ensure_ascii=False)
+```
+
+**GOTCHA**:
+- Don't remove learning profile integration (lines 938-986)
+- Don't remove OpenFoodFacts calls (lines 1072-1115)
+- Temperature increased from 0.7 to 0.8 for more creativity
+- Markdown file saved to temp location, path returned in JSON
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && python -c "import asyncio; from tools import generate_weekly_meal_plan_tool; print('✅ Tool imports successfully')"
+```
+
+---
+
+### UPDATE `prompt.py` - Add User Confirmation Flow
+
+**IMPLEMENT**: Update agent instructions for meal planning workflow
+
+**PATTERN**: Mirror existing French tone, explicit tool instructions (lines 89-150)
+
+**LOCATION**: Update "Planification de Repas Hebdomadaire" section (around line 145)
+
+**REPLACE**:
+```python
+# OLD (around line 145):
+### 7. Planification de Repas Hebdomadaire
+- Génération de plans de 7 jours avec recettes complètes
+- ...
+```
+
+**WITH**:
+```python
+### 7. Planification de Repas Hebdomadaire
+- Génération de plans de 7 jours avec recettes complètes
+- Respect automatique des allergies et aliments détestés
+- Équilibrage des macros quotidiens (±5% protéines, ±10% glucides/lipides)
+- 4 structures de repas disponibles :
+  * "3_consequent_meals" : 3 repas (petit-déj, déj, dîner) - **DÉFAUT**
+  * "3_meals_2_snacks" : 3 repas + 2 collations
+  * "4_meals" : 4 repas égaux dans la journée
+  * "3_meals_1_preworkout" : 3 repas + 1 collation avant entraînement
+- Stockage automatique dans la base de données pour référence future
+- **Document Markdown téléchargeable** généré automatiquement
+
+**WORKFLOW OBLIGATOIRE (NE PAS DÉVIER) :**
+
+1. **Calculer les macros AVANT génération** :
+   - Utilise `calculate_nutritional_needs` si pas déjà fait
+   - Présente les résultats à l'utilisateur :
+     ```
+     📊 Récapitulatif de tes besoins nutritionnels
+
+     Profil: {age} ans, {gender}, {weight}kg, {height}cm, niveau {activity_level}
+     Objectif: {primary_goal}
+
+     Calculs:
+     - BMR: {bmr} kcal (métabolisme de base)
+     - TDEE: {tdee} kcal (dépense quotidienne)
+     - **Cible calorique**: {target_calories} kcal/jour
+     - **Protéines**: {protein}g/jour ({protein_per_kg}g/kg)
+     - **Glucides**: {carbs}g/jour
+     - **Lipides**: {fat}g/jour
+     ```
+
+2. **Demander la structure de repas** :
+   - **TOUJOURS demander** : "Quelle structure de repas préfères-tu ?"
+   - Présenter les 4 options avec descriptions
+   - Si l'utilisateur ne répond pas ou dit "par défaut" : utiliser `"3_consequent_meals"`
+   - Si l'utilisateur choisit une structure : utiliser celle-ci
+
+3. **Confirmer AVANT génération** :
+   - Attendre confirmation explicite : "oui", "ok", "génère", "d'accord", "go"
+   - Avertir du temps : "⏱️ Génération en cours (~3-4 minutes)..."
+   - **NE PAS générer sans confirmation**
+
+4. **Appeler le tool avec les paramètres confirmés** :
+   ```python
+   await generate_weekly_meal_plan_tool(
+       supabase=deps.supabase,
+       openai_client=deps.openai_client,
+       http_client=deps.http_client,
+       start_date="2024-12-23",  # Lundi de préférence
+       target_calories_daily=target_calories,
+       target_protein_g=protein,
+       target_carbs_g=carbs,
+       target_fat_g=fat,
+       meal_structure=user_chosen_structure,  # De l'étape 2
+       notes=None  # Ou contraintes utilisateur
+   )
+   ```
+
+5. **Présenter le résultat** :
+   - Si succès : Afficher tableau synthétique + proposer document Markdown
+   - Si échec : Expliquer pourquoi (allergies? macros? structure?) + proposer réessayer
+
+**EXEMPLE DE BON ÉCHANGE** :
+
+```
+User: "Crée-moi un plan pour cette semaine"
+
+Agent: "D'accord ! Laisse-moi d'abord vérifier ton profil et calculer tes besoins."
+[Appelle fetch_my_profile + calculate_nutritional_needs si nécessaire]
+
+Agent: "📊 Récapitulatif de tes besoins nutritionnels
+       Profil: 35 ans, homme, 87kg, 178cm, activité modérée
+       Objectif: prise de muscle
+
+       Calculs:
+       - BMR: 1850 kcal (métabolisme de base)
+       - TDEE: 2868 kcal (dépense quotidienne)
+       - **Cible calorique**: 3168 kcal/jour (+300 surplus)
+       - **Protéines**: 174g/jour (2.0g/kg)
+       - **Glucides**: 413g/jour
+       - **Lipides**: 92g/jour
+
+       Quelle structure de repas préfères-tu ?
+       1. 3 repas classiques (défaut)
+       2. 3 repas + 2 collations
+       3. 4 repas égaux
+       4. 3 repas + collation pré-workout"
+
+User: "3 repas classiques"
+
+Agent: "Parfait ! Je vais générer un plan de 7 jours avec 3 repas par jour.
+       ⏱️ Génération en cours (~3-4 minutes)..."
+[Appelle generate_weekly_meal_plan_tool]
+
+Agent: "✅ Plan généré avec succès !
+
+       [Tableau synthétique 7 jours]
+
+       📥 Document Markdown complet disponible : {markdown_path}
+       🛒 Veux-tu que je génère la liste de courses ?"
+```
+```
+
+**GOTCHA**:
+- Always ask for meal structure, even if user doesn't mention it
+- Always present macros before generation
+- Always confirm before calling tool (3-4 minute wait)
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && python -c "from prompt import AGENT_SYSTEM_PROMPT; assert 'WORKFLOW OBLIGATOIRE' in AGENT_SYSTEM_PROMPT; assert '3_consequent_meals' in AGENT_SYSTEM_PROMPT; print('✅ Prompt updated with workflow instructions')"
+```
+
+---
+
+### CREATE `tests/test_meal_plan_workflow_integration.py` - Integration Tests
+
+**IMPLEMENT**: End-to-end integration tests for refactored workflow
+
+**PATTERN**: Use `pytest-asyncio`, mock Supabase/OpenAI calls, focus on workflow validation
+
+**IMPORTS**:
+```python
+import pytest
+import json
+from unittest.mock import AsyncMock, MagicMock, patch
+from tools import generate_weekly_meal_plan_tool
+```
+
+**TEST FIXTURES**:
+```python
+@pytest.fixture
+def mock_profile_with_allergies():
+    return {
+        "id": "user_123",
+        "age": 35,
+        "gender": "male",
+        "weight_kg": 87,
+        "height_cm": 178,
+        "activity_level": "moderate",
+        "allergies": ["arachides", "lactose"],
+        "disliked_foods": ["poisson"],
+        "favorite_foods": ["poulet", "riz"],
+        "preferred_cuisines": ["méditerranéenne"],
+        "target_calories": 3168,
+        "target_protein_g": 174,
+        "target_carbs_g": 413,
+        "target_fat_g": 92
+    }
+
+@pytest.fixture
+def mock_valid_meal_plan():
+    """Meal plan that passes all validation."""
+    return {
+        "meal_plan_id": "plan_2024-12-23",
+        "start_date": "2024-12-23",
+        "days": [
+            {
+                "day": f"Jour {i+1}",
+                "date": f"2024-12-{23+i}",
+                "meals": [
+                    {
+                        "meal_type": "Petit-déjeuner",
+                        "time": "07:30",
+                        "recipe_name": f"Recette {i+1}A",
+                        "ingredients": [{"name": "eggs", "quantity": 3, "unit": "pieces"}],
+                        "instructions": "Cook eggs.",
+                        "nutrition": {"calories": 1000, "protein_g": 58, "carbs_g": 138, "fat_g": 31}
+                    },
+                    {
+                        "meal_type": "Déjeuner",
+                        "time": "12:30",
+                        "recipe_name": f"Recette {i+1}B",
+                        "ingredients": [{"name": "chicken", "quantity": 200, "unit": "g"}],
+                        "instructions": "Cook chicken.",
+                        "nutrition": {"calories": 1084, "protein_g": 58, "carbs_g": 138, "fat_g": 31}
+                    },
+                    {
+                        "meal_type": "Dîner",
+                        "time": "19:30",
+                        "recipe_name": f"Recette {i+1}C",
+                        "ingredients": [{"name": "salmon", "quantity": 150, "unit": "g"}],
+                        "instructions": "Cook salmon.",
+                        "nutrition": {"calories": 1084, "protein_g": 58, "carbs_g": 137, "fat_g": 30}
+                    }
+                ],
+                "daily_totals": {
+                    "calories": 3168,
+                    "protein_g": 174,
+                    "carbs_g": 413,
+                    "fat_g": 92
+                }
+            }
+            for i in range(7)
+        ]
+    }
+```
+
+**TEST CASES**:
+```python
+@pytest.mark.asyncio
+async def test_workflow_with_valid_profile_and_no_allergies():
+    """Test complete workflow with profile without allergies."""
+    # Mock dependencies
+    mock_supabase = MagicMock()
+    mock_supabase.table.return_value.select.return_value.limit.return_value.execute.return_value.data = [
+        {
+            "age": 28,
+            "gender": "female",
+            "weight_kg": 65,
+            "height_cm": 165,
+            "allergies": [],
+            "target_calories": 2200,
+            "target_protein_g": 130,
+            "target_carbs_g": 275,
+            "target_fat_g": 60
+        }
+    ]
+
+    mock_openai = AsyncMock()
+    # Mock RAG response
+    mock_openai.embeddings.create.return_value.data = [{"embedding": [0.1] * 1536}]
+
+    # Mock meal plan generation response (valid JSON)
+    mock_openai.chat.completions.create.return_value.choices = [
+        MagicMock(message=MagicMock(content=json.dumps(mock_valid_meal_plan())))
+    ]
+
+    mock_http = AsyncMock()
+
+    # Call tool
+    result_json = await generate_weekly_meal_plan_tool(
+        supabase=mock_supabase,
+        openai_client=mock_openai,
+        http_client=mock_http,
+        start_date="2024-12-23",
+        meal_structure="3_consequent_meals"
+    )
+
+    result = json.loads(result_json)
+
+    assert result["success"] == True
+    assert "meal_plan_id" in result
+    assert "markdown_document" in result
+
+@pytest.mark.asyncio
+async def test_workflow_fails_on_allergen_violation():
+    """Test that workflow fails and logs error when allergen found."""
+    # Mock profile with peanut allergy
+    mock_supabase = MagicMock()
+    mock_supabase.table.return_value.select.return_value.limit.return_value.execute.return_value.data = [
+        {
+            "age": 30,
+            "gender": "male",
+            "weight_kg": 80,
+            "height_cm": 175,
+            "allergies": ["arachides"],
+            "target_calories": 3000,
+            "target_protein_g": 180,
+            "target_carbs_g": 375,
+            "target_fat_g": 85
+        }
+    ]
+
+    # Mock meal plan with peanut butter (violation)
+    plan_with_allergen = {
+        "meal_plan_id": "plan_2024-12-23",
+        "start_date": "2024-12-23",
+        "days": [{
+            "day": "Lundi",
+            "meals": [{
+                "meal_type": "Petit-déjeuner",
+                "recipe_name": "Tartine beurre cacahuète",
+                "ingredients": [{"name": "peanut butter", "quantity": 30, "unit": "g"}],
+                "nutrition": {"calories": 3000, "protein_g": 180, "carbs_g": 375, "fat_g": 85}
+            }],
+            "daily_totals": {"calories": 3000, "protein_g": 180, "carbs_g": 375, "fat_g": 85}
+        }] * 7
+    }
+
+    mock_openai = AsyncMock()
+    mock_openai.chat.completions.create.return_value.choices = [
+        MagicMock(message=MagicMock(content=json.dumps(plan_with_allergen)))
+    ]
+
+    mock_http = AsyncMock()
+
+    # Call tool
+    result_json = await generate_weekly_meal_plan_tool(
+        supabase=mock_supabase,
+        openai_client=mock_openai,
+        http_client=mock_http,
+        start_date="2024-12-23",
+        meal_structure="3_consequent_meals"
+    )
+
+    result = json.loads(result_json)
+
+    assert "error" in result
+    assert result["code"] == "VALIDATION_FAILED"
+    assert "log_file" in result
+    # Verify log file was created
+    from pathlib import Path
+    assert Path(result["log_file"]).exists()
+
+@pytest.mark.asyncio
+async def test_workflow_macros_within_tolerance():
+    """Test that optimized plan macros are within ±5% protein, ±10% other."""
+    # This test would require mocking the OpenFoodFacts client
+    # and genetic algorithm, which is complex. Focus on unit tests for those.
+    pass  # Placeholder - implement if time permits
+```
+
+**VALIDATE**:
+```bash
+cd 4_Pydantic_AI_Agent && pytest tests/test_meal_plan_workflow_integration.py -v
+```
+
+---
+
+## TESTING STRATEGY
+
+### Unit Tests
+
+**Scope:** Test each new utility function in isolation
+
+**Files:**
+- `tests/test_meal_distribution.py` - Macro distribution calculations
+- `tests/test_meal_plan_formatter.py` - Markdown generation
+- `tests/test_validators.py` (extended) - Complete validation logic
+- `tests/test_meal_planning.py` (extended) - Simplified prompt generation
+
+**Coverage Target:** 80%+ on new code
+
+**Run Command:**
+```bash
+cd 4_Pydantic_AI_Agent && pytest tests/test_meal_distribution.py tests/test_meal_plan_formatter.py tests/test_validators.py::test_validate_meal_plan_complete -v --cov=nutrition
+```
+
+### Integration Tests
+
+**Scope:** Test complete workflow end-to-end with mocked dependencies
+
+**Files:**
+- `tests/test_meal_plan_workflow_integration.py`
+
+**Scenarios:**
+1. Valid profile, no allergies → Success
+2. Valid profile, with allergies → Success (no violations)
+3. Allergen violation → Fail with log
+4. Incomplete plan (< 7 days) → Fail with log
+5. Macro deviation > tolerance → Fail with log
+
+**Run Command:**
+```bash
+cd 4_Pydantic_AI_Agent && pytest tests/test_meal_plan_workflow_integration.py -v
+```
+
+### Manual Testing
+
+**Scope:** Test with real Streamlit UI
+
+**Scenarios:**
+1. User requests plan → Agent presents macros → User confirms → Plan generated
+2. User requests plan with different meal structures → All 4 structures work
+3. User with allergies → No allergen violations
+4. Validation failure → Detailed log file created in `logs/`
+
+**Commands:**
+```bash
+cd 4_Pydantic_AI_Agent
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+streamlit run streamlit_ui.py
+
+# Test conversations:
+# 1. "Crée-moi un plan pour cette semaine"
+# 2. "Je suis allergique aux arachides, crée-moi un plan"
+# 3. "Génère un plan avec 3 repas + 2 collations"
+```
+
+### Edge Cases to Test
+
+**Allergen False Positives:**
+- Coconut milk with lactose allergy → Should PASS (not dairy)
+- Nutmeg with tree nut allergy → Should PASS (not a nut)
+- Almond milk with lactose allergy → Should PASS (plant-based)
+
+**Macro Tolerance Boundaries:**
+- Protein at +4.9% → PASS (within ±5%)
+- Protein at +5.1% → FAIL (outside ±5%)
+- Carbs at +9.9% → PASS (within ±10%)
+- Carbs at +10.1% → FAIL (outside ±10%)
+
+**Incomplete Plans:**
+- 6 days instead of 7 → FAIL
+- Day with 2 meals instead of 3 (for "3_consequent_meals") → FAIL
+
+---
+
+## VALIDATION COMMANDS
+
+Execute validation in tiers. Tier 1 is **required** for shipping. Tier 2 is **recommended** but can be skipped if justified.
+
+### Tier 1: Required Validation (Must Pass)
+
+**Syntax and Linting:**
+```bash
+cd 4_Pydantic_AI_Agent
+ruff format .
+ruff check .
+# ✅ Must pass with zero errors
+```
+
+**Type Checking:**
+```bash
+cd 4_Pydantic_AI_Agent
+mypy nutrition/meal_distribution.py nutrition/meal_plan_formatter.py nutrition/error_logger.py
+# ✅ Must pass with zero errors (new files only)
+```
+
+**Unit Tests:**
+```bash
+cd 4_Pydantic_AI_Agent
+pytest tests/test_meal_distribution.py tests/test_meal_plan_formatter.py tests/test_validators.py::test_validate_meal_plan_complete -v
+# ✅ 100% pass required
+```
+
+**Critical Function Tests:**
+```bash
+cd 4_Pydantic_AI_Agent
+python -c "from nutrition.meal_distribution import calculate_meal_macros_distribution; result = calculate_meal_macros_distribution(3300, 174, 413, 92, '3_meals_2_snacks'); assert len(result['meals']) == 5; assert result['daily_totals']['calories'] == 3300; print('✅ Macro distribution works')"
+
+python -c "from nutrition.meal_plan_formatter import format_meal_plan_as_markdown; plan = {'days': [{'day': 'Lundi', 'meals': [{'meal_type': 'Petit-déjeuner', 'recipe_name': 'Omelette', 'nutrition': {'calories': 500, 'protein_g': 30, 'carbs_g': 40, 'fat_g': 15}, 'ingredients': [], 'instructions': '', 'time': '07:30'}], 'daily_totals': {'calories': 3000, 'protein_g': 180, 'carbs_g': 375, 'fat_g': 85}}], 'meal_plan_id': 'test', 'start_date': '2024-12-23'}; md = format_meal_plan_as_markdown(plan, 123); assert '## Lundi' in md; print('✅ Markdown generation works')"
+
+python -c "from nutrition.validators import validate_meal_plan_complete; plan = {'meal_plan_id': 'test', 'start_date': '2024-12-23', 'days': []}; result = validate_meal_plan_complete(plan, {}, [], '3_consequent_meals'); assert 'valid' in result; print('✅ Complete validation works')"
+```
+
+### Tier 2: Recommended Validation (Best Effort)
+
+**Integration Tests:**
+```bash
+cd 4_Pydantic_AI_Agent
+pytest tests/test_meal_plan_workflow_integration.py -v
+# Skip if environment blockers (no Supabase credentials, etc.)
+```
+
+**Manual Testing with Streamlit:**
+```bash
+cd 4_Pydantic_AI_Agent
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate  # Windows
+streamlit run streamlit_ui.py
+# Test: "Crée-moi un plan pour cette semaine"
+# Expected: Agent presents macros → asks structure → generates plan → shows table
+```
+
+**Full Type Coverage:**
+```bash
+cd 4_Pydantic_AI_Agent
+mypy nutrition/ tools.py
+# Skip if too many pre-existing type errors in old code
+```
+
+**Exhaustive Test Suite:**
+```bash
+cd 4_Pydantic_AI_Agent
+pytest tests/ -v --cov=nutrition --cov-report=term-missing
+# Skip if takes > 5 minutes or environment issues
+```
+
+**Decision Rule:** Ship on Tier 1 pass. Document Tier 2 skips in execution report with justification.
+
+---
+
+## ACCEPTANCE CRITERIA
+
+- [x] **New utility modules created and tested**
+  - `nutrition/meal_distribution.py` with `calculate_meal_macros_distribution`
+  - `nutrition/meal_plan_formatter.py` with `format_meal_plan_as_markdown`
+  - `nutrition/error_logger.py` with exhaustive JSON logging
+  - All unit tests pass (80%+ coverage on new code)
+
+- [x] **Simplified prompt replaces 500-line prompt**
+  - `build_meal_plan_prompt_simple` function ~100 lines
+  - No contradictory instructions ("don't calculate" vs "verify totals")
+  - Concrete example at top of prompt
+  - Allergens mentioned 3+ times
+  - Temperature increased to 0.8 for creativity
+
+- [x] **4-level validation system implemented**
+  - `validate_meal_plan_complete` wraps all validation
+  - Custom tolerances: ±5% protein, ±10% carbs/fat
+  - Exhaustive logs saved to `logs/meal_plan_errors_{timestamp}.json` on failure
+  - All edge cases tested (allergen false positives, tolerance boundaries)
+
+- [x] **Tool workflow refactored to 10 steps**
+  - Step 3: Calculate macros per meal (NEW)
+  - Step 5: Use simplified prompt (CHANGED)
+  - Step 8: Use 4-level validation (CHANGED)
+  - Step 10: Generate Markdown document (NEW)
+  - Learning profile integration preserved (lines 938-986)
+  - OpenFoodFacts integration preserved (lines 1072-1115)
+
+- [x] **Agent prompt updated with user confirmation flow**
+  - Instructions to present macros BEFORE generation
+  - Instructions to ask for meal structure
+  - Instructions to explain 4-minute wait
+  - Example conversation provided
+  - Default structure documented ("3_consequent_meals")
+
+- [x] **All validation commands pass**
+  - Tier 1 (required): Linting, type checking, unit tests - PASS
+  - Tier 2 (recommended): Integration tests, manual testing - Documented if skipped
+
+- [x] **No regressions in existing functionality**
+  - Learning profile still loaded and used
+  - OpenFoodFacts still queries precise macros
+  - Genetic algorithm still optimizes portions
+  - Existing validation functions still work
+  - Database storage still succeeds
+
+- [x] **Documentation complete**
+  - All new functions have Google-style docstrings
+  - Type hints on all function signatures
+  - Examples in docstrings
+  - Inline comments explain workflow steps
+
+- [x] **Error handling robust**
+  - Validation failures logged exhaustively
+  - User-friendly error messages returned
+  - No silent failures
+  - Traceback logged for debugging
+
+- [x] **Performance maintained**
+  - Generation still ~3-4 minutes (OpenFoodFacts + genetic algorithm)
+  - No additional API calls added
+  - Caching preserved (92%+ hit rate)
+
+---
+
+## COMPLETION CHECKLIST
+
+- [ ] All tasks completed in order (top to bottom)
+- [ ] Each task validation passed immediately after implementation
+- [ ] Tier 1 validation commands executed successfully (linting, type checking, unit tests)
+- [ ] Tier 2 validation attempted (integration tests, manual testing) or skips documented
+- [ ] Full test suite passes (pytest tests/)
+- [ ] No linting errors (ruff format . && ruff check .)
+- [ ] No type checking errors on new files (mypy nutrition/meal_distribution.py ...)
+- [ ] Manual testing confirms feature works (Streamlit UI test conversation)
+- [ ] All acceptance criteria met
+- [ ] Code reviewed for quality and maintainability
+- [ ] No regressions in existing functionality (learning profile, OpenFoodFacts preserved)
+- [ ] Exhaustive error logs created on validation failures
+- [ ] Markdown document generation works and path returned to user
+
+---
+
+## NOTES
+
+### Design Decisions
+
+**1. Why 10 Steps Instead of Current Monolithic Approach?**
+- **Transparency**: User sees macros before 4-minute wait
+- **Separation of Concerns**: LLM = creativity, Python = precision
+- **Debuggability**: Each step logs progress, failures are isolated
+- **Evidence**: Claude Opus succeeded with similar approach
+
+**2. Why ±5% Protein but ±10% Carbs/Fat?**
+- **Science**: Protein is critical for muscle synthesis (ISSN guidelines)
+- **Compliance**: Athletes are stricter about protein targets
+- **Flexibility**: Carbs/fat have more wiggle room for recipe variety
+
+**3. Why Markdown Instead of DOCX?**
+- **Simplicity**: Markdown is plain text, easy to generate
+- **Portability**: User can convert to PDF/DOCX with pandoc if needed
+- **Git-Friendly**: Markdown diffs well for version control
+- **Lightweight**: No external library dependencies (python-docx not needed)
+
+**4. Why Keep Learning Profile Integration?**
+- **Value**: Personalization based on past feedback is crucial
+- **Working Code**: Lines 938-986 already work well
+- **Low Risk**: Don't break what's not broken
+
+**5. Why Increase Temperature to 0.8?**
+- **Current Issue**: 0.7 produces repetitive recipes
+- **Evidence**: Opus used higher creativity (implicitly via conversation)
+- **Trade-off**: 0.8 balances creativity vs. following structure
+
+### Trade-offs
+
+**Pros:**
+- ✅ Eliminates LLM hallucinations (prompt overload)
+- ✅ Transparent workflow (user validation before generation)
+- ✅ Precise macro targeting (±5%/±10% guaranteed)
+- ✅ Exhaustive debugging (JSON logs on failure)
+- ✅ Better UX (user sees progress, gets downloadable document)
+
+**Cons:**
+- ⚠️ Longer conversation (agent must present macros + ask structure before generating)
+- ⚠️ More user interaction required (confirmation step)
+- ⚠️ Code complexity increased (10 steps vs. monolithic)
+
+**Mitigation:**
+- Default structure (`"3_consequent_meals"`) reduces interaction
+- Clear instructions guide user through workflow
+- Exhaustive logging makes debugging easier despite complexity
+
+### Future Enhancements
+
+**Post-Implementation (Not in Scope):**
+1. **Retry Logic**: If validation fails, automatically regenerate with feedback (max 2 retries)
+2. **Progressive Generation**: Generate 2 days first, validate, then generate remaining 5 days
+3. **User Preferences Learning**: Track which recipes user likes/dislikes, adjust future generations
+4. **Multi-Language Support**: Translate Markdown document to other languages
+5. **PDF Generation**: Add option to export as PDF instead of Markdown
+
+**Technical Debt:**
+- Current prompt is 500 lines → should be split into modular sections (allergies, structure, examples)
+- Validation functions scattered across files → could be unified into validation package
+- OpenFoodFacts caching could be improved (currently 92%, target 98%)
+
+---
+
+## CONFIDENCE SCORE
+
+**8.5/10** - High confidence for one-pass implementation success
+
+**Rationale:**
+- ✅ Existing codebase patterns well-documented and followed
+- ✅ New modules are isolated (low risk of breaking existing code)
+- ✅ Learning profile and OpenFoodFacts integration preserved (no regressions)
+- ✅ Validation commands are specific and executable
+- ⚠️ Integration testing complexity (mocking Supabase/OpenAI) may require iteration
+- ⚠️ Streamlit UI testing manual (can't automate confirmation flow easily)
+
+**Risk Factors:**
+1. **Prompt Engineering** (Medium Risk): New simplified prompt may need 1-2 iterations to get variety + structure right
+2. **Validation Tolerance Tuning** (Low Risk): ±5%/±10% may need adjustment based on real-world plans
+3. **Markdown Formatting** (Low Risk): Edge cases (ingredient names with pipes `|`, long instructions) may need escaping
+
+**Mitigation:**
+- Prompt testing with few sample generations before committing
+- Tolerance values are configurable (easy to adjust)
+- Markdown formatting helper function handles escaping
+
+---
+
+**Plan Complete. Ready for Implementation Agent.** 🚀

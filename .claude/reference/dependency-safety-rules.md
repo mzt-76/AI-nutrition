@@ -30,31 +30,31 @@ response = result.output  # ❌ OBSOLÈTE - Causera AttributeError
 
 ---
 
-### 1.2 Model: Utiliser `OpenAIChatModel`
+### 1.2 Model: Utiliser `OpenAIModel`
 
-**TOUJOURS utiliser `OpenAIChatModel`, JAMAIS `OpenAIModel`**
+**TOUJOURS utiliser `OpenAIModel`, JAMAIS `OpenAIChatModel`**
 
 #### ✅ CORRECT
 ```python
-from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.models.openai import OpenAIModel
 
-model = OpenAIChatModel(
+model = OpenAIModel(
     "gpt-4o-mini",
     provider=OpenAIProvider(base_url=base_url, api_key=api_key)
 )
 ```
 
-#### ❌ INCORRECT (API OBSOLÈTE)
+#### ❌ INCORRECT (N'EXISTE PAS)
 ```python
-from pydantic_ai.models.openai import OpenAIModel  # ❌ DÉPRÉCIÉ
+from pydantic_ai.models.openai import OpenAIChatModel  # ❌ N'existe pas
 
-model = OpenAIModel(...)  # ❌ Causera DeprecationWarning
+model = OpenAIChatModel(...)  # ❌ Causera ImportError
 ```
 
 **Fichier concerné:**
-- `agent.py` - Ligne 14 (import) et ligne 74 (usage)
+- `agent.py` - Ligne 14 (import) et ligne 77 (usage)
 
-**Historique:** `OpenAIModel` renommé en `OpenAIChatModel` pour distinguer l'API Chat Completions de l'API Responses. Corrigé le 2026-01-04.
+**Historique:** Dans pydantic-ai 0.0.53, la classe s'appelle `OpenAIModel`. Corrigé le 2026-01-29.
 
 ---
 
@@ -122,8 +122,7 @@ sed -i 's/result\.output/result.data/g' fichier.py
 
 **Solution:**
 ```bash
-# Réinstaller depuis requirements.txt
-cd 4_Pydantic_AI_Agent
+# Réinstaller depuis requirements.txt (from project root)
 source venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -138,5 +137,5 @@ pip install -r requirements.txt
 
 ---
 
-**Dernière mise à jour:** 2026-01-04
-**Raison:** Incident `result.output` → `result.data` corrigé
+**Dernière mise à jour:** 2026-01-29
+**Raison:** Correction `OpenAIChatModel` → `OpenAIModel` (n'existait pas)

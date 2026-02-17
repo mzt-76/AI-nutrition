@@ -1,0 +1,27 @@
+{
+  "supported_mime_types": [
+    "application/pdf",
+    "text/plain",
+    "text/csv",
+    "text/markdown",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "image/png",
+    "image/jpg",
+    "image/jpeg",
+    "image/svg"
+  ],
+  "tabular_mime_types": [
+    "text/csv",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  ],
+  "text_processing": {
+    "default_chunk_size": 400,
+    "default_chunk_overlap": 0
+  },
+  "last_check_time": "2025-04-17T15:33:35.832272Z",
+  "watch_directory": ""
+}

@@ -1,0 +1,35 @@
+{
+  "supported_mime_types": [
+    "application/pdf",
+    "text/plain",
+    "text/html",
+    "text/csv",
+    "text/markdown",
+    "application/vnd.ms-excel",
+    "application/vnd.google-apps.document",
+    "application/vnd.google-apps.spreadsheet",
+    "application/vnd.google-apps.presentation",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "image/png",
+    "image/jpg",
+    "image/jpeg",
+    "image/svg"
+  ],
+  "export_mime_types": {
+    "application/vnd.google-apps.document": "text/plain",
+    "application/vnd.google-apps.spreadsheet": "text/csv",
+    "application/vnd.google-apps.presentation": "text/plain"
+  },
+  "tabular_mime_types": [
+    "text/csv",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.google-apps.spreadsheet"
+  ],
+  "text_processing": {
+    "default_chunk_size": 400,
+    "default_chunk_overlap": 0
+  },
+  "watch_folder_id": "1VywUvfG3E7njilo8gjIIEfj2nMr7Fptx",
+  "last_check_time": "2026-01-13T21:14:12.080876Z"
+}
