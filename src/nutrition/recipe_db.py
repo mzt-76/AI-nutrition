@@ -1,0 +1,253 @@
+"""Recipe database operations for meal planning.
+
+Provides CRUD operations for the recipes table in Supabase.
+All functions are async and return structured results.
+
+Allergen filtering is done in Python after DB retrieval (not via Supabase array operators)
+to match codebase patterns and avoid client compatibility risk.
+"""
+
+import logging
+
+from supabase import Client
+
+from src.nutrition.openfoodfacts_client import normalize_ingredient_name
+
+logger = logging.getLogger(__name__)
+
+
+async def search_recipes(
+    supabase: Client,
+    meal_type: str,
+    exclude_allergens: list[str] | None = None,
+    exclude_recipe_ids: list[str] | None = None,
+    diet_type: str = "omnivore",
+    cuisine_types: list[str] | None = None,
+    max_prep_time: int | None = None,
+    calorie_range: tuple[int, int] | None = None,
+    limit: int = 10,
+) -> list[dict]:
+    """Search recipes with filtering constraints.
+
+    Queries the recipes table with basic filters, then applies allergen
+    exclusion and variety filtering in Python.
+
+    Args:
+        supabase: Supabase client
+        meal_type: "petit-dejeuner", "dejeuner", "diner", "collation"
+        exclude_allergens: Allergen tags to exclude (zero tolerance)
+        exclude_recipe_ids: Recipe IDs already used this week (variety)
+        diet_type: Diet filter (e.g., "omnivore", "végétarien", "vegan")
+        cuisine_types: Preferred cuisine types (None = no filter)
+        max_prep_time: Maximum prep time in minutes (None = no filter)
+        calorie_range: (min, max) calorie range for the meal slot (None = no filter)
+        limit: Max results after Python filtering
+
+    Returns:
+        List of matching recipe dicts, ordered by usage_count DESC
+
+    Example:
+        >>> recipes = await search_recipes(supabase, "dejeuner", exclude_allergens=["lactose"])
+        >>> all("lactose" not in r.get("allergen_tags", []) for r in recipes)
+        True
+    """
+    logger.info(
+        f"Searching recipes: meal_type={meal_type}, diet_type={diet_type}, "
+        f"exclude_allergens={exclude_allergens}"
+    )
+
+    try:
+        query = supabase.table("recipes").select("*").eq("meal_type", meal_type)
+
+        # Apply diet_type filter (omnivore is a superset — also returns other diet types)
+        if diet_type != "omnivore":
+            query = query.eq("diet_type", diet_type)
+
+        # Apply prep_time filter if specified
+        if max_prep_time is not None:
+            query = query.lte("prep_time_minutes", max_prep_time)
+
+        # Apply calorie range filter if specified
+        if calorie_range is not None:
+            min_cal, max_cal = calorie_range
+            query = query.gte("calories_per_serving", min_cal).lte(
+                "calories_per_serving", max_cal
+            )
+
+        # Fetch more than needed to allow Python-side filtering
+        fetch_limit = (limit * 3) + len(exclude_recipe_ids or []) + 10
+        response = query.order("usage_count", desc=True).limit(fetch_limit).execute()
+        results = response.data or []
+
+        # Python-side filtering: allergens (zero tolerance)
+        if exclude_allergens:
+            normalized_allergens = set(a.lower().strip() for a in exclude_allergens)
+            results = [
+                r
+                for r in results
+                if not set(
+                    tag.lower() for tag in r.get("allergen_tags", [])
+                ) & normalized_allergens
+            ]
+
+        # Python-side filtering: variety (exclude already-used recipe IDs)
+        if exclude_recipe_ids:
+            excluded_set = set(exclude_recipe_ids)
+            results = [r for r in results if r.get("id") not in excluded_set]
+
+        # Python-side filtering: cuisine preference (soft filter, order preferred first)
+        if cuisine_types:
+            preferred = [
+                r for r in results if r.get("cuisine_type") in cuisine_types
+            ]
+            other = [r for r in results if r.get("cuisine_type") not in cuisine_types]
+            results = preferred + other
+
+        final = results[:limit]
+        logger.info(f"Found {len(final)} recipes for meal_type={meal_type}")
+        return final
+
+    except Exception as e:
+        logger.error(f"Error searching recipes: {e}", exc_info=True)
+        return []
+
+
+async def get_recipe_by_id(supabase: Client, recipe_id: str) -> dict | None:
+    """Fetch a single recipe by its UUID.
+
+    Args:
+        supabase: Supabase client
+        recipe_id: Recipe UUID
+
+    Returns:
+        Recipe dict or None if not found
+
+    Example:
+        >>> recipe = await get_recipe_by_id(supabase, "some-uuid")
+        >>> recipe["name"] if recipe else None
+        "Omelette protéinée"
+    """
+    try:
+        response = (
+            supabase.table("recipes").select("*").eq("id", recipe_id).limit(1).execute()
+        )
+        if response.data:
+            return response.data[0]
+        return None
+    except Exception as e:
+        logger.error(f"Error fetching recipe {recipe_id}: {e}", exc_info=True)
+        return None
+
+
+async def save_recipe(supabase: Client, recipe: dict) -> dict:
+    """Save a new recipe to the database.
+
+    Normalizes the name before saving for deduplication.
+
+    Args:
+        supabase: Supabase client
+        recipe: Recipe dict. Must have at minimum: name, meal_type,
+                ingredients, instructions, calories_per_serving,
+                protein_g_per_serving, carbs_g_per_serving, fat_g_per_serving
+
+    Returns:
+        Saved recipe dict with generated UUID and timestamps
+
+    Raises:
+        ValueError: If required fields are missing
+        Exception: If database insert fails
+
+    Example:
+        >>> saved = await save_recipe(supabase, {"name": "Test", "meal_type": "dejeuner", ...})
+        >>> "id" in saved
+        True
+    """
+    required_fields = [
+        "name",
+        "meal_type",
+        "ingredients",
+        "instructions",
+        "calories_per_serving",
+        "protein_g_per_serving",
+        "carbs_g_per_serving",
+        "fat_g_per_serving",
+    ]
+    for field in required_fields:
+        if field not in recipe:
+            raise ValueError(f"Missing required field: {field}")
+
+    # Normalize name for deduplication
+    recipe_to_save = dict(recipe)
+    recipe_to_save["name_normalized"] = normalize_ingredient_name(recipe["name"])
+
+    logger.info(f"Saving recipe: {recipe['name']} (meal_type={recipe['meal_type']})")
+
+    response = supabase.table("recipes").insert(recipe_to_save).execute()
+
+    if not response.data:
+        raise Exception(f"Failed to insert recipe: {recipe['name']}")
+
+    saved = response.data[0]
+    logger.info(f"Recipe saved with ID: {saved.get('id')}")
+    return saved
+
+
+async def increment_usage(supabase: Client, recipe_id: str) -> None:
+    """Increment usage_count for a recipe.
+
+    Args:
+        supabase: Supabase client
+        recipe_id: Recipe UUID
+
+    Example:
+        >>> await increment_usage(supabase, "some-uuid")
+    """
+    try:
+        # Fetch current count first (Supabase SDK doesn't support raw SQL increment)
+        current = await get_recipe_by_id(supabase, recipe_id)
+        if current is None:
+            logger.warning(f"Recipe {recipe_id} not found for usage increment")
+            return
+
+        new_count = current.get("usage_count", 0) + 1
+        supabase.table("recipes").update({"usage_count": new_count}).eq(
+            "id", recipe_id
+        ).execute()
+        logger.debug(f"Recipe {recipe_id} usage_count → {new_count}")
+    except Exception as e:
+        logger.error(f"Error incrementing usage for {recipe_id}: {e}", exc_info=True)
+
+
+async def count_recipes_by_meal_type(supabase: Client) -> dict:
+    """Return count of recipes per meal_type for coverage check.
+
+    Args:
+        supabase: Supabase client
+
+    Returns:
+        Dict mapping meal_type → count. Example:
+        {"petit-dejeuner": 30, "dejeuner": 28, "diner": 32, "collation": 15}
+
+    Example:
+        >>> counts = await count_recipes_by_meal_type(supabase)
+        >>> counts.get("dejeuner", 0) >= 10  # Minimum for system to work well
+        True
+    """
+    meal_types = ["petit-dejeuner", "dejeuner", "diner", "collation"]
+    counts = {}
+
+    for meal_type in meal_types:
+        try:
+            response = (
+                supabase.table("recipes")
+                .select("id", count="exact")
+                .eq("meal_type", meal_type)
+                .execute()
+            )
+            counts[meal_type] = response.count or 0
+        except Exception as e:
+            logger.error(f"Error counting recipes for {meal_type}: {e}")
+            counts[meal_type] = 0
+
+    logger.info(f"Recipe DB coverage: {counts}")
+    return counts

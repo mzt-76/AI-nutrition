@@ -1,135 +1,61 @@
 ---
-description: "Create a new skill from conversation context and objective"
+description: "Create or modify a skill"
 ---
 
-# Create a New Skill
+# Create / Modify a Skill
 
 ## Objective: $ARGUMENTS
 
-## Mission
+## Step 1 — Follow skill-creator
 
-Create a **complete, eval-validated skill** based on the conversation context and the objective above. The skill must follow the established architecture, reuse domain logic from `src/nutrition/`, and include structured eval cases for validation.
-
-## Step 0: Load Context
-
-Read these files to understand patterns and constraints:
-
-- Best practices & patterns: @.claude/reference/skill-creation-guide.md
-- Skill loader (discovery logic): @src/skill_loader.py
-- Existing eval suite (add your cases here): @evals/test_skill_scripts.py
-- Existing skill loading evals: @evals/test_skill_loading.py
-- Agent tool wrappers (you may need to add one): @src/tools.py
-
-Use skill-creator to design it : skills\skill-creator
-
-## Step 1: Design the Skill
-
-Based on the conversation context and the objective, determine:
-
-1. **Skill name** (kebab-case, e.g., `meal-timing`)
-2. **Category** (nutrition, coaching, search, analysis, planning, meta)
-3. **Scripts needed** — what `execute()` functions are required
-4. **Domain logic** — which `src/nutrition/*.py` functions to reuse (NEVER duplicate)
-5. **External deps** — what needs mocking (Supabase, OpenAI, HTTP, or none)
-6. **References** — what domain docs should live in `references/`
-
-Ask the user if any of these are unclear before proceeding.
-
-## Step 2: Create Skill Directory
-
-Create the skill structure:
+Load and follow the Anthropic skill-creator guide:
 
 ```
-skills/<skill-name>/
-├── SKILL.md
-├── scripts/
-│   └── <script_name>.py
-└── references/       (if needed)
-    └── <topic>.md
+load_skill("skill-creator")
 ```
 
-### SKILL.md
+It covers everything: structure, SKILL.md format, progressive disclosure, init/package scripts.
 
-Follow the exact format from the guide — include `name`, `description`, `category` in frontmatter, `## Quand utiliser`, `## Outils disponibles`, `## Références`.
+## Step 2 — Project-specific rules (AI-Nutrition only)
 
-### Script(s)
+Four rules that override or extend skill-creator for this project:
 
-Follow the script pattern strictly:
-- `async def execute(**kwargs) -> str`
-- Import domain logic from `src.nutrition.*`
-- Structured error handling (ValueError → VALIDATION_ERROR, Exception → SCRIPT_ERROR)
-- Return JSON strings for structured data
-- Log with context
-
-## Step 3: Add Agent Tool Wrapper (if needed)
-
-If this skill needs to be callable as an agent tool, add a wrapper in `src/tools.py`:
-
+**1. Script entry point**
+Every script in `scripts/` must expose:
 ```python
-@agent.tool
-async def <tool_name>(ctx: RunContext[AgentDeps], **params) -> str:
-    """<Agent-optimized docstring with Use this when / Do NOT use>."""
-    script = _load_skill_script("skills/<skill-name>/scripts/<script>.py")
-    return await script.execute(supabase=ctx.deps.supabase, **params)
+async def execute(**kwargs) -> str:
+    """..."""
 ```
 
-## Step 4: Write Eval Cases
+**2. Domain logic lives in `src/nutrition/`**
+Scripts are orchestrators. Import calculations from `src.nutrition.*` — never duplicate them.
+```python
+from src.nutrition.calculations import calculate_bmr  # ✓
+# Don't rewrite BMR in the script              # ✗
+```
 
-Add eval cases to `evals/test_skill_scripts.py`:
+**3. Execution — no wrappers ever**
+Document the call in SKILL.md. The agent uses `run_skill_script`:
+```python
+run_skill_script("skill-name", "script_name", {
+    "param1": "value",
+    "param2": 42,
+})
+```
+**Never add a wrapper to `src/agent.py`.**
 
-1. **Add script path** to the `SCRIPTS` dict
-2. **Create task function** that loads the script and builds mocks from `_` prefixed input keys
-3. **Create dataset function** with at minimum:
-   - 1 happy path case
-   - 1 edge case
-   - 1 validation error case
-   - 1 external dependency error case (if applicable)
-4. **Create pytest test function** that runs the dataset
-5. Use existing evaluators: `IsValidJSON`, `JSONHasKey`, `JSONFieldEquals`, `JSONErrorCode`, `ContainsSubstring`, `MinLength`, `NoError`, `CaloriesInRange`, `JSONNumericFieldInRange`
+**4. Tests + evals**
+- Unit tests in `tests/test_<script_name>.py` — mock external deps:
+  - Supabase → `MagicMock` with chained `.table().select().execute()`
+  - OpenAI/Anthropic → `AsyncMock` with `.create()` return
+  - HTTP → `AsyncMock` with `.get()` returning `MagicMock(json=...)`
+- Add eval cases to `evals/test_skill_scripts.py` (min: happy path + error case)
 
-## Step 5: Validate
-
-Run these commands in order:
+## Step 3 — Validate
 
 ```bash
-# 1. Lint the new files
-ruff check skills/<skill-name>/scripts/ evals/test_skill_scripts.py
-
-# 2. Run skill loading evals (ensure discovery works)
+ruff check skills/<skill-name>/scripts/
 pytest evals/test_skill_loading.py -v
-
-# 3. Run script evals (ensure new cases pass)
 pytest evals/test_skill_scripts.py -v
-
-# 4. Run ALL evals (no regressions)
-pytest evals/ -v
-
-# 5. Run full test suite (no regressions)
 pytest tests/ -v
 ```
-
-ALL commands must pass with 0 failures before the skill is considered complete.
-
-## Step 6: Quick Validate with skill-creator
-
-If available, run the skill-creator's validation script:
-
-```python
-# Load and run quick_validate
-python -c "
-import asyncio
-from skills.skill_creator.scripts.quick_validate import execute
-result = asyncio.run(execute(skill_name='<skill-name>'))
-print(result)
-"
-```
-
-## Deliverables
-
-When done, report:
-
-1. **Skill path**: `skills/<skill-name>/`
-2. **Scripts created**: list of scripts with one-line descriptions
-3. **Eval cases added**: count and names
-4. **Validation results**: all 5 commands pass/fail
-5. **Agent tool wrapper**: added to `src/tools.py` (yes/no + function name)

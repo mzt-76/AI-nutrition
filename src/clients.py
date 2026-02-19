@@ -7,9 +7,11 @@ This module creates and configures clients for:
 - Database (Supabase)
 - Memory (mem0)
 - HTTP (httpx for web search)
+- Anthropic (Claude Sonnet 4.5 for skill-level LLM calls)
 """
 
 from openai import AsyncOpenAI
+from anthropic import AsyncAnthropic
 from supabase import create_client, Client
 from httpx import AsyncClient
 from mem0 import Memory
@@ -161,6 +163,26 @@ def get_memory_client() -> Memory:
     logger.info("Initializing mem0 Memory client")
 
     return Memory.from_config(config)
+
+
+def get_anthropic_client() -> AsyncAnthropic | None:
+    """Create Anthropic client for skill-level LLM calls (Claude Sonnet 4.5).
+
+    Used by meal-planning skill scripts for custom recipe generation and DB seeding.
+    The Pydantic AI agent itself remains on its configured model (OpenAI).
+
+    Returns:
+        AsyncAnthropic: Configured Anthropic async client, or None if key not set
+    """
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+
+    if not api_key:
+        logger.warning("ANTHROPIC_API_KEY not set — Anthropic client unavailable (LLM recipe fallback disabled)")
+        return None
+
+    logger.info("Initializing Anthropic client for skill-level LLM calls")
+
+    return AsyncAnthropic(api_key=api_key)
 
 
 def get_brave_api_key() -> str | None:

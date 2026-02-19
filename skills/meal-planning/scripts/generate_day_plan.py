@@ -1,0 +1,460 @@
+"""Generate a complete meal plan for a single day.
+
+Orchestrates: select_recipes → scale_portions → validate_day.
+If recipe DB doesn't cover a meal slot, falls back to LLM generation.
+Includes retry logic (max 2 retries per day).
+
+Source: Refactored from src/tools.py generate_weekly_meal_plan_tool
+"""
+
+import importlib.util
+import json
+import logging
+from pathlib import Path
+
+from src.nutrition.portion_scaler import scale_recipe_to_targets
+from src.nutrition.recipe_db import search_recipes, increment_usage
+from src.nutrition.validators import validate_allergens, validate_daily_macros
+
+logger = logging.getLogger(__name__)
+
+# Day names in French
+DAY_NAMES_FR = [
+    "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"
+]
+
+# Max retries when validation fails
+MAX_RETRIES = 2
+
+# Warn when more than half the slots use LLM fallback
+LLM_FALLBACK_WARN_THRESHOLD = 0.5
+
+# Project root for sibling script imports
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+
+# Meal type normalization map (same as select_recipes.py)
+_MEAL_TYPE_MAP = {
+    "petit-déjeuner": "petit-dejeuner",
+    "petit-dejeuner": "petit-dejeuner",
+    "déjeuner": "dejeuner",
+    "dejeuner": "dejeuner",
+    "dîner": "diner",
+    "diner": "diner",
+    "collation": "collation",
+}
+
+
+def _normalize_meal_type_inline(meal_type_display: str) -> str:
+    """Map display meal type to DB meal_type key (without importing sibling script)."""
+    meal_lower = meal_type_display.lower()
+    for key, value in _MEAL_TYPE_MAP.items():
+        if key in meal_lower:
+            return value
+    if "petit" in meal_lower or "breakfast" in meal_lower:
+        return "petit-dejeuner"
+    if "djeuner" in meal_lower or "lunch" in meal_lower:
+        return "dejeuner"
+    if "dner" in meal_lower or "dinner" in meal_lower or "soir" in meal_lower:
+        return "diner"
+    if "collation" in meal_lower or "snack" in meal_lower:
+        return "collation"
+    return "dejeuner"
+
+
+def _import_sibling_script(script_name: str):
+    """Import a sibling skill script by name.
+
+    Args:
+        script_name: Script filename without .py (e.g., "generate_custom_recipe")
+
+    Returns:
+        Loaded module with execute() function
+    """
+    script_path = Path(__file__).parent / f"{script_name}.py"
+    spec = importlib.util.spec_from_file_location(
+        f"meal_planning.{script_name}", script_path
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _build_meal_from_scaled_recipe(
+    scaled_recipe: dict,
+    meal_slot: dict,
+) -> dict:
+    """Build a meal dict from a scaled recipe, matching the Output Format Contract.
+
+    Args:
+        scaled_recipe: Recipe dict with scaled_nutrition and scaled ingredients
+        meal_slot: Meal slot target dict with meal_type
+
+    Returns:
+        Meal dict with all required fields
+    """
+    nutrition = scaled_recipe.get("scaled_nutrition", {})
+
+    return {
+        "meal_type": meal_slot.get("meal_type", "Repas"),
+        "name": scaled_recipe.get("name", ""),
+        "ingredients": scaled_recipe.get("ingredients", []),
+        "instructions": scaled_recipe.get("instructions", ""),
+        "prep_time_minutes": scaled_recipe.get("prep_time_minutes", 30),
+        "nutrition": {
+            "calories": nutrition.get("calories", 0.0),
+            "protein_g": nutrition.get("protein_g", 0.0),
+            "carbs_g": nutrition.get("carbs_g", 0.0),
+            "fat_g": nutrition.get("fat_g", 0.0),
+        },
+    }
+
+
+def _compute_daily_totals(meals: list[dict]) -> dict:
+    """Sum nutrition across all meals for the day.
+
+    Args:
+        meals: List of meal dicts with nutrition dicts
+
+    Returns:
+        Dict with calories, protein_g, carbs_g, fat_g totals
+    """
+    totals = {"calories": 0.0, "protein_g": 0.0, "carbs_g": 0.0, "fat_g": 0.0}
+    for meal in meals:
+        nutrition = meal.get("nutrition", {})
+        for key in totals:
+            totals[key] = round(totals[key] + nutrition.get(key, 0.0), 2)
+    return totals
+
+
+async def _select_and_scale_meals(
+    supabase,
+    anthropic_client,
+    meal_targets: list[dict],
+    user_profile: dict,
+    exclude_recipe_ids: list[str],
+    custom_requests: dict,
+    attempt: int,
+) -> tuple[list[dict], list[str], int]:
+    """Select recipes from DB (or LLM) and scale them for each meal slot.
+
+    Returns:
+        (meals, recipe_ids_used, llm_fallback_count)
+    """
+    generate_custom_recipe_module = _import_sibling_script("generate_custom_recipe")
+
+    user_allergens = user_profile.get("allergies", [])
+    diet_type = user_profile.get("diet_type", "omnivore")
+    preferred_cuisines = user_profile.get("preferred_cuisines")
+    max_prep_time = user_profile.get("max_prep_time")
+
+    meals: list[dict] = []
+    recipe_ids_used: list[str] = []
+    llm_fallback_count = 0
+    used_ids_this_attempt = list(exclude_recipe_ids)
+
+    for meal_slot in meal_targets:
+        meal_type_display = meal_slot.get("meal_type", "Déjeuner")
+        target_calories = meal_slot.get("target_calories", 600)
+        target_protein_g = meal_slot.get("target_protein_g", 40)
+        target_carbs_g = meal_slot.get("target_carbs_g")
+        target_fat_g = meal_slot.get("target_fat_g")
+
+        # Check for a custom request for this meal type
+        custom_request = custom_requests.get(meal_type_display.lower().replace("-", ""))
+        if not custom_request:
+            # Also check by simplified key
+            for key, val in custom_requests.items():
+                if key.lower() in meal_type_display.lower():
+                    custom_request = val
+                    break
+
+        recipe = None
+
+        if custom_request:
+            # LLM fallback: custom recipe requested
+            logger.info(
+                f"  {meal_type_display}: custom recipe requested '{custom_request}'"
+            )
+            result_str = await generate_custom_recipe_module.execute(
+                anthropic_client=anthropic_client,
+                supabase=supabase,
+                recipe_request=custom_request,
+                meal_type=meal_type_display.lower().replace("é", "e").replace("î", "i"),
+                target_calories=target_calories,
+                target_protein_g=target_protein_g,
+                user_allergens=user_allergens,
+                diet_type=diet_type,
+                max_prep_time=max_prep_time or 60,
+                save_to_db=True,
+            )
+            result = json.loads(result_str)
+            if "error" not in result:
+                recipe = result.get("recipe")
+                llm_fallback_count += 1
+        else:
+            # Try recipe DB first
+            # Determine DB meal type key (inline logic)
+            db_meal_type = _normalize_meal_type_inline(meal_type_display)
+
+            calorie_range = (
+                int(target_calories * 0.6),
+                int(target_calories * 1.4),
+            )
+
+            candidates = await search_recipes(
+                supabase=supabase,
+                meal_type=db_meal_type,
+                exclude_allergens=user_allergens if user_allergens else None,
+                exclude_recipe_ids=used_ids_this_attempt or None,
+                diet_type=diet_type,
+                cuisine_types=preferred_cuisines,
+                max_prep_time=max_prep_time,
+                calorie_range=calorie_range,
+                limit=5,
+            )
+
+            if candidates:
+                recipe = candidates[0]
+                logger.info(
+                    f"  {meal_type_display}: DB recipe '{recipe['name']}' "
+                    f"({recipe['calories_per_serving']:.0f} kcal)"
+                )
+            else:
+                # No DB match → LLM fallback
+                logger.warning(
+                    f"  {meal_type_display}: no DB match → LLM fallback "
+                    f"(attempt {attempt + 1})"
+                )
+                result_str = await generate_custom_recipe_module.execute(
+                    anthropic_client=anthropic_client,
+                    supabase=supabase,
+                    recipe_request=f"Un repas de type {meal_type_display} équilibré et savoureux",
+                    meal_type=db_meal_type,
+                    target_calories=target_calories,
+                    target_protein_g=target_protein_g,
+                    user_allergens=user_allergens,
+                    diet_type=diet_type,
+                    max_prep_time=max_prep_time or 45,
+                    save_to_db=True,
+                )
+                result = json.loads(result_str)
+                if "error" not in result:
+                    recipe = result.get("recipe")
+                    llm_fallback_count += 1
+                else:
+                    logger.error(
+                        f"LLM fallback failed for {meal_type_display}: "
+                        f"{result.get('error')}"
+                    )
+
+        if recipe:
+            # Scale portions to hit meal-level macro targets
+            try:
+                scaled = scale_recipe_to_targets(
+                    recipe=recipe,
+                    target_calories=target_calories,
+                    target_protein_g=target_protein_g,
+                    target_carbs_g=target_carbs_g,
+                    target_fat_g=target_fat_g,
+                )
+                meal = _build_meal_from_scaled_recipe(scaled, meal_slot)
+                meals.append(meal)
+
+                # Track recipe ID for variety
+                if "id" in recipe:
+                    recipe_ids_used.append(recipe["id"])
+                    used_ids_this_attempt.append(recipe["id"])
+                    # Increment usage count in DB
+                    try:
+                        await increment_usage(supabase, recipe["id"])
+                    except Exception:
+                        pass  # Non-critical
+            except Exception as scale_err:
+                logger.error(
+                    f"Scaling failed for {meal_type_display}: {scale_err}",
+                    exc_info=True,
+                )
+        else:
+            logger.error(f"Could not get any recipe for {meal_type_display}")
+
+    return meals, recipe_ids_used, llm_fallback_count
+
+
+async def execute(**kwargs) -> str:
+    """Generate meal plan for one day.
+
+    Args:
+        supabase: Supabase client
+        anthropic_client: AsyncAnthropic client (for LLM fallback only — Sonnet 4.5)
+        day_index: 0-6 (Monday-Sunday)
+        day_name: "Lundi", "Mardi", etc.
+        day_date: "YYYY-MM-DD"
+        meal_targets: List of meal slot targets from meal_distribution
+            [{"meal_type": "Petit-déjeuner", "time": "08:00",
+              "target_calories": 750, "target_protein_g": 40, ...}]
+        user_profile: Profile dict (allergens, preferences, diet_type)
+        exclude_recipe_ids: IDs already used this week (variety)
+        custom_requests: Optional dict of meal_type → recipe request string
+            e.g. {"dejeuner": "risotto aux champignons"}
+
+    Returns:
+        JSON with complete day plan:
+        {
+            "success": true,
+            "day": {
+                "day": "Lundi",
+                "date": "2026-02-18",
+                "meals": [...],
+                "daily_totals": {"calories": 2800, "protein_g": 175, ...}
+            },
+            "recipes_used": ["uuid1", "uuid2", "uuid3"],
+            "llm_fallback_count": 0,
+            "validation": {"valid": true, ...}
+        }
+    """
+    supabase = kwargs["supabase"]
+    anthropic_client = kwargs["anthropic_client"]
+    day_index = kwargs.get("day_index", 0)
+    day_name = kwargs.get("day_name", DAY_NAMES_FR[day_index % 7])
+    day_date = kwargs.get("day_date", "")
+    meal_targets = kwargs["meal_targets"]
+    user_profile = kwargs.get("user_profile", {})
+    exclude_recipe_ids = list(kwargs.get("exclude_recipe_ids", []))
+    custom_requests = kwargs.get("custom_requests", {})
+
+    # Build target macros for validation
+    target_macros = {
+        "calories": sum(m.get("target_calories", 0) for m in meal_targets),
+        "protein_g": sum(m.get("target_protein_g", 0) for m in meal_targets),
+        "carbs_g": sum(m.get("target_carbs_g", 0) for m in meal_targets),
+        "fat_g": sum(m.get("target_fat_g", 0) for m in meal_targets),
+    }
+
+    try:
+        logger.info(
+            f"Generating day plan: {day_name} ({day_date}), "
+            f"{len(meal_targets)} meals, target={target_macros['calories']} kcal"
+        )
+
+        best_day = None
+        best_validation = None
+        best_recipe_ids: list[str] = []
+        best_llm_count = 0
+
+        for attempt in range(MAX_RETRIES + 1):
+            if attempt > 0:
+                logger.info(f"Retry {attempt}/{MAX_RETRIES} for {day_name}")
+
+            meals, recipe_ids_used, llm_fallback_count = await _select_and_scale_meals(
+                supabase=supabase,
+                anthropic_client=anthropic_client,
+                meal_targets=meal_targets,
+                user_profile=user_profile,
+                exclude_recipe_ids=exclude_recipe_ids,
+                custom_requests=custom_requests,
+                attempt=attempt,
+            )
+
+            if not meals:
+                logger.error(f"No meals generated for {day_name} (attempt {attempt})")
+                continue
+
+            # Warn on high LLM fallback rate
+            fallback_ratio = llm_fallback_count / len(meal_targets)
+            if fallback_ratio >= LLM_FALLBACK_WARN_THRESHOLD:
+                logger.warning(
+                    f"Recipe DB coverage low for {day_name}: "
+                    f"{llm_fallback_count}/{len(meal_targets)} slots used LLM fallback. "
+                    "Consider running seed_recipe_db."
+                )
+
+            # Build day dict
+            daily_totals = _compute_daily_totals(meals)
+            day_plan = {
+                "day": day_name,
+                "date": day_date,
+                "meals": meals,
+                "daily_totals": daily_totals,
+            }
+
+            # Validate the day
+            user_allergens = user_profile.get("allergies", [])
+
+            # Allergen check (zero tolerance)
+            allergen_violations = validate_allergens(
+                {"days": [day_plan]}, user_allergens
+            )
+
+            # Macro check
+            protein_check = validate_daily_macros(
+                {"protein_g": daily_totals.get("protein_g", 0)},
+                {"protein_g": target_macros.get("protein_g", 0)},
+                tolerance=0.05,
+            )
+            other_check = validate_daily_macros(
+                {
+                    "calories": daily_totals.get("calories", 0),
+                    "carbs_g": daily_totals.get("carbs_g", 0),
+                    "fat_g": daily_totals.get("fat_g", 0),
+                },
+                {
+                    "calories": target_macros.get("calories", 0),
+                    "carbs_g": target_macros.get("carbs_g", 0),
+                    "fat_g": target_macros.get("fat_g", 0),
+                },
+                tolerance=0.10,
+            )
+
+            all_violations = allergen_violations + protein_check.get("violations", []) + other_check.get("violations", [])
+            validation = {
+                "valid": len(all_violations) == 0,
+                "violations": all_violations,
+                "allergen_violations": allergen_violations,
+            }
+
+            if validation["valid"] or attempt == MAX_RETRIES:
+                best_day = day_plan
+                best_validation = validation
+                best_recipe_ids = recipe_ids_used
+                best_llm_count = llm_fallback_count
+                break
+
+            logger.warning(
+                f"Day {day_name} validation failed (attempt {attempt}): "
+                f"{len(all_violations)} violations"
+            )
+
+        if best_day is None:
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Could not generate valid day plan for {day_name}",
+                    "code": "GENERATION_FAILED",
+                },
+                ensure_ascii=False,
+            )
+
+        logger.info(
+            f"✅ Day {day_name} complete: {len(best_day['meals'])} meals, "
+            f"{best_day['daily_totals']['calories']:.0f} kcal, "
+            f"validation={'PASS' if best_validation['valid'] else 'WARN'}"
+        )
+
+        return json.dumps(
+            {
+                "success": True,
+                "day": best_day,
+                "recipes_used": best_recipe_ids,
+                "llm_fallback_count": best_llm_count,
+                "validation": best_validation,
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+
+    except ValueError as e:
+        logger.error(f"Validation error in generate_day_plan: {e}")
+        return json.dumps({"error": str(e), "code": "VALIDATION_ERROR"})
+    except Exception as e:
+        logger.error(f"Unexpected error in generate_day_plan: {e}", exc_info=True)
+        return json.dumps({"error": "Internal error", "code": "SCRIPT_ERROR"})

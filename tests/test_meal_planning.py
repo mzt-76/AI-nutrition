@@ -1,103 +1,17 @@
 """
 Tests for nutrition meal_planning module.
 
-Tests prompt building, daily totals calculation, and response formatting.
+Tests daily totals calculation, response formatting, and meal structures.
+Note: build_meal_plan_prompt() was removed in the weekplan redesign (replaced by
+day-by-day recipe DB approach). build_meal_plan_prompt_simple() is kept for LLM fallback.
 """
 
 import json
 from src.nutrition.meal_planning import (
-    build_meal_plan_prompt,
     calculate_daily_totals,
     format_meal_plan_response,
     MEAL_STRUCTURES,
 )
-
-
-def test_build_meal_plan_prompt_contains_allergies():
-    """Test that prompt contains allergy information in multiple places."""
-    profile = {
-        "allergies": ["arachides", "lactose"],
-        "target_calories": 3000,
-        "target_protein_g": 180,
-        "target_carbs_g": 350,
-        "target_fat_g": 85,
-    }
-    prompt = build_meal_plan_prompt(
-        profile=profile,
-        rag_context="RAG context here",
-        start_date="2024-12-23",
-        meal_structure="3_meals_2_snacks",
-    )
-
-    # Allergens should appear multiple times
-    assert prompt.count("arachides") >= 3
-    assert prompt.count("lactose") >= 3
-    assert "ALLERGIES" in prompt
-    assert "TOLÉRANCE ZÉRO" in prompt
-
-
-def test_build_meal_plan_prompt_contains_targets():
-    """Test that prompt contains nutritional targets."""
-    profile = {
-        "allergies": [],
-        "target_calories": 2500,
-        "target_protein_g": 150,
-        "target_carbs_g": 300,
-        "target_fat_g": 70,
-    }
-    prompt = build_meal_plan_prompt(
-        profile=profile,
-        rag_context="RAG context",
-        start_date="2024-12-23",
-        meal_structure="4_meals",
-    )
-
-    assert "2500" in prompt  # Calories
-    assert "150" in prompt  # Protein
-    assert "300" in prompt  # Carbs
-    assert "70" in prompt  # Fat
-
-
-def test_build_meal_plan_prompt_contains_meal_structure():
-    """Test that prompt contains meal structure information."""
-    profile = {
-        "allergies": [],
-        "target_calories": 3000,
-        "target_protein_g": 180,
-        "target_carbs_g": 350,
-        "target_fat_g": 85,
-    }
-    prompt = build_meal_plan_prompt(
-        profile=profile,
-        rag_context="RAG context",
-        start_date="2024-12-23",
-        meal_structure="3_meals_1_preworkout",
-    )
-
-    assert "3_meals_1_preworkout" in prompt
-    structure_info = MEAL_STRUCTURES["3_meals_1_preworkout"]
-    assert structure_info["description"] in prompt
-
-
-def test_build_meal_plan_prompt_with_notes():
-    """Test that prompt includes additional notes."""
-    profile = {
-        "allergies": [],
-        "target_calories": 3000,
-        "target_protein_g": 180,
-        "target_carbs_g": 350,
-        "target_fat_g": 85,
-    }
-    notes = "Pas de viande rouge cette semaine"
-    prompt = build_meal_plan_prompt(
-        profile=profile,
-        rag_context="RAG context",
-        start_date="2024-12-23",
-        meal_structure="3_meals_2_snacks",
-        notes=notes,
-    )
-
-    assert notes in prompt
 
 
 def test_calculate_daily_totals():

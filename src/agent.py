@@ -5,8 +5,14 @@ This module creates and configures the Pydantic AI agent with:
 - OpenAI model configuration
 - Agent dependencies (Supabase, OpenAI, mem0, HTTP client)
 - Content-based progressive disclosure (skills provide context, tools always registered)
-- Core tools always available (profile, skill management, domain tools)
+- Core tools: skill management (load/read/list/run), profile (fetch/update)
 - System prompt with memory integration
+
+Skill execution pattern:
+  1. Agent calls load_skill(skill_name) to read SKILL.md
+  2. SKILL.md documents which script to run and what params to pass
+  3. Agent calls run_skill_script(skill_name, script_name, params)
+  No per-skill wrappers — adding a new skill never requires touching this file.
 """
 
 from pydantic_ai import Agent, RunContext
@@ -16,7 +22,6 @@ from pydantic_ai.toolsets import FunctionToolset
 from dataclasses import dataclass
 from pathlib import Path
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
 import importlib.util
 import os
 import logging
@@ -29,13 +34,11 @@ from src.clients import (
     get_http_client,
     get_brave_api_key,
     get_searxng_base_url,
+    get_anthropic_client,
 )
 from src.tools import (
     fetch_my_profile_tool,
     update_my_profile_tool,
-    generate_weekly_meal_plan_tool,
-    generate_shopping_list_tool,
-    fetch_stored_meal_plan_tool,
 )
 from src.skill_loader import SkillLoader
 from src.skill_tools import (
@@ -115,6 +118,7 @@ class AgentDeps:
         searxng_base_url: SearXNG base URL (optional)
         memories: String containing user memories for context
         skill_loader: Loader for progressive disclosure skills
+        anthropic_client: Anthropic client for skill-level LLM calls (Claude Sonnet 4.5)
     """
 
     supabase: any  # Supabase Client
@@ -125,6 +129,7 @@ class AgentDeps:
     searxng_base_url: str | None
     memories: str
     skill_loader: SkillLoader | None = None
+    anthropic_client: any = None  # AsyncAnthropic (skills)
 
 
 # =============================================================================
@@ -143,8 +148,8 @@ async def load_skill(
 ) -> str:
     """Load detailed instructions for a skill domain.
 
-    Call this BEFORE executing a complex workflow to get the full context
-    (workflow steps, parameters, business rules, examples).
+    Call this BEFORE executing a skill to get the full context
+    (workflow steps, script names, parameters, business rules, examples).
 
     Args:
         ctx: Run context
@@ -188,7 +193,57 @@ async def list_skill_files(
     return await list_skill_files_fn(ctx, skill_name, directory)
 
 
-# --- Profile tools ---
+async def run_skill_script(
+    ctx: RunContext[AgentDeps],
+    skill_name: str,
+    script_name: str,
+    params: dict = None,
+) -> str:
+    """Execute a script from a skill's scripts/ folder.
+
+    Use this after load_skill() — SKILL.md tells you which script to run
+    and what params to pass. All shared clients are injected automatically.
+
+    Args:
+        ctx: Run context
+        skill_name: Skill directory name (e.g., "meal-planning", "nutrition-calculating")
+        script_name: Script filename without .py (e.g., "generate_week_plan")
+        params: Business parameters for the script (dates, targets, etc.)
+            See the skill's SKILL.md for the full parameter list per script.
+
+    Examples:
+        run_skill_script("nutrition-calculating", "calculate_nutritional_needs",
+            {"age": 30, "gender": "male", "weight_kg": 80, "height_cm": 178,
+             "activity_level": "moderate"})
+
+        run_skill_script("meal-planning", "generate_week_plan",
+            {"start_date": "2026-02-23", "target_calories_daily": 2800})
+
+        run_skill_script("meal-planning", "generate_shopping_list",
+            {"week_start": "2026-02-23"})
+    """
+    logger.info(
+        f"Tool called: run_skill_script(skill={skill_name}, script={script_name})"
+    )
+    module = _import_skill_script(skill_name, script_name)
+
+    # Inject all shared clients — scripts take only what they need via kwargs.get()
+    all_params = {
+        "supabase": ctx.deps.supabase,
+        "openai_client": ctx.deps.openai_client,
+        "embedding_client": ctx.deps.embedding_client,
+        "http_client": ctx.deps.http_client,
+        "brave_api_key": ctx.deps.brave_api_key,
+        "searxng_base_url": ctx.deps.searxng_base_url,
+        "anthropic_client": ctx.deps.anthropic_client,
+    }
+    if params:
+        all_params.update(params)
+
+    return await module.execute(**all_params)
+
+
+# --- Profile tools (core, not skill-specific) ---
 
 
 async def fetch_my_profile(ctx: RunContext[AgentDeps]) -> str:
@@ -247,274 +302,19 @@ async def update_my_profile(
     )
 
 
-# --- Domain tools (delegate to skill scripts) ---
-
-
-async def calculate_nutritional_needs(
-    ctx: RunContext[AgentDeps],
-    age: int,
-    gender: str,
-    weight_kg: float,
-    height_cm: int,
-    activity_level: str,
-    goals: dict = None,
-    activities: list[str] = None,
-    context: str = None,
-) -> str:
-    """Calculate BMR, TDEE, and target macros.
-
-    Args:
-        ctx: Run context
-        age: Age in years (18-100)
-        gender: "male" or "female"
-        weight_kg: Body weight in kg
-        height_cm: Height in cm
-        activity_level: sedentary, light, moderate, active, very_active
-        goals: Goal scores dict (0-10 for muscle_gain, weight_loss, performance, maintenance)
-        activities: List of activities (e.g., ["musculation", "basket"])
-        context: User's goal statement for automatic goal inference (e.g., "prise de masse")
-    """
-    logger.info("Tool called: calculate_nutritional_needs")
-    module = _import_skill_script(
-        "nutrition-calculating", "calculate_nutritional_needs"
-    )
-    return await module.execute(
-        age=age,
-        gender=gender,
-        weight_kg=weight_kg,
-        height_cm=height_cm,
-        activity_level=activity_level,
-        goals=goals,
-        activities=activities,
-        context=context,
-    )
-
-
-async def retrieve_relevant_documents(
-    ctx: RunContext[AgentDeps], user_query: str
-) -> str:
-    """Search nutritional knowledge base via RAG.
-
-    Args:
-        ctx: Run context
-        user_query: Natural language question or topic (French or English)
-    """
-    logger.info("Tool called: retrieve_relevant_documents")
-    module = _import_skill_script("knowledge-searching", "retrieve_relevant_documents")
-    return await module.execute(
-        supabase=ctx.deps.supabase,
-        embedding_client=ctx.deps.embedding_client,
-        user_query=user_query,
-    )
-
-
-async def web_search(ctx: RunContext[AgentDeps], query: str) -> str:
-    """Search the web for recent nutritional information.
-
-    Args:
-        ctx: Run context
-        query: Search query in natural language
-    """
-    logger.info("Tool called: web_search")
-    module = _import_skill_script("knowledge-searching", "web_search")
-    return await module.execute(
-        query=query,
-        http_client=ctx.deps.http_client,
-        brave_api_key=ctx.deps.brave_api_key,
-        searxng_base_url=ctx.deps.searxng_base_url,
-    )
-
-
-async def image_analysis(
-    ctx: RunContext[AgentDeps], image_url: str, analysis_prompt: str
-) -> str:
-    """Analyze images via GPT-4 Vision.
-
-    Args:
-        ctx: Run context
-        image_url: URL to the image (Google Drive or direct URL)
-        analysis_prompt: What to analyze (e.g., "Estimate body fat percentage")
-    """
-    logger.info("Tool called: image_analysis")
-    module = _import_skill_script("body-analyzing", "image_analysis")
-    return await module.execute(
-        image_url=image_url,
-        analysis_prompt=analysis_prompt,
-        openai_client=ctx.deps.openai_client,
-    )
-
-
-async def calculate_weekly_adjustments(
-    ctx: RunContext[AgentDeps],
-    weight_start_kg: float,
-    weight_end_kg: float,
-    adherence_percent: int,
-    hunger_level: str = "medium",
-    energy_level: str = "medium",
-    sleep_quality: str = "good",
-    cravings: list[str] | None = None,
-    notes: str = "",
-) -> str:
-    """Analyze weekly check-in and generate adjustments.
-
-    Args:
-        ctx: Run context
-        weight_start_kg: Weight at start of week (kg)
-        weight_end_kg: Weight at end of week (kg)
-        adherence_percent: Plan adherence (0-100%)
-        hunger_level: low, medium, high
-        energy_level: low, medium, high
-        sleep_quality: poor, fair, good, excellent
-        cravings: List of cravings if any
-        notes: Free-text observations
-    """
-    logger.info("Tool called: calculate_weekly_adjustments")
-    module = _import_skill_script("weekly-coaching", "calculate_weekly_adjustments")
-    return await module.execute(
-        supabase=ctx.deps.supabase,
-        embedding_client=ctx.deps.embedding_client,
-        weight_start_kg=weight_start_kg,
-        weight_end_kg=weight_end_kg,
-        adherence_percent=adherence_percent,
-        hunger_level=hunger_level,
-        energy_level=energy_level,
-        sleep_quality=sleep_quality,
-        cravings=cravings,
-        notes=notes,
-    )
-
-
-# --- Meal-planning tools (still import from src/tools.py — will be migrated later) ---
-
-
-async def generate_weekly_meal_plan(
-    ctx: RunContext[AgentDeps],
-    start_date: str | None = None,
-    target_calories_daily: int = None,
-    target_protein_g: int = None,
-    target_carbs_g: int = None,
-    target_fat_g: int = None,
-    meal_structure: str = "3_consequent_meals",
-    notes: str = None,
-) -> str:
-    """Generate 7-day meal plan with recipes.
-
-    Args:
-        ctx: Run context
-        start_date: YYYY-MM-DD format (defaults to current week Monday)
-        target_calories_daily: Daily kcal target (None = use profile)
-        target_protein_g: Daily protein grams
-        target_carbs_g: Daily carbs grams
-        target_fat_g: Daily fat grams
-        meal_structure: 3_consequent_meals, 3_meals_2_snacks, 4_meals, 3_meals_1_preworkout
-        notes: Extra preferences (e.g., "pas de viande rouge cette semaine")
-    """
-    logger.info("Tool called: generate_weekly_meal_plan")
-
-    # Calculate current week's Monday if start_date not provided
-    if start_date is None:
-        today = datetime.now().date()
-        monday = today - timedelta(days=today.weekday())
-        start_date = monday.strftime("%Y-%m-%d")
-        logger.info(
-            f"No start_date provided, using current week's Monday: {start_date}"
-        )
-    return await generate_weekly_meal_plan_tool(
-        ctx.deps.supabase,
-        ctx.deps.openai_client,
-        ctx.deps.http_client,
-        start_date,
-        target_calories_daily,
-        target_protein_g,
-        target_carbs_g,
-        target_fat_g,
-        meal_structure,
-        notes,
-    )
-
-
-async def fetch_stored_meal_plan(
-    ctx: RunContext[AgentDeps],
-    week_start: str | None = None,
-    selected_days: list[int] | None = None,
-) -> str:
-    """Retrieve existing meal plan from database (fast, no regeneration).
-
-    Args:
-        ctx: Run context
-        week_start: YYYY-MM-DD format (defaults to current week Monday)
-        selected_days: Day indices to retrieve (0=Mon to 6=Sun), None for all
-    """
-    logger.info("Tool called: fetch_stored_meal_plan")
-
-    # Calculate current week's Monday if week_start not provided
-    if week_start is None:
-        today = datetime.now().date()
-        monday = today - timedelta(days=today.weekday())
-        week_start = monday.strftime("%Y-%m-%d")
-        logger.info(
-            f"No week_start provided, using current week's Monday: {week_start}"
-        )
-
-    return await fetch_stored_meal_plan_tool(
-        ctx.deps.supabase, week_start, selected_days
-    )
-
-
-async def generate_shopping_list(
-    ctx: RunContext[AgentDeps],
-    week_start: str | None = None,
-    selected_days: list[int] | None = None,
-    servings_multiplier: float = 1.0,
-) -> str:
-    """Generate categorized shopping list from meal plan.
-
-    Args:
-        ctx: Run context
-        week_start: YYYY-MM-DD format (defaults to current week Monday)
-        selected_days: Day indices to include (0=Mon to 6=Sun), None for all
-        servings_multiplier: Quantity multiplier (default 1.0)
-    """
-    logger.info("Tool called: generate_shopping_list")
-
-    # Calculate current week's Monday if week_start not provided
-    if week_start is None:
-        today = datetime.now().date()
-        monday = today - timedelta(days=today.weekday())
-        week_start = monday.strftime("%Y-%m-%d")
-        logger.info(
-            f"No week_start provided, using current week's Monday: {week_start}"
-        )
-
-    return await generate_shopping_list_tool(
-        ctx.deps.supabase, week_start, selected_days, servings_multiplier
-    )
-
-
 # =============================================================================
-# Register ALL tools in core_tools
+# Register tools in core_tools
 # =============================================================================
 
-# Skill management
+# Skill management (progressive disclosure)
 core_tools.add_function(load_skill)
 core_tools.add_function(read_skill_file)
 core_tools.add_function(list_skill_files)
+core_tools.add_function(run_skill_script)
 
-# Profile
+# Profile (core, not skill-specific)
 core_tools.add_function(fetch_my_profile)
 core_tools.add_function(update_my_profile)
-
-# Domain tools (delegate to skill scripts)
-core_tools.add_function(calculate_nutritional_needs)
-core_tools.add_function(retrieve_relevant_documents)
-core_tools.add_function(web_search)
-core_tools.add_function(image_analysis)
-core_tools.add_function(calculate_weekly_adjustments)
-
-# Meal-planning (still from src/tools.py)
-core_tools.add_function(generate_weekly_meal_plan)
-core_tools.add_function(fetch_stored_meal_plan)
-core_tools.add_function(generate_shopping_list)
 
 
 # =============================================================================
@@ -551,7 +351,8 @@ def add_dynamic_context(ctx: RunContext[AgentDeps]) -> str:
         sections.append(
             "\n\n## Skills Disponibles (Progressive Disclosure)\n"
             "Charge un skill avec `load_skill(skill_name)` pour obtenir les instructions "
-            "detaillees (workflow, parametres, regles metier) AVANT d'utiliser ses outils.\n\n"
+            "detaillees (workflow, scripts disponibles, parametres). "
+            "Execute ensuite avec `run_skill_script(skill_name, script_name, params)`.\n\n"
             f"{skill_metadata}"
         )
 
@@ -593,6 +394,7 @@ def create_agent_deps(memories: str = "") -> AgentDeps:
         searxng_base_url=get_searxng_base_url(),
         memories=memories,
         skill_loader=skill_loader,
+        anthropic_client=get_anthropic_client(),
     )
 
 

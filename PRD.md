@@ -315,7 +315,8 @@ AI-nutrition/
 - Each domain (nutrition, meal-planning, coaching, etc.) is a **skill** with its own directory
 - Skills contain: `SKILL.md` (metadata/when-to-use), `scripts/` (executable functions), `references/` (domain docs)
 - Scripts are standalone `async execute(**kwargs)` functions loaded via `importlib`
-- Agent tools (`src/tools.py`) are thin wrappers that delegate to skill scripts
+- Agent tool wrappers live in `src/agent.py` (thin `_import_skill_script` adapters, one per script)
+- `src/tools.py` contains ONLY `fetch_my_profile_tool` and `update_my_profile_tool` — zero skill logic
 - `SkillLoader` discovers skills at startup and provides metadata for agent context
 - Enables independent testing, eval coverage per script, and modular development
 
