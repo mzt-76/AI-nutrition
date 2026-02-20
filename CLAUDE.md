@@ -23,6 +23,7 @@
 7. **Skill scripts are orchestrators, not reimplementers**: Calculation/domain logic lives in `src/nutrition/` — import it, never rewrite it. Other imports (`src.tools`, `src.clients`, stdlib, third-party) are fine. The rule is about duplication, not import restriction.
 8. **Test all calculation functions**: Happy path + error cases. Nutrition logic is critical.
 9. **Run linters before committing**: `ruff format src/ tests/ && ruff check src/ tests/ && mypy src/`
+10. **`scripts/` are LLM-free**: Scripts in `scripts/` must never import `anthropic`, `openai`, or any LLM client. They may only use `src.nutrition.*`, `src.clients.get_supabase_client()`, and stdlib. If a task requires an LLM, it belongs in `skills/` as a skill script instead. This is enforced by `tests/test_scripts_no_llm.py`.
 
 ---
 
