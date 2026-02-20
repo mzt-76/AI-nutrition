@@ -17,7 +17,8 @@ Skill execution pattern:
 
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.toolsets import FunctionToolset
 from dataclasses import dataclass
 from pathlib import Path
@@ -63,24 +64,34 @@ def get_model():
     """
     Get configured LLM model from environment variables.
 
-    Returns:
-        OpenAIModel: Configured model instance
+    Provider is auto-detected from the model name:
+    - "claude-*" → Anthropic (requires ANTHROPIC_API_KEY)
+    - anything else → OpenAI-compatible (requires LLM_API_KEY)
 
     Environment Variables:
         LLM_CHOICE: Model name (default: gpt-4o-mini)
-        LLM_BASE_URL: API base URL (default: https://api.openai.com/v1)
-        LLM_API_KEY: API key (required)
+            OpenAI example:    gpt-4o-mini
+            Anthropic example: claude-haiku-4-5-20251001
+        LLM_API_KEY: OpenAI API key (required for OpenAI models)
+        LLM_BASE_URL: OpenAI-compatible base URL (default: https://api.openai.com/v1)
+        ANTHROPIC_API_KEY: Anthropic API key (required for claude-* models)
     """
-    llm = os.getenv("LLM_CHOICE", "gpt-4o-mini")
-    base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
-    api_key = os.getenv("LLM_API_KEY")
+    model_name = os.getenv("LLM_CHOICE", "gpt-4o-mini")
 
+    if model_name.startswith("claude-"):
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise ValueError("ANTHROPIC_API_KEY not found in environment variables")
+        logger.info(f"Initializing LLM (Anthropic): {model_name}")
+        return AnthropicModel(model_name)
+
+    # OpenAI-compatible (OpenAI, OpenRouter, Ollama, etc.)
+    api_key = os.getenv("LLM_API_KEY")
+    base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
     if not api_key:
         raise ValueError("LLM_API_KEY not found in environment variables")
-
-    logger.info(f"Initializing LLM: {llm} at {base_url}")
-
-    return OpenAIModel(llm, provider=OpenAIProvider(base_url=base_url, api_key=api_key))
+    logger.info(f"Initializing LLM (OpenAI): {model_name} at {base_url}")
+    return OpenAIChatModel(model_name, provider=OpenAIProvider(base_url=base_url, api_key=api_key))
 
 
 def _import_skill_script(skill_name: str, script_name: str):
@@ -259,7 +270,7 @@ async def update_my_profile(
     weight_kg: float = None,
     height_cm: int = None,
     activity_level: str = None,
-    goals: dict = None,
+    goals: dict[str, int] | None = None,
     allergies: list[str] = None,
     diet_type: str = None,
     disliked_foods: list[str] = None,
@@ -276,7 +287,7 @@ async def update_my_profile(
         weight_kg: Weight in kg
         height_cm: Height in cm
         activity_level: sedentary, light, moderate, active, very_active
-        goals: Goal scores dict (0-10 for weight_loss, muscle_gain, performance, maintenance)
+        goals: Integer scores 0-10 per goal key, e.g. {"muscle_gain": 8, "weight_loss": 0}
         allergies: Allergen list (e.g., ["arachides", "lactose"])
         diet_type: omnivore, végétarien, vegan, etc.
         disliked_foods: Foods to avoid

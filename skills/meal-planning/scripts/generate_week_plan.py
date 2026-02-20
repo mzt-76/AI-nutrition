@@ -29,6 +29,13 @@ logger = logging.getLogger(__name__)
 _DAY_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
 
 
+def _get_current_monday() -> str:
+    """Return the Monday of the current week in YYYY-MM-DD format."""
+    today = datetime.now()
+    monday = today - timedelta(days=today.weekday())
+    return monday.strftime("%Y-%m-%d")
+
+
 def _import_sibling_script(script_name: str):
     """Import a sibling skill script by name.
 
@@ -148,7 +155,7 @@ async def execute(**kwargs) -> str:
     """
     supabase = kwargs["supabase"]
     anthropic_client = kwargs["anthropic_client"]
-    start_date = kwargs["start_date"]
+    start_date = kwargs.get("start_date") or _get_current_monday()
     target_calories_daily = kwargs.get("target_calories_daily")
     target_protein_g = kwargs.get("target_protein_g")
     target_carbs_g = kwargs.get("target_carbs_g")

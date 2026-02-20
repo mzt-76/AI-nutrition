@@ -1395,6 +1395,220 @@ async def test_validate_day_eval():
 
 
 # ---------------------------------------------------------------------------
+# Dataset 9: generate_day_plan (2 cases — happy path + empty targets)
+# ---------------------------------------------------------------------------
+
+_GENERATE_DAY_PLAN_SCRIPT = (
+    PROJECT_ROOT / "skills" / "meal-planning" / "scripts" / "generate_day_plan.py"
+)
+
+_DAY_RECIPE = {
+    "id": "day-recipe-uuid",
+    "name": "Poulet rôti aux herbes",
+    "meal_type": "dejeuner",
+    "calories_per_serving": 600.0,
+    "protein_g_per_serving": 50.0,
+    "carbs_g_per_serving": 40.0,
+    "fat_g_per_serving": 20.0,
+    "ingredients": [{"name": "poulet", "quantity": 200, "unit": "g"}],
+    "instructions": "Rôtir au four 40 min.",
+    "prep_time_minutes": 45,
+    "allergen_tags": [],
+    "usage_count": 3,
+    "off_validated": True,
+}
+
+_DAY_MEAL_TARGETS = [
+    {
+        "meal_type": "Déjeuner",
+        "time": "12:30",
+        "target_calories": 600,
+        "target_protein_g": 50,
+        "target_carbs_g": 40,
+        "target_fat_g": 20,
+    }
+]
+
+
+async def _generate_day_plan_task(inputs: dict) -> str:
+    """Task wrapper for generate_day_plan.execute() with mocked DB."""
+    from unittest.mock import patch, AsyncMock
+
+    module = _load_script(_GENERATE_DAY_PLAN_SCRIPT)
+
+    supabase = MagicMock()
+    anthropic_client = MagicMock()
+    mock_recipes = inputs.get("_mock_recipes", [_DAY_RECIPE])
+
+    with (
+        patch(
+            "src.nutrition.recipe_db.search_recipes",
+            new=AsyncMock(return_value=mock_recipes),
+        ),
+        patch(
+            "src.nutrition.recipe_db.increment_usage",
+            new=AsyncMock(return_value=None),
+        ),
+    ):
+        return await module.execute(
+            supabase=supabase,
+            anthropic_client=anthropic_client,
+            day_index=inputs.get("day_index", 0),
+            day_name=inputs.get("day_name", "Lundi"),
+            day_date=inputs.get("day_date", "2026-02-23"),
+            meal_targets=inputs["meal_targets"],
+            user_profile=inputs.get("user_profile", {}),
+            exclude_recipe_ids=inputs.get("exclude_recipe_ids", []),
+            custom_requests=inputs.get("custom_requests", {}),
+        )
+
+
+def generate_day_plan_dataset() -> Dataset:
+    """Dataset: 2 cases for generate_day_plan script."""
+    return Dataset(
+        name="generate_day_plan",
+        cases=[
+            Case(
+                name="happy_path_db_match",
+                inputs={
+                    "meal_targets": _DAY_MEAL_TARGETS,
+                    "day_name": "Lundi",
+                    "day_date": "2026-02-23",
+                    "_mock_recipes": [_DAY_RECIPE],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONHasKey(key="success"),
+                    JSONHasKey(key="day"),
+                    JSONFieldEquals(key="success", expected="True"),
+                ),
+            ),
+            Case(
+                name="empty_meal_targets_no_meals",
+                inputs={
+                    "meal_targets": [],
+                    "day_name": "Mardi",
+                    "day_date": "2026-02-24",
+                    "_mock_recipes": [],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONFieldEquals(key="success", expected="False"),
+                ),
+            ),
+        ],
+        evaluators=[MaxDuration(seconds=5.0)],
+    )
+
+
+@pytest.mark.asyncio
+async def test_generate_day_plan_eval():
+    """Eval: generate_day_plan — full pipeline with mocked DB."""
+    dataset = generate_day_plan_dataset()
+    report = await dataset.evaluate(task=_generate_day_plan_task)
+    report.print()
+    assert len(report.failures) == 0, f"Failures: {[f.name for f in report.failures]}"
+
+
+# ---------------------------------------------------------------------------
+# Dataset 10: generate_custom_recipe (2 cases — happy path + JSON parse error)
+# ---------------------------------------------------------------------------
+
+_GENERATE_CUSTOM_RECIPE_SCRIPT = (
+    PROJECT_ROOT / "skills" / "meal-planning" / "scripts" / "generate_custom_recipe.py"
+)
+
+_CUSTOM_RECIPE_DICT = {
+    "name": "Risotto aux champignons",
+    "description": "Un risotto crémeux.",
+    "meal_type": "dejeuner",
+    "cuisine_type": "italienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+        {"name": "riz arborio", "quantity": 150, "unit": "g"},
+        {"name": "champignons", "quantity": 100, "unit": "g"},
+    ],
+    "instructions": "Faire revenir les champignons, ajouter le riz et le bouillon.",
+    "tags": ["vegetarien"],
+}
+
+
+async def _generate_custom_recipe_task(inputs: dict) -> str:
+    """Task wrapper for generate_custom_recipe.execute() with mocked LLM + OFF."""
+    from unittest.mock import patch, AsyncMock, MagicMock
+
+    module = _load_script(_GENERATE_CUSTOM_RECIPE_SCRIPT)
+
+    llm_text = inputs.get("_llm_response_text", json.dumps(_CUSTOM_RECIPE_DICT))
+    off_macros = inputs.get("_off_macros", {"calories": 200, "protein_g": 10, "carbs_g": 30, "fat_g": 5})
+
+    mock_message = MagicMock()
+    mock_message.content = [MagicMock(text=llm_text)]
+
+    anthropic_client = MagicMock()
+    anthropic_client.messages.create = AsyncMock(return_value=mock_message)
+
+    with patch.object(module, "match_ingredient", new=AsyncMock(return_value=off_macros)), \
+         patch.object(module, "save_recipe", new=AsyncMock(return_value={"id": "eval-saved-id"})):
+        return await module.execute(
+            anthropic_client=anthropic_client,
+            supabase=MagicMock(),
+            recipe_request=inputs.get("recipe_request", "risotto aux champignons"),
+            meal_type=inputs.get("meal_type", "dejeuner"),
+            target_calories=inputs.get("target_calories", 600),
+            target_protein_g=inputs.get("target_protein_g", 40),
+            user_allergens=inputs.get("user_allergens", []),
+            save_to_db=inputs.get("save_to_db", False),
+        )
+
+
+def generate_custom_recipe_dataset() -> Dataset:
+    """Dataset: 2 cases for generate_custom_recipe script."""
+    return Dataset(
+        name="generate_custom_recipe",
+        cases=[
+            Case(
+                name="happy_path_llm_recipe",
+                inputs={
+                    "recipe_request": "risotto aux champignons",
+                    "_llm_response_text": json.dumps(_CUSTOM_RECIPE_DICT),
+                    "_off_macros": {"calories": 200, "protein_g": 10, "carbs_g": 30, "fat_g": 5},
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONHasKey(key="recipe"),
+                    JSONHasKey(key="off_validated"),
+                    JSONFieldEquals(key="off_validated", expected="True"),
+                ),
+            ),
+            Case(
+                name="json_parse_error",
+                inputs={
+                    "recipe_request": "n'importe quoi",
+                    "_llm_response_text": "not json at all",
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONErrorCode(code="JSON_PARSE_ERROR"),
+                    JSONHasKey(key="error"),
+                ),
+            ),
+        ],
+        evaluators=[MaxDuration(seconds=5.0)],
+    )
+
+
+@pytest.mark.asyncio
+async def test_generate_custom_recipe_eval():
+    """Eval: generate_custom_recipe — LLM + OFF with mocked clients."""
+    dataset = generate_custom_recipe_dataset()
+    report = await dataset.evaluate(task=_generate_custom_recipe_task)
+    report.print()
+    assert len(report.failures) == 0, f"Failures: {[f.name for f in report.failures]}"
+
+
+# ---------------------------------------------------------------------------
 # CLI entrypoint
 # ---------------------------------------------------------------------------
 
@@ -1411,6 +1625,7 @@ if __name__ == "__main__":
             ("Select Recipes", select_recipes_dataset(), _select_recipes_task),
             ("Scale Portions", scale_portions_dataset(), _scale_portions_task),
             ("Validate Day", validate_day_dataset(), _validate_day_task),
+            ("Generate Custom Recipe", generate_custom_recipe_dataset(), _generate_custom_recipe_task),
         ]
 
         total_failures = 0

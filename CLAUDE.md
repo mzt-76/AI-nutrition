@@ -10,7 +10,7 @@
 ## 1. Core Principles & Rules
 
 1. **Science-First**: Nutrition calculations use Mifflin-St Jeor for BMR. Cite sources in docstrings.
-2. **Type Safety**: Full type hints in Python (args + return). No `any` in TypeScript. Strict mode.
+2. **Type Safety**: Full type hints in Python (args + return). No `any` in TypeScript. Strict mode. Use precise types for agent tool parameters — e.g. `dict[str, int] | None` not bare `dict` (bare `dict` generates a weak JSON schema; the LLM may pass a list instead of a dict).
 3. **Safety Constraints** (hardcoded, never bypass):
    ```python
    MIN_CALORIES_WOMEN = 1200
@@ -20,7 +20,7 @@
 4. **Async by Default**: All I/O must be async with proper error handling.
 5. **No docs unless asked**: Do not create documentation files unless explicitly requested.
 6. **Never grow `src/agent.py`**: It has 6 fixed tools. New functionality → new skill scripts only.
-7. **Skill scripts import from `src.nutrition.*`**: Never duplicate calculation logic.
+7. **Skill scripts are orchestrators, not reimplementers**: Calculation/domain logic lives in `src/nutrition/` — import it, never rewrite it. Other imports (`src.tools`, `src.clients`, stdlib, third-party) are fine. The rule is about duplication, not import restriction.
 8. **Test all calculation functions**: Happy path + error cases. Nutrition logic is critical.
 9. **Run linters before committing**: `ruff format src/ tests/ && ruff check src/ tests/ && mypy src/`
 
@@ -59,6 +59,7 @@
 - **`code-patterns.md`** — copy-paste Pydantic AI, Supabase RAG, React Hook examples
 - **`dev-commands.md`** — setup, run, test, lint commands
 - **`dependency-safety-rules.md`** — breaking change prevention
+- **`meal-planning-workflow.md`** — full technical reference for the meal-planning skill (pipeline, data contracts, how to modify)
 - **`archon-mcp-reference.md`** — task management (only if Archon MCP is active)
 - **`status.md`** — current completed work & next tasks
 
@@ -70,4 +71,4 @@ Before starting work, try `find_tasks()`. If successful → use Archon for task 
 
 ---
 
-**Version:** 3.2 | **Updated:** 2026-02-19
+**Version:** 3.3 | **Updated:** 2026-02-19

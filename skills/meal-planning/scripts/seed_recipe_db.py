@@ -16,7 +16,7 @@ from src.nutrition.recipe_db import save_recipe, count_recipes_by_meal_type
 
 logger = logging.getLogger(__name__)
 
-RECIPE_MODEL = "claude-sonnet-4-5-20250929"
+RECIPE_MODEL = "claude-sonnet-4-6"
 
 # Default meal types to seed
 DEFAULT_MEAL_TYPES = ["petit-dejeuner", "dejeuner", "diner", "collation"]

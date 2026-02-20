@@ -221,6 +221,8 @@ async def increment_usage(supabase: Client, recipe_id: str) -> None:
 async def count_recipes_by_meal_type(supabase: Client) -> dict:
     """Return count of recipes per meal_type for coverage check.
 
+    Uses a single DB query and groups in Python — avoids 4 round-trips.
+
     Args:
         supabase: Supabase client
 
@@ -234,20 +236,16 @@ async def count_recipes_by_meal_type(supabase: Client) -> dict:
         True
     """
     meal_types = ["petit-dejeuner", "dejeuner", "diner", "collation"]
-    counts = {}
+    counts = {mt: 0 for mt in meal_types}
 
-    for meal_type in meal_types:
-        try:
-            response = (
-                supabase.table("recipes")
-                .select("id", count="exact")
-                .eq("meal_type", meal_type)
-                .execute()
-            )
-            counts[meal_type] = response.count or 0
-        except Exception as e:
-            logger.error(f"Error counting recipes for {meal_type}: {e}")
-            counts[meal_type] = 0
+    try:
+        response = supabase.table("recipes").select("meal_type").execute()
+        for row in response.data or []:
+            mt = row.get("meal_type", "")
+            if mt in counts:
+                counts[mt] += 1
+    except Exception as e:
+        logger.error(f"Error counting recipes by meal_type: {e}", exc_info=True)
 
     logger.info(f"Recipe DB coverage: {counts}")
     return counts

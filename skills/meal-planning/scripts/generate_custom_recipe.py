@@ -6,6 +6,7 @@ Generates recipe → calculates macros via OpenFoodFacts → optionally saves to
 Source: Simplified from src/tools.py generate_weekly_meal_plan_tool
 """
 
+import asyncio
 import json
 import logging
 
@@ -14,7 +15,8 @@ from src.nutrition.recipe_db import save_recipe
 
 logger = logging.getLogger(__name__)
 
-RECIPE_MODEL = "claude-sonnet-4-5-20250929"
+RECIPE_MODEL = "claude-sonnet-4-6"
+MAX_RECIPE_REQUEST_LENGTH = 200
 
 _RECIPE_PROMPT_TEMPLATE = """Tu es un nutritionniste expert. Génère une recette complète en JSON.
 
@@ -77,7 +79,7 @@ async def execute(**kwargs) -> str:
     """
     anthropic_client = kwargs["anthropic_client"]
     supabase = kwargs["supabase"]
-    recipe_request = kwargs["recipe_request"]
+    recipe_request = kwargs["recipe_request"][:MAX_RECIPE_REQUEST_LENGTH]
     meal_type = kwargs.get("meal_type", "dejeuner")
     target_calories = kwargs.get("target_calories", 600)
     target_protein_g = kwargs.get("target_protein_g", 40)
@@ -138,7 +140,7 @@ async def execute(**kwargs) -> str:
                     }
                 )
 
-        # Calculate macros via OpenFoodFacts
+        # Calculate macros via OpenFoodFacts — all ingredients in parallel
         total_calories = 0.0
         total_protein = 0.0
         total_carbs = 0.0
@@ -146,18 +148,19 @@ async def execute(**kwargs) -> str:
         matched_count = 0
         ingredients = recipe_dict.get("ingredients", [])
 
-        for ingredient in ingredients:
-            ing_name = ingredient.get("name", "")
-            ing_quantity = ingredient.get("quantity", 0)
-            ing_unit = ingredient.get("unit", "g")
+        macro_results = await asyncio.gather(
+            *[
+                match_ingredient(
+                    ingredient_name=ing.get("name", ""),
+                    quantity=ing.get("quantity", 0),
+                    unit=ing.get("unit", "g"),
+                    supabase=supabase,
+                )
+                for ing in ingredients
+            ]
+        )
 
-            macros = await match_ingredient(
-                ingredient_name=ing_name,
-                quantity=ing_quantity,
-                unit=ing_unit,
-                supabase=supabase,
-            )
-
+        for ingredient, macros in zip(ingredients, macro_results):
             if macros:
                 ingredient["macros_calculated"] = macros
                 total_calories += macros.get("calories", 0)
@@ -166,7 +169,7 @@ async def execute(**kwargs) -> str:
                 total_fat += macros.get("fat_g", 0)
                 matched_count += 1
             else:
-                logger.warning(f"No OFF match for ingredient: {ing_name}")
+                logger.warning(f"No OFF match for ingredient: {ingredient.get('name', '')}")
 
         off_validated = matched_count == len(ingredients) and len(ingredients) > 0
 

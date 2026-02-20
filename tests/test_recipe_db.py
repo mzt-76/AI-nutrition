@@ -257,23 +257,18 @@ async def test_save_recipe_normalizes_name():
 
 @pytest.mark.asyncio
 async def test_count_recipes_by_meal_type():
-    """Returns counts per meal type."""
+    """Returns counts per meal type using a single DB query."""
     mock = MagicMock()
 
-    # Set up count responses for each meal type
-    def make_count_mock(count_val):
-        result = MagicMock()
-        result.count = count_val
-        result.data = []
-        return result
-
-    count_chain = mock.table.return_value.select.return_value.eq.return_value
-    count_chain.execute.side_effect = [
-        make_count_mock(30),  # petit-dejeuner
-        make_count_mock(28),  # dejeuner
-        make_count_mock(32),  # diner
-        make_count_mock(15),  # collation
-    ]
+    # New implementation: single .select("meal_type").execute()
+    execute_result = MagicMock()
+    execute_result.data = (
+        [{"meal_type": "petit-dejeuner"}] * 30
+        + [{"meal_type": "dejeuner"}] * 28
+        + [{"meal_type": "diner"}] * 32
+        + [{"meal_type": "collation"}] * 15
+    )
+    mock.table.return_value.select.return_value.execute.return_value = execute_result
 
     counts = await count_recipes_by_meal_type(mock)
 

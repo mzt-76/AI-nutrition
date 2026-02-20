@@ -126,6 +126,131 @@ def _compute_daily_totals(meals: list[dict]) -> dict:
     return totals
 
 
+def _find_custom_request(custom_requests: dict, meal_slot: dict) -> str | None:
+    """Find a custom recipe request matching the given meal slot, if any.
+
+    Checks both exact key match and substring match against meal_type display name.
+
+    Args:
+        custom_requests: Dict of {meal_type_key: recipe_request} from notes parsing
+        meal_slot: Meal slot dict with "meal_type" display name
+
+    Returns:
+        Recipe request string or None
+    """
+    meal_type_display = meal_slot.get("meal_type", "")
+    # Exact key match (normalised)
+    normalised = meal_type_display.lower().replace("-", "")
+    if normalised in custom_requests:
+        return custom_requests[normalised]
+    # Substring match
+    for key, val in custom_requests.items():
+        if key.lower() in meal_type_display.lower():
+            return val
+    return None
+
+
+async def _get_recipe_for_slot(
+    supabase,
+    anthropic_client,
+    meal_slot: dict,
+    user_profile: dict,
+    used_ids: list[str],
+    custom_request: str | None,
+    attempt: int,
+    generate_custom_recipe_module,
+) -> tuple[dict | None, bool]:
+    """Resolve a single recipe for a meal slot — from DB or LLM fallback.
+
+    Args:
+        supabase: Supabase client
+        anthropic_client: Anthropic client for LLM fallback
+        meal_slot: Meal slot target dict
+        user_profile: User profile dict (allergens, diet_type, preferences)
+        used_ids: Recipe IDs already used this day/week (variety exclusion)
+        custom_request: Explicit recipe request from user notes, or None
+        attempt: Current retry attempt number (0-indexed)
+        generate_custom_recipe_module: Pre-loaded sibling script module
+
+    Returns:
+        (recipe dict | None, is_llm_fallback: bool)
+    """
+    meal_type_display = meal_slot.get("meal_type", "Déjeuner")
+    target_calories = meal_slot.get("target_calories", 600)
+    target_protein_g = meal_slot.get("target_protein_g", 40)
+    user_allergens = user_profile.get("allergies", [])
+    diet_type = user_profile.get("diet_type", "omnivore")
+    preferred_cuisines = user_profile.get("preferred_cuisines")
+    max_prep_time = user_profile.get("max_prep_time")
+
+    if custom_request:
+        logger.info(f"  {meal_type_display}: custom recipe requested '{custom_request}'")
+        result_str = await generate_custom_recipe_module.execute(
+            anthropic_client=anthropic_client,
+            supabase=supabase,
+            recipe_request=custom_request,
+            meal_type=meal_type_display.lower().replace("é", "e").replace("î", "i"),
+            target_calories=target_calories,
+            target_protein_g=target_protein_g,
+            user_allergens=user_allergens,
+            diet_type=diet_type,
+            max_prep_time=max_prep_time or 60,
+            save_to_db=True,
+        )
+        result = json.loads(result_str)
+        if "error" not in result:
+            return result.get("recipe"), True
+        logger.error(f"Custom recipe generation failed: {result.get('error')}")
+        return None, False
+
+    # Try DB first
+    db_meal_type = _normalize_meal_type_inline(meal_type_display)
+    calorie_range = (int(target_calories * 0.6), int(target_calories * 1.4))
+
+    candidates = await search_recipes(
+        supabase=supabase,
+        meal_type=db_meal_type,
+        exclude_allergens=user_allergens if user_allergens else None,
+        exclude_recipe_ids=used_ids or None,
+        diet_type=diet_type,
+        cuisine_types=preferred_cuisines,
+        max_prep_time=max_prep_time,
+        calorie_range=calorie_range,
+        limit=5,
+    )
+
+    if candidates:
+        recipe = candidates[0]
+        logger.info(
+            f"  {meal_type_display}: DB recipe '{recipe['name']}' "
+            f"({recipe['calories_per_serving']:.0f} kcal)"
+        )
+        return recipe, False
+
+    # No DB match → LLM fallback
+    logger.warning(
+        f"  {meal_type_display}: no DB match → LLM fallback (attempt {attempt + 1})"
+    )
+    result_str = await generate_custom_recipe_module.execute(
+        anthropic_client=anthropic_client,
+        supabase=supabase,
+        recipe_request=f"Un repas de type {meal_type_display} équilibré et savoureux",
+        meal_type=db_meal_type,
+        target_calories=target_calories,
+        target_protein_g=target_protein_g,
+        user_allergens=user_allergens,
+        diet_type=diet_type,
+        max_prep_time=max_prep_time or 45,
+        save_to_db=True,
+    )
+    result = json.loads(result_str)
+    if "error" not in result:
+        return result.get("recipe"), True
+
+    logger.error(f"LLM fallback failed for {meal_type_display}: {result.get('error')}")
+    return None, False
+
+
 async def _select_and_scale_meals(
     supabase,
     anthropic_client,
@@ -135,17 +260,14 @@ async def _select_and_scale_meals(
     custom_requests: dict,
     attempt: int,
 ) -> tuple[list[dict], list[str], int]:
-    """Select recipes from DB (or LLM) and scale them for each meal slot.
+    """Resolve, scale and assemble meals for all slots in one day.
+
+    For each meal slot: find a recipe (DB or LLM) → scale to targets → build meal dict.
 
     Returns:
         (meals, recipe_ids_used, llm_fallback_count)
     """
     generate_custom_recipe_module = _import_sibling_script("generate_custom_recipe")
-
-    user_allergens = user_profile.get("allergies", [])
-    diet_type = user_profile.get("diet_type", "omnivore")
-    preferred_cuisines = user_profile.get("preferred_cuisines")
-    max_prep_time = user_profile.get("max_prep_time")
 
     meals: list[dict] = []
     recipe_ids_used: list[str] = []
@@ -154,128 +276,45 @@ async def _select_and_scale_meals(
 
     for meal_slot in meal_targets:
         meal_type_display = meal_slot.get("meal_type", "Déjeuner")
-        target_calories = meal_slot.get("target_calories", 600)
-        target_protein_g = meal_slot.get("target_protein_g", 40)
-        target_carbs_g = meal_slot.get("target_carbs_g")
-        target_fat_g = meal_slot.get("target_fat_g")
+        custom_request = _find_custom_request(custom_requests, meal_slot)
 
-        # Check for a custom request for this meal type
-        custom_request = custom_requests.get(meal_type_display.lower().replace("-", ""))
-        if not custom_request:
-            # Also check by simplified key
-            for key, val in custom_requests.items():
-                if key.lower() in meal_type_display.lower():
-                    custom_request = val
-                    break
+        recipe, is_llm = await _get_recipe_for_slot(
+            supabase=supabase,
+            anthropic_client=anthropic_client,
+            meal_slot=meal_slot,
+            user_profile=user_profile,
+            used_ids=used_ids_this_attempt,
+            custom_request=custom_request,
+            attempt=attempt,
+            generate_custom_recipe_module=generate_custom_recipe_module,
+        )
 
-        recipe = None
-
-        if custom_request:
-            # LLM fallback: custom recipe requested
-            logger.info(
-                f"  {meal_type_display}: custom recipe requested '{custom_request}'"
-            )
-            result_str = await generate_custom_recipe_module.execute(
-                anthropic_client=anthropic_client,
-                supabase=supabase,
-                recipe_request=custom_request,
-                meal_type=meal_type_display.lower().replace("é", "e").replace("î", "i"),
-                target_calories=target_calories,
-                target_protein_g=target_protein_g,
-                user_allergens=user_allergens,
-                diet_type=diet_type,
-                max_prep_time=max_prep_time or 60,
-                save_to_db=True,
-            )
-            result = json.loads(result_str)
-            if "error" not in result:
-                recipe = result.get("recipe")
-                llm_fallback_count += 1
-        else:
-            # Try recipe DB first
-            # Determine DB meal type key (inline logic)
-            db_meal_type = _normalize_meal_type_inline(meal_type_display)
-
-            calorie_range = (
-                int(target_calories * 0.6),
-                int(target_calories * 1.4),
-            )
-
-            candidates = await search_recipes(
-                supabase=supabase,
-                meal_type=db_meal_type,
-                exclude_allergens=user_allergens if user_allergens else None,
-                exclude_recipe_ids=used_ids_this_attempt or None,
-                diet_type=diet_type,
-                cuisine_types=preferred_cuisines,
-                max_prep_time=max_prep_time,
-                calorie_range=calorie_range,
-                limit=5,
-            )
-
-            if candidates:
-                recipe = candidates[0]
-                logger.info(
-                    f"  {meal_type_display}: DB recipe '{recipe['name']}' "
-                    f"({recipe['calories_per_serving']:.0f} kcal)"
-                )
-            else:
-                # No DB match → LLM fallback
-                logger.warning(
-                    f"  {meal_type_display}: no DB match → LLM fallback "
-                    f"(attempt {attempt + 1})"
-                )
-                result_str = await generate_custom_recipe_module.execute(
-                    anthropic_client=anthropic_client,
-                    supabase=supabase,
-                    recipe_request=f"Un repas de type {meal_type_display} équilibré et savoureux",
-                    meal_type=db_meal_type,
-                    target_calories=target_calories,
-                    target_protein_g=target_protein_g,
-                    user_allergens=user_allergens,
-                    diet_type=diet_type,
-                    max_prep_time=max_prep_time or 45,
-                    save_to_db=True,
-                )
-                result = json.loads(result_str)
-                if "error" not in result:
-                    recipe = result.get("recipe")
-                    llm_fallback_count += 1
-                else:
-                    logger.error(
-                        f"LLM fallback failed for {meal_type_display}: "
-                        f"{result.get('error')}"
-                    )
-
-        if recipe:
-            # Scale portions to hit meal-level macro targets
-            try:
-                scaled = scale_recipe_to_targets(
-                    recipe=recipe,
-                    target_calories=target_calories,
-                    target_protein_g=target_protein_g,
-                    target_carbs_g=target_carbs_g,
-                    target_fat_g=target_fat_g,
-                )
-                meal = _build_meal_from_scaled_recipe(scaled, meal_slot)
-                meals.append(meal)
-
-                # Track recipe ID for variety
-                if "id" in recipe:
-                    recipe_ids_used.append(recipe["id"])
-                    used_ids_this_attempt.append(recipe["id"])
-                    # Increment usage count in DB
-                    try:
-                        await increment_usage(supabase, recipe["id"])
-                    except Exception:
-                        pass  # Non-critical
-            except Exception as scale_err:
-                logger.error(
-                    f"Scaling failed for {meal_type_display}: {scale_err}",
-                    exc_info=True,
-                )
-        else:
+        if not recipe:
             logger.error(f"Could not get any recipe for {meal_type_display}")
+            continue
+
+        if is_llm:
+            llm_fallback_count += 1
+
+        try:
+            scaled = scale_recipe_to_targets(
+                recipe=recipe,
+                target_calories=meal_slot.get("target_calories", 600),
+                target_protein_g=meal_slot.get("target_protein_g", 40),
+                target_carbs_g=meal_slot.get("target_carbs_g"),
+                target_fat_g=meal_slot.get("target_fat_g"),
+            )
+            meals.append(_build_meal_from_scaled_recipe(scaled, meal_slot))
+
+            if "id" in recipe:
+                recipe_ids_used.append(recipe["id"])
+                used_ids_this_attempt.append(recipe["id"])
+                try:
+                    await increment_usage(supabase, recipe["id"])
+                except Exception:
+                    pass  # Non-critical
+        except Exception as scale_err:
+            logger.error(f"Scaling failed for {meal_type_display}: {scale_err}", exc_info=True)
 
     return meals, recipe_ids_used, llm_fallback_count
 

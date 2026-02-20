@@ -489,3 +489,90 @@ class TestGenerateDayPlan:
         if result.get("success"):
             assert "recipes_used" in result
             assert isinstance(result["recipes_used"], list)
+
+    @pytest.mark.asyncio
+    async def test_day_plan_with_custom_request(self, meal_targets, user_profile):
+        """generate_day_plan triggers LLM fallback when custom_request matches a slot."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        # Build a minimal valid recipe that generate_custom_recipe.execute() returns
+        custom_recipe = {
+            "name": "Risotto aux champignons",
+            "description": "Un risotto.",
+            "meal_type": "dejeuner",
+            "cuisine_type": "italienne",
+            "diet_type": "omnivore",
+            "prep_time_minutes": 30,
+            "ingredients": [{"name": "riz", "quantity": 150, "unit": "g"}],
+            "instructions": "Cuire le riz.",
+            "tags": [],
+            "calories_per_serving": 600.0,
+            "protein_g_per_serving": 20.0,
+            "carbs_g_per_serving": 90.0,
+            "fat_g_per_serving": 10.0,
+            "allergen_tags": [],
+            "source": "llm_generated",
+            "off_validated": True,
+        }
+        custom_recipe_response = json.dumps(
+            {"recipe": custom_recipe, "off_validated": True, "matched_ingredients": 1, "total_ingredients": 1}
+        )
+
+        # Patch generate_custom_recipe module's execute at the sibling import level
+        generate_custom_recipe_module = _load_script("generate_custom_recipe")
+        generate_custom_recipe_module.execute = AsyncMock(return_value=custom_recipe_response)
+
+        # Patch _import_sibling_script to return our pre-patched module
+        with patch.object(
+            generate_day_plan,
+            "_import_sibling_script",
+            return_value=generate_custom_recipe_module,
+        ), patch.object(generate_day_plan, "search_recipes", new=AsyncMock(return_value=[])), \
+           patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+            result_str = await generate_day_plan.execute(
+                supabase=MagicMock(),
+                anthropic_client=MagicMock(),
+                day_index=1,
+                day_name="Mardi",
+                day_date="2026-02-19",
+                meal_targets=[meal_targets[1]],  # Only the Déjeuner slot
+                user_profile=user_profile,
+                exclude_recipe_ids=[],
+                custom_requests={"dejeuner": "risotto aux champignons"},
+            )
+
+        result = json.loads(result_str)
+        assert result.get("success") is True
+        assert result["llm_fallback_count"] >= 1
+
+
+# ---------------------------------------------------------------------------
+# Test: _find_custom_request helper
+# ---------------------------------------------------------------------------
+
+
+class TestFindCustomRequest:
+    def setup_method(self):
+        self.module = _load_script("generate_day_plan")
+        self.find = self.module._find_custom_request
+
+    def test_exact_key_match(self):
+        """Normalised exact key match (accent-aware) returns the request string."""
+        custom_requests = {"déjeuner": "risotto"}
+        slot = {"meal_type": "Déjeuner"}
+        result = self.find(custom_requests, slot)
+        assert result == "risotto"
+
+    def test_substring_match(self):
+        """Key that is a literal substring of lowercased meal_type returns the request."""
+        custom_requests = {"jeuner": "pizza"}
+        slot = {"meal_type": "Déjeuner"}
+        result = self.find(custom_requests, slot)
+        assert result == "pizza"
+
+    def test_no_match_returns_none(self):
+        """Unrelated keys return None."""
+        custom_requests = {"diner": "soupe"}
+        slot = {"meal_type": "Déjeuner"}
+        result = self.find(custom_requests, slot)
+        assert result is None

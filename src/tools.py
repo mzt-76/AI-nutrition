@@ -96,7 +96,7 @@ async def update_my_profile_tool(
     weight_kg: float = None,
     height_cm: int = None,
     activity_level: str = None,
-    goals: dict = None,
+    goals: dict[str, int] | None = None,
     allergies: list[str] = None,
     diet_type: str = None,
     disliked_foods: list[str] = None,
