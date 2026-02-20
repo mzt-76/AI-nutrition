@@ -67,6 +67,18 @@ run_skill_script("nutrition-calculating", "calculate_nutritional_needs", {
 **Scripts disponibles** :
 - `scripts/calculate_nutritional_needs.py` : BMR (Mifflin-St Jeor) → TDEE → inférence objectifs → macros
 
+## Affichage OBLIGATOIRE des résultats
+
+Après avoir reçu le JSON de `calculate_nutritional_needs`, tu DOIS inclure dans ta réponse :
+- **BMR** : valeur exacte en kcal (champ `bmr`)
+- **TDEE** : valeur exacte en kcal (champ `tdee`)
+- **Cible calorique** : valeur exacte en kcal (champ `target_calories`)
+- **Protéines** : valeur exacte en g (champ `target_protein_g`) avec la fourchette min-max
+- **Glucides** : valeur exacte en g (champ `target_carbs_g`)
+- **Lipides** : valeur exacte en g (champ `target_fat_g`)
+
+Ne jamais arrondir ou paraphraser ces valeurs — les afficher exactement comme retournées.
+
 ## References
 
 - `references/formulas.md` : Detail des formules Mifflin-St Jeor et recommandations ISSN

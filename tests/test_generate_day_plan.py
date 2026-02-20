@@ -14,11 +14,16 @@ import importlib.util
 # Helper: Load the skill script
 # ---------------------------------------------------------------------------
 
+
 def _load_script(script_name: str):
     """Load a skill script by name."""
     project_root = Path(__file__).resolve().parent.parent
-    script_path = project_root / "skills" / "meal-planning" / "scripts" / f"{script_name}.py"
-    spec = importlib.util.spec_from_file_location(f"meal_planning.{script_name}", script_path)
+    script_path = (
+        project_root / "skills" / "meal-planning" / "scripts" / f"{script_name}.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        f"meal_planning.{script_name}", script_path
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -145,7 +150,11 @@ class TestSelectRecipes:
         select_recipes = _load_script("select_recipes")
 
         # patch.object targets the module's local binding directly
-        with patch.object(select_recipes, "search_recipes", new=AsyncMock(return_value=[sample_db_recipe])):
+        with patch.object(
+            select_recipes,
+            "search_recipes",
+            new=AsyncMock(return_value=[sample_db_recipe]),
+        ):
             result_str = await select_recipes.execute(
                 supabase=MagicMock(),
                 meal_targets=meal_targets,
@@ -163,7 +172,9 @@ class TestSelectRecipes:
         """select_recipes marks slots as no_match when DB is empty."""
         select_recipes = _load_script("select_recipes")
 
-        with patch.object(select_recipes, "search_recipes", new=AsyncMock(return_value=[])):
+        with patch.object(
+            select_recipes, "search_recipes", new=AsyncMock(return_value=[])
+        ):
             result_str = await select_recipes.execute(
                 supabase=MagicMock(),
                 meal_targets=meal_targets,
@@ -235,16 +246,31 @@ class TestValidateDay:
                     "meal_type": "Déjeuner",
                     "name": "Poulet grillé",
                     "ingredients": [{"name": "poulet", "quantity": 150, "unit": "g"}],
-                    "nutrition": {"calories": 1100, "protein_g": 75, "carbs_g": 140, "fat_g": 30},
+                    "nutrition": {
+                        "calories": 1100,
+                        "protein_g": 75,
+                        "carbs_g": 140,
+                        "fat_g": 30,
+                    },
                 }
             ],
-            "daily_totals": {"calories": 2800, "protein_g": 175, "carbs_g": 350, "fat_g": 80},
+            "daily_totals": {
+                "calories": 2800,
+                "protein_g": 175,
+                "carbs_g": 350,
+                "fat_g": 80,
+            },
         }
 
         result_str = await validate_day.execute(
             day_plan=day_plan,
             user_allergens=[],
-            target_macros={"calories": 2800, "protein_g": 175, "carbs_g": 350, "fat_g": 80},
+            target_macros={
+                "calories": 2800,
+                "protein_g": 175,
+                "carbs_g": 350,
+                "fat_g": 80,
+            },
         )
         result = json.loads(result_str)
         assert result["valid"] is True
@@ -265,10 +291,20 @@ class TestValidateDay:
                     "ingredients": [
                         {"name": "fromage camembert", "quantity": 50, "unit": "g"}
                     ],
-                    "nutrition": {"calories": 200, "protein_g": 12, "carbs_g": 1, "fat_g": 16},
+                    "nutrition": {
+                        "calories": 200,
+                        "protein_g": 12,
+                        "carbs_g": 1,
+                        "fat_g": 16,
+                    },
                 }
             ],
-            "daily_totals": {"calories": 200, "protein_g": 12, "carbs_g": 1, "fat_g": 16},
+            "daily_totals": {
+                "calories": 200,
+                "protein_g": 12,
+                "carbs_g": 1,
+                "fat_g": 16,
+            },
         }
 
         result_str = await validate_day.execute(
@@ -289,14 +325,24 @@ class TestValidateDay:
             "day": "Mercredi",
             "date": "2026-02-20",
             "meals": [],
-            "daily_totals": {"calories": 1000, "protein_g": 50, "carbs_g": 100, "fat_g": 30},
+            "daily_totals": {
+                "calories": 1000,
+                "protein_g": 50,
+                "carbs_g": 100,
+                "fat_g": 30,
+            },
         }
 
         # Target 2800 kcal but got 1000 — way outside 10% tolerance
         result_str = await validate_day.execute(
             day_plan=day_plan,
             user_allergens=[],
-            target_macros={"calories": 2800, "protein_g": 175, "carbs_g": 350, "fat_g": 80},
+            target_macros={
+                "calories": 2800,
+                "protein_g": 175,
+                "carbs_g": 350,
+                "fat_g": 80,
+            },
         )
         result = json.loads(result_str)
         assert result["valid"] is False
@@ -317,8 +363,11 @@ class TestGenerateDayPlan:
         generate_day_plan = _load_script("generate_day_plan")
 
         # patch.object patches the module-local binding directly
-        with patch.object(generate_day_plan, "search_recipes", new=AsyncMock(return_value=[sample_db_recipe])), \
-             patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+        with patch.object(
+            generate_day_plan,
+            "search_recipes",
+            new=AsyncMock(return_value=[sample_db_recipe]),
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
             result_str = await generate_day_plan.execute(
                 supabase=MagicMock(),
                 anthropic_client=MagicMock(),
@@ -351,8 +400,11 @@ class TestGenerateDayPlan:
             {"name": "poulet", "quantity": 150, "unit": "g"}
         ]
 
-        with patch.object(generate_day_plan, "search_recipes", new=AsyncMock(return_value=[allergen_free_recipe])), \
-             patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+        with patch.object(
+            generate_day_plan,
+            "search_recipes",
+            new=AsyncMock(return_value=[allergen_free_recipe]),
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
             profile_no_eggs = {"allergies": ["oeuf"], "diet_type": "omnivore"}
             result_str = await generate_day_plan.execute(
                 supabase=MagicMock(),
@@ -370,17 +422,20 @@ class TestGenerateDayPlan:
         if result.get("success"):
             for meal in result["day"]["meals"]:
                 for ing in meal.get("ingredients", []):
-                    assert "oeuf" not in ing["name"].lower(), (
-                        f"Allergen 'oeuf' found in ingredient: {ing['name']}"
-                    )
+                    assert (
+                        "oeuf" not in ing["name"].lower()
+                    ), f"Allergen 'oeuf' found in ingredient: {ing['name']}"
 
     @pytest.mark.asyncio
     async def test_day_plan_macro_accuracy(self, meal_targets, sample_db_recipe):
         """generate_day_plan produces macros within tolerance of targets."""
         generate_day_plan = _load_script("generate_day_plan")
 
-        with patch.object(generate_day_plan, "search_recipes", new=AsyncMock(return_value=[sample_db_recipe])), \
-             patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+        with patch.object(
+            generate_day_plan,
+            "search_recipes",
+            new=AsyncMock(return_value=[sample_db_recipe]),
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
             result_str = await generate_day_plan.execute(
                 supabase=MagicMock(),
                 anthropic_client=MagicMock(),
@@ -405,8 +460,11 @@ class TestGenerateDayPlan:
         """generate_day_plan computes daily_totals by summing meal nutrition."""
         generate_day_plan = _load_script("generate_day_plan")
 
-        with patch.object(generate_day_plan, "search_recipes", new=AsyncMock(return_value=[sample_db_recipe])), \
-             patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+        with patch.object(
+            generate_day_plan,
+            "search_recipes",
+            new=AsyncMock(return_value=[sample_db_recipe]),
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
             result_str = await generate_day_plan.execute(
                 supabase=MagicMock(),
                 anthropic_client=MagicMock(),
@@ -422,9 +480,7 @@ class TestGenerateDayPlan:
         result = json.loads(result_str)
         if result.get("success"):
             day = result["day"]
-            computed_total = sum(
-                m["nutrition"]["calories"] for m in day["meals"]
-            )
+            computed_total = sum(m["nutrition"]["calories"] for m in day["meals"])
             assert abs(day["daily_totals"]["calories"] - computed_total) < 1.0
 
     @pytest.mark.asyncio
@@ -446,14 +502,23 @@ class TestGenerateDayPlan:
 
         used_ids: list[str] = []
 
-        with patch.object(generate_day_plan, "search_recipes", new=mock_search), \
-             patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+        with patch.object(
+            generate_day_plan, "search_recipes", new=mock_search
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
             for day_idx in range(7):
                 result_str = await generate_day_plan.execute(
                     supabase=MagicMock(),
                     anthropic_client=MagicMock(),
                     day_index=day_idx,
-                    day_name=["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"][day_idx],
+                    day_name=[
+                        "Lundi",
+                        "Mardi",
+                        "Mercredi",
+                        "Jeudi",
+                        "Vendredi",
+                        "Samedi",
+                        "Dimanche",
+                    ][day_idx],
                     day_date=f"2026-02-{18 + day_idx:02d}",
                     meal_targets=meal_targets,
                     user_profile={"allergies": [], "diet_type": "omnivore"},
@@ -471,8 +536,11 @@ class TestGenerateDayPlan:
         """generate_day_plan returns list of recipe IDs used."""
         generate_day_plan = _load_script("generate_day_plan")
 
-        with patch.object(generate_day_plan, "search_recipes", new=AsyncMock(return_value=[sample_db_recipe])), \
-             patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+        with patch.object(
+            generate_day_plan,
+            "search_recipes",
+            new=AsyncMock(return_value=[sample_db_recipe]),
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
             result_str = await generate_day_plan.execute(
                 supabase=MagicMock(),
                 anthropic_client=MagicMock(),
@@ -515,20 +583,28 @@ class TestGenerateDayPlan:
             "off_validated": True,
         }
         custom_recipe_response = json.dumps(
-            {"recipe": custom_recipe, "off_validated": True, "matched_ingredients": 1, "total_ingredients": 1}
+            {
+                "recipe": custom_recipe,
+                "off_validated": True,
+                "matched_ingredients": 1,
+                "total_ingredients": 1,
+            }
         )
 
         # Patch generate_custom_recipe module's execute at the sibling import level
         generate_custom_recipe_module = _load_script("generate_custom_recipe")
-        generate_custom_recipe_module.execute = AsyncMock(return_value=custom_recipe_response)
+        generate_custom_recipe_module.execute = AsyncMock(
+            return_value=custom_recipe_response
+        )
 
         # Patch _import_sibling_script to return our pre-patched module
         with patch.object(
             generate_day_plan,
             "_import_sibling_script",
             return_value=generate_custom_recipe_module,
-        ), patch.object(generate_day_plan, "search_recipes", new=AsyncMock(return_value=[])), \
-           patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+        ), patch.object(
+            generate_day_plan, "search_recipes", new=AsyncMock(return_value=[])
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
             result_str = await generate_day_plan.execute(
                 supabase=MagicMock(),
                 anthropic_client=MagicMock(),
@@ -544,6 +620,93 @@ class TestGenerateDayPlan:
         result = json.loads(result_str)
         assert result.get("success") is True
         assert result["llm_fallback_count"] >= 1
+
+
+# ---------------------------------------------------------------------------
+# Test: _score_recipe_macro_fit helper
+# ---------------------------------------------------------------------------
+
+
+class TestScoreRecipeMacroFit:
+    def setup_method(self):
+        self.module = _load_script("generate_day_plan")
+        self.score = self.module._score_recipe_macro_fit
+
+    def test_perfect_match_scores_zero(self):
+        """A recipe whose macro ratios match the target exactly scores 0."""
+        recipe = {
+            "calories_per_serving": 500,
+            "protein_g_per_serving": 40,
+            "carbs_g_per_serving": 60,
+            "fat_g_per_serving": 10,
+        }
+        target = {
+            "target_calories": 1000,
+            "target_protein_g": 80,
+            "target_carbs_g": 120,
+            "target_fat_g": 20,
+        }
+        assert abs(self.score(recipe, target)) < 0.001
+
+    def test_high_fat_recipe_scores_worse(self):
+        """A high-fat recipe scores worse than a balanced one for balanced targets."""
+        balanced_recipe = {
+            "calories_per_serving": 500,
+            "protein_g_per_serving": 40,
+            "carbs_g_per_serving": 50,
+            "fat_g_per_serving": 12,
+        }
+        high_fat_recipe = {
+            "calories_per_serving": 500,
+            "protein_g_per_serving": 15,
+            "carbs_g_per_serving": 20,
+            "fat_g_per_serving": 40,
+        }
+        target = {
+            "target_calories": 700,
+            "target_protein_g": 50,
+            "target_carbs_g": 70,
+            "target_fat_g": 18,
+        }
+        assert self.score(balanced_recipe, target) < self.score(high_fat_recipe, target)
+
+    def test_protein_mismatch_weighted_double(self):
+        """Protein mismatch contributes 2x to score vs carb/fat mismatch."""
+        # Recipe with wrong protein ratio vs wrong carb ratio
+        base_target = {
+            "target_calories": 500,
+            "target_protein_g": 40,
+            "target_carbs_g": 50,
+            "target_fat_g": 10,
+        }
+        # Off on protein
+        prot_off = {
+            "calories_per_serving": 500,
+            "protein_g_per_serving": 20,  # half the target ratio
+            "carbs_g_per_serving": 50,
+            "fat_g_per_serving": 10,
+        }
+        # Off on carbs by same ratio
+        carb_off = {
+            "calories_per_serving": 500,
+            "protein_g_per_serving": 40,
+            "carbs_g_per_serving": 25,  # half the target ratio
+            "fat_g_per_serving": 10,
+        }
+        # Protein mismatch should score higher (worse) due to 2x weight
+        assert self.score(prot_off, base_target) > self.score(carb_off, base_target)
+
+    def test_handles_zero_calorie_recipe(self):
+        """Zero-calorie recipe doesn't crash (uses fallback of 1)."""
+        recipe = {
+            "calories_per_serving": 0,
+            "protein_g_per_serving": 0,
+            "carbs_g_per_serving": 0,
+            "fat_g_per_serving": 0,
+        }
+        target = {"target_calories": 500, "target_protein_g": 40}
+        score = self.score(recipe, target)
+        assert isinstance(score, float)
 
 
 # ---------------------------------------------------------------------------
@@ -576,3 +739,87 @@ class TestFindCustomRequest:
         slot = {"meal_type": "Déjeuner"}
         result = self.find(custom_requests, slot)
         assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Test: optimize_meal_plan_portions integration
+# ---------------------------------------------------------------------------
+
+
+class TestOptimizeMealPlanIntegration:
+    @pytest.mark.asyncio
+    async def test_optimizer_called_in_pipeline(
+        self, meal_targets, user_profile, sample_db_recipe
+    ):
+        """generate_day_plan calls optimize_meal_plan_portions after OFF recalc."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        optimize_called = False
+        original_optimize = generate_day_plan.optimize_meal_plan_portions
+
+        async def mock_optimize(meal_plan, target_totals, user_allergens):
+            nonlocal optimize_called
+            optimize_called = True
+            return await original_optimize(meal_plan, target_totals, user_allergens)
+
+        with patch.object(
+            generate_day_plan,
+            "search_recipes",
+            new=AsyncMock(return_value=[sample_db_recipe]),
+        ), patch.object(
+            generate_day_plan, "increment_usage", new=AsyncMock()
+        ), patch.object(
+            generate_day_plan, "optimize_meal_plan_portions", new=mock_optimize
+        ):
+            result_str = await generate_day_plan.execute(
+                supabase=MagicMock(),
+                anthropic_client=MagicMock(),
+                day_index=0,
+                day_name="Lundi",
+                day_date="2026-02-18",
+                meal_targets=meal_targets,
+                user_profile=user_profile,
+                exclude_recipe_ids=[],
+                custom_requests={},
+            )
+
+        result = json.loads(result_str)
+        assert result["success"] is True
+        assert (
+            optimize_called
+        ), "optimize_meal_plan_portions should be called in pipeline"
+
+    @pytest.mark.asyncio
+    async def test_optimizer_failure_does_not_crash_pipeline(
+        self, meal_targets, user_profile, sample_db_recipe
+    ):
+        """If optimizer raises, pipeline still produces a valid day plan."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        async def failing_optimize(*args, **kwargs):
+            raise RuntimeError("Optimizer test failure")
+
+        with patch.object(
+            generate_day_plan,
+            "search_recipes",
+            new=AsyncMock(return_value=[sample_db_recipe]),
+        ), patch.object(
+            generate_day_plan, "increment_usage", new=AsyncMock()
+        ), patch.object(
+            generate_day_plan, "optimize_meal_plan_portions", new=failing_optimize
+        ):
+            result_str = await generate_day_plan.execute(
+                supabase=MagicMock(),
+                anthropic_client=MagicMock(),
+                day_index=0,
+                day_name="Lundi",
+                day_date="2026-02-18",
+                meal_targets=meal_targets,
+                user_profile=user_profile,
+                exclude_recipe_ids=[],
+                custom_requests={},
+            )
+
+        result = json.loads(result_str)
+        assert result["success"] is True
+        assert len(result["day"]["meals"]) == 3

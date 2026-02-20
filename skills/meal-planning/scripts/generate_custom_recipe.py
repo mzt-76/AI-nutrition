@@ -15,7 +15,7 @@ from src.nutrition.recipe_db import save_recipe
 
 logger = logging.getLogger(__name__)
 
-RECIPE_MODEL = "claude-sonnet-4-6"
+RECIPE_MODEL = "claude-haiku-4-5-20251001"
 MAX_RECIPE_REQUEST_LENGTH = 200
 
 _RECIPE_PROMPT_TEMPLATE = """Tu es un nutritionniste expert. Génère une recette complète en JSON.
@@ -127,8 +127,21 @@ async def execute(**kwargs) -> str:
         # Validate allergens in generated recipe
         if user_allergens:
             from src.nutrition.validators import validate_allergens
+
             violations = validate_allergens(
-                {"days": [{"day": "generated", "meals": [{"name": recipe_dict.get("name", ""), "ingredients": recipe_dict.get("ingredients", [])}]}]},
+                {
+                    "days": [
+                        {
+                            "day": "generated",
+                            "meals": [
+                                {
+                                    "name": recipe_dict.get("name", ""),
+                                    "ingredients": recipe_dict.get("ingredients", []),
+                                }
+                            ],
+                        }
+                    ]
+                },
                 user_allergens,
             )
             if violations:
@@ -169,7 +182,9 @@ async def execute(**kwargs) -> str:
                 total_fat += macros.get("fat_g", 0)
                 matched_count += 1
             else:
-                logger.warning(f"No OFF match for ingredient: {ingredient.get('name', '')}")
+                logger.warning(
+                    f"No OFF match for ingredient: {ingredient.get('name', '')}"
+                )
 
         off_validated = matched_count == len(ingredients) and len(ingredients) > 0
 

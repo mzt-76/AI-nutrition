@@ -25,10 +25,10 @@ from src.nutrition.macro_adjustments import (
 logger = logging.getLogger(__name__)
 
 # Portion scaling constraints
-# Increased from ±25% to ±50% for better macro accuracy
-# Still maintains recipe naturalness while giving optimizer more flexibility
+# 2.5x allows a 340 kcal recipe to reach 850 kcal (muscle gain targets)
+# Smart rounding keeps portions natural (whole eggs, rounded grams)
 MIN_SCALE_FACTOR = 0.50  # Don't scale down more than 50%
-MAX_SCALE_FACTOR = 1.50  # Don't scale up more than 50%
+MAX_SCALE_FACTOR = 2.50  # "Double serving + a bit" — reasonable for high-cal targets
 
 # Maximum complements to add per day (prefer scaling over complements)
 MAX_COMPLEMENTS_PER_DAY = 2

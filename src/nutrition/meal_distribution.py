@@ -2,8 +2,8 @@
 Calculate meal-by-meal macro distribution based on daily targets and meal structure.
 
 This module separates macro calculation from LLM generation, ensuring precise targets
-before meal plan creation. Uses evidence-based distributions: main meals receive 75-80%
-of macros, snacks receive 20-25%.
+before meal plan creation. Uses adaptive snack distribution: 10% per snack (max 25%),
+remaining budget split evenly across main meals.
 
 References:
 - ISSN Position Stand (2017): Meal timing and frequency
@@ -84,9 +84,8 @@ def calculate_meal_macros_distribution(
     Distribute daily macros across meals according to structure.
 
     Logic:
-    - If snacks present: main meals = 75% kcal / 80% protein, snacks = 25% kcal / 20% protein
+    - If snacks present: 10% per snack (max 25%), rest to main meals
     - If no snacks: equal distribution across all meals
-    - Carbs/fats: proportional to calories
 
     Args:
         daily_calories: Total daily calorie target
@@ -148,14 +147,19 @@ def calculate_meal_macros_distribution(
     meals: list[MealMacros] = []
 
     if num_snacks > 0:
-        # Distribution with snacks: main meals get 75-80% of macros
-        calories_main_total = int(daily_calories * 0.75)
+        # Adaptive snack ratio: 10% per snack, max 25% total
+        # 1 snack → 10% snack / 90% main (snack ≈ 296 kcal for 2964 target)
+        # 2 snacks → 20% snack / 80% main (each snack ≈ 296 kcal)
+        snack_pct = min(0.10 * num_snacks, 0.25)
+        main_pct = 1.0 - snack_pct
+
+        calories_main_total = int(daily_calories * main_pct)
         calories_snack_total = daily_calories - calories_main_total
-        protein_main_total = int(daily_protein_g * 0.80)
+        protein_main_total = int(daily_protein_g * main_pct)
         protein_snack_total = daily_protein_g - protein_main_total
-        carbs_main_total = int(daily_carbs_g * 0.75)
+        carbs_main_total = int(daily_carbs_g * main_pct)
         carbs_snack_total = daily_carbs_g - carbs_main_total
-        fat_main_total = int(daily_fat_g * 0.75)
+        fat_main_total = int(daily_fat_g * main_pct)
         fat_snack_total = daily_fat_g - fat_main_total
 
         # Distribute evenly within each category

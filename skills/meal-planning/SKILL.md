@@ -51,19 +51,20 @@ Si l'utilisateur demande une recette spécifique (ex: "risotto aux champignons")
 - `target_protein_g` (int, optionnel) : Cible protéines en grammes
 - `target_carbs_g` (int, optionnel) : Cible glucides en grammes
 - `target_fat_g` (int, optionnel) : Cible lipides en grammes
-- `meal_structure` (str, optionnel) : **NE PAS SPÉCIFIER** sauf demande explicite
-  - `3_consequent_meals` (DÉFAUT) : 3 repas
+- `meal_structure` (str, optionnel) : **NE PAS SPÉCIFIER** sauf demande explicite. Le script auto-détecte la meilleure structure selon les calories cibles (≥2500 kcal → 3_meals_1_preworkout, sinon → 3_consequent_meals).
+  - `3_consequent_meals` : 3 repas
   - `3_meals_2_snacks` : 3 repas + 2 collations
   - `4_meals` : 4 repas égaux
   - `3_meals_1_preworkout` : 3 repas + collation pré-training
+- `num_days` (int, optionnel) : Nombre de jours à générer. **DÉFAUT : 1** (Lundi uniquement). Utiliser 7 pour une semaine complète uniquement si l'utilisateur le demande explicitement.
 - `notes` (str, optionnel) : Préférences + demandes custom (ex: "risotto mardi, pas de poisson")
 
 ## Structures de repas disponibles
 
-- `3_consequent_meals` (DÉFAUT) : 3 repas principaux
+- `3_consequent_meals` : 3 repas principaux (auto-sélectionné si < 2500 kcal)
 - `3_meals_2_snacks` : Petit-dej, collation AM, déjeuner, collation PM, dîner
 - `4_meals` : 4 repas égaux dans la journée
-- `3_meals_1_preworkout` : 3 repas + 1 collation avant entraînement
+- `3_meals_1_preworkout` : 3 repas + 1 collation avant entraînement (auto-sélectionné si ≥ 2500 kcal)
 
 **NE SPÉCIFIE PAS** `meal_structure` SI l'utilisateur n'a PAS demandé de structure spécifique.
 
@@ -87,8 +88,13 @@ run_skill_script("meal-planning", "generate_week_plan", {
 # Recette sur demande
 run_skill_script("meal-planning", "generate_custom_recipe", {
     "recipe_request": "salade niçoise protéinée",
-    "meal_type": "dejeuner"
+    "meal_type": "dejeuner"  # TOUJOURS un slug français exact (voir enum ci-dessous)
 })
+
+# ⚠️ ENUM OBLIGATOIRE pour meal_type dans generate_custom_recipe :
+# "petit-dejeuner" | "dejeuner" | "diner" | "collation"
+# ❌ INTERDIT : "breakfast", "lunch", "dinner", "snack", "Déjeuner", "Dîner"
+# Les majuscules et les accents sont invalides — utiliser uniquement les slugs ci-dessus.
 
 # Récupérer un plan existant
 run_skill_script("meal-planning", "fetch_stored_meal_plan", {
@@ -202,10 +208,9 @@ Voir `references/presentation_format.md` pour le format détaillé avec exemples
 
 **Résumé rapide** :
 - A. Résumé global : `weekly_summary.average_calories`, `weekly_summary.average_protein_g`, nombre de jours (`summary.total_days`), sécurité allergènes (filtrage Python garanti 2 couches)
-- B. Détails COMPLETS pour **2 JOURS EXACTEMENT** (Lundi ET Mardi) — lire depuis `meal_plan.days[0]` et `meal_plan.days[1]`
-- C. **INTERDIT** d'afficher un résumé des 5 autres jours
-- D. Mentionner le document Markdown : `"Le plan complet est disponible ici : {markdown_document}"`
-- E. Proposer d'afficher d'autres jours ou générer la liste de courses (avec `meal_plan_id`)
+- B. Détails COMPLETS pour **TOUS les jours retournés** — lire depuis `meal_plan.days[*]` (par défaut 1 jour = Lundi). **Tu DOIS afficher le nom du jour exactement tel que retourné** (`meal_plan.days[i].day`, ex: "**Lundi**") comme titre de section.
+- C. Mentionner le document Markdown : `"Le plan complet est disponible ici : {markdown_document}"`
+- D. **OBLIGATOIRE** : Terminer en proposant de générer d'autres jours ou la liste de courses. Exemple : "Veux-tu que je génère d'autres jours ou la liste de courses ?" (mentionner l'ID du plan retourné)
 
 ## Sécurité Allergènes - TOLÉRANCE ZÉRO
 

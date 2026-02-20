@@ -137,6 +137,7 @@ async def execute(**kwargs) -> str:
         target_carbs_g: Daily carbs target in grams
         target_fat_g: Daily fat target in grams
         meal_structure: Meal distribution pattern (default: 3_consequent_meals)
+        num_days: Number of days to generate (default: 1). Use 7 for a full week.
         notes: Free-text preferences and custom recipe requests
             (e.g., "risotto mardi, pas de poisson vendredi")
 
@@ -160,16 +161,13 @@ async def execute(**kwargs) -> str:
     target_protein_g = kwargs.get("target_protein_g")
     target_carbs_g = kwargs.get("target_carbs_g")
     target_fat_g = kwargs.get("target_fat_g")
-    meal_structure = kwargs.get("meal_structure", "3_consequent_meals")
+    meal_structure = kwargs.get("meal_structure")  # None = auto-detect
     notes = kwargs.get("notes")
+    num_days = int(kwargs.get("num_days", 1))
 
     try:
-        logger.info(
-            f"Generating weekly meal plan: start={start_date}, structure={meal_structure}"
-        )
-
-        # Step 1: Validate meal structure
-        if meal_structure not in MEAL_STRUCTURES:
+        # Step 1: Validate meal structure (if explicitly provided)
+        if meal_structure is not None and meal_structure not in MEAL_STRUCTURES:
             return json.dumps(
                 {
                     "error": f"Invalid meal structure. Must be one of: {list(MEAL_STRUCTURES.keys())}",
@@ -215,6 +213,25 @@ async def execute(**kwargs) -> str:
                 }
             )
 
+        # Step 4b: Auto-detect meal structure if not explicitly set
+        if not meal_structure:
+            if calories >= 2500:
+                meal_structure = "3_meals_1_preworkout"
+                logger.info(
+                    f"Auto-selected meal_structure={meal_structure} "
+                    f"(calories={calories} >= 2500)"
+                )
+            else:
+                meal_structure = "3_consequent_meals"
+                logger.info(
+                    f"Auto-selected meal_structure={meal_structure} "
+                    f"(calories={calories} < 2500)"
+                )
+
+        logger.info(
+            f"Generating weekly meal plan: start={start_date}, structure={meal_structure}"
+        )
+
         # Step 5: Calculate meal-by-meal macro distribution
         meal_macros_distribution = calculate_meal_macros_distribution(
             daily_calories=calories,
@@ -234,11 +251,11 @@ async def execute(**kwargs) -> str:
         # Step 7: Load generate_day_plan sibling script
         generate_day_plan = _import_sibling_script("generate_day_plan")
 
-        # Step 8: Generate 7 days one at a time (variety tracked via used_recipe_ids)
+        # Step 8: Generate days one at a time (variety tracked via used_recipe_ids)
         all_days = []
         used_recipe_ids: list[str] = []
 
-        for day_idx in range(7):
+        for day_idx in range(num_days):
             day_name = _DAY_NAMES[day_idx]
             day_date = (start_dt + timedelta(days=day_idx)).strftime("%Y-%m-%d")
 
@@ -317,7 +334,9 @@ async def execute(**kwargs) -> str:
 
         logger.info(f"Markdown document generated: {markdown_path}")
 
-        response_data = json.loads(format_meal_plan_response(meal_plan_json, store_success))
+        response_data = json.loads(
+            format_meal_plan_response(meal_plan_json, store_success)
+        )
         response_data["markdown_document"] = markdown_path
         response_data["meal_plan_id"] = meal_plan_id
 

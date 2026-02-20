@@ -2,10 +2,10 @@
 Unit tests for meal_distribution.py module.
 
 Tests macro distribution logic across different meal structures:
-- 3_meals_2_snacks (75/25 split)
+- 3_meals_2_snacks (10% per snack = 20% snack / 80% main)
 - 4_meals (equal distribution)
 - 3_consequent_meals (equal distribution)
-- 3_meals_1_preworkout (75/25 split)
+- 3_meals_1_preworkout (10% snack / 90% main)
 """
 
 import pytest
@@ -16,7 +16,7 @@ from src.nutrition.meal_distribution import (
 
 
 def test_calculate_meal_macros_distribution_with_snacks():
-    """Test distribution with snacks (75/25 split)."""
+    """Test distribution with 2 snacks (20% snack / 80% main)."""
     result = calculate_meal_macros_distribution(
         daily_calories=3300,
         daily_protein_g=174,
@@ -34,7 +34,7 @@ def test_calculate_meal_macros_distribution_with_snacks():
     assert result["daily_totals"]["carbs_g"] == 413
     assert result["daily_totals"]["fat_g"] == 92
 
-    # Main meals should get ~75% of calories
+    # Main meals should get ~80% of calories (2 snacks × 10% = 20%)
     main_meals = [
         m for m in result["meals"] if "collation" not in m["meal_type"].lower()
     ]
@@ -43,13 +43,13 @@ def test_calculate_meal_macros_distribution_with_snacks():
     assert len(main_meals) == 3
     assert len(snacks) == 2
 
-    # Each main meal should get approximately 3300 * 0.75 / 3 = 825 calories
+    # Each main meal should get approximately 3300 * 0.80 / 3 = 880 calories
     for meal in main_meals:
-        assert 800 <= meal["target_calories"] <= 850
+        assert 870 <= meal["target_calories"] <= 890
 
-    # Each snack should get approximately 3300 * 0.25 / 2 = 412 calories
+    # Each snack should get approximately 3300 * 0.20 / 2 = 330 calories
     for snack in snacks:
-        assert 400 <= snack["target_calories"] <= 420
+        assert 320 <= snack["target_calories"] <= 340
 
 
 def test_calculate_meal_macros_distribution_without_snacks():
@@ -99,7 +99,7 @@ def test_calculate_meal_macros_distribution_4_meals():
 
 
 def test_calculate_meal_macros_distribution_preworkout():
-    """Test 3 meals + 1 preworkout snack (75/25 split)."""
+    """Test 3 meals + 1 preworkout snack (10% snack / 90% main)."""
     result = calculate_meal_macros_distribution(
         daily_calories=3000,
         daily_protein_g=180,
@@ -117,15 +117,15 @@ def test_calculate_meal_macros_distribution_preworkout():
     ]
     assert len(preworkout) == 1
 
-    # Main meals get 75%, snack gets 25%
+    # Main meals get 90%, snack gets 10% (1 snack × 10%)
     main_meals = [
         m for m in result["meals"] if "pré-entraînement" not in m["meal_type"].lower()
     ]
     assert len(main_meals) == 3
 
-    # Preworkout snack should get ~25% of calories
-    # 3000 * 0.25 = 750 calories total for snacks, but only 1 snack
-    assert 700 <= preworkout[0]["target_calories"] <= 800
+    # Preworkout snack should get ~10% of calories
+    # 3000 * 0.10 = 300 calories
+    assert 290 <= preworkout[0]["target_calories"] <= 310
 
 
 def test_meal_type_and_time_extraction():
@@ -176,8 +176,8 @@ def test_all_meal_structures_have_correct_format():
             assert ")" in meal
 
 
-def test_protein_distribution_80_20_with_snacks():
-    """Test that protein follows 80/20 rule with snacks."""
+def test_protein_distribution_with_snacks():
+    """Test that protein follows adaptive ratio (80% main / 20% snack for 2 snacks)."""
     result = calculate_meal_macros_distribution(
         daily_calories=3300,
         daily_protein_g=200,  # Easy to calculate
@@ -191,11 +191,12 @@ def test_protein_distribution_80_20_with_snacks():
     ]
     snacks = [m for m in result["meals"] if "collation" in m["meal_type"].lower()]
 
-    # Main meals should get 80% = 160g protein total / 3 = 53g each
+    # 2 snacks × 10% = 20% to snacks, 80% to main
+    # Main meals: 200 * 0.80 = 160g protein total / 3 = 53g each
     total_main_protein = sum(m["target_protein_g"] for m in main_meals)
     assert 155 <= total_main_protein <= 165  # Allow rounding tolerance
 
-    # Snacks should get 20% = 40g protein total / 2 = 20g each
+    # Snacks: 200 - 160 = 40g protein total / 2 = 20g each
     total_snack_protein = sum(m["target_protein_g"] for m in snacks)
     assert 35 <= total_snack_protein <= 45  # Allow rounding tolerance
 

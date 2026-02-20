@@ -7,6 +7,7 @@ Includes retry logic (max 2 retries per day).
 Source: Refactored from src/tools.py generate_weekly_meal_plan_tool
 """
 
+import copy
 import importlib.util
 import json
 import logging
@@ -14,14 +15,48 @@ from pathlib import Path
 
 from src.nutrition.portion_scaler import scale_recipe_to_targets
 from src.nutrition.recipe_db import search_recipes, increment_usage
+from src.nutrition.meal_plan_optimizer import (
+    calculate_meal_plan_macros,
+    optimize_meal_plan_portions,
+)
 from src.nutrition.validators import validate_allergens, validate_daily_macros
 
 logger = logging.getLogger(__name__)
 
+
+def _score_recipe_macro_fit(recipe: dict, target: dict) -> float:
+    """Score how well recipe's macro RATIOS match target ratios.
+
+    Compares protein/cal, carbs/cal, fat/cal ratios of recipe vs target.
+    Lower score = better fit. Protein match is weighted 2x.
+
+    Args:
+        recipe: Recipe dict with calories_per_serving, protein_g_per_serving, etc.
+        target: Meal slot target dict with target_calories, target_protein_g, etc.
+
+    Returns:
+        Float score >= 0. Lower is better.
+    """
+    recipe_cal = recipe.get("calories_per_serving", 1) or 1
+    recipe_prot_ratio = recipe.get("protein_g_per_serving", 0) * 4 / recipe_cal
+    recipe_carb_ratio = recipe.get("carbs_g_per_serving", 0) * 4 / recipe_cal
+    recipe_fat_ratio = recipe.get("fat_g_per_serving", 0) * 9 / recipe_cal
+
+    target_cal = target.get("target_calories", 1) or 1
+    target_prot_ratio = target.get("target_protein_g", 0) * 4 / target_cal
+    target_carb_ratio = target.get("target_carbs_g", 0) * 4 / target_cal
+    target_fat_ratio = target.get("target_fat_g", 0) * 9 / target_cal
+
+    score = (
+        2 * abs(recipe_prot_ratio - target_prot_ratio)
+        + abs(recipe_carb_ratio - target_carb_ratio)
+        + abs(recipe_fat_ratio - target_fat_ratio)
+    )
+    return score
+
+
 # Day names in French
-DAY_NAMES_FR = [
-    "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"
-]
+DAY_NAMES_FR = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
 
 # Max retries when validation fails
 MAX_RETRIES = 2
@@ -179,12 +214,15 @@ async def _get_recipe_for_slot(
     target_calories = meal_slot.get("target_calories", 600)
     target_protein_g = meal_slot.get("target_protein_g", 40)
     user_allergens = user_profile.get("allergies", [])
+    disliked_foods = user_profile.get("disliked_foods", [])
     diet_type = user_profile.get("diet_type", "omnivore")
     preferred_cuisines = user_profile.get("preferred_cuisines")
     max_prep_time = user_profile.get("max_prep_time")
 
     if custom_request:
-        logger.info(f"  {meal_type_display}: custom recipe requested '{custom_request}'")
+        logger.info(
+            f"  {meal_type_display}: custom recipe requested '{custom_request}'"
+        )
         result_str = await generate_custom_recipe_module.execute(
             anthropic_client=anthropic_client,
             supabase=supabase,
@@ -204,26 +242,30 @@ async def _get_recipe_for_slot(
         return None, False
 
     # Try DB first
+    # NOTE: calorie_range filter intentionally omitted — scale_recipe_to_targets adjusts
+    # portions to match any calorie target. Filtering by range would exclude valid recipes
+    # (e.g. a 400 kcal breakfast when target is 988 kcal) causing unnecessary LLM fallback.
     db_meal_type = _normalize_meal_type_inline(meal_type_display)
-    calorie_range = (int(target_calories * 0.6), int(target_calories * 1.4))
 
     candidates = await search_recipes(
         supabase=supabase,
         meal_type=db_meal_type,
         exclude_allergens=user_allergens if user_allergens else None,
         exclude_recipe_ids=used_ids or None,
+        exclude_ingredients=disliked_foods if disliked_foods else None,
         diet_type=diet_type,
         cuisine_types=preferred_cuisines,
         max_prep_time=max_prep_time,
-        calorie_range=calorie_range,
         limit=5,
     )
 
     if candidates:
+        candidates.sort(key=lambda r: _score_recipe_macro_fit(r, meal_slot))
         recipe = candidates[0]
         logger.info(
             f"  {meal_type_display}: DB recipe '{recipe['name']}' "
-            f"({recipe['calories_per_serving']:.0f} kcal)"
+            f"({recipe['calories_per_serving']:.0f} kcal, "
+            f"macro_score={_score_recipe_macro_fit(recipe, meal_slot):.3f})"
         )
         return recipe, False
 
@@ -259,6 +301,7 @@ async def _select_and_scale_meals(
     exclude_recipe_ids: list[str],
     custom_requests: dict,
     attempt: int,
+    failed_recipe_ids: list[str] | None = None,
 ) -> tuple[list[dict], list[str], int]:
     """Resolve, scale and assemble meals for all slots in one day.
 
@@ -272,7 +315,7 @@ async def _select_and_scale_meals(
     meals: list[dict] = []
     recipe_ids_used: list[str] = []
     llm_fallback_count = 0
-    used_ids_this_attempt = list(exclude_recipe_ids)
+    used_ids_this_attempt = list(exclude_recipe_ids) + list(failed_recipe_ids or [])
 
     for meal_slot in meal_targets:
         meal_type_display = meal_slot.get("meal_type", "Déjeuner")
@@ -314,7 +357,9 @@ async def _select_and_scale_meals(
                 except Exception:
                     pass  # Non-critical
         except Exception as scale_err:
-            logger.error(f"Scaling failed for {meal_type_display}: {scale_err}", exc_info=True)
+            logger.error(
+                f"Scaling failed for {meal_type_display}: {scale_err}", exc_info=True
+            )
 
     return meals, recipe_ids_used, llm_fallback_count
 
@@ -379,6 +424,7 @@ async def execute(**kwargs) -> str:
         best_validation = None
         best_recipe_ids: list[str] = []
         best_llm_count = 0
+        failed_recipe_ids: list[str] = []
 
         for attempt in range(MAX_RETRIES + 1):
             if attempt > 0:
@@ -392,6 +438,7 @@ async def execute(**kwargs) -> str:
                 exclude_recipe_ids=exclude_recipe_ids,
                 custom_requests=custom_requests,
                 attempt=attempt,
+                failed_recipe_ids=failed_recipe_ids,
             )
 
             if not meals:
@@ -416,6 +463,45 @@ async def execute(**kwargs) -> str:
                 "daily_totals": daily_totals,
             }
 
+            # Recalculate macros from ingredients via OpenFoodFacts
+            try:
+                scaled_totals = dict(daily_totals)
+                day_plan_backup = copy.deepcopy(day_plan)
+                wrapped = {"days": [day_plan]}
+                await calculate_meal_plan_macros(wrapped, supabase)
+                # calculate_meal_plan_macros updates nutrition and daily_totals in place
+                daily_totals = day_plan["daily_totals"]
+                logger.info(
+                    f"OFF recalc for {day_name}: "
+                    f"{daily_totals['calories']:.0f} kcal, "
+                    f"{daily_totals['protein_g']:.0f}g protein "
+                    f"(was {scaled_totals['calories']:.0f} kcal from scaling)"
+                )
+            except Exception as off_err:
+                # Restore from backup — calculate_meal_plan_macros modifies in place
+                day_plan.update(day_plan_backup)
+                daily_totals = day_plan["daily_totals"]
+                logger.warning(
+                    f"OFF recalc failed for {day_name}, using scaled macros: {off_err}"
+                )
+
+            # Optimize portions (selective fat reduction + calorie adjustment)
+            try:
+                user_allergens_opt = user_profile.get("allergies", [])
+                wrapped_for_opt = {"days": [day_plan]}
+                optimized = await optimize_meal_plan_portions(
+                    wrapped_for_opt, target_macros, user_allergens_opt
+                )
+                day_plan = optimized["days"][0]
+                daily_totals = day_plan["daily_totals"]
+                logger.info(
+                    f"Optimization for {day_name}: "
+                    f"{daily_totals['calories']:.0f} kcal, "
+                    f"{daily_totals['fat_g']:.0f}g fat"
+                )
+            except Exception as opt_err:
+                logger.warning(f"Optimization failed for {day_name}: {opt_err}")
+
             # Validate the day
             user_allergens = user_profile.get("allergies", [])
 
@@ -424,27 +510,35 @@ async def execute(**kwargs) -> str:
                 {"days": [day_plan]}, user_allergens
             )
 
-            # Macro check
+            # Macro check — tolerances account for OFF recalc variance
             protein_check = validate_daily_macros(
                 {"protein_g": daily_totals.get("protein_g", 0)},
                 {"protein_g": target_macros.get("protein_g", 0)},
-                tolerance=0.05,
+                tolerance=0.10,
             )
-            other_check = validate_daily_macros(
+            calorie_carb_check = validate_daily_macros(
                 {
                     "calories": daily_totals.get("calories", 0),
                     "carbs_g": daily_totals.get("carbs_g", 0),
-                    "fat_g": daily_totals.get("fat_g", 0),
                 },
                 {
                     "calories": target_macros.get("calories", 0),
                     "carbs_g": target_macros.get("carbs_g", 0),
-                    "fat_g": target_macros.get("fat_g", 0),
                 },
-                tolerance=0.10,
+                tolerance=0.15,
+            )
+            fat_check = validate_daily_macros(
+                {"fat_g": daily_totals.get("fat_g", 0)},
+                {"fat_g": target_macros.get("fat_g", 0)},
+                tolerance=0.20,
             )
 
-            all_violations = allergen_violations + protein_check.get("violations", []) + other_check.get("violations", [])
+            all_violations = (
+                allergen_violations
+                + protein_check.get("violations", [])
+                + calorie_carb_check.get("violations", [])
+                + fat_check.get("violations", [])
+            )
             validation = {
                 "valid": len(all_violations) == 0,
                 "violations": all_violations,
@@ -457,6 +551,9 @@ async def execute(**kwargs) -> str:
                 best_recipe_ids = recipe_ids_used
                 best_llm_count = llm_fallback_count
                 break
+
+            # Track recipe IDs from failed attempts so retries pick different recipes
+            failed_recipe_ids.extend(recipe_ids_used)
 
             logger.warning(
                 f"Day {day_name} validation failed (attempt {attempt}): "

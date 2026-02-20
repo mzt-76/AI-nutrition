@@ -21,6 +21,7 @@ async def search_recipes(
     meal_type: str,
     exclude_allergens: list[str] | None = None,
     exclude_recipe_ids: list[str] | None = None,
+    exclude_ingredients: list[str] | None = None,
     diet_type: str = "omnivore",
     cuisine_types: list[str] | None = None,
     max_prep_time: int | None = None,
@@ -29,14 +30,16 @@ async def search_recipes(
 ) -> list[dict]:
     """Search recipes with filtering constraints.
 
-    Queries the recipes table with basic filters, then applies allergen
-    exclusion and variety filtering in Python.
+    Queries the recipes table with basic filters, then applies allergen,
+    disliked-food, and variety filtering in Python.
 
     Args:
         supabase: Supabase client
         meal_type: "petit-dejeuner", "dejeuner", "diner", "collation"
         exclude_allergens: Allergen tags to exclude (zero tolerance)
         exclude_recipe_ids: Recipe IDs already used this week (variety)
+        exclude_ingredients: Ingredient keywords to exclude (e.g. disliked foods).
+            Matches against recipe name AND individual ingredient names.
         diet_type: Diet filter (e.g., "omnivore", "végétarien", "vegan")
         cuisine_types: Preferred cuisine types (None = no filter)
         max_prep_time: Maximum prep time in minutes (None = no filter)
@@ -47,8 +50,8 @@ async def search_recipes(
         List of matching recipe dicts, ordered by usage_count DESC
 
     Example:
-        >>> recipes = await search_recipes(supabase, "dejeuner", exclude_allergens=["lactose"])
-        >>> all("lactose" not in r.get("allergen_tags", []) for r in recipes)
+        >>> recipes = await search_recipes(supabase, "dejeuner", exclude_ingredients=["fromage"])
+        >>> all("fromage" not in r.get("name", "").lower() for r in recipes)
         True
     """
     logger.info(
@@ -85,10 +88,32 @@ async def search_recipes(
             results = [
                 r
                 for r in results
-                if not set(
-                    tag.lower() for tag in r.get("allergen_tags", [])
-                ) & normalized_allergens
+                if not set(tag.lower() for tag in r.get("allergen_tags", []))
+                & normalized_allergens
             ]
+
+        # Python-side filtering: disliked foods (check name + ingredient names)
+        if exclude_ingredients:
+            normalized_disliked = [d.lower().strip() for d in exclude_ingredients]
+            filtered = []
+            for r in results:
+                recipe_name = r.get("name", "").lower()
+                ingredient_names = [
+                    ing.get("name", "").lower() for ing in r.get("ingredients", [])
+                ]
+                has_disliked = any(
+                    disliked in recipe_name
+                    or any(disliked in ing_name for ing_name in ingredient_names)
+                    for disliked in normalized_disliked
+                )
+                if not has_disliked:
+                    filtered.append(r)
+            excluded_count = len(results) - len(filtered)
+            if excluded_count > 0:
+                logger.info(
+                    f"Excluded {excluded_count} recipes containing disliked ingredients"
+                )
+            results = filtered
 
         # Python-side filtering: variety (exclude already-used recipe IDs)
         if exclude_recipe_ids:
@@ -97,9 +122,7 @@ async def search_recipes(
 
         # Python-side filtering: cuisine preference (soft filter, order preferred first)
         if cuisine_types:
-            preferred = [
-                r for r in results if r.get("cuisine_type") in cuisine_types
-            ]
+            preferred = [r for r in results if r.get("cuisine_type") in cuisine_types]
             other = [r for r in results if r.get("cuisine_type") not in cuisine_types]
             results = preferred + other
 

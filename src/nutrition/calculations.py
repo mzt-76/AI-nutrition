@@ -287,42 +287,54 @@ def calculate_macros(
     """
     Calculate carb and fat targets based on calories and protein.
 
+    Fat is calculated as a percentage of TOTAL calories (20-25% range depending
+    on goal). Carbs receive the remaining calories after protein and fat.
+
     Args:
         target_calories: Total daily calorie target
         protein_g: Protein target in grams
-        goal_type: Primary goal (affects carb/fat ratio)
+        goal_type: Primary goal (affects fat % of total)
 
     Returns:
         Dict with carbs_g and fat_g
 
     Example:
-        >>> macros = calculate_macros(3168, 191, "muscle_gain")
+        >>> macros = calculate_macros(2964, 172, "muscle_gain")
         >>> print(macros)
-        {"carbs_g": 397, "fat_g": 88}
+        {"carbs_g": 384, "fat_g": 66}
+
+    References:
+        ISSN (2017): 20-35% of total calories from fat recommended.
+        20-25% range used here to maximize carb budget for training.
     """
     # Caloric values per gram
     PROTEIN_KCAL = 4
     CARB_KCAL = 4
     FAT_KCAL = 9
 
-    # Calculate remaining calories after protein
+    # Fat as % of TOTAL calories (goal-dependent, 20-25% range)
+    # Ref: ISSN recommends 20-35%; lower end preserves carb budget
+    FAT_PCT_OF_TOTAL = {
+        "muscle_gain": 0.22,  # 22% — lower fat, higher carbs for training fuel
+        "weight_loss": 0.25,  # 25% — higher fat for satiety during deficit
+        "maintenance": 0.25,  # 25% — balanced
+        "performance": 0.20,  # 20% — maximize carbs for endurance
+    }
+
+    fat_pct = FAT_PCT_OF_TOTAL.get(goal_type, 0.25)
+    fat_g = int((target_calories * fat_pct) / FAT_KCAL)
+
+    # Carbs get the remaining calories after protein and fat
     protein_calories = protein_g * PROTEIN_KCAL
-    remaining_calories = target_calories - protein_calories
+    fat_calories = fat_g * FAT_KCAL
+    carbs_g = int((target_calories - protein_calories - fat_calories) / CARB_KCAL)
 
-    # Carb/fat split based on goal
-    if goal_type == "muscle_gain":
-        carb_ratio = 0.50  # Higher carbs for training fuel
-        fat_ratio = 0.25
-    elif goal_type == "weight_loss":
-        carb_ratio = 0.40  # Moderate carbs
-        fat_ratio = 0.30  # Higher fat for satiety
-    else:  # maintenance, performance
-        carb_ratio = 0.45
-        fat_ratio = 0.25
+    # Safety: ensure non-negative carbs (extreme high-protein edge case)
+    carbs_g = max(0, carbs_g)
 
-    carbs_g = int((remaining_calories * carb_ratio) / CARB_KCAL)
-    fat_g = int((remaining_calories * fat_ratio) / FAT_KCAL)
-
-    logger.info(f"Calculated macros: {carbs_g}g carbs, {fat_g}g fat")
+    logger.info(
+        f"Calculated macros: {carbs_g}g carbs, {fat_g}g fat "
+        f"(fat={fat_pct:.0%} of total)"
+    )
 
     return {"carbs_g": carbs_g, "fat_g": fat_g}

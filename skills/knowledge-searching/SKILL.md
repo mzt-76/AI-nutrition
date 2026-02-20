@@ -1,6 +1,6 @@
 ---
 name: knowledge-searching
-description: Recherche dans la base de connaissances nutritionnelles (RAG) et sur le web. Utiliser quand l'utilisateur pose une question sur la nutrition, les supplements ou les regimes.
+description: "OBLIGATOIRE pour toute question factuelle sur la nutrition — proteines, macros, deficit, supplements, regimes, BMR. Charge ce skill ET appelle retrieve_relevant_documents AVANT de repondre. Ne jamais repondre de memoire sur des sujets nutritionnels."
 ---
 
 # Knowledge Searching - Recherche Documentaire

@@ -226,12 +226,11 @@ class TestScaleRecipeToTargets:
         result = scale_recipe_to_targets(
             sample_recipe, target_calories=800, target_protein_g=56
         )
-        # 800 / 400 = 2.0 — clamped to MAX_SCALE_FACTOR (1.5)
-        # oeufs: 3 * 1.5 = 4.5 → rounds to 4 or 5
-        eggs = next(
-            i for i in result["ingredients"] if i["unit"] == "pièces"
-        )
+        # 800 / 400 = 2.0 — within MAX_SCALE_FACTOR (2.5)
+        # oeufs: 3 * 2.0 = 6
+        eggs = next(i for i in result["ingredients"] if i["unit"] == "pièces")
         assert isinstance(eggs["quantity"], int)
+        assert eggs["quantity"] == 6
 
     def test_returns_new_recipe_dict(self, sample_recipe):
         """Original recipe is not mutated."""
@@ -247,7 +246,9 @@ class TestScaleRecipeToTargets:
     def test_raises_on_zero_calories_target(self, sample_recipe):
         """Zero target calories raises ValueError."""
         with pytest.raises(ValueError, match="target_calories must be positive"):
-            scale_recipe_to_targets(sample_recipe, target_calories=0, target_protein_g=30)
+            scale_recipe_to_targets(
+                sample_recipe, target_calories=0, target_protein_g=30
+            )
 
     def test_clamped_scale_factor(self, sample_recipe):
         """Extreme targets are clamped to MAX/MIN_SCALE_FACTOR."""

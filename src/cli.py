@@ -64,15 +64,46 @@ def load_memories(memory, query: str) -> str:
     return ""
 
 
-def save_memory(memory, message: str) -> None:
-    """Save user message to long-term memory.
+def save_memory(memory, user_message: str, agent_response: str = "") -> None:
+    """Save conversation turn to long-term memory (only if potentially useful).
+
+    Filters out trivial messages (short confirmations, generic requests) and
+    sends user+agent pair so mem0 has full context to extract facts.
 
     Args:
         memory: mem0 Memory client
-        message: User message to store
+        user_message: User message
+        agent_response: Agent response (provides context for extraction)
     """
+    # Skip trivial messages — no useful facts to extract
+    stripped = user_message.strip().lower()
+    if len(stripped) < 15 and stripped in (
+        "oui",
+        "non",
+        "ok",
+        "merci",
+        "yes",
+        "no",
+        "thanks",
+        "d'accord",
+        "c'est bon",
+        "parfait",
+        "super",
+        "go",
+        "next",
+    ):
+        logger.debug(f"Skipping trivial message for memory: '{stripped}'")
+        return
+
     try:
-        memory.add([{"role": "user", "content": message}], user_id=USER_ID)
+        messages = [{"role": "user", "content": user_message}]
+        if agent_response:
+            # Truncate long responses — mem0 only needs key facts
+            truncated = (
+                agent_response[:500] if len(agent_response) > 500 else agent_response
+            )
+            messages.append({"role": "assistant", "content": truncated})
+        memory.add(messages, user_id=USER_ID)
     except Exception as e:
         logger.warning(f"Could not save memory: {e}")
 
@@ -319,9 +350,9 @@ async def main():
                 # Add new messages to history for multi-turn
                 message_history.extend(new_messages)
 
-                # Save to memory
+                # Save to memory (with agent response for context)
                 if memory:
-                    save_memory(memory, user_input)
+                    save_memory(memory, user_input, response_text)
 
                 console.print()
 

@@ -1,7 +1,7 @@
 # Meal Planning Workflow — Technical Reference
 
-**Last updated:** 2026-02-19
-**Applies to:** `skills/meal-planning/`, `src/nutrition/recipe_db.py`, `src/nutrition/portion_scaler.py`
+**Last updated:** 2026-02-20
+**Applies to:** `skills/meal-planning/`, `src/nutrition/recipe_db.py`, `src/nutrition/portion_scaler.py`, `src/nutrition/meal_plan_optimizer.py`
 
 ---
 
@@ -14,13 +14,13 @@ Agent (LLM)
   │  calls run_skill_script("meal-planning", "generate_week_plan", {...})
   ▼
 skills/meal-planning/scripts/          ← orchestrators
-  ├── generate_week_plan.py            ← entry point (7-day loop)
+  ├── generate_week_plan.py            ← entry point (N-day loop)
   ├── generate_day_plan.py             ← 1-day pipeline
   ├── select_recipes.py                ← DB query wrapper
   ├── scale_portions.py                ← scaling wrapper
   ├── validate_day.py                  ← allergen + macro check
   ├── generate_custom_recipe.py        ← LLM fallback via Claude Sonnet 4.6
-  ├── seed_recipe_db.py                ← DB population (run once)
+  ├── seed_recipe_db.py                ← DB population via LLM (run once)
   ├── generate_shopping_list.py        ← list from stored plan
   └── fetch_stored_meal_plan.py        ← retrieve existing plan
   │
@@ -29,6 +29,7 @@ skills/meal-planning/scripts/          ← orchestrators
 src/nutrition/                         ← domain logic (pure / DB CRUD)
   ├── recipe_db.py                     ← Supabase CRUD for recipes table
   ├── portion_scaler.py                ← pure math, no I/O
+  ├── meal_plan_optimizer.py           ← OFF macro recalc + portion optimization
   ├── validators.py                    ← allergen + macro checks
   ├── meal_distribution.py             ← distribute daily macros across meals
   ├── meal_plan_formatter.py           ← markdown generation
@@ -52,14 +53,17 @@ User request → Agent → run_skill_script("meal-planning", "generate_week_plan
     (meal_structure,          (fetch_my_profile_tool)  (args || profile)
      date format)
           │
-    4. Calculate meal distribution
+    4. Auto-detect meal structure (if not specified)
+    (≥2500 kcal → 3_meals_1_preworkout, else → 3_consequent_meals)
+          │
+    5. Calculate meal distribution
     (calculate_meal_macros_distribution)
     → meal_targets: [{meal_type, target_calories, target_protein_g, ...}]
           │
-    5. Parse notes → custom_requests
+    6. Parse notes → custom_requests
     {"Mardi": {"dejeuner": "risotto aux champignons"}}
           │
-    6. Loop 7 days ──────────────────────────────────────────────────────┐
+    7. Loop N days ─────────────────────────────────────────────────────┐
           │                                                               │
     generate_day_plan.execute(                                           │
         day_name, day_date, meal_targets,                                │
@@ -67,16 +71,18 @@ User request → Agent → run_skill_script("meal-planning", "generate_week_plan
         custom_requests.get(day_name, {})                                │
     )                                                                    │
           │                                                              │
-    7. Assemble {"days": [...], "weekly_summary": {...}}                 │
+    8. Assemble {"days": [...], "weekly_summary": {...}}                 │
           │                                          used_recipe_ids ────┘
-    8. Store in meal_plans table (Supabase)
+    9. Store in meal_plans table (Supabase)
           │
-    9. Generate Markdown file (tempfile)
+    10. Generate Markdown file (tempfile)
           │
-    10. Return JSON response
+    11. Return JSON response
 ```
 
 **Sequential day generation is intentional.** `exclude_recipe_ids` accumulates across days — day 2 cannot select recipes already used on day 1. Parallelising would break variety tracking.
+
+**Auto-detect meal structure:** When `meal_structure` is not specified by the agent, `generate_week_plan.py` picks the best structure based on calorie target. High-calorie plans (≥2500 kcal, typical for muscle gain) get `3_meals_1_preworkout` (3 main meals + 1 pre-workout snack) to better distribute macros. Lower-calorie plans get `3_consequent_meals`.
 
 ---
 
@@ -100,7 +106,7 @@ execute()
                         _get_recipe_for_slot()     ← single responsibility: get a recipe
                             │
                             ├── custom_request? → generate_custom_recipe (LLM)
-                            ├── DB candidates?  → candidates[0]  (usage_count DESC)
+                            ├── DB candidates?  → sort by _score_recipe_macro_fit(), pick best
                             └── no DB match?    → generate_custom_recipe (LLM fallback)
                         │
                         scale_recipe_to_targets()  ← pure math from portion_scaler.py
@@ -109,14 +115,32 @@ execute()
                         │
                         increment_usage()          ← non-critical, fire-and-forget
             │
+            Recalculate macros via OpenFoodFacts:
+                calculate_meal_plan_macros()
+                → replaces scaled macro estimates with real ingredient-based values
+                → deepcopy backup: if OFF fails, original scaled macros are restored
+            │
             validate:
                 ├── validate_allergens()   → allergen_violations
                 └── validate_daily_macros() → macro_violations (protein ±5%, rest ±10%)
             │
             if valid OR last attempt → return best_day
+            else → track failed_recipe_ids, retry with different recipes
 ```
 
-**Retry strategy:** On failure, `_select_and_scale_meals` is called again with the same `exclude_recipe_ids` — DB candidates will be different because the ordering with `usage_count DESC` returns up to 5 candidates; on retry the system may get a better-fitting recipe. On the last attempt, whatever was generated is returned with validation warnings logged.
+### Macro-fitness scoring
+
+Recipe selection uses `_score_recipe_macro_fit()` to pick the best-fitting recipe from DB candidates instead of blindly taking the first one. The score compares protein/cal, carbs/cal, fat/cal ratios between the recipe and the target, with **2x weight on protein**. Lower score = better fit.
+
+### Retry strategy
+
+On validation failure, `failed_recipe_ids` accumulates the IDs from the failed attempt. On retry, these are added to `exclude_recipe_ids`, forcing the system to pick **different recipes**. This prevents retries from producing identical results.
+
+### OpenFoodFacts recalculation
+
+After scaling, `calculate_meal_plan_macros()` from `meal_plan_optimizer.py` recalculates the macros for every ingredient via OpenFoodFacts. This ensures the displayed macros are based on real nutritional data, not on the recipe's stored `calories_per_serving` multiplied by a scale factor (which is approximate). The stored `calories_per_serving` is only used to compute the scale factor itself.
+
+A `deepcopy` backup of the day plan is taken before the OFF call. If `calculate_meal_plan_macros()` fails mid-execution (some ingredients not found in OFF), the plan is restored from backup and the scaled macros are used as fallback.
 
 ---
 
@@ -168,7 +192,7 @@ new_quantity = round_quantity_smart(original_quantity * scale_factor, unit, ingr
 scaled_nutrition = {macro: original_value * scale_factor for macro in macros}
 ```
 
-**Why calorie-based primary scaling:** Calories are the most constrained target (safety bounds). Protein follows proportionally. If the user needs more protein than the scale factor provides, this is a recipe DB coverage issue — add higher-protein recipes via `seed_recipe_db`.
+**Why calorie-based primary scaling:** Calories are the most constrained target (safety bounds). The scale factor determines ingredient quantities. After scaling, `calculate_meal_plan_macros()` recalculates the actual macros from the scaled ingredient quantities via OpenFoodFacts — so the scaling factor only needs to be approximately right. The macro-fitness scoring in recipe selection ensures selected recipes have macro ratios similar to the target, minimising the gap between scaled estimates and actual macros.
 
 ---
 
@@ -179,11 +203,17 @@ scaled_nutrition = {macro: original_value * scale_factor for macro in macros}
 | Column | Type | Purpose |
 |---|---|---|
 | `meal_type` | TEXT | "petit-dejeuner", "dejeuner", "diner", "collation" |
-| `calories_per_serving` | NUMERIC | Pre-calculated — no OFF lookup at plan time |
+| `calories_per_serving` | NUMERIC | Used for scale factor calculation |
+| `ingredients` | JSONB | Array of `{name, quantity, unit}` dicts — must be JSONB, not JSON string |
 | `allergen_tags` | TEXT[] | Pre-computed at save time, filtered in Python |
 | `off_validated` | BOOLEAN | True = all ingredients matched in OpenFoodFacts |
 | `usage_count` | INTEGER | Drives ordering — most-used recipes surface first |
-| `source` | TEXT | "llm_generated", "user_validated", "expert_curated" |
+| `source` | TEXT | "llm_generated", "manual", "user_validated", "expert_curated" |
+
+### Recipe sources
+
+- **`manual`**: Seeded by `scripts/seed_recipes_manual.py`. Well-balanced macros (300-580 kcal/serving), correct ingredient format. No LLM involved.
+- **`llm_generated`**: Created by `generate_custom_recipe.py` or `seed_recipe_db.py`. OFF-validated at creation. May have higher calorie counts.
 
 ### Allergen filtering strategy
 
@@ -199,12 +229,7 @@ results = [
 
 ### Calorie range for queries
 
-`select_recipes.py` and `generate_day_plan.py` both use a ±40% calorie window around the target:
-```python
-calorie_range = (int(target_calories * 0.6), int(target_calories * 1.4))
-```
-
-This is wide enough to always return candidates, then `scale_portions` brings the actual values to the exact target. The scaling factor is clamped to [0.5, 1.5] — so a ±40% window guarantees the recipe is always scalable.
+`generate_day_plan.py` intentionally omits calorie range filtering. The scale factor (clamped to [0.5, 1.5]) adjusts portions to any target. Filtering by range would exclude valid recipes and cause unnecessary LLM fallback.
 
 ---
 
@@ -245,7 +270,8 @@ plan_data
 │   │   ├── ingredients: [Ingredient]
 │   │   │   ├── name: str
 │   │   │   ├── quantity: float
-│   │   │   └── unit: str
+│   │   │   ├── unit: str
+│   │   │   └── nutrition: {calories, protein_g, carbs_g, fat_g}  ← added by OFF recalc
 │   │   ├── instructions: str
 │   │   ├── prep_time_minutes: int
 │   │   └── nutrition: {calories, protein_g, carbs_g, fat_g}
@@ -257,7 +283,7 @@ plan_data
     └── average_fat_g: float
 ```
 
-`generate_shopping_list` only reads `ingredients[].name`, `.quantity`, `.unit` — enriched keys like `macros_calculated` are transparent to it.
+`generate_shopping_list` only reads `ingredients[].name`, `.quantity`, `.unit` — enriched keys like `nutrition` or `openfoodfacts_code` are transparent to it.
 
 ---
 
@@ -271,6 +297,12 @@ plan_data
 
 ### 7-day loop is sequential by design
 Parallelising would require a different variety-tracking mechanism (e.g., a shared set). Not worth the complexity — each day takes < 2 seconds with a full recipe DB.
+
+### OpenFoodFacts coverage gaps
+Some ingredients (specialty items, brand-specific products) may not match in OpenFoodFacts. When `calculate_meal_plan_macros()` can't match an ingredient, it skips it and logs a warning. The day plan falls back to scaled macro estimates for that meal. The `off_validated` flag on recipes indicates whether all ingredients were matched.
+
+### Recipe DB ordering favours old recipes
+`search_recipes` orders by `usage_count DESC`. New recipes (usage_count=0) appear last. This is intentional — well-tested recipes should surface first — but it can delay adoption of newly seeded recipes. Running the pipeline a few times naturally increases usage counts.
 
 ---
 
@@ -293,10 +325,16 @@ Parallelising would require a different variety-tracking mechanism (e.g., a shar
 4. No changes to `generate_day_plan.py` needed — DB recipes are source-agnostic
 
 ### Modify the scaling bounds
-`MIN_SCALE_FACTOR` and `MAX_SCALE_FACTOR` are in `src/nutrition/meal_plan_optimizer.py`. Changing them affects both the old optimiser and the new portion scaler. Update the calorie range in `select_recipes.py` and `generate_day_plan.py` accordingly: `calorie_range = (target * (1 - MAX_SCALE_FACTOR + 0.1), target * (1 + MAX_SCALE_FACTOR - 0.1))`.
+`MIN_SCALE_FACTOR` and `MAX_SCALE_FACTOR` are in `src/nutrition/meal_plan_optimizer.py`. Changing them affects both the optimiser and the portion scaler.
 
 ### Populate the recipe DB
-Run `seed_recipe_db` via the agent:
+**Manual seeder (preferred — no LLM, fast, reliable):**
+```bash
+PYTHONPATH=. python scripts/seed_recipes_manual.py
+```
+Adds 40 well-balanced recipes (10 per meal type). Ingredients stored as JSONB arrays.
+
+**LLM seeder (more variety, slower, costs API credits):**
 ```python
 run_skill_script("meal-planning", "seed_recipe_db", {
     "recipes_per_type": 30,
@@ -304,6 +342,7 @@ run_skill_script("meal-planning", "seed_recipe_db", {
     "diet_types": ["omnivore"],
 })
 ```
+
 Minimum viable: 10 recipes per meal type (40 total). Below that, most slots fall back to LLM which is slower.
 
 ---
@@ -313,14 +352,16 @@ Minimum viable: 10 recipes per meal type (40 total). Below that, most slots fall
 | File | Role | Modify when... |
 |---|---|---|
 | `skills/meal-planning/SKILL.md` | Agent-readable contract | Parameters change, new scripts added, workflow changes |
-| `skills/meal-planning/scripts/generate_week_plan.py` | 7-day entry point | Adding week-level logic (new summary fields, different DB storage) |
-| `skills/meal-planning/scripts/generate_day_plan.py` | 1-day orchestrator | Changing per-day logic (retry policy, validation thresholds) |
-| `skills/meal-planning/scripts/select_recipes.py` | DB recipe selection | Changing filtering strategy, calorie range, sort order |
+| `skills/meal-planning/scripts/generate_week_plan.py` | N-day entry point | Adding week-level logic (new summary fields, different DB storage) |
+| `skills/meal-planning/scripts/generate_day_plan.py` | 1-day orchestrator | Changing per-day logic (retry policy, validation, macro scoring) |
+| `skills/meal-planning/scripts/select_recipes.py` | DB recipe selection | Changing filtering strategy, sort order |
 | `skills/meal-planning/scripts/scale_portions.py` | Scaling skill wrapper | Only if script interface changes; math is in portion_scaler.py |
 | `skills/meal-planning/scripts/validate_day.py` | Day validation wrapper | Only if script interface changes; logic is in validators.py |
 | `skills/meal-planning/scripts/generate_custom_recipe.py` | LLM recipe generation | Changing prompt, model, OFF matching, allergen check |
-| `skills/meal-planning/scripts/seed_recipe_db.py` | DB population | Changing batch size, cuisine coverage, seed strategy |
+| `skills/meal-planning/scripts/seed_recipe_db.py` | DB population via LLM | Changing batch size, cuisine coverage, seed strategy |
+| `scripts/seed_recipes_manual.py` | DB population manual | Adding new recipes, changing ingredient format |
 | `src/nutrition/portion_scaler.py` | Pure scaling math | Changing scaling algorithm or rounding rules |
+| `src/nutrition/meal_plan_optimizer.py` | OFF recalc + optimization | Changing macro recalculation, fat rebalancing, complements |
 | `src/nutrition/recipe_db.py` | Recipes table CRUD | Adding new query filters, new CRUD operations |
 | `sql/create_recipes_table.sql` | DB schema | Schema changes (add column → also update recipe_db.py) |
 | `references/allergen_families.md` | Allergen mappings | Adding new allergen families or ingredient mappings |

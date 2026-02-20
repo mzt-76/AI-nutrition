@@ -118,7 +118,9 @@ def get_memory_client() -> Memory:
     # Get configuration
     llm_provider = os.getenv("LLM_PROVIDER", "openai")
     llm_api_key = os.getenv("LLM_API_KEY")
-    llm_model = os.getenv("LLM_CHOICE", "gpt-4o-mini")
+    # mem0 always uses OpenAI provider, so use a dedicated model env var
+    # (LLM_CHOICE may be an Anthropic model which doesn't work with OpenAI API)
+    llm_model = os.getenv("MEM0_LLM_CHOICE", "gpt-4o-mini")
 
     embedding_provider = os.getenv("EMBEDDING_PROVIDER", "openai")
     embedding_api_key = os.getenv("EMBEDDING_API_KEY")
@@ -177,7 +179,9 @@ def get_anthropic_client() -> AsyncAnthropic | None:
     api_key = os.getenv("ANTHROPIC_API_KEY")
 
     if not api_key:
-        logger.warning("ANTHROPIC_API_KEY not set — Anthropic client unavailable (LLM recipe fallback disabled)")
+        logger.warning(
+            "ANTHROPIC_API_KEY not set — Anthropic client unavailable (LLM recipe fallback disabled)"
+        )
         return None
 
     logger.info("Initializing Anthropic client for skill-level LLM calls")

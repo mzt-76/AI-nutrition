@@ -256,6 +256,29 @@ class TestMacroCalculationEdgeCases:
         assert macros["carbs_g"] > 0
         assert macros["fat_g"] > 0
 
+    def test_macros_fat_is_pct_of_total_calories(self):
+        """Fat should be 20-25% of TOTAL calories, not remaining."""
+        # User profile: 2964 kcal, 172g protein, muscle_gain (22% fat)
+        macros = calculate_macros(2964, 172, "muscle_gain")
+        fat_kcal = macros["fat_g"] * 9
+        fat_pct = fat_kcal / 2964
+        assert 0.19 <= fat_pct <= 0.26, f"Fat {fat_pct:.1%} outside 20-25% range"
+
+    def test_macros_fat_pct_varies_by_goal(self):
+        """Different goals should produce different fat targets."""
+        muscle = calculate_macros(3000, 150, "muscle_gain")  # 22%
+        loss = calculate_macros(3000, 150, "weight_loss")  # 25%
+        perf = calculate_macros(3000, 150, "performance")  # 20%
+        # weight_loss > muscle_gain > performance
+        assert loss["fat_g"] > muscle["fat_g"] > perf["fat_g"]
+
+    def test_macros_carbs_fat_protein_sum_to_total(self):
+        """Protein + carbs + fat calories should approximately equal total."""
+        macros = calculate_macros(2964, 172, "muscle_gain")
+        total_kcal = 172 * 4 + macros["carbs_g"] * 4 + macros["fat_g"] * 9
+        # Allow ±20 kcal rounding tolerance
+        assert abs(total_kcal - 2964) < 20, f"Sum {total_kcal} != 2964"
+
 
 class TestAllergenValidationEdgeCases:
     """Edge cases for allergen validation."""
