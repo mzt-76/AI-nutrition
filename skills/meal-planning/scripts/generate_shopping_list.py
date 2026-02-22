@@ -147,9 +147,7 @@ async def execute(**kwargs) -> str:
 
         # Step 7: Build response with metadata
         days_included = selected_days if selected_days else list(range(7))
-        days_description = ", ".join(
-            [_DAY_NAMES[d] for d in sorted(days_included)]
-        )
+        days_description = ", ".join([_DAY_NAMES[d] for d in sorted(days_included)])
         total_items = sum(len(items) for items in categorized.values())
 
         response = {

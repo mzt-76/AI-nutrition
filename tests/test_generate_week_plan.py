@@ -21,7 +21,9 @@ def _load_script(script_name: str):
     script_path = (
         project_root / "skills" / "meal-planning" / "scripts" / f"{script_name}.py"
     )
-    spec = importlib.util.spec_from_file_location(f"meal_planning.{script_name}", script_path)
+    spec = importlib.util.spec_from_file_location(
+        f"meal_planning.{script_name}", script_path
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -40,7 +42,9 @@ class TestGetCurrentMonday:
 
         # Must be a valid YYYY-MM-DD string
         dt = datetime.strptime(result, "%Y-%m-%d")
-        assert dt.weekday() == 0, f"Expected Monday (weekday=0), got weekday={dt.weekday()} for {result}"
+        assert (
+            dt.weekday() == 0
+        ), f"Expected Monday (weekday=0), got weekday={dt.weekday()} for {result}"
 
 
 # ---------------------------------------------------------------------------
@@ -95,7 +99,14 @@ class TestComputeWeeklySummary:
 
     def test_seven_days(self):
         """7 identical days → averages equal that day's values."""
-        day = {"daily_totals": {"calories": 2100.0, "protein_g": 150.0, "carbs_g": 250.0, "fat_g": 70.0}}
+        day = {
+            "daily_totals": {
+                "calories": 2100.0,
+                "protein_g": 150.0,
+                "carbs_g": 250.0,
+                "fat_g": 70.0,
+            }
+        }
         result = self.compute([day] * 7)
         assert result["average_calories"] == pytest.approx(2100.0, abs=0.1)
         assert result["average_protein_g"] == pytest.approx(150.0, abs=0.1)
@@ -104,7 +115,14 @@ class TestComputeWeeklySummary:
 
     def test_single_day(self):
         """1 day → average equals that day's values."""
-        day = {"daily_totals": {"calories": 1800.0, "protein_g": 120.0, "carbs_g": 200.0, "fat_g": 60.0}}
+        day = {
+            "daily_totals": {
+                "calories": 1800.0,
+                "protein_g": 120.0,
+                "carbs_g": 200.0,
+                "fat_g": 60.0,
+            }
+        }
         result = self.compute([day])
         assert result["average_calories"] == pytest.approx(1800.0, abs=0.1)
 

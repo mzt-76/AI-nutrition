@@ -91,7 +91,9 @@ def get_model():
     if not api_key:
         raise ValueError("LLM_API_KEY not found in environment variables")
     logger.info(f"Initializing LLM (OpenAI): {model_name} at {base_url}")
-    return OpenAIChatModel(model_name, provider=OpenAIProvider(base_url=base_url, api_key=api_key))
+    return OpenAIChatModel(
+        model_name, provider=OpenAIProvider(base_url=base_url, api_key=api_key)
+    )
 
 
 def _import_skill_script(skill_name: str, script_name: str):

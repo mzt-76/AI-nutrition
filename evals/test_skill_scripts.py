@@ -1,6 +1,6 @@
 """Pydantic-evals test suite for migrated skill script execution logic.
 
-Tests the execute() functions of 5 migrated skill scripts across diverse
+Tests the execute() functions of skill scripts across diverse
 scenarios, validating correctness, error handling, and safety constraints.
 
 Scripts tested:
@@ -9,6 +9,14 @@ Scripts tested:
     - knowledge-searching/web_search.py (mocked HTTP)
     - body-analyzing/image_analysis.py (mocked OpenAI Vision)
     - weekly-coaching/calculate_weekly_adjustments.py (mocked DB)
+    - meal-planning/select_recipes.py (mocked DB)
+    - meal-planning/scale_portions.py (pure math)
+    - meal-planning/validate_day.py (pure validation)
+    - meal-planning/generate_day_plan.py (mocked DB)
+    - meal-planning/generate_custom_recipe.py (mocked LLM + OFF)
+    - meal-planning/fetch_stored_meal_plan.py (mocked DB)
+    - meal-planning/generate_shopping_list.py (mocked DB + domain logic)
+    - meal-planning/generate_week_plan.py (mocked DB + sibling scripts)
 """
 
 import asyncio
@@ -1625,7 +1633,11 @@ if __name__ == "__main__":
             ("Select Recipes", select_recipes_dataset(), _select_recipes_task),
             ("Scale Portions", scale_portions_dataset(), _scale_portions_task),
             ("Validate Day", validate_day_dataset(), _validate_day_task),
+            ("Generate Day Plan", generate_day_plan_dataset(), _generate_day_plan_task),
             ("Generate Custom Recipe", generate_custom_recipe_dataset(), _generate_custom_recipe_task),
+            ("Fetch Stored Meal Plan", fetch_stored_meal_plan_dataset(), _fetch_stored_meal_plan_task),
+            ("Generate Shopping List", generate_shopping_list_dataset(), _generate_shopping_list_task),
+            ("Generate Week Plan", generate_week_plan_dataset(), _generate_week_plan_task),
         ]
 
         total_failures = 0
@@ -1642,3 +1654,391 @@ if __name__ == "__main__":
         print(f"{'=' * 60}")
 
     asyncio.run(run_all_evals())
+
+
+# ---------------------------------------------------------------------------
+# Dataset 11: fetch_stored_meal_plan (3 cases, mocked DB)
+# ---------------------------------------------------------------------------
+
+_FETCH_MEAL_PLAN_SCRIPT = (
+    PROJECT_ROOT / "skills" / "meal-planning" / "scripts" / "fetch_stored_meal_plan.py"
+)
+
+_STORED_MEAL_PLAN_RECORD = {
+    "id": "plan-uuid-test",
+    "week_start": "2026-02-23",
+    "created_at": "2026-02-23T10:00:00Z",
+    "target_calories_daily": 2800,
+    "target_protein_g": 175,
+    "target_carbs_g": 350,
+    "target_fat_g": 80,
+    "plan_data": {
+        "days": [
+            {
+                "day": "Lundi",
+                "date": "2026-02-23",
+                "meals": [{"meal_type": "Déjeuner", "name": "Poulet grillé"}],
+                "daily_totals": {"calories": 2800, "protein_g": 175, "carbs_g": 350, "fat_g": 80},
+            },
+            {
+                "day": "Mardi",
+                "date": "2026-02-24",
+                "meals": [{"meal_type": "Déjeuner", "name": "Saumon rôti"}],
+                "daily_totals": {"calories": 2750, "protein_g": 170, "carbs_g": 340, "fat_g": 82},
+            },
+        ],
+        "weekly_summary": {"average_calories": 2775},
+    },
+}
+
+
+def _mock_supabase_meal_plans(records=None):
+    """Build a mock Supabase client for meal_plans table queries."""
+    mock = MagicMock()
+    table = MagicMock()
+    table.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value = MagicMock(
+        data=records if records is not None else []
+    )
+    mock.table = MagicMock(return_value=table)
+    return mock
+
+
+async def _fetch_stored_meal_plan_task(inputs: dict) -> str:
+    """Task wrapper for fetch_stored_meal_plan.execute()."""
+    module = _load_script(_FETCH_MEAL_PLAN_SCRIPT)
+    mock_records = inputs.get("_mock_records", [])
+    supabase = _mock_supabase_meal_plans(mock_records)
+
+    params = {k: v for k, v in inputs.items() if not k.startswith("_")}
+    return await module.execute(supabase=supabase, **params)
+
+
+def fetch_stored_meal_plan_dataset() -> Dataset:
+    """Dataset: 3 cases for fetch_stored_meal_plan script."""
+    return Dataset(
+        name="fetch_stored_meal_plan",
+        cases=[
+            Case(
+                name="plan_found_all_days",
+                inputs={
+                    "week_start": "2026-02-23",
+                    "_mock_records": [_STORED_MEAL_PLAN_RECORD],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONFieldEquals(key="success", expected="True"),
+                    JSONHasKey(key="days"),
+                    JSONHasKey(key="meal_plan_id"),
+                    JSONHasKey(key="daily_targets"),
+                ),
+            ),
+            Case(
+                name="plan_not_found",
+                inputs={
+                    "week_start": "2099-01-01",
+                    "_mock_records": [],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONErrorCode(code="MEAL_PLAN_NOT_FOUND"),
+                    JSONHasKey(key="error"),
+                ),
+            ),
+            Case(
+                name="invalid_date_format",
+                inputs={
+                    "week_start": "not-a-date",
+                    "_mock_records": [],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONErrorCode(code="VALIDATION_ERROR"),
+                    JSONHasKey(key="error"),
+                ),
+            ),
+        ],
+        evaluators=[MaxDuration(seconds=2.0)],
+    )
+
+
+@pytest.mark.asyncio
+async def test_fetch_stored_meal_plan_eval():
+    """Eval: fetch_stored_meal_plan — DB retrieval with filtering."""
+    dataset = fetch_stored_meal_plan_dataset()
+    report = await dataset.evaluate(task=_fetch_stored_meal_plan_task)
+    report.print()
+    assert len(report.failures) == 0, f"Failures: {[f.name for f in report.failures]}"
+
+
+# ---------------------------------------------------------------------------
+# Dataset 12: generate_shopping_list (3 cases, mocked DB + domain logic)
+# ---------------------------------------------------------------------------
+
+_SHOPPING_LIST_SCRIPT = (
+    PROJECT_ROOT / "skills" / "meal-planning" / "scripts" / "generate_shopping_list.py"
+)
+
+_STORED_PLAN_FOR_SHOPPING = {
+    "id": "plan-uuid-shop",
+    "week_start": "2026-02-23",
+    "plan_data": {
+        "days": [
+            {
+                "day": "Lundi",
+                "meals": [
+                    {
+                        "meal_type": "Déjeuner",
+                        "name": "Poulet riz",
+                        "ingredients": [
+                            {"name": "poulet", "quantity": 200, "unit": "g"},
+                            {"name": "riz basmati", "quantity": 150, "unit": "g"},
+                        ],
+                    }
+                ],
+            },
+            {
+                "day": "Mardi",
+                "meals": [
+                    {
+                        "meal_type": "Déjeuner",
+                        "name": "Poulet pâtes",
+                        "ingredients": [
+                            {"name": "poulet", "quantity": 180, "unit": "g"},
+                            {"name": "pâtes", "quantity": 120, "unit": "g"},
+                        ],
+                    }
+                ],
+            },
+        ],
+    },
+}
+
+
+def _mock_supabase_shopping(records=None):
+    """Build a mock Supabase client for shopping list (meal_plans select)."""
+    mock = MagicMock()
+    table = MagicMock()
+    table.select.return_value.eq.return_value.limit.return_value.execute.return_value = MagicMock(
+        data=records if records is not None else []
+    )
+    mock.table = MagicMock(return_value=table)
+    return mock
+
+
+async def _generate_shopping_list_task(inputs: dict) -> str:
+    """Task wrapper for generate_shopping_list.execute()."""
+    module = _load_script(_SHOPPING_LIST_SCRIPT)
+    mock_records = inputs.get("_mock_records", [])
+    supabase = _mock_supabase_shopping(mock_records)
+
+    params = {k: v for k, v in inputs.items() if not k.startswith("_")}
+    return await module.execute(supabase=supabase, **params)
+
+
+def generate_shopping_list_dataset() -> Dataset:
+    """Dataset: 3 cases for generate_shopping_list script."""
+    return Dataset(
+        name="generate_shopping_list",
+        cases=[
+            Case(
+                name="happy_path_aggregated",
+                inputs={
+                    "week_start": "2026-02-23",
+                    "_mock_records": [_STORED_PLAN_FOR_SHOPPING],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONFieldEquals(key="success", expected="True"),
+                    JSONHasKey(key="shopping_list"),
+                    JSONHasKey(key="metadata"),
+                ),
+            ),
+            Case(
+                name="no_meal_plan_found",
+                inputs={
+                    "week_start": "2099-01-01",
+                    "_mock_records": [],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONErrorCode(code="MEAL_PLAN_NOT_FOUND"),
+                    JSONHasKey(key="error"),
+                ),
+            ),
+            Case(
+                name="invalid_date_format",
+                inputs={
+                    "week_start": "bad-date",
+                    "_mock_records": [],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONErrorCode(code="VALIDATION_ERROR"),
+                ),
+            ),
+        ],
+        evaluators=[MaxDuration(seconds=2.0)],
+    )
+
+
+@pytest.mark.asyncio
+async def test_generate_shopping_list_eval():
+    """Eval: generate_shopping_list — ingredient aggregation and categorization."""
+    dataset = generate_shopping_list_dataset()
+    report = await dataset.evaluate(task=_generate_shopping_list_task)
+    report.print()
+    assert len(report.failures) == 0, f"Failures: {[f.name for f in report.failures]}"
+
+
+# ---------------------------------------------------------------------------
+# Dataset 13: generate_week_plan (3 cases, mocked DB + sibling scripts)
+# ---------------------------------------------------------------------------
+
+_GENERATE_WEEK_PLAN_SCRIPT = (
+    PROJECT_ROOT / "skills" / "meal-planning" / "scripts" / "generate_week_plan.py"
+)
+
+_WEEK_PLAN_PROFILE = {
+    "name": "Test User",
+    "age": 35,
+    "gender": "male",
+    "weight_kg": 87,
+    "height_cm": 178,
+    "activity_level": "moderate",
+    "target_calories": 2800,
+    "target_protein_g": 175,
+    "target_carbs_g": 350,
+    "target_fat_g": 80,
+    "allergies": [],
+    "disliked_foods": [],
+    "diet_type": "omnivore",
+    "max_prep_time": 45,
+    "preferred_cuisines": ["française"],
+}
+
+_WEEK_PLAN_DAY_RESULT = json.dumps({
+    "success": True,
+    "day": {
+        "day": "Lundi",
+        "date": "2026-02-23",
+        "meals": [
+            {
+                "meal_type": "Déjeuner",
+                "name": "Poulet grillé",
+                "ingredients": [{"name": "poulet", "quantity": 200, "unit": "g"}],
+                "nutrition": {"calories": 2800, "protein_g": 175, "carbs_g": 350, "fat_g": 80},
+            }
+        ],
+        "daily_totals": {"calories": 2800.0, "protein_g": 175.0, "carbs_g": 350.0, "fat_g": 80.0},
+    },
+    "recipes_used": ["recipe-uuid-1"],
+})
+
+
+async def _generate_week_plan_task(inputs: dict) -> str:
+    """Task wrapper for generate_week_plan.execute() with fully mocked dependencies."""
+    from unittest.mock import patch, AsyncMock
+
+    module = _load_script(_GENERATE_WEEK_PLAN_SCRIPT)
+
+    mock_profile = inputs.get("_mock_profile", _WEEK_PLAN_PROFILE)
+    mock_day_result = inputs.get("_mock_day_result", _WEEK_PLAN_DAY_RESULT)
+    mock_db_insert = inputs.get("_mock_db_insert", [{"id": "plan-uuid-new"}])
+
+    # Mock supabase for meal_plans insert
+    supabase = MagicMock()
+    table = MagicMock()
+    table.insert.return_value.execute.return_value = MagicMock(data=mock_db_insert)
+    supabase.table = MagicMock(return_value=table)
+
+    anthropic_client = MagicMock()
+
+    # Mock fetch_my_profile_tool to return profile
+    mock_profile_tool = AsyncMock(return_value=json.dumps(mock_profile))
+
+    # Mock the sibling generate_day_plan script
+    mock_day_module = MagicMock()
+    mock_day_module.execute = AsyncMock(return_value=mock_day_result)
+
+    params = {k: v for k, v in inputs.items() if not k.startswith("_")}
+
+    with (
+        patch.object(module, "fetch_my_profile_tool", mock_profile_tool),
+        patch.object(module, "_import_sibling_script", return_value=mock_day_module),
+    ):
+        return await module.execute(
+            supabase=supabase,
+            anthropic_client=anthropic_client,
+            **params,
+        )
+
+
+def generate_week_plan_dataset() -> Dataset:
+    """Dataset: 3 cases for generate_week_plan orchestrator script."""
+    return Dataset(
+        name="generate_week_plan",
+        cases=[
+            Case(
+                name="happy_path_1_day",
+                inputs={
+                    "start_date": "2026-02-23",
+                    "num_days": 1,
+                    "target_calories_daily": 2800,
+                    "target_protein_g": 175,
+                    "target_carbs_g": 350,
+                    "target_fat_g": 80,
+                    "_mock_profile": _WEEK_PLAN_PROFILE,
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONHasKey(key="success"),
+                    JSONHasKey(key="meal_plan_id"),
+                    JSONHasKey(key="markdown_document"),
+                ),
+            ),
+            Case(
+                name="missing_targets_no_profile",
+                inputs={
+                    "start_date": "2026-02-23",
+                    "num_days": 1,
+                    "_mock_profile": {
+                        "name": "Incomplete",
+                        "age": 30,
+                        "gender": "male",
+                    },
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONErrorCode(code="MISSING_TARGETS"),
+                    JSONHasKey(key="error"),
+                ),
+            ),
+            Case(
+                name="invalid_meal_structure",
+                inputs={
+                    "start_date": "2026-02-23",
+                    "num_days": 1,
+                    "meal_structure": "nonexistent_structure",
+                    "target_calories_daily": 2800,
+                    "target_protein_g": 175,
+                    "target_carbs_g": 350,
+                    "target_fat_g": 80,
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONErrorCode(code="VALIDATION_ERROR"),
+                    JSONHasKey(key="error"),
+                ),
+            ),
+        ],
+        evaluators=[MaxDuration(seconds=5.0)],
+    )
+
+
+@pytest.mark.asyncio
+async def test_generate_week_plan_eval():
+    """Eval: generate_week_plan — orchestrator with mocked day generation."""
+    dataset = generate_week_plan_dataset()
+    report = await dataset.evaluate(task=_generate_week_plan_task)
+    report.print()
+    assert len(report.failures) == 0, f"Failures: {[f.name for f in report.failures]}"

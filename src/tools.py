@@ -273,5 +273,3 @@ async def update_my_profile_tool(
     except Exception as e:
         logger.error(f"Error updating profile: {e}", exc_info=True)
         return json.dumps({"error": f"Database error: {str(e)}", "code": "DB_ERROR"})
-
-

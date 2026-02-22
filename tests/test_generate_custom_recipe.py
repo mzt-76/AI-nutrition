@@ -23,7 +23,9 @@ def _load_script(script_name: str):
     script_path = (
         project_root / "skills" / "meal-planning" / "scripts" / f"{script_name}.py"
     )
-    spec = importlib.util.spec_from_file_location(f"meal_planning.{script_name}", script_path)
+    spec = importlib.util.spec_from_file_location(
+        f"meal_planning.{script_name}", script_path
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -85,8 +87,20 @@ class TestGenerateCustomRecipe:
         recipe = _sample_recipe_dict()
         anthropic_client = _make_anthropic_client(recipe)
 
-        with patch.object(module, "match_ingredient", new=AsyncMock(return_value={"calories": 100, "protein_g": 5, "carbs_g": 20, "fat_g": 1})), \
-             patch.object(module, "save_recipe", new=AsyncMock(return_value={"id": "saved-id"})):
+        with patch.object(
+            module,
+            "match_ingredient",
+            new=AsyncMock(
+                return_value={
+                    "calories": 100,
+                    "protein_g": 5,
+                    "carbs_g": 20,
+                    "fat_g": 1,
+                }
+            ),
+        ), patch.object(
+            module, "save_recipe", new=AsyncMock(return_value={"id": "saved-id"})
+        ):
             await module.execute(
                 anthropic_client=anthropic_client,
                 supabase=MagicMock(),
@@ -130,8 +144,9 @@ class TestGenerateCustomRecipe:
         anthropic_client = _make_anthropic_client(recipe)
         mock_save = AsyncMock()
 
-        with patch.object(module, "match_ingredient", new=AsyncMock(return_value=None)), \
-             patch.object(module, "save_recipe", new=mock_save):
+        with patch.object(
+            module, "match_ingredient", new=AsyncMock(return_value=None)
+        ), patch.object(module, "save_recipe", new=mock_save):
             result_str = await module.execute(
                 anthropic_client=anthropic_client,
                 supabase=MagicMock(),
@@ -151,8 +166,11 @@ class TestGenerateCustomRecipe:
         anthropic_client = _make_anthropic_client(recipe)
         macros = {"calories": 200, "protein_g": 10, "carbs_g": 30, "fat_g": 5}
 
-        with patch.object(module, "match_ingredient", new=AsyncMock(return_value=macros)), \
-             patch.object(module, "save_recipe", new=AsyncMock(return_value={"id": "saved-id"})):
+        with patch.object(
+            module, "match_ingredient", new=AsyncMock(return_value=macros)
+        ), patch.object(
+            module, "save_recipe", new=AsyncMock(return_value={"id": "saved-id"})
+        ):
             result_str = await module.execute(
                 anthropic_client=anthropic_client,
                 supabase=MagicMock(),
@@ -175,8 +193,9 @@ class TestGenerateCustomRecipe:
         macros = {"calories": 200, "protein_g": 10, "carbs_g": 30, "fat_g": 5}
         mock_match = AsyncMock(side_effect=[macros, None])
 
-        with patch.object(module, "match_ingredient", new=mock_match), \
-             patch.object(module, "save_recipe", new=AsyncMock(return_value={"id": "saved-id"})):
+        with patch.object(module, "match_ingredient", new=mock_match), patch.object(
+            module, "save_recipe", new=AsyncMock(return_value={"id": "saved-id"})
+        ):
             result_str = await module.execute(
                 anthropic_client=anthropic_client,
                 supabase=MagicMock(),
@@ -197,8 +216,9 @@ class TestGenerateCustomRecipe:
         macros = {"calories": 200, "protein_g": 10, "carbs_g": 30, "fat_g": 5}
         mock_save = AsyncMock(return_value={"id": "db-generated-id"})
 
-        with patch.object(module, "match_ingredient", new=AsyncMock(return_value=macros)), \
-             patch.object(module, "save_recipe", new=mock_save):
+        with patch.object(
+            module, "match_ingredient", new=AsyncMock(return_value=macros)
+        ), patch.object(module, "save_recipe", new=mock_save):
             result_str = await module.execute(
                 anthropic_client=anthropic_client,
                 supabase=MagicMock(),

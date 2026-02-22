@@ -57,8 +57,7 @@ def test_no_llm_imports_in_scripts():
         bad = [m for m in imports if m in FORBIDDEN_MODULES]
         if bad:
             violations.append(
-                f"{script.relative_to(SCRIPTS_DIR.parent)}: "
-                f"forbidden imports {bad}"
+                f"{script.relative_to(SCRIPTS_DIR.parent)}: " f"forbidden imports {bad}"
             )
 
     assert not violations, (
@@ -82,7 +81,6 @@ def test_scripts_have_docstrings():
         except SyntaxError:
             missing.append(f"{script.relative_to(SCRIPTS_DIR.parent)} (syntax error)")
 
-    assert not missing, (
-        "Scripts missing module docstring:\n"
-        + "\n".join(f"  • {m}" for m in missing)
+    assert not missing, "Scripts missing module docstring:\n" + "\n".join(
+        f"  • {m}" for m in missing
     )

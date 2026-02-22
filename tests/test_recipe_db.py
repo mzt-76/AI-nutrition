@@ -31,8 +31,12 @@ def make_supabase_mock(data: list[dict], count: int | None = None):
     mock.table.return_value.select.return_value.eq.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
     mock.table.return_value.select.return_value.eq.return_value.limit.return_value.execute.return_value = execute_result
     mock.table.return_value.insert.return_value.execute.return_value = execute_result
-    mock.table.return_value.update.return_value.eq.return_value.execute.return_value = execute_result
-    mock.table.return_value.select.return_value.eq.return_value.execute.return_value = execute_result
+    mock.table.return_value.update.return_value.eq.return_value.execute.return_value = (
+        execute_result
+    )
+    mock.table.return_value.select.return_value.eq.return_value.execute.return_value = (
+        execute_result
+    )
 
     return mock
 
@@ -133,7 +137,9 @@ async def test_search_recipes_variety():
 @pytest.mark.asyncio
 async def test_search_recipes_no_allergens_returns_all():
     """No allergen filter → all recipes returned (up to limit)."""
-    recipes = [make_recipe(recipe_id=f"uuid-{i}", allergen_tags=["gluten"]) for i in range(5)]
+    recipes = [
+        make_recipe(recipe_id=f"uuid-{i}", allergen_tags=["gluten"]) for i in range(5)
+    ]
     mock = make_supabase_mock(data=recipes)
 
     results = await search_recipes(mock, "dejeuner", exclude_allergens=None)
@@ -150,9 +156,7 @@ async def test_search_recipes_cuisine_preference_ordering():
     ]
     mock = make_supabase_mock(data=recipes)
 
-    results = await search_recipes(
-        mock, "dejeuner", cuisine_types=["asiatique"]
-    )
+    results = await search_recipes(mock, "dejeuner", cuisine_types=["asiatique"])
 
     # Asiatique recipes should come first
     assert results[0]["cuisine_type"] == "asiatique"
@@ -239,7 +243,9 @@ async def test_save_recipe_normalizes_name():
     }
     mock = MagicMock()
     execute_result = MagicMock()
-    execute_result.data = [{"id": "uuid", **recipe, "name_normalized": "omelette proteinee"}]
+    execute_result.data = [
+        {"id": "uuid", **recipe, "name_normalized": "omelette proteinee"}
+    ]
     mock.table.return_value.insert.return_value.execute.return_value = execute_result
 
     await save_recipe(mock, recipe)

@@ -67,3 +67,13 @@ tmp/
 
 # Streamlit
 .streamlit/
+
+# Large data files (OpenFoodFacts dumps)
+src/nutrition/openfood/*.gz
+src/nutrition/openfood/*.jsonl
+src/nutrition/openfood/*.jsonl.gz
+
+# Course reference projects (not part of this repo)
+custom-agent-with-skills/
+ai-agent-mastery/
+prototype/loveable_interface/
