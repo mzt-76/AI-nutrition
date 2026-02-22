@@ -32,6 +32,9 @@ ENV/
 .env.*.local
 .env.root.backup
 
+# MCP config (contains project-specific URLs)
+.mcp.json
+
 # IDE
 .vscode/
 .idea/
