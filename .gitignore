@@ -32,8 +32,10 @@ ENV/
 .env.*.local
 .env.root.backup
 
-# MCP config (contains project-specific URLs)
+# MCP config (contains project-specific URLs and tokens)
 .mcp.json
+.claude/.mcp.json
+.claude/settings.local.json
 
 # IDE
 .vscode/
