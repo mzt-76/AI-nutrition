@@ -339,7 +339,7 @@ async def main():
                     memories_str = load_memories(memory, user_input)
 
                 # Create deps
-                deps = create_agent_deps(memories=memories_str)
+                deps = create_agent_deps(memories=memories_str, user_id=None)
 
                 # Stream the interaction
                 console.print()

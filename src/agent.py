@@ -143,6 +143,7 @@ class AgentDeps:
     memories: str
     skill_loader: SkillLoader | None = None
     anthropic_client: any = None  # AsyncAnthropic (skills)
+    user_id: str | None = None
 
 
 # =============================================================================
@@ -210,18 +211,18 @@ async def run_skill_script(
     ctx: RunContext[AgentDeps],
     skill_name: str,
     script_name: str,
-    params: dict = None,
+    parameters: dict[str, str | int | float | bool | None] | None = None,
 ) -> str:
     """Execute a script from a skill's scripts/ folder.
 
     Use this after load_skill() — SKILL.md tells you which script to run
-    and what params to pass. All shared clients are injected automatically.
+    and what parameters to pass. All shared clients are injected automatically.
 
     Args:
         ctx: Run context
         skill_name: Skill directory name (e.g., "meal-planning", "nutrition-calculating")
         script_name: Script filename without .py (e.g., "generate_week_plan")
-        params: Business parameters for the script (dates, targets, etc.)
+        parameters: Business parameters for the script (dates, targets, etc.)
             See the skill's SKILL.md for the full parameter list per script.
 
     Examples:
@@ -249,9 +250,10 @@ async def run_skill_script(
         "brave_api_key": ctx.deps.brave_api_key,
         "searxng_base_url": ctx.deps.searxng_base_url,
         "anthropic_client": ctx.deps.anthropic_client,
+        "user_id": ctx.deps.user_id,
     }
-    if params:
-        all_params.update(params)
+    if parameters:
+        all_params.update(parameters)
 
     return await module.execute(**all_params)
 
@@ -262,7 +264,7 @@ async def run_skill_script(
 async def fetch_my_profile(ctx: RunContext[AgentDeps]) -> str:
     """Retrieve user profile from database."""
     logger.info("Tool called: fetch_my_profile")
-    return await fetch_my_profile_tool(ctx.deps.supabase)
+    return await fetch_my_profile_tool(ctx.deps.supabase, user_id=ctx.deps.user_id)
 
 
 async def update_my_profile(
@@ -300,6 +302,7 @@ async def update_my_profile(
     logger.info("Tool called: update_my_profile")
     return await update_my_profile_tool(
         ctx.deps.supabase,
+        user_id=ctx.deps.user_id,
         age=age,
         gender=gender,
         weight_kg=weight_kg,
@@ -377,7 +380,7 @@ def add_dynamic_context(ctx: RunContext[AgentDeps]) -> str:
     return "".join(sections)
 
 
-def create_agent_deps(memories: str = "") -> AgentDeps:
+def create_agent_deps(memories: str = "", user_id: str | None = None) -> AgentDeps:
     """
     Create agent dependencies with all initialized clients.
 
@@ -408,6 +411,7 @@ def create_agent_deps(memories: str = "") -> AgentDeps:
         memories=memories,
         skill_loader=skill_loader,
         anthropic_client=get_anthropic_client(),
+        user_id=user_id,
     )
 
 

@@ -26,23 +26,37 @@ from supabase import Client
 logger = logging.getLogger(__name__)
 
 
-async def fetch_my_profile_tool(supabase: Client) -> str:
+async def fetch_my_profile_tool(supabase: Client, user_id: str | None = None) -> str:
     """
-    Fetch user profile from Supabase my_profile table.
+    Fetch user profile from Supabase.
+
+    When user_id is provided, queries user_profiles (multi-user API mode).
+    When None, queries my_profile (single-user CLI mode, backward compat).
 
     Args:
         supabase: Supabase client
+        user_id: Optional user ID for multi-user mode
 
     Returns:
         JSON string with profile data or error
 
     Example:
         >>> profile = await fetch_my_profile_tool(supabase_client)
+        >>> profile = await fetch_my_profile_tool(supabase_client, user_id="abc-123")
     """
     try:
-        logger.info("Fetching user profile from database")
-
-        response = supabase.table("my_profile").select("*").limit(1).execute()
+        if user_id:
+            logger.info(f"Fetching user profile for user_id={user_id}")
+            response = (
+                supabase.table("user_profiles")
+                .select("*")
+                .eq("id", user_id)
+                .limit(1)
+                .execute()
+            )
+        else:
+            logger.info("Fetching user profile from my_profile (CLI mode)")
+            response = supabase.table("my_profile").select("*").limit(1).execute()
 
         if response.data:
             profile = response.data[0]
@@ -76,7 +90,8 @@ async def fetch_my_profile_tool(supabase: Client) -> str:
                     }
                 )
 
-            logger.info(f"Profile loaded: {profile.get('name', 'Unknown')}")
+            display_name = profile.get("name") or profile.get("full_name") or "Unknown"
+            logger.info(f"Profile loaded: {display_name}")
             return json.dumps(profile, indent=2)
         else:
             logger.warning("No profile found in database")
@@ -91,6 +106,7 @@ async def fetch_my_profile_tool(supabase: Client) -> str:
 
 async def update_my_profile_tool(
     supabase: Client,
+    user_id: str | None = None,
     age: int = None,
     gender: str = None,
     weight_kg: float = None,
@@ -105,13 +121,17 @@ async def update_my_profile_tool(
     preferred_cuisines: list[str] = None,
 ) -> str:
     """
-    Update user profile in Supabase my_profile table.
+    Update user profile in Supabase.
+
+    When user_id is provided, updates user_profiles (multi-user API mode).
+    When None, updates my_profile (single-user CLI mode, backward compat).
 
     Only updates fields that are provided (not None).
     Automatically updates the updated_at timestamp.
 
     Args:
         supabase: Supabase client
+        user_id: Optional user ID for multi-user mode
         age: User age in years (18-100)
         gender: "male" or "female"
         weight_kg: Weight in kilograms
@@ -239,23 +259,34 @@ async def update_my_profile_tool(
         # Always update the timestamp
         update_data["updated_at"] = "now()"
 
-        # Check if profile exists
-        check_response = supabase.table("my_profile").select("id").limit(1).execute()
+        # Select table based on user_id
+        table_name = "user_profiles" if user_id else "my_profile"
 
-        if check_response.data:
-            # Update existing profile
-            profile_id = check_response.data[0]["id"]
+        if user_id:
+            # Multi-user mode: update by user_id
             response = (
-                supabase.table("my_profile")
+                supabase.table(table_name)
                 .update(update_data)
-                .eq("id", profile_id)
+                .eq("id", user_id)
                 .execute()
             )
-            logger.info(f"Profile updated: {len(update_data)} fields")
+            logger.info(f"Profile updated ({table_name}): {len(update_data)} fields")
         else:
-            # Create new profile
-            response = supabase.table("my_profile").insert(update_data).execute()
-            logger.info("New profile created")
+            # CLI mode: check if profile exists in my_profile
+            check_response = supabase.table(table_name).select("id").limit(1).execute()
+
+            if check_response.data:
+                profile_id = check_response.data[0]["id"]
+                response = (
+                    supabase.table(table_name)
+                    .update(update_data)
+                    .eq("id", profile_id)
+                    .execute()
+                )
+                logger.info(f"Profile updated: {len(update_data)} fields")
+            else:
+                response = supabase.table(table_name).insert(update_data).execute()
+                logger.info("New profile created")
 
         if response.data:
             return json.dumps(

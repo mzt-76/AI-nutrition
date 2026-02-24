@@ -50,6 +50,7 @@ async def execute(**kwargs) -> str:
         JSON string with analysis, adjustments, red flags, and confidence.
     """
     supabase = kwargs["supabase"]
+    user_id = kwargs.get("user_id")
     # embedding_client accepted for future use (e.g., RAG-based coaching)
     kwargs.get("embedding_client")
     weight_start_kg = kwargs["weight_start_kg"]
@@ -86,7 +87,18 @@ async def execute(**kwargs) -> str:
         )
 
         # Step 2: Fetch current profile
-        profile_response = supabase.table("my_profile").select("*").limit(1).execute()
+        if user_id:
+            profile_response = (
+                supabase.table("user_profiles")
+                .select("*")
+                .eq("id", user_id)
+                .limit(1)
+                .execute()
+            )
+        else:
+            profile_response = (
+                supabase.table("my_profile").select("*").limit(1).execute()
+            )
         if not profile_response.data:
             return json.dumps(
                 {"error": "No user profile found", "code": "PROFILE_NOT_FOUND"}

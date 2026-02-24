@@ -13,7 +13,9 @@ pip install -r requirements.txt
 cp .env.example .env  # Edit with API keys
 
 # Run
-python -m src.cli                    # CLI chat interface
+python -m src                        # CLI chat interface
+python -m src api                    # FastAPI server (port 8001)
+uvicorn src.api:app --port 8001 --reload  # FastAPI server (alternative)
 streamlit run src/streamlit_ui.py    # Streamlit UI
 
 # Test & Lint
@@ -24,14 +26,21 @@ ruff format src/ tests/ && ruff check src/ tests/ && mypy src/  # Format, lint, 
 
 ---
 
-## Frontend
+## Frontend (React Prototype)
 
 ```bash
-# Setup & Run
+# Setup
 cd prototype/loveable_interface
 npm install
-npm run dev  # http://localhost:5173
+cp .env.example .env  # Set VITE_API_URL and VITE_USER_ID
+
+# Run (requires backend running in another terminal)
+npm run dev  # http://localhost:8080
 
 # Lint & Type Check
 npm run lint && npx tsc --noEmit
 ```
+
+**Env vars:**
+- `VITE_API_URL` — FastAPI backend URL (default: `http://localhost:8001`)
+- `VITE_USER_ID` — Supabase `user_profiles.id` (temporary until auth is wired)

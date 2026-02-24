@@ -156,6 +156,7 @@ async def execute(**kwargs) -> str:
     """
     supabase = kwargs["supabase"]
     anthropic_client = kwargs["anthropic_client"]
+    user_id = kwargs.get("user_id")
     start_date = kwargs.get("start_date") or _get_current_monday()
     target_calories_daily = kwargs.get("target_calories_daily")
     target_protein_g = kwargs.get("target_protein_g")
@@ -187,7 +188,7 @@ async def execute(**kwargs) -> str:
             )
 
         # Step 3: Fetch user profile
-        profile_result = await fetch_my_profile_tool(supabase)
+        profile_result = await fetch_my_profile_tool(supabase, user_id=user_id)
         profile_data = json.loads(profile_result)
 
         if "error" in profile_data:

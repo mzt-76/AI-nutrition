@@ -42,15 +42,18 @@
 
 ## 3. Architecture
 
-**Structure:** `src/` (agent, tools, nutrition/, RAG_Pipeline/) | `skills/` | `evals/` | `tests/` | `sql/`
+**Structure:** `src/` (agent, tools, api, db_utils, nutrition/, RAG_Pipeline/) | `skills/` | `evals/` | `tests/` | `sql/`
 **Imports:** Always use `src.` prefix (e.g., `from src.agent import agent`)
 
 **Key patterns:**
 - Agent calls `load_skill(name)` → reads SKILL.md → calls `run_skill_script(skill, script, params)`
-- `run_skill_script` injects all shared clients (supabase, anthropic, etc.) automatically
+- `run_skill_script` injects all shared clients (supabase, anthropic, etc.) + `user_id` automatically
 - Skill scripts: `async def execute(**kwargs) -> str` — take what they need via `kwargs.get()`
 - Each skill dir: `SKILL.md` (metadata + script interface docs) + `scripts/` + `references/`
 - Adding a new skill = only touch files inside `skills/<name>/`
+- **Multi-user**: `AgentDeps.user_id` set → profile tools query `user_profiles`; `None` → `my_profile` (CLI fallback)
+
+**Interfaces:** CLI (`src/cli.py`) | Streamlit (`src/streamlit_ui.py`) | **FastAPI** (`src/api.py`)
 
 **Skills:** `nutrition-calculating` | `meal-planning` | `weekly-coaching` | `knowledge-searching` | `body-analyzing` | `skill-creator`
 

@@ -1,8 +1,8 @@
 # Product Requirements Document: AI Nutrition Assistant
 
-**Version:** 2.0
-**Date:** February 17, 2026
-**Status:** Active Development - Skills Architecture + Eval-Driven Refactoring
+**Version:** 2.1
+**Date:** February 24, 2026
+**Status:** Active Development - FastAPI Backend API + Multi-User Support
 **Author:** AI-Nutrition Team
 
 ---
@@ -702,7 +702,7 @@ python-dotenv
 | **State Management** | React Query | Latest | Server state |
 | **Routing** | React Router | Latest | Client-side routing |
 
-**Current Status:** Lovable interface prototype exists (`prototype/loveable_interface/`) but not yet integrated with Python backend.
+**Current Status:** Lovable interface prototype connected to FastAPI backend via NDJSON streaming (`useChat.ts` → `POST /api/agent`). Tested end-to-end: tokens stream progressively, session management works. `user_id` hardcoded in `.env` until Supabase Auth is wired.
 
 ### Database Schema (Supabase)
 
@@ -941,42 +941,58 @@ ALLERGEN_ZERO_TOLERANCE = True
 
 ---
 
-## 10. API Specification (Module 5+)
+## 10. API Specification (Module 5)
 
-### REST API (Python Backend)
+### REST API (Python FastAPI Backend)
 
-**Base URL:** `https://api.ai-nutrition.com/v1`
+**Base URL:** `http://localhost:8001` (dev) — production URL TBD
+**Entry point:** `src/api.py` — run with `python -m src api` or `uvicorn src.api:app --port 8001`
 
-**Authentication:** Bearer token (JWT)
+**Authentication:** Not yet wired — `user_id` comes from request body (trusted). `verify_token()` stub exists for future Supabase Auth JWT integration.
 
-#### `POST /chat`
-Send message to the agent.
+#### `GET /health`
+Service health check.
 
-**Headers:**
+**Response:**
+```json
+{"status": "healthy", "service": "ai-nutrition-api"}
 ```
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
-```
+
+#### `POST /api/agent`
+Main streaming agent endpoint. Returns NDJSON chunks.
 
 **Request:**
 ```json
 {
-  "message": "Propose-moi un plan pour cette semaine",
-  "sessionId": "550e8400-e29b-41d4-a716-446655440000"
+  "query": "Propose-moi un plan pour cette semaine",
+  "user_id": "5745fc58-9c75-48b1-bc79-12855a8c6021",
+  "request_id": "unique-uuid-per-request",
+  "session_id": "",
+  "files": null
 }
 ```
+- `session_id`: empty string for new conversation (auto-generated), or existing session ID to continue
+- `files`: optional list of `{file_name, content, mime_type}` for attachments
+
+**Response (NDJSON stream):**
+```
+{"text": "Bonjour"}
+{"text": "Bonjour! Comment"}
+{"text": "Bonjour! Comment puis-je vous aider?"}
+{"text": "Bonjour! Comment puis-je vous aider?", "session_id": "user~abc123", "conversation_title": "Greeting and Introduction", "complete": true}
+```
+- Each line is a JSON object with accumulated `text`
+- Final chunk includes `session_id`, optional `conversation_title`, and `complete: true`
+- On error: `{"text": "error message", "error": "...", "complete": true}`
+
+#### `GET /api/conversations?user_id=<uuid>`
+List conversations for a user (most recent first, limit 50).
 
 **Response:**
 ```json
-{
-  "message": {
-    "id": "msg_abc123",
-    "role": "assistant",
-    "content": "Voici ton plan nutritionnel pour cette semaine...",
-    "timestamp": "2024-12-14T18:30:00Z"
-  },
-  "sessionId": "550e8400-e29b-41d4-a716-446655440000"
-}
+[
+  {"session_id": "user~abc123", "title": "Nutrition Calculation", "created_at": "..."}
+]
 ```
 
 #### `POST /upload/body-image`
@@ -1287,12 +1303,13 @@ The Module 4 migration is successful when:
 ### Post-MVP Enhancements (Module 5+)
 
 **Frontend Integration:**
-- Connect Python backend to Lovable React interface
+- ~~Connect Python backend to Lovable React interface~~ **DONE** (NDJSON streaming)
 - Real-time chat with WebSockets (Socket.io)
 - User authentication (Supabase Auth)
 - Profile management UI (edit goals, allergies, preferences)
 - Weekly check-in form (structured input)
 - Progress visualization (weight charts, adherence trends)
+- Load conversation history from DB (currently localStorage only)
 
 **Meal Planning & Recipes:**
 - 7-day meal plan generation tool (Python)
@@ -1300,6 +1317,7 @@ The Module 4 migration is successful when:
 - Shopping list generation from meal plans
 - Recipe rating and feedback system
 - Meal timing optimization (pre/post workout)
+- **Batch cooking vs varied meals** — Agent should ask user if they want identical meals across days (batch cooking for convenience) or different recipes each day. Currently the planner selects the same recipes for every day by default, which is not ideal for users who want variety.
 
 **Advanced Analytics:**
 - Body composition tracking over time (photo comparison)
@@ -1499,15 +1517,19 @@ AI-nutrition/
 
 ## Next Steps (February 2026)
 
-1. **Weekplan total refactoring** — Redesign meal plan generation workflow end-to-end (generation, optimization, formatting, storage, retrieval)
-2. **Skill redesign based on eval results** — Analyze eval coverage gaps, optimize scripts where evals reveal issues, add missing edge case coverage
-3. **Context optimization** — Reduce token usage in agent system prompts and skill metadata; evaluate progressive disclosure efficiency
-4. **OpenFoodFacts integration** — Complete migration from FatSecret to Open Food Facts for ingredient data
-5. **Frontend integration** — Connect Lovable React prototype to Python backend API
+1. ~~**Weekplan total refactoring**~~ **DONE** — Recipe DB + day-by-day generation + LLM fallback
+2. ~~**Context optimization**~~ **DONE** — Progressive disclosure lean (~1400 tokens prompt, ~200 tokens metadata)
+3. ~~**OpenFoodFacts integration**~~ **DONE** — 275K products imported, 543 cached ingredient mappings
+4. ~~**Frontend integration**~~ **DONE** — React prototype connected to FastAPI backend via NDJSON streaming
+5. **Batch cooking / recipe variety** — Agent should ask user preference before generating meal plans (same recipes = batch cooking convenience vs different recipes = variety). Currently repeats the same recipes across days.
+6. **Profile target caching** — Auto-calculate BMR/TDEE/targets on first profile fetch, cache in `user_profiles` row
+7. **User authentication** — Wire `verify_token()` with Supabase Auth JWT, replace hardcoded `VITE_USER_ID`
+8. **Full multi-user DB migration** — Add `user_id` FK + RLS to `meal_plans`, `weekly_feedback`, `user_learning_profile`
+9. **Load conversation history from DB** — Add `GET /api/conversations/{session_id}/messages` endpoint, replace localStorage
 
 ---
 
-**Document Version:** 2.0
-**Last Updated:** February 17, 2026
-**Next Review:** After weekplan refactoring completion
-**Status:** Active - Skills Architecture Established, Eval-Driven Refactoring Phase
+**Document Version:** 2.1
+**Last Updated:** February 24, 2026
+**Next Review:** After batch cooking feature + auth implementation
+**Status:** Active - Frontend Integration Complete, Batch Cooking & Auth Next

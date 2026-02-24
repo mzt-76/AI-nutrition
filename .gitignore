@@ -82,3 +82,7 @@ src/nutrition/openfood/*.jsonl.gz
 custom-agent-with-skills/
 ai-agent-mastery/
 prototype/loveable_interface/
+fastapi-starter-for-ai-coding/
+
+# Agent plans (internal)
+.agents/

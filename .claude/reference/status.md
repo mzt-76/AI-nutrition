@@ -19,12 +19,36 @@
 - Context optimization — progressive disclosure lean (prompt ~1400 tokens, metadata ~200 tokens); `skill-creator` SKILL.md bloated but non-blocking
 - OpenFoodFacts migration **COMPLETE**: 275K products imported, columns renamed, 543 cached ingredient mappings (374 high confidence, 169 medium, 0 low)
 - Test suite: **350 unit tests passing, 0 failures** (`pytest tests/ evals/ -m "not integration"`)
+- Project shared with AI Agent Mastery community (Module 4 exercise) — repo public on GitHub
+- **FastAPI backend API** (Module 5): `src/api.py` with streaming NDJSON endpoint, conversation management, rate limiting
+- Multi-user support: `user_id` added to `AgentDeps`, profile tools query `user_profiles` (API) or `my_profile` (CLI)
+- Multi-user DB tables applied with RLS: `user_profiles`, `conversations`, `messages`, `requests`
+- New files: `src/db_utils.py`, `src/api.py`, `tests/test_db_utils.py`, `tests/test_api.py`
+- API entry point: `python -m src api` or `uvicorn src.api:app --port 8001`
+- Test suite: **375 tests passing** (358 existing + 17 new API/db_utils tests)
+- API architecture docs: `docs/api-architecture-explained.md`
 
-**Database State (verified 2026-02-22):**
+**Database State (verified 2026-02-24):**
 - `recipes`: 121 rows (seeded)
 - `ingredient_mapping`: 543 rows (openfoodfacts_* columns, auto-growing cache)
 - `openfoodfacts_products`: 275,000 rows (French products with nutrition data)
+- `user_profiles`: 1 row (dev user with nutrition data populated)
+- `conversations`: active (FK to user_profiles)
+- `messages`: active (FK to conversations)
+- `requests`: active (rate limiting)
+
+- **React prototype connected to FastAPI backend** (NDJSON streaming): replaced n8n webhook with `streamAgentResponse()` in `useChat.ts`, tokens stream progressively in browser
+- Frontend files changed: `src/lib/api.ts` (new), `src/hooks/useChat.ts`, `src/types/chat.types.ts`, `src/utils/sessionManager.ts`, `.env.example`
+- Bug fix: `run_skill_script` param renamed `params` → `parameters` with precise type `dict[str, str | int | float | bool | None] | None` — GPT-4o-mini was generating `parameters` instead of `params`, causing Pydantic validation error
+- Quick E2E test via browser: nutrition calculation, meal plan generation (1-day) — streaming works, session reuse works
+- **Observed issue**: meal planner repeats the same recipes across different days (e.g. Monday and Tuesday identical). Need batch cooking vs variety preference.
+
+**Current Phase:**
+- **Module 5** of AI Agent Mastery course — FastAPI backend API + React frontend integration done, auth not yet wired
 
 **Next Tasks (Priority Order):**
-1. **Frontend integration** — connect Loveable React prototype to Python backend API
-2. **End-to-end validation** — generate a real 7-day meal plan via the agent to verify full pipeline
+1. **Batch cooking / recipe variety** — agent should ask user if they want batch cooking (same meals for convenience) or varied recipes each day; currently repeats same recipes by default
+2. **Profile target caching** — when `user_profiles` has empty BMR/TDEE/target columns, auto-calculate on first fetch, update the row, and reuse cached values on subsequent requests
+3. **User authentication** — wire `verify_token()` with Supabase Auth JWT, add `Depends(verify_token)` to endpoints, replace hardcoded `VITE_USER_ID`
+4. **Full multi-user DB migration** — add `user_id` FK + RLS to `meal_plans`, `weekly_feedback`, `user_learning_profile` tables
+5. **Load conversation history from DB** — add `GET /api/conversations/{session_id}/messages` endpoint, replace localStorage persistence
