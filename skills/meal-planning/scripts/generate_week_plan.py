@@ -308,6 +308,8 @@ async def execute(**kwargs) -> str:
             "target_fat_g": fat,
             "notes": notes,
         }
+        if user_id:
+            meal_plan_record["user_id"] = user_id
 
         db_response = supabase.table("meal_plans").insert(meal_plan_record).execute()
 

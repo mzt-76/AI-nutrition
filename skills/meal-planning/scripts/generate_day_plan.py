@@ -215,7 +215,7 @@ async def _get_recipe_for_slot(
     target_protein_g = meal_slot.get("target_protein_g", 40)
     user_allergens = user_profile.get("allergies", [])
     disliked_foods = user_profile.get("disliked_foods", [])
-    diet_type = user_profile.get("diet_type", "omnivore")
+    diet_type = user_profile.get("diet_type") or "omnivore"
     preferred_cuisines = user_profile.get("preferred_cuisines")
     max_prep_time = user_profile.get("max_prep_time")
 

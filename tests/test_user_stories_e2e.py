@@ -41,7 +41,7 @@ def _make_supabase_mock(profile: dict | None = None) -> MagicMock:
     """Build a Supabase mock that returns JSON-serializable data.
 
     Wires the call chains used by fetch_my_profile_tool and update_my_profile_tool:
-      - .table().select().limit().execute()
+      - .table().select().eq().limit().execute()
       - .table().update().eq().execute()
       - .table().insert().execute()
     """
@@ -50,13 +50,17 @@ def _make_supabase_mock(profile: dict | None = None) -> MagicMock:
     result.data = [profile] if profile else []
 
     chain = mock.table.return_value
-    chain.select.return_value.limit.return_value.execute.return_value = result
+    chain.select.return_value.eq.return_value.limit.return_value.execute.return_value = result
     chain.update.return_value.eq.return_value.execute.return_value = result
     chain.insert.return_value.execute.return_value = result
     return mock
 
 
-def _make_deps(profile: dict | None = None, memories: str = "") -> AgentDeps:
+def _make_deps(
+    profile: dict | None = None,
+    memories: str = "",
+    user_id: str = "test-user-123",
+) -> AgentDeps:
     """Create mock AgentDeps with a properly-wired Supabase stub."""
     deps = MagicMock(spec=AgentDeps)
     deps.supabase = _make_supabase_mock(profile=profile)
@@ -67,6 +71,7 @@ def _make_deps(profile: dict | None = None, memories: str = "") -> AgentDeps:
     deps.searxng_base_url = None
     deps.memories = memories
     deps.skill_loader = None
+    deps.user_id = user_id
     return deps
 
 

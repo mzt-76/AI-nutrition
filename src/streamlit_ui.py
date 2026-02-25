@@ -225,7 +225,9 @@ if prompt := st.chat_input("Pose ta question nutritionnelle..."):
                         f"- {entry['memory']}" for entry in relevant_memories["results"]
                     )
 
-                agent_deps = create_agent_deps(memories=memories_str, user_id=None)
+                agent_deps = create_agent_deps(
+                    memories=memories_str, user_id=st.session_state.user_id
+                )
 
                 async def get_response():
                     result = await agent.run(prompt, deps=agent_deps)

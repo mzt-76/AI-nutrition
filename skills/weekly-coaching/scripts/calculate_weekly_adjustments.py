@@ -87,18 +87,15 @@ async def execute(**kwargs) -> str:
         )
 
         # Step 2: Fetch current profile
-        if user_id:
-            profile_response = (
-                supabase.table("user_profiles")
-                .select("*")
-                .eq("id", user_id)
-                .limit(1)
-                .execute()
-            )
-        else:
-            profile_response = (
-                supabase.table("my_profile").select("*").limit(1).execute()
-            )
+        if not user_id:
+            return json.dumps({"error": "No user_id provided", "code": "NO_USER_ID"})
+        profile_response = (
+            supabase.table("user_profiles")
+            .select("*")
+            .eq("id", user_id)
+            .limit(1)
+            .execute()
+        )
         if not profile_response.data:
             return json.dumps(
                 {"error": "No user profile found", "code": "PROFILE_NOT_FOUND"}
@@ -108,20 +105,20 @@ async def execute(**kwargs) -> str:
         current_protein_g = profile.get("current_protein_g", 150)
 
         # Step 3: Fetch historical data (past 4 weeks)
+        feedback_query = supabase.table("weekly_feedback").select("*")
+        if user_id:
+            feedback_query = feedback_query.eq("user_id", user_id)
         history_response = (
-            supabase.table("weekly_feedback")
-            .select("*")
-            .order("week_start_date", desc=True)
-            .limit(4)
-            .execute()
+            feedback_query.order("week_start_date", desc=True).limit(4).execute()
         )
         past_weeks = history_response.data if history_response.data else []
         logger.info(f"Retrieved {len(past_weeks)} weeks of historical feedback")
 
         # Step 4: Load learning profile
-        learning_response = (
-            supabase.table("user_learning_profile").select("*").limit(1).execute()
-        )
+        learning_query = supabase.table("user_learning_profile").select("*")
+        if user_id:
+            learning_query = learning_query.eq("user_id", user_id)
+        learning_response = learning_query.limit(1).execute()
         learning_profile = learning_response.data[0] if learning_response.data else {}
         logger.info(
             f"Learning profile loaded: {learning_profile.get('weeks_of_data', 0)} weeks of data"
@@ -254,6 +251,8 @@ async def execute(**kwargs) -> str:
             "agent_confidence_percent": int(final_confidence * 100),
             "red_flags": {f["flag_type"]: f["severity"] for f in red_flags},
         }
+        if user_id:
+            storage_data["user_id"] = user_id
 
         supabase.table("weekly_feedback").insert(storage_data).execute()
         logger.info("Weekly feedback stored in database")
@@ -277,14 +276,15 @@ async def execute(**kwargs) -> str:
         else:
             LEARNING_PROFILE_UUID = "550e8400-e29b-41d4-a716-446655440000"
             try:
-                supabase.table("user_learning_profile").upsert(
-                    {
-                        "id": LEARNING_PROFILE_UUID,
-                        "weeks_of_data": 1,
-                        "confidence_level": 0.3,
-                        "updated_at": datetime.now().isoformat(),
-                    }
-                ).execute()
+                upsert_data: dict = {
+                    "id": LEARNING_PROFILE_UUID,
+                    "weeks_of_data": 1,
+                    "confidence_level": 0.3,
+                    "updated_at": datetime.now().isoformat(),
+                }
+                if user_id:
+                    upsert_data["user_id"] = user_id
+                supabase.table("user_learning_profile").upsert(upsert_data).execute()
                 logger.info("New learning profile created")
             except Exception as e:
                 logger.warning(f"Could not create learning profile: {e}")

@@ -36,6 +36,7 @@ async def execute(**kwargs) -> str:
         }
     """
     supabase = kwargs["supabase"]
+    user_id = kwargs.get("user_id", "")
     week_start = kwargs["week_start"]
     selected_days = kwargs.get("selected_days")
 
@@ -73,14 +74,10 @@ async def execute(**kwargs) -> str:
                 )
 
         # Step 3: Fetch most recent plan for the given week
-        meal_plan_response = (
-            supabase.table("meal_plans")
-            .select("*")
-            .eq("week_start", week_start)
-            .order("created_at", desc=True)
-            .limit(1)
-            .execute()
-        )
+        query = supabase.table("meal_plans").select("*").eq("week_start", week_start)
+        if user_id:
+            query = query.eq("user_id", user_id)
+        meal_plan_response = query.order("created_at", desc=True).limit(1).execute()
 
         if not meal_plan_response.data:
             return json.dumps(

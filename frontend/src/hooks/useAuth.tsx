@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     setAuthData();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           if (profileError) throw profileError;
 
           // Only update if full_name is not set
-          if (!profile.full_name && user.user_metadata.full_name) {
+          if (profile && !profile.full_name && user.user_metadata.full_name) {
             const { error: updateError } = await supabase
               .from('user_profiles')
               .update({ 

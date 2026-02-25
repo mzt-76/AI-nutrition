@@ -312,19 +312,28 @@ def _mock_supabase_tables(profile_data=None, history_data=None, learning_data=No
 
     def _make_table(name: str) -> MagicMock:
         t = MagicMock()
-        if name == "my_profile":
-            t.select.return_value.limit.return_value.execute.return_value = MagicMock(
+        if name == "user_profiles":
+            # SELECT chain: .select().eq().limit().execute()
+            t.select.return_value.eq.return_value.limit.return_value.execute.return_value = MagicMock(
                 data=profile_data if profile_data is not None else []
             )
         elif name == "weekly_feedback":
-            # SELECT chain: .select().order().limit().execute()
+            # SELECT chain: .select().eq().order().limit().execute()
+            t.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value = MagicMock(
+                data=history_data if history_data is not None else []
+            )
+            # Also support non-eq path: .select().order().limit().execute()
             t.select.return_value.order.return_value.limit.return_value.execute.return_value = MagicMock(
                 data=history_data if history_data is not None else []
             )
             # INSERT chain: .insert().execute()
             t.insert.return_value.execute.return_value = MagicMock(data=[])
         elif name == "user_learning_profile":
-            # SELECT chain: .select().limit().execute()
+            # SELECT chain: .select().eq().limit().execute()
+            t.select.return_value.eq.return_value.limit.return_value.execute.return_value = MagicMock(
+                data=learning_data if learning_data is not None else []
+            )
+            # Also support non-eq path: .select().limit().execute()
             t.select.return_value.limit.return_value.execute.return_value = MagicMock(
                 data=learning_data if learning_data is not None else []
             )
@@ -456,6 +465,9 @@ async def _weekly_adjustments_task(inputs: dict) -> str:
     supabase = _mock_supabase_tables(profile_data, history_data, learning_data)
 
     params = {k: v for k, v in inputs.items() if not k.startswith("_")}
+    # Always provide user_id for multi-user mode
+    if "user_id" not in params:
+        params["user_id"] = "test-user-123"
     module = _load_script(SCRIPTS["weekly_adjustments"])
     return await module.execute(supabase=supabase, **params)
 

@@ -42,7 +42,7 @@ if sys.platform == "win32":
 
 console = Console(force_terminal=True)
 
-USER_ID = "cli_user"
+USER_ID = os.getenv("NUTRITION_USER_ID", "cli_user")
 
 
 def load_memories(memory, query: str) -> str:
@@ -339,7 +339,7 @@ async def main():
                     memories_str = load_memories(memory, user_input)
 
                 # Create deps
-                deps = create_agent_deps(memories=memories_str, user_id=None)
+                deps = create_agent_deps(memories=memories_str, user_id=USER_ID)
 
                 # Stream the interaction
                 console.print()

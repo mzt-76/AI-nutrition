@@ -1,7 +1,7 @@
 """FastAPI backend for AI Nutrition Assistant.
 
 Streaming agent endpoint with NDJSON responses, conversation management,
-and rate limiting. Auth is NOT implemented yet — user_id comes from request body.
+rate limiting, and JWT authentication via Supabase Auth.
 
 Usage:
     uvicorn src.api:app --port 8001 --reload
@@ -16,9 +16,11 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+import httpx
+from fastapi import Depends, FastAPI, HTTPException, Security
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pathlib import Path
 from pydantic import BaseModel
 from pydantic_ai import Agent
@@ -96,11 +98,37 @@ app.add_middleware(
 )
 
 
-# TODO: Wire verify_token() when auth module is implemented.
-# For now, user_id is trusted from request body.
-async def verify_token() -> dict[str, Any]:
-    """Placeholder for JWT verification. Returns empty dict (no auth yet)."""
-    return {}
+security = HTTPBearer(auto_error=False)
+
+
+async def verify_token(
+    credentials: HTTPAuthorizationCredentials | None = Security(security),
+) -> dict[str, Any] | None:
+    """Verify Supabase JWT by calling the Auth API.
+
+    Returns the user dict (with 'id' field) or None if no token provided.
+    Raises HTTPException 401 if token is invalid or expired.
+    """
+    if not credentials:
+        return None
+
+    token = credentials.credentials
+    supabase_url = os.getenv("SUPABASE_URL", "")
+    service_key = os.getenv("SUPABASE_SERVICE_KEY", "")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{supabase_url}/auth/v1/user",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "apikey": service_key,
+            },
+        )
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=401, detail="Token invalide ou expiré")
+
+    return response.json()
 
 
 # =============================================================================
@@ -134,12 +162,20 @@ async def health_check() -> dict[str, str]:
 
 
 @app.get("/api/conversations")
-async def list_conversations(user_id: str) -> list[dict[str, Any]]:
+async def list_conversations(
+    user_id: str,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> list[dict[str, Any]]:
     """List conversations for a user.
 
     Args:
         user_id: User ID to list conversations for
+        auth_user: Authenticated user from JWT (injected by Depends)
     """
+    if auth_user and auth_user.get("id") != user_id:
+        raise HTTPException(
+            status_code=403, detail="user_id does not match authenticated user"
+        )
     response = (
         supabase.table("conversations")
         .select("*")
@@ -152,7 +188,10 @@ async def list_conversations(user_id: str) -> list[dict[str, Any]]:
 
 
 @app.post("/api/agent")
-async def agent_endpoint(request: AgentRequest):
+async def agent_endpoint(
+    request: AgentRequest,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+):
     """Main streaming agent endpoint.
 
     Accepts a user query, runs the agent, and streams NDJSON chunks.
@@ -160,6 +199,13 @@ async def agent_endpoint(request: AgentRequest):
     Final chunk adds: {"session_id": "...", "conversation_title": "...", "complete": true}
     """
     try:
+        # Verify user_id matches the authenticated user
+        if auth_user and auth_user.get("id") != request.user_id:
+            raise HTTPException(
+                status_code=403,
+                detail="user_id does not match authenticated user",
+            )
+
         # Rate limit check
         rate_limit_ok = await check_rate_limit(supabase, request.user_id)
         if not rate_limit_ok:
@@ -212,9 +258,7 @@ async def agent_endpoint(request: AgentRequest):
             conversation_history = await fetch_conversation_history(
                 supabase, session_id
             )
-            pydantic_messages = convert_history_to_pydantic_format(
-                conversation_history
-            )
+            pydantic_messages = convert_history_to_pydantic_format(conversation_history)
         except Exception as e:
             logger.error(f"Failed to load conversation history: {e}")
             pydantic_messages = []
@@ -235,9 +279,7 @@ async def agent_endpoint(request: AgentRequest):
 
         # Fire-and-forget background tasks
         asyncio.create_task(
-            store_request(
-                supabase, request.request_id, request.user_id, request.query
-            )
+            store_request(supabase, request.request_id, request.user_id, request.query)
         )
 
         if mem0_client:
@@ -265,6 +307,8 @@ async def agent_endpoint(request: AgentRequest):
             media_type="text/plain",
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error processing request: {e}", exc_info=True)
         return StreamingResponse(
