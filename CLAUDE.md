@@ -42,7 +42,7 @@
 
 ## 3. Architecture
 
-**Structure:** `src/` (agent, tools, api, db_utils, nutrition/, RAG_Pipeline/) | `skills/` | `evals/` | `tests/` | `sql/`
+**Structure:** `src/` (agent, tools, api, db_utils, nutrition/, RAG_Pipeline/) | `skills/` | `frontend/` | `evals/` | `tests/` | `sql/`
 **Imports:** Always use `src.` prefix (e.g., `from src.agent import agent`)
 
 **Key patterns:**
@@ -54,6 +54,15 @@
 - **Multi-user**: `AgentDeps.user_id` set → profile tools query `user_profiles`; `None` → `my_profile` (CLI fallback)
 
 **Interfaces:** CLI (`src/cli.py`) | Streamlit (`src/streamlit_ui.py`) | **FastAPI** (`src/api.py`)
+
+**Frontend** (`frontend/`): React 18 + TypeScript 5 + Vite 5 + shadcn/ui + Tailwind
+- Supabase Auth (email/password + Google OAuth) → JWT session → `user.id` sent to backend
+- Streaming: `POST /api/agent` with NDJSON response, parsed in `src/lib/api.ts`
+- Conversations: loaded from Supabase `conversations`/`messages` tables via JS client
+- Design: green glass-morphism dark theme, French localization
+- Types: `src/types/database.types.ts` must match actual Supabase schema
+- Run: `cd frontend && npm run dev` (port 8080), needs `frontend/.env` with Supabase keys
+- **Do not use lovable-tagger** — it was removed from the project
 
 **Skills:** `nutrition-calculating` | `meal-planning` | `weekly-coaching` | `knowledge-searching` | `body-analyzing` | `skill-creator`
 
@@ -80,4 +89,4 @@ Before starting work, try `find_tasks()`. If successful → use Archon for task 
 
 ---
 
-**Version:** 3.4 | **Updated:** 2026-02-20
+**Version:** 3.5 | **Updated:** 2026-02-25

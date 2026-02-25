@@ -26,29 +26,37 @@
 - New files: `src/db_utils.py`, `src/api.py`, `tests/test_db_utils.py`, `tests/test_api.py`
 - API entry point: `python -m src api` or `uvicorn src.api:app --port 8001`
 - Test suite: **375 tests passing** (358 existing + 17 new API/db_utils tests)
-- API architecture docs: `docs/api-architecture-explained.md`
+- Bug fix: `run_skill_script` param renamed `params` → `parameters` with precise type
+- **Production frontend** (Module 5): migrated from course template to `frontend/` — Supabase Auth (email + Google OAuth), conversation sidebar, streaming NDJSON, markdown rendering, admin dashboard
+- Frontend: green glass-morphism design, French localization, 4 suggested question cards on empty state
+- Frontend tech: React 18, TypeScript 5, Vite 5, shadcn/ui, Tailwind, react-markdown, Supabase JS client
+- Frontend types: `database.types.ts` regenerated from actual schema (`user_profiles`, `conversations` with `session_id` PK, `messages` with auto-increment `id`)
+- Frontend `.env`: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AGENT_ENDPOINT`, `VITE_ENABLE_STREAMING`
 
-**Database State (verified 2026-02-24):**
-- `recipes`: 121 rows (seeded)
-- `ingredient_mapping`: 543 rows (openfoodfacts_* columns, auto-growing cache)
+**Database State (verified 2026-02-25):**
+- `recipes`: 123 rows (seeded)
+- `ingredient_mapping`: 546 rows (auto-growing cache)
 - `openfoodfacts_products`: 275,000 rows (French products with nutrition data)
-- `user_profiles`: 1 row (dev user with nutrition data populated)
-- `conversations`: active (FK to user_profiles)
-- `messages`: active (FK to conversations)
-- `requests`: active (rate limiting)
-
-- **React prototype connected to FastAPI backend** (NDJSON streaming): replaced n8n webhook with `streamAgentResponse()` in `useChat.ts`, tokens stream progressively in browser
-- Frontend files changed: `src/lib/api.ts` (new), `src/hooks/useChat.ts`, `src/types/chat.types.ts`, `src/utils/sessionManager.ts`, `.env.example`
-- Bug fix: `run_skill_script` param renamed `params` → `parameters` with precise type `dict[str, str | int | float | bool | None] | None` — GPT-4o-mini was generating `parameters` instead of `params`, causing Pydantic validation error
-- Quick E2E test via browser: nutrition calculation, meal plan generation (1-day) — streaming works, session reuse works
-- **Observed issue**: meal planner repeats the same recipes across different days (e.g. Monday and Tuesday identical). Need batch cooking vs variety preference.
+- `user_profiles`: 1 row (dev user with nutrition data populated, RLS enabled)
+- `conversations`: 8 rows (RLS enabled, FK to user_profiles)
+- `messages`: 24 rows (RLS enabled, FK to conversations)
+- `requests`: 8 rows (RLS enabled)
+- `meal_plans`: 52 rows (**no user_id column, no RLS**)
+- `weekly_feedback`: 10 rows (**no user_id column, no RLS**)
+- `user_learning_profile`: 0 rows (**no user_id column, no RLS**)
+- `my_profile`: 0 rows (legacy, to be dropped)
 
 **Current Phase:**
-- **Module 5** of AI Agent Mastery course — FastAPI backend API + React frontend integration done, auth not yet wired
+- **Module 5** of AI Agent Mastery course — FastAPI backend + React frontend DONE, auth partially wired (frontend has Supabase Auth, backend JWT verification not yet implemented)
 
 **Next Tasks (Priority Order):**
-1. **Batch cooking / recipe variety** — agent should ask user if they want batch cooking (same meals for convenience) or varied recipes each day; currently repeats same recipes by default
-2. **Profile target caching** — when `user_profiles` has empty BMR/TDEE/target columns, auto-calculate on first fetch, update the row, and reuse cached values on subsequent requests
-3. **User authentication** — wire `verify_token()` with Supabase Auth JWT, add `Depends(verify_token)` to endpoints, replace hardcoded `VITE_USER_ID`
-4. **Full multi-user DB migration** — add `user_id` FK + RLS to `meal_plans`, `weekly_feedback`, `user_learning_profile` tables
-5. **Load conversation history from DB** — add `GET /api/conversations/{session_id}/messages` endpoint, replace localStorage persistence
+1. **Multi-user DB migration** — see `.agents/plans/multi-user-database-migration.md` (19 tasks):
+   - Wire JWT verification in `src/api.py` (verify token via Supabase Auth API, reject user_id mismatch)
+   - Add `user_id` FK + RLS to `meal_plans`, `weekly_feedback`, `user_learning_profile`
+   - RLS on global reference tables (`recipes`, `ingredient_mapping`, etc.)
+   - Fix function search_path warnings
+   - Update 2 skill scripts missing `user_id` filter (`fetch_stored_meal_plan`, `generate_shopping_list`)
+   - Fix CLI/Streamlit `user_id` passthrough
+   - Drop `my_profile`
+2. **Batch cooking / recipe variety** — agent should ask user preference; currently repeats same recipes
+3. **Profile target caching** — auto-calculate BMR/TDEE on first fetch, cache in `user_profiles`

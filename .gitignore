@@ -86,3 +86,8 @@ fastapi-starter-for-ai-coding/
 
 # Agent plans (internal)
 .agents/
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.env

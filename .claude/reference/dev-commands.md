@@ -26,21 +26,41 @@ ruff format src/ tests/ && ruff check src/ tests/ && mypy src/  # Format, lint, 
 
 ---
 
-## Frontend (React Prototype)
+## Frontend
 
 ```bash
 # Setup
-cd prototype/loveable_interface
+cd frontend
 npm install
-cp .env.example .env  # Set VITE_API_URL and VITE_USER_ID
+cp .env.example .env  # Edit with Supabase keys
 
 # Run (requires backend running in another terminal)
 npm run dev  # http://localhost:8080
 
-# Lint & Type Check
-npm run lint && npx tsc --noEmit
+# Build & Type Check
+npm run build
+npx tsc --noEmit
+npm run lint
 ```
 
-**Env vars:**
-- `VITE_API_URL` — FastAPI backend URL (default: `http://localhost:8001`)
-- `VITE_USER_ID` — Supabase `user_profiles.id` (temporary until auth is wired)
+**Env vars (`frontend/.env`):**
+- `VITE_SUPABASE_URL` — Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` — Supabase anon/publishable key
+- `VITE_AGENT_ENDPOINT` — FastAPI agent endpoint (default: `http://localhost:8001/api/agent`)
+- `VITE_ENABLE_STREAMING` — Enable NDJSON streaming (`true`)
+
+**CORS:** Backend `.env` must include `http://localhost:8080` in `CORS_ORIGINS`.
+
+---
+
+## Full Stack (both terminals)
+
+```bash
+# Terminal 1 — Backend
+uvicorn src.api:app --host 0.0.0.0 --port 8001 --reload
+
+# Terminal 2 — Frontend
+cd frontend && npm run dev
+```
+
+Open http://localhost:8080, login with Supabase Auth credentials.
