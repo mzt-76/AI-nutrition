@@ -8,12 +8,30 @@ to match codebase patterns and avoid client compatibility risk.
 """
 
 import logging
+from datetime import datetime, timezone
 
 from supabase import Client
 
 from src.nutrition.openfoodfacts_client import normalize_ingredient_name
 
 logger = logging.getLogger(__name__)
+
+# Known compound foods where a substring means a different product
+COMPOUND_FOOD_EXCEPTIONS: dict[str, list[str]] = {
+    "fromage": ["fromage blanc", "fromage frais"],
+}
+
+
+def _contains_disliked(text: str, disliked: str) -> bool:
+    """Check if text contains disliked food, respecting compound exceptions."""
+    text_lower = text.lower()
+    if disliked not in text_lower:
+        return False
+    # If the match is actually a different compound food, don't exclude
+    for exception in COMPOUND_FOOD_EXCEPTIONS.get(disliked, []):
+        if exception in text_lower:
+            return False
+    return True
 
 
 async def search_recipes(
@@ -47,7 +65,8 @@ async def search_recipes(
         limit: Max results after Python filtering
 
     Returns:
-        List of matching recipe dicts, ordered by usage_count DESC
+        List of matching recipe dicts, ordered by created_at ASC (neutral;
+        callers re-sort by variety score)
 
     Example:
         >>> recipes = await search_recipes(supabase, "dejeuner", exclude_ingredients=["fromage"])
@@ -79,7 +98,7 @@ async def search_recipes(
 
         # Fetch more than needed to allow Python-side filtering
         fetch_limit = (limit * 3) + len(exclude_recipe_ids or []) + 10
-        response = query.order("usage_count", desc=True).limit(fetch_limit).execute()
+        response = query.order("created_at", desc=False).limit(fetch_limit).execute()
         results = response.data or []
 
         # Python-side filtering: allergens (zero tolerance)
@@ -102,8 +121,11 @@ async def search_recipes(
                     ing.get("name", "").lower() for ing in r.get("ingredients", [])
                 ]
                 has_disliked = any(
-                    disliked in recipe_name
-                    or any(disliked in ing_name for ing_name in ingredient_names)
+                    _contains_disliked(recipe_name, disliked)
+                    or any(
+                        _contains_disliked(ing_name, disliked)
+                        for ing_name in ingredient_names
+                    )
                     for disliked in normalized_disliked
                 )
                 if not has_disliked:
@@ -119,12 +141,6 @@ async def search_recipes(
         if exclude_recipe_ids:
             excluded_set = set(exclude_recipe_ids)
             results = [r for r in results if r.get("id") not in excluded_set]
-
-        # Python-side filtering: cuisine preference (soft filter, order preferred first)
-        if cuisine_types:
-            preferred = [r for r in results if r.get("cuisine_type") in cuisine_types]
-            other = [r for r in results if r.get("cuisine_type") not in cuisine_types]
-            results = preferred + other
 
         final = results[:limit]
         logger.info(f"Found {len(final)} recipes for meal_type={meal_type}")
@@ -233,9 +249,12 @@ async def increment_usage(supabase: Client, recipe_id: str) -> None:
             return
 
         new_count = current.get("usage_count", 0) + 1
-        supabase.table("recipes").update({"usage_count": new_count}).eq(
-            "id", recipe_id
-        ).execute()
+        supabase.table("recipes").update(
+            {
+                "usage_count": new_count,
+                "last_used_date": datetime.now(timezone.utc).isoformat(),
+            }
+        ).eq("id", recipe_id).execute()
         logger.debug(f"Recipe {recipe_id} usage_count → {new_count}")
     except Exception as e:
         logger.error(f"Error incrementing usage for {recipe_id}: {e}", exc_info=True)
@@ -272,3 +291,105 @@ async def count_recipes_by_meal_type(supabase: Client) -> dict:
 
     logger.info(f"Recipe DB coverage: {counts}")
     return counts
+
+
+# ---------------------------------------------------------------------------
+# Scoring functions for recipe variety
+# ---------------------------------------------------------------------------
+
+# Freshness decay caps at this many days (30+ days = same as never used)
+FRESHNESS_CAP_DAYS = 30.0
+
+
+def score_macro_fit(recipe: dict, target: dict) -> float:
+    """Score how well recipe's macro RATIOS match target ratios.
+
+    Compares protein/cal, carbs/cal, fat/cal ratios of recipe vs target.
+    Lower score = better fit. Protein match is weighted 2x.
+
+    Uses Mifflin-St Jeor-aligned macro ratio comparison.
+
+    Args:
+        recipe: Recipe dict with calories_per_serving, protein_g_per_serving, etc.
+        target: Meal slot target dict with target_calories, target_protein_g, etc.
+
+    Returns:
+        Float score >= 0. Lower is better.
+    """
+    recipe_cal = recipe.get("calories_per_serving", 1) or 1
+    recipe_prot_ratio = recipe.get("protein_g_per_serving", 0) * 4 / recipe_cal
+    recipe_carb_ratio = recipe.get("carbs_g_per_serving", 0) * 4 / recipe_cal
+    recipe_fat_ratio = recipe.get("fat_g_per_serving", 0) * 9 / recipe_cal
+
+    target_cal = target.get("target_calories", 1) or 1
+    target_prot_ratio = target.get("target_protein_g", 0) * 4 / target_cal
+    target_carb_ratio = target.get("target_carbs_g", 0) * 4 / target_cal
+    target_fat_ratio = target.get("target_fat_g", 0) * 9 / target_cal
+
+    score = (
+        2 * abs(recipe_prot_ratio - target_prot_ratio)
+        + abs(recipe_carb_ratio - target_carb_ratio)
+        + abs(recipe_fat_ratio - target_fat_ratio)
+    )
+    return score
+
+
+def score_recipe_variety(
+    recipe: dict,
+    meal_target: dict,
+    preferred_cuisines: list[str] | None = None,
+    now: datetime | None = None,
+) -> float:
+    """Multi-factor recipe score — higher is better (range 0.0–1.0).
+
+    Combines macro fit, temporal freshness, cuisine preference, and usage count
+    into a single score for ranking recipe candidates.
+
+    Args:
+        recipe: Recipe dict from DB
+        meal_target: Meal slot target dict with target_calories, target_protein_g, etc.
+        preferred_cuisines: User's preferred cuisine types (None = no bonus)
+        now: Current datetime (injectable for tests). Defaults to UTC now.
+
+    Returns:
+        Float score in [0.0, 1.0]. Higher is better.
+    """
+    if now is None:
+        now = datetime.now(timezone.utc)
+
+    # Factor 1: Macro fit (weight 0.40) — invert so higher = better
+    macro_raw = score_macro_fit(recipe, meal_target)
+    macro_score = 1.0 / (1.0 + macro_raw)
+
+    # Factor 2: Freshness (weight 0.30)
+    last_used = recipe.get("last_used_date")
+    if last_used is None:
+        freshness_score = 1.0
+    else:
+        if isinstance(last_used, str):
+            # Parse ISO datetime string
+            last_used_dt = datetime.fromisoformat(last_used.replace("Z", "+00:00"))
+        else:
+            last_used_dt = last_used
+        # Ensure both are offset-aware for subtraction
+        if last_used_dt.tzinfo is None:
+            last_used_dt = last_used_dt.replace(tzinfo=timezone.utc)
+        days_since = (now - last_used_dt).total_seconds() / 86400.0
+        freshness_score = min(days_since / FRESHNESS_CAP_DAYS, 1.0)
+
+    # Factor 3: Cuisine preference (weight 0.20)
+    if preferred_cuisines and recipe.get("cuisine_type") in preferred_cuisines:
+        cuisine_score = 1.0
+    else:
+        cuisine_score = 0.0
+
+    # Factor 4: Usage count (weight 0.10) — less used = better
+    usage_count = recipe.get("usage_count", 0) or 0
+    usage_score = 1.0 / (1.0 + usage_count)
+
+    return (
+        0.40 * macro_score
+        + 0.30 * freshness_score
+        + 0.20 * cuisine_score
+        + 0.10 * usage_score
+    )

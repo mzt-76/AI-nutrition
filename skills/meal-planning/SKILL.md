@@ -1,6 +1,14 @@
 ---
 name: meal-planning
-description: Generation de plans de repas via recipe DB + scaling mathematique. Generation jour par jour avec LLM fallback pour recettes personnalisees via Claude Sonnet 4.5.
+description: >-
+    Plans de repas personnalisés via recipe DB, ou créativité IA si demande particulière + scaling mathématique.
+    Avant de générer, poser ces questions EN UN SEUL message :
+    (1) Combien de jours ? → défaut = 1 seul jour. JAMAIS 7 par défaut.
+    (2) Cuisiner en avance (même plat 2-3 jours) ou repas différents chaque jour ? → défaut = repas différents.
+    (3) Même petit-dej chaque matin ou varié ? → défaut = même.
+    (4) Combien de repas par jour ? (ex: petit-dej + déjeuner + dîner, ou avec une collation en plus).
+    (5) Autres préférences ?
+    Si "go" → appliquer les défauts et générer immédiatement.
 category: planning
 ---
 
@@ -57,7 +65,10 @@ Si l'utilisateur demande une recette spécifique (ex: "risotto aux champignons")
   - `4_meals` : 4 repas égaux
   - `3_meals_1_preworkout` : 3 repas + collation pré-training
 - `num_days` (int, optionnel) : Nombre de jours à générer. **DÉFAUT : 1** (Lundi uniquement). Utiliser 7 pour une semaine complète uniquement si l'utilisateur le demande explicitement.
-- `notes` (str, optionnel) : Préférences + demandes custom (ex: "risotto mardi, pas de poisson")
+- `batch_days` (int, optionnel) : Nombre de jours consécutifs avec le même plat pour déjeuner et dîner (chaque repas a sa propre recette). Utile pour le batch cooking / préparation en avance. Ex: batch_days=3 → même déjeuner lundi-mercredi, même dîner lundi-mercredi, puis nouvelles recettes jeudi-samedi.
+- `vary_breakfast` (bool, optionnel, défaut: false) : Par défaut, le même petit-déjeuner est servi chaque jour. Mettre à true si l'utilisateur veut varier ses petits-déjeuners.
+- `meal_preferences` (dict, optionnel) : Préférences de recettes par type de repas, appliquées à TOUS les jours. Clé = slug meal_type (`petit-dejeuner`, `dejeuner`, `diner`, `collation`), valeur = description de la recette souhaitée. Ex: `{"petit-dejeuner": "omelette aux oeufs et épinards"}`. Utilise le LLM pour générer une recette correspondante, puis la réutilise chaque jour via batch. Les demandes per-day dans `notes` prennent priorité.
+- `notes` (str, optionnel) : Préférences + demandes custom PAR JOUR (ex: "risotto mardi, pas de poisson vendredi")
 
 ## Structures de repas disponibles
 
@@ -79,7 +90,13 @@ run_skill_script("meal-planning", "generate_week_plan", {
     "meal_structure": "3_meals_1_preworkout"
 })
 
-# Plan avec demande custom
+# Plan avec préférence globale (ex: omelette tous les matins)
+run_skill_script("meal-planning", "generate_week_plan", {
+    "num_days": 7,
+    "meal_preferences": {"petit-dejeuner": "omelette aux oeufs et épinards"}
+})
+
+# Plan avec demande custom par jour
 run_skill_script("meal-planning", "generate_week_plan", {
     "start_date": "2026-02-23",
     "notes": "risotto mardi, pas de poisson vendredi"
@@ -106,6 +123,41 @@ run_skill_script("meal-planning", "generate_shopping_list", {
     "week_start": "2026-02-23"
 })
 ```
+
+## Question pré-planification (OBLIGATOIRE avant generate_week_plan)
+
+Avant de lancer la génération, poser **UNE SEULE question rapide** qui couvre tout
+en un message. Ne PAS poser les questions une par une en plusieurs messages.
+
+**Message unique à envoyer :**
+> Avant de lancer le plan, quelques préférences rapides :
+> 1. **Batch cooking** — Tu préfères des repas différents chaque jour, ou cuisiner
+>    en avance et manger le même plat 2-3 jours de suite ?
+> 2. **Petit-déjeuner** — Par défaut c'est le même chaque matin. Tu veux varier ?
+> 3. Autre préférence ? (type de petit-dej, recettes souhaitées, etc.)
+>
+> (Si pas de préférence, je fais variété max + même petit-dej toute la semaine.)
+
+**Interprétation des réponses :**
+- "repas différents" ou pas de préférence → `batch_days` omis (variété max)
+- "2 jours de suite" → `batch_days=2`
+- "3 jours" → `batch_days=3`
+- "varier le petit-dej" → `vary_breakfast=True`
+- "même petit-dej" ou pas de réponse → défaut (même recette toute la semaine)
+
+Note : `batch_days` s'applique au déjeuner ET au dîner séparément (chacun a sa
+propre recette, répétée N jours consécutifs).
+
+**Capturer les préférences dans `meal_preferences` :**
+Si l'utilisateur mentionne un souhait pour un type de repas (ex: "je veux des oeufs
+le matin", "omelette pour le petit-déj"), le convertir en entrée `meal_preferences`.
+- "omelette le matin" → `meal_preferences={"petit-dejeuner": "omelette aux oeufs"}`
+- "du poisson le soir" → `meal_preferences={"diner": "plat à base de poisson"}`
+
+**INTERDIT : ne JAMAIS annoncer des recettes spécifiques avant la génération.**
+Ne pas dire "tu auras une omelette le matin" — dire simplement "Je note ta
+préférence pour les oeufs au petit-déj, je lance la génération" puis présenter
+les résultats réels du JSON.
 
 ## Contrat de sortie JSON (Output Contract)
 
@@ -195,6 +247,7 @@ L'outil `generate_weekly_meal_plan` retourne UN SEUL JSON. Toutes les valeurs af
 **MUST NOT (interdit) :**
 - Ne JAMAIS additionner ou recalculer les macros — utiliser `daily_totals` directement
 - Ne JAMAIS inventer un nom de recette ou un ingrédient non présent dans le JSON
+- Ne JAMAIS annoncer ou promettre des recettes AVANT d'avoir le résultat JSON (le système choisit via scoring — l'agent ne sait pas à l'avance ce qui sera sélectionné)
 - Ne JAMAIS afficher les 7 jours en détail (trop long) — voir format ci-dessous
 - Ne JAMAIS afficher le JSON brut
 

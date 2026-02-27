@@ -628,9 +628,12 @@ class TestGenerateDayPlan:
 
 
 class TestScoreRecipeMacroFit:
+    """Tests that generate_day_plan uses score_macro_fit from recipe_db."""
+
     def setup_method(self):
-        self.module = _load_script("generate_day_plan")
-        self.score = self.module._score_recipe_macro_fit
+        from src.nutrition.recipe_db import score_macro_fit
+
+        self.score = score_macro_fit
 
     def test_perfect_match_scores_zero(self):
         """A recipe whose macro ratios match the target exactly scores 0."""
@@ -672,28 +675,24 @@ class TestScoreRecipeMacroFit:
 
     def test_protein_mismatch_weighted_double(self):
         """Protein mismatch contributes 2x to score vs carb/fat mismatch."""
-        # Recipe with wrong protein ratio vs wrong carb ratio
         base_target = {
             "target_calories": 500,
             "target_protein_g": 40,
             "target_carbs_g": 50,
             "target_fat_g": 10,
         }
-        # Off on protein
         prot_off = {
             "calories_per_serving": 500,
-            "protein_g_per_serving": 20,  # half the target ratio
+            "protein_g_per_serving": 20,
             "carbs_g_per_serving": 50,
             "fat_g_per_serving": 10,
         }
-        # Off on carbs by same ratio
         carb_off = {
             "calories_per_serving": 500,
             "protein_g_per_serving": 40,
-            "carbs_g_per_serving": 25,  # half the target ratio
+            "carbs_g_per_serving": 25,
             "fat_g_per_serving": 10,
         }
-        # Protein mismatch should score higher (worse) due to 2x weight
         assert self.score(prot_off, base_target) > self.score(carb_off, base_target)
 
     def test_handles_zero_calorie_recipe(self):
@@ -823,3 +822,87 @@ class TestOptimizeMealPlanIntegration:
         result = json.loads(result_str)
         assert result["success"] is True
         assert len(result["day"]["meals"]) == 3
+
+
+# ---------------------------------------------------------------------------
+# Test: batch_recipe_ids support
+# ---------------------------------------------------------------------------
+
+
+class TestBatchRecipeIds:
+    @pytest.mark.asyncio
+    async def test_batch_recipe_ids_forces_recipe(
+        self, meal_targets, user_profile, sample_db_recipe
+    ):
+        """When batch_recipe_ids has an entry, that recipe is used instead of searching."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        forced_recipe = dict(sample_db_recipe)
+        forced_recipe["id"] = "forced-uuid-1"
+        forced_recipe["name"] = "Batch Forced Recipe"
+
+        async def mock_get_recipe_by_id(supabase, recipe_id):
+            if recipe_id == "forced-uuid-1":
+                return forced_recipe
+            return None
+
+        search_called = False
+
+        async def mock_search(*args, **kwargs):
+            nonlocal search_called
+            search_called = True
+            return [sample_db_recipe]
+
+        with patch.object(
+            generate_day_plan, "search_recipes", new=mock_search
+        ), patch.object(
+            generate_day_plan, "get_recipe_by_id", new=mock_get_recipe_by_id
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+            # Only send the Déjeuner slot with a batch recipe
+            result_str = await generate_day_plan.execute(
+                supabase=MagicMock(),
+                anthropic_client=MagicMock(),
+                day_index=0,
+                day_name="Lundi",
+                day_date="2026-02-18",
+                meal_targets=[meal_targets[1]],  # Déjeuner only
+                user_profile=user_profile,
+                exclude_recipe_ids=[],
+                custom_requests={},
+                batch_recipe_ids={"dejeuner": "forced-uuid-1"},
+            )
+
+        result = json.loads(result_str)
+        assert result["success"] is True
+        # The forced recipe should have been used
+        assert result["day"]["meals"][0]["name"] == "Batch Forced Recipe"
+
+    @pytest.mark.asyncio
+    async def test_batch_returns_recipe_ids_by_meal_type(
+        self, meal_targets, user_profile, sample_db_recipe
+    ):
+        """generate_day_plan returns recipe_ids_by_meal_type mapping."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        with patch.object(
+            generate_day_plan,
+            "search_recipes",
+            new=AsyncMock(return_value=[sample_db_recipe]),
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+            result_str = await generate_day_plan.execute(
+                supabase=MagicMock(),
+                anthropic_client=MagicMock(),
+                day_index=0,
+                day_name="Lundi",
+                day_date="2026-02-18",
+                meal_targets=meal_targets,
+                user_profile=user_profile,
+                exclude_recipe_ids=[],
+                custom_requests={},
+            )
+
+        result = json.loads(result_str)
+        assert result["success"] is True
+        assert "recipe_ids_by_meal_type" in result
+        ids_by_mt = result["recipe_ids_by_meal_type"]
+        assert isinstance(ids_by_mt, dict)

@@ -121,6 +121,12 @@ async def update_my_profile_tool(
     favorite_foods: list[str] = None,
     max_prep_time: int = None,
     preferred_cuisines: list[str] = None,
+    bmr: float = None,
+    tdee: float = None,
+    target_calories: float = None,
+    target_protein_g: float = None,
+    target_carbs_g: float = None,
+    target_fat_g: float = None,
 ) -> str:
     """
     Update user profile in Supabase user_profiles table.
@@ -143,6 +149,12 @@ async def update_my_profile_tool(
         favorite_foods: List of preferred foods
         max_prep_time: Maximum cooking time in minutes
         preferred_cuisines: List of cuisine types
+        bmr: Basal Metabolic Rate in kcal (calculated)
+        tdee: Total Daily Energy Expenditure in kcal (calculated)
+        target_calories: Daily calorie target in kcal
+        target_protein_g: Daily protein target in grams
+        target_carbs_g: Daily carbohydrate target in grams
+        target_fat_g: Daily fat target in grams
 
     Returns:
         JSON string with updated profile or error
@@ -249,6 +261,24 @@ async def update_my_profile_tool(
 
         if preferred_cuisines is not None:
             update_data["preferred_cuisines"] = preferred_cuisines
+
+        if bmr is not None:
+            update_data["bmr"] = bmr
+
+        if tdee is not None:
+            update_data["tdee"] = tdee
+
+        if target_calories is not None:
+            update_data["target_calories"] = target_calories
+
+        if target_protein_g is not None:
+            update_data["target_protein_g"] = target_protein_g
+
+        if target_carbs_g is not None:
+            update_data["target_carbs_g"] = target_carbs_g
+
+        if target_fat_g is not None:
+            update_data["target_fat_g"] = target_fat_g
 
         if not update_data:
             return json.dumps(

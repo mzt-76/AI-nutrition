@@ -165,6 +165,9 @@ async def execute(**kwargs) -> str:
     meal_structure = kwargs.get("meal_structure")  # None = auto-detect
     notes = kwargs.get("notes")
     num_days = int(kwargs.get("num_days", 1))
+    batch_days = int(kwargs.get("batch_days") or 0) or None
+    vary_breakfast = bool(kwargs.get("vary_breakfast", False))
+    meal_preferences: dict[str, str] = kwargs.get("meal_preferences") or {}
 
     try:
         # Step 1: Validate meal structure (if explicitly provided)
@@ -248,6 +251,8 @@ async def execute(**kwargs) -> str:
         custom_requests = _parse_custom_requests(notes) if notes else {}
         if custom_requests:
             logger.info(f"Custom recipe requests: {list(custom_requests.keys())}")
+        if meal_preferences:
+            logger.info(f"Meal preferences (all days): {meal_preferences}")
 
         # Step 7: Load generate_day_plan sibling script
         generate_day_plan = _import_sibling_script("generate_day_plan")
@@ -256,11 +261,43 @@ async def execute(**kwargs) -> str:
         all_days = []
         used_recipe_ids: list[str] = []
 
+        # Batch cooking state
+        batch_breakfast_recipe_id: str | None = None
+        batch_lunch_recipe_id: str | None = None
+        batch_dinner_recipe_id: str | None = None
+        batch_counter = 0
+
         for day_idx in range(num_days):
-            day_name = _DAY_NAMES[day_idx]
+            day_name = _DAY_NAMES[day_idx % 7]
             day_date = (start_dt + timedelta(days=day_idx)).strftime("%Y-%m-%d")
 
             logger.info(f"Generating {day_name} ({day_date})...")
+
+            # Build batch_recipe_ids for this day
+            batch_recipe_ids: dict[str, str] = {}
+
+            # Breakfast: same every day unless vary_breakfast=True
+            if not vary_breakfast and batch_breakfast_recipe_id:
+                batch_recipe_ids["petit-dejeuner"] = batch_breakfast_recipe_id
+
+            # Lunch & dinner: batch blocks of N days
+            if batch_days and batch_counter < batch_days:
+                if batch_lunch_recipe_id:
+                    batch_recipe_ids["dejeuner"] = batch_lunch_recipe_id
+                if batch_dinner_recipe_id:
+                    batch_recipe_ids["diner"] = batch_dinner_recipe_id
+                batch_counter += 1
+            else:
+                # Reset batch block — new recipes will be selected
+                batch_lunch_recipe_id = None
+                batch_dinner_recipe_id = None
+                batch_counter = 1 if batch_days else 0
+
+            # Merge meal_preferences (global) + day-specific custom requests
+            # Day-specific overrides take priority over global preferences
+            # But batch_recipe_ids take priority over both (already handled downstream)
+            day_custom = dict(meal_preferences)  # base: global preferences
+            day_custom.update(custom_requests.get(day_name, {}))  # override per-day
 
             day_result_str = await generate_day_plan.execute(
                 supabase=supabase,
@@ -271,7 +308,8 @@ async def execute(**kwargs) -> str:
                 meal_targets=meal_targets,
                 user_profile=profile_data,
                 exclude_recipe_ids=used_recipe_ids,
-                custom_requests=custom_requests.get(day_name, {}),
+                custom_requests=day_custom,
+                batch_recipe_ids=batch_recipe_ids,
             )
             day_result = json.loads(day_result_str)
 
@@ -290,6 +328,19 @@ async def execute(**kwargs) -> str:
 
             all_days.append(day_result["day"])
             used_recipe_ids.extend(day_result.get("recipes_used", []))
+
+            # Capture recipe IDs for batch tracking
+            ids_by_mt = day_result.get("recipe_ids_by_meal_type", {})
+
+            # Capture breakfast ID from first day (for default same-breakfast behavior)
+            if day_idx == 0 and not vary_breakfast:
+                batch_breakfast_recipe_id = ids_by_mt.get("petit-dejeuner")
+
+            # Capture lunch/dinner IDs at start of each new batch block
+            if batch_days and batch_counter == 1:
+                batch_lunch_recipe_id = ids_by_mt.get("dejeuner")
+                batch_dinner_recipe_id = ids_by_mt.get("diner")
+
             logger.info(
                 f"  {day_name} ✅ ({day_result['day']['daily_totals']['calories']:.0f} kcal)"
             )

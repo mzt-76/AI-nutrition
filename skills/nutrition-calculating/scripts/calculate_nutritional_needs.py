@@ -11,6 +11,7 @@ Source: Extracted from src/tools.py calculate_nutritional_needs_tool
 import json
 import logging
 
+from src.tools import update_my_profile_tool
 from src.nutrition.calculations import (
     mifflin_st_jeor_bmr,
     calculate_tdee,
@@ -113,6 +114,25 @@ async def execute(**kwargs) -> str:
         logger.info(
             f"Nutrition calculation complete: {target_calories} kcal, {protein_g}g protein"
         )
+
+        # Auto-persist nutrition targets to user profile
+        user_id = kwargs.get("user_id")
+        supabase = kwargs.get("supabase")
+        if user_id and supabase:
+            try:
+                await update_my_profile_tool(
+                    supabase,
+                    user_id=user_id,
+                    bmr=bmr,
+                    tdee=tdee,
+                    target_calories=target_calories,
+                    target_protein_g=protein_g,
+                    target_carbs_g=macros["carbs_g"],
+                    target_fat_g=macros["fat_g"],
+                )
+                logger.info("Nutrition targets auto-persisted to user profile")
+            except Exception as e:
+                logger.warning(f"Failed to auto-persist nutrition targets: {e}")
 
         return json.dumps(result, indent=2)
 

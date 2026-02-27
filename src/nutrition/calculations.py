@@ -315,7 +315,7 @@ def calculate_macros(
     # Fat as % of TOTAL calories (goal-dependent, 20-25% range)
     # Ref: ISSN recommends 20-35%; lower end preserves carb budget
     FAT_PCT_OF_TOTAL = {
-        "muscle_gain": 0.22,  # 22% — lower fat, higher carbs for training fuel
+        "muscle_gain": 0.25,  # 25% — balanced fat for hormonal health + training fuel (acceptable range: 20-30%)
         "weight_loss": 0.25,  # 25% — higher fat for satiety during deficit
         "maintenance": 0.25,  # 25% — balanced
         "performance": 0.20,  # 20% — maximize carbs for endurance

@@ -14,7 +14,12 @@ import logging
 from pathlib import Path
 
 from src.nutrition.portion_scaler import scale_recipe_to_targets
-from src.nutrition.recipe_db import search_recipes, increment_usage
+from src.nutrition.recipe_db import (
+    get_recipe_by_id,
+    increment_usage,
+    score_recipe_variety,
+    search_recipes,
+)
 from src.nutrition.meal_plan_optimizer import (
     calculate_meal_plan_macros,
     optimize_meal_plan_portions,
@@ -22,37 +27,6 @@ from src.nutrition.meal_plan_optimizer import (
 from src.nutrition.validators import validate_allergens, validate_daily_macros
 
 logger = logging.getLogger(__name__)
-
-
-def _score_recipe_macro_fit(recipe: dict, target: dict) -> float:
-    """Score how well recipe's macro RATIOS match target ratios.
-
-    Compares protein/cal, carbs/cal, fat/cal ratios of recipe vs target.
-    Lower score = better fit. Protein match is weighted 2x.
-
-    Args:
-        recipe: Recipe dict with calories_per_serving, protein_g_per_serving, etc.
-        target: Meal slot target dict with target_calories, target_protein_g, etc.
-
-    Returns:
-        Float score >= 0. Lower is better.
-    """
-    recipe_cal = recipe.get("calories_per_serving", 1) or 1
-    recipe_prot_ratio = recipe.get("protein_g_per_serving", 0) * 4 / recipe_cal
-    recipe_carb_ratio = recipe.get("carbs_g_per_serving", 0) * 4 / recipe_cal
-    recipe_fat_ratio = recipe.get("fat_g_per_serving", 0) * 9 / recipe_cal
-
-    target_cal = target.get("target_calories", 1) or 1
-    target_prot_ratio = target.get("target_protein_g", 0) * 4 / target_cal
-    target_carb_ratio = target.get("target_carbs_g", 0) * 4 / target_cal
-    target_fat_ratio = target.get("target_fat_g", 0) * 9 / target_cal
-
-    score = (
-        2 * abs(recipe_prot_ratio - target_prot_ratio)
-        + abs(recipe_carb_ratio - target_carb_ratio)
-        + abs(recipe_fat_ratio - target_fat_ratio)
-    )
-    return score
 
 
 # Day names in French
@@ -194,6 +168,7 @@ async def _get_recipe_for_slot(
     custom_request: str | None,
     attempt: int,
     generate_custom_recipe_module,
+    batch_recipe_id: str | None = None,
 ) -> tuple[dict | None, bool]:
     """Resolve a single recipe for a meal slot — from DB or LLM fallback.
 
@@ -206,6 +181,7 @@ async def _get_recipe_for_slot(
         custom_request: Explicit recipe request from user notes, or None
         attempt: Current retry attempt number (0-indexed)
         generate_custom_recipe_module: Pre-loaded sibling script module
+        batch_recipe_id: Force-reuse this recipe ID (batch cooking mode)
 
     Returns:
         (recipe dict | None, is_llm_fallback: bool)
@@ -218,6 +194,18 @@ async def _get_recipe_for_slot(
     diet_type = user_profile.get("diet_type") or "omnivore"
     preferred_cuisines = user_profile.get("preferred_cuisines")
     max_prep_time = user_profile.get("max_prep_time")
+
+    # Batch cooking: force-reuse a specific recipe by ID
+    if batch_recipe_id:
+        recipe = await get_recipe_by_id(supabase, batch_recipe_id)
+        if recipe:
+            logger.info(
+                f"  {meal_type_display}: batch reuse '{recipe['name']}' (ID={batch_recipe_id})"
+            )
+            return recipe, False
+        logger.warning(
+            f"  {meal_type_display}: batch recipe {batch_recipe_id} not found, falling back"
+        )
 
     if custom_request:
         logger.info(
@@ -260,12 +248,15 @@ async def _get_recipe_for_slot(
     )
 
     if candidates:
-        candidates.sort(key=lambda r: _score_recipe_macro_fit(r, meal_slot))
+        candidates.sort(
+            key=lambda r: score_recipe_variety(r, meal_slot, preferred_cuisines),
+            reverse=True,
+        )
         recipe = candidates[0]
         logger.info(
             f"  {meal_type_display}: DB recipe '{recipe['name']}' "
             f"({recipe['calories_per_serving']:.0f} kcal, "
-            f"macro_score={_score_recipe_macro_fit(recipe, meal_slot):.3f})"
+            f"variety_score={score_recipe_variety(recipe, meal_slot, preferred_cuisines):.3f})"
         )
         return recipe, False
 
@@ -302,7 +293,8 @@ async def _select_and_scale_meals(
     custom_requests: dict,
     attempt: int,
     failed_recipe_ids: list[str] | None = None,
-) -> tuple[list[dict], list[str], int]:
+    batch_recipe_ids: dict[str, str] | None = None,
+) -> tuple[list[dict], list[str], int, dict[str, str]]:
     """Resolve, scale and assemble meals for all slots in one day.
 
     For each meal slot: find a recipe (DB or LLM) → scale to targets → build meal dict.
@@ -314,12 +306,17 @@ async def _select_and_scale_meals(
 
     meals: list[dict] = []
     recipe_ids_used: list[str] = []
+    recipe_ids_by_meal_type: dict[str, str] = {}
     llm_fallback_count = 0
     used_ids_this_attempt = list(exclude_recipe_ids) + list(failed_recipe_ids or [])
 
     for meal_slot in meal_targets:
         meal_type_display = meal_slot.get("meal_type", "Déjeuner")
         custom_request = _find_custom_request(custom_requests, meal_slot)
+
+        # Resolve batch recipe ID for this slot's meal type
+        db_meal_type = _normalize_meal_type_inline(meal_type_display)
+        batch_id = (batch_recipe_ids or {}).get(db_meal_type)
 
         recipe, is_llm = await _get_recipe_for_slot(
             supabase=supabase,
@@ -330,6 +327,7 @@ async def _select_and_scale_meals(
             custom_request=custom_request,
             attempt=attempt,
             generate_custom_recipe_module=generate_custom_recipe_module,
+            batch_recipe_id=batch_id,
         )
 
         if not recipe:
@@ -351,6 +349,7 @@ async def _select_and_scale_meals(
 
             if "id" in recipe:
                 recipe_ids_used.append(recipe["id"])
+                recipe_ids_by_meal_type[db_meal_type] = recipe["id"]
                 used_ids_this_attempt.append(recipe["id"])
                 try:
                     await increment_usage(supabase, recipe["id"])
@@ -361,7 +360,7 @@ async def _select_and_scale_meals(
                 f"Scaling failed for {meal_type_display}: {scale_err}", exc_info=True
             )
 
-    return meals, recipe_ids_used, llm_fallback_count
+    return meals, recipe_ids_used, llm_fallback_count, recipe_ids_by_meal_type
 
 
 async def execute(**kwargs) -> str:
@@ -405,6 +404,7 @@ async def execute(**kwargs) -> str:
     user_profile = kwargs.get("user_profile", {})
     exclude_recipe_ids = list(kwargs.get("exclude_recipe_ids", []))
     custom_requests = kwargs.get("custom_requests", {})
+    batch_recipe_ids = kwargs.get("batch_recipe_ids", {})
 
     # Build target macros for validation
     target_macros = {
@@ -423,6 +423,7 @@ async def execute(**kwargs) -> str:
         best_day = None
         best_validation = None
         best_recipe_ids: list[str] = []
+        best_recipe_ids_by_mt: dict[str, str] = {}
         best_llm_count = 0
         failed_recipe_ids: list[str] = []
 
@@ -430,7 +431,12 @@ async def execute(**kwargs) -> str:
             if attempt > 0:
                 logger.info(f"Retry {attempt}/{MAX_RETRIES} for {day_name}")
 
-            meals, recipe_ids_used, llm_fallback_count = await _select_and_scale_meals(
+            (
+                meals,
+                recipe_ids_used,
+                llm_fallback_count,
+                recipe_ids_by_mt,
+            ) = await _select_and_scale_meals(
                 supabase=supabase,
                 anthropic_client=anthropic_client,
                 meal_targets=meal_targets,
@@ -439,6 +445,7 @@ async def execute(**kwargs) -> str:
                 custom_requests=custom_requests,
                 attempt=attempt,
                 failed_recipe_ids=failed_recipe_ids,
+                batch_recipe_ids=batch_recipe_ids or None,
             )
 
             if not meals:
@@ -550,6 +557,7 @@ async def execute(**kwargs) -> str:
                 best_validation = validation
                 best_recipe_ids = recipe_ids_used
                 best_llm_count = llm_fallback_count
+                best_recipe_ids_by_mt = recipe_ids_by_mt
                 break
 
             # Track recipe IDs from failed attempts so retries pick different recipes
@@ -581,6 +589,7 @@ async def execute(**kwargs) -> str:
                 "success": True,
                 "day": best_day,
                 "recipes_used": best_recipe_ids,
+                "recipe_ids_by_meal_type": best_recipe_ids_by_mt,
                 "llm_fallback_count": best_llm_count,
                 "validation": best_validation,
             },

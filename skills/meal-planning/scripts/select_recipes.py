@@ -9,7 +9,7 @@ Source: New script for day-by-day meal planning workflow
 import json
 import logging
 
-from src.nutrition.recipe_db import search_recipes
+from src.nutrition.recipe_db import search_recipes, score_recipe_variety
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +78,7 @@ async def execute(**kwargs) -> str:
     preferred_cuisines = kwargs.get("preferred_cuisines")
     max_prep_time = kwargs.get("max_prep_time")
     exclude_recipe_ids = list(kwargs.get("exclude_recipe_ids", []))
+    disliked_foods = kwargs.get("disliked_foods", [])
 
     try:
         logger.info(
@@ -108,6 +109,7 @@ async def execute(**kwargs) -> str:
                 meal_type=db_meal_type,
                 exclude_allergens=user_allergens if user_allergens else None,
                 exclude_recipe_ids=all_excluded if all_excluded else None,
+                exclude_ingredients=disliked_foods if disliked_foods else None,
                 diet_type=diet_type,
                 cuisine_types=preferred_cuisines,
                 max_prep_time=max_prep_time,
@@ -116,7 +118,13 @@ async def execute(**kwargs) -> str:
             )
 
             if candidates:
-                # Pick the first candidate (ordered by usage_count DESC)
+                # Sort by multi-factor variety score (higher = better)
+                candidates.sort(
+                    key=lambda r: score_recipe_variety(
+                        r, meal_slot, preferred_cuisines
+                    ),
+                    reverse=True,
+                )
                 recipe = candidates[0]
                 used_ids_this_day.append(recipe["id"])
                 day_recipes.append(

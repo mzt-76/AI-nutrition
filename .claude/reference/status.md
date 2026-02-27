@@ -56,8 +56,14 @@
 - `diet_type` None filter bug — `generate_day_plan.py` line 218: `.get("diet_type", "omnivore")` → `.get("diet_type") or "omnivore"` (None key exists but value is None, so `.get()` returned None instead of default)
 - `useAuth.tsx` TypeScript warnings — added `profile &&` null guard, `event` → `_event` unused param
 
+**Improvements Applied (2026-02-27):**
+- **Batch cooking / pre-planification questions** — DONE: skill description now includes all pre-generation questions (batch cooking, breakfast variety, days, meal structure) visible in Level 1 metadata. Anti-friction rule in system prompt prevents double-questioning.
+- **mem0 memory cleanup** — purged 58 stale/duplicate/contradictory memories (old biometrics, session commands, stale dates). 29 clean long-term preferences remain.
+- **mem0 custom_fact_extraction_prompt** — configured to only store personal preferences (food, routine, cooking habits), never commands/requests/biometrics already in profile. Prevents memory pollution.
+- **System prompt default enforcement** — "Plan de repas défaut = 1 SEUL JOUR, JAMAIS 7" in anti-friction rules to override LLM bias.
+
 **Next Tasks (Priority Order):**
-1. **Batch cooking / recipe variety** — agent should ask user preference; currently repeats same recipes
+1. ~~**Batch cooking / recipe variety**~~ — **DONE** (2026-02-27): agent now asks batch cooking preference in pre-planification questions
 2. **Profile target caching** — auto-calculate BMR/TDEE on first fetch, cache in `user_profiles` (agent calculates but doesn't call `update_my_profile` to persist `target_calories`, `target_protein_g`, `target_carbs_g`, `target_fat_g`, `bmr`, `tdee`)
-3. **Weekly feedback baseline vs check-in** — `calculate_weekly_adjustments` has no concept of "initial baseline"; when agent passes weight_start=weight_end + adherence=100% as a starting point, it stores a fake completed week 1. Need either a separate baseline endpoint or a `is_baseline: bool` flag to distinguish initial state from real weekly feedback.
+3. ~~**Weekly feedback baseline vs check-in**~~ — **DONE** (2026-02-27): `set_baseline.py` script records week_number=0, body tracking columns added, history queries exclude baseline via `.gt("week_number", 0)`
 4. ~~**Streamlit auth**~~ — **OBSOLETE**: React frontend with Supabase Auth is now the production UI; Streamlit is legacy MVP dev tool

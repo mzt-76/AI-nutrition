@@ -7,10 +7,25 @@ description: Check-in hebdomadaire avec analyse de tendance, detection de patter
 
 ## Quand utiliser
 
-- L'utilisateur fait un bilan de semaine
+- L'utilisateur commence le coaching (→ `set_baseline`)
+- L'utilisateur fait un bilan de semaine (→ `calculate_weekly_adjustments`)
 - L'utilisateur rapporte son poids, adherence, ou bien-etre
 - L'utilisateur mentionne fatigue, faim, stress, ou problemes de sommeil
 - L'utilisateur demande des ajustements a son plan
+
+## Workflow initial — Nouvel utilisateur
+
+Avant le premier check-in hebdomadaire, enregistrer une baseline (semaine 0) :
+
+```python
+run_skill_script("weekly-coaching", "set_baseline", {
+    "weight_kg": 87.5,
+    "body_fat_percent": 22.0,  # optionnel
+    "muscle_mass_kg": 68.5,    # optionnel
+})
+```
+
+La baseline est stockée avec `week_number=0` et exclue automatiquement des analyses de tendance.
 
 ## Workflow Complet
 
@@ -90,4 +105,18 @@ run_skill_script("weekly-coaching", "calculate_weekly_adjustments", {
 
 ## Scripts disponibles
 
-- `scripts/calculate_weekly_adjustments.py` : Validation → profil → historique → tendance poids → patterns → ajustements → red flags → stockage
+- `scripts/set_baseline.py` : Enregistre les mesures initiales (semaine 0) — poids + composition corporelle optionnelle
+- `scripts/calculate_weekly_adjustments.py` : Validation → profil → historique (exclut baseline) → tendance poids → patterns → ajustements → red flags → stockage
+
+### Paramètres `set_baseline`
+
+- `weight_kg` (float, requis) : Poids initial en kg (40-300)
+- `body_fat_percent` (float, optionnel) : Pourcentage de graisse corporelle (3-60)
+- `muscle_mass_kg` (float, optionnel) : Masse musculaire en kg (10-150)
+- `water_percent` (float, optionnel) : Pourcentage d'eau corporelle (30-80)
+- `waist_cm` (float, optionnel) : Tour de taille en cm
+- `hips_cm` (float, optionnel) : Tour de hanches en cm
+- `chest_cm` (float, optionnel) : Tour de poitrine en cm
+- `arm_cm` (float, optionnel) : Tour de bras en cm
+- `thigh_cm` (float, optionnel) : Tour de cuisse en cm
+- `measurement_method` (str, optionnel) : 'smart_scale', 'manual', 'image_analysis', 'calipers'

@@ -23,6 +23,7 @@ description: Calculs nutritionnels (BMR, TDEE, macros) avec inference automatiqu
      * "J'ai utilise un objectif de maintenance (sante generale) par defaut"
      * "Si tu as un objectif specifique (perte de poids, prise de muscle, performance), dis-le moi pour recalculer !"
 4. Utilise `calculate_nutritional_needs` avec les donnees (profil OU message utilisateur)
+   - Les résultats (BMR, TDEE, macros) sont auto-sauvegardés dans le profil — pas besoin d'appeler `update_my_profile` pour les cibles nutritionnelles.
 5. Explique les resultats (BMR, TDEE, cible calorique, macros)
 6. Fournis des conseils pratiques d'application
 7. **APRES LE CALCUL** :

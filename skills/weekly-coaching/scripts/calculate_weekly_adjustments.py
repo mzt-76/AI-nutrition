@@ -104,12 +104,15 @@ async def execute(**kwargs) -> str:
         goal = profile.get("primary_goal", "maintenance")
         current_protein_g = profile.get("current_protein_g", 150)
 
-        # Step 3: Fetch historical data (past 4 weeks)
+        # Step 3: Fetch historical data (past 4 weeks, excluding baseline)
         feedback_query = supabase.table("weekly_feedback").select("*")
         if user_id:
             feedback_query = feedback_query.eq("user_id", user_id)
         history_response = (
-            feedback_query.order("week_start_date", desc=True).limit(4).execute()
+            feedback_query.gt("week_number", 0)
+            .order("week_start_date", desc=True)
+            .limit(4)
+            .execute()
         )
         past_weeks = history_response.data if history_response.data else []
         logger.info(f"Retrieved {len(past_weeks)} weeks of historical feedback")

@@ -281,6 +281,12 @@ async def update_my_profile(
     favorite_foods: list[str] = None,
     max_prep_time: int = None,
     preferred_cuisines: list[str] = None,
+    bmr: float = None,
+    tdee: float = None,
+    target_calories: float = None,
+    target_protein_g: float = None,
+    target_carbs_g: float = None,
+    target_fat_g: float = None,
 ) -> str:
     """Update user profile. Only provide fields that changed.
 
@@ -298,6 +304,12 @@ async def update_my_profile(
         favorite_foods: Preferred foods
         max_prep_time: Max cooking time in minutes
         preferred_cuisines: Cuisine types (e.g., ["méditerranéenne", "asiatique"])
+        bmr: Basal Metabolic Rate in kcal (calculated)
+        tdee: Total Daily Energy Expenditure in kcal (calculated)
+        target_calories: Daily calorie target in kcal
+        target_protein_g: Daily protein target in grams
+        target_carbs_g: Daily carbohydrate target in grams
+        target_fat_g: Daily fat target in grams
     """
     logger.info("Tool called: update_my_profile")
     return await update_my_profile_tool(
@@ -315,6 +327,12 @@ async def update_my_profile(
         favorite_foods=favorite_foods,
         max_prep_time=max_prep_time,
         preferred_cuisines=preferred_cuisines,
+        bmr=bmr,
+        tdee=tdee,
+        target_calories=target_calories,
+        target_protein_g=target_protein_g,
+        target_carbs_g=target_carbs_g,
+        target_fat_g=target_fat_g,
     )
 
 

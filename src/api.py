@@ -274,6 +274,7 @@ async def agent_endpoint(
                     memories_str = "\n".join(
                         f"- {entry['memory']}" for entry in relevant["results"]
                     )
+                    logger.info(f"mem0 memories injected: {memories_str}")
             except Exception as e:
                 logger.warning(f"Could not load memories: {e}")
 
