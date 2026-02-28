@@ -64,6 +64,7 @@
 
 **Next Tasks (Priority Order):**
 1. ~~**Batch cooking / recipe variety**~~ — **DONE** (2026-02-27): agent now asks batch cooking preference in pre-planification questions
-2. **Profile target caching** — auto-calculate BMR/TDEE on first fetch, cache in `user_profiles` (agent calculates but doesn't call `update_my_profile` to persist `target_calories`, `target_protein_g`, `target_carbs_g`, `target_fat_g`, `bmr`, `tdee`)
+2. **Profile target caching** — auto-calculate BMR/TDEE on first fetch, cache in `user_profiles` (agent calculates but doesn't call `update_my_profile` to persist `target_calories`, `target_protein_g`, `target_carbs_g`, `target_fat_g`, `bmr`, `tdee`)**DONE** (2026-02-26)
 3. ~~**Weekly feedback baseline vs check-in**~~ — **DONE** (2026-02-27): `set_baseline.py` script records week_number=0, body tracking columns added, history queries exclude baseline via `.gt("week_number", 0)`
-4. ~~**Streamlit auth**~~ — **OBSOLETE**: React frontend with Supabase Auth is now the production UI; Streamlit is legacy MVP dev tool
+4. ~~**improving frontend to make it an agentic application using genretive UI**
+5. ~~**when frontedn is production ready make it an app for smartphone**

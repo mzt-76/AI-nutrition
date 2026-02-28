@@ -84,8 +84,9 @@ ai-agent-mastery/
 prototype/loveable_interface/
 fastapi-starter-for-ai-coding/
 
-# Agent plans (internal)
-.agents/
+# Agent workspace (internal) — keep plans/ tracked
+.agents/*
+!.agents/plans/
 
 # Frontend build artifacts
 frontend/node_modules/
