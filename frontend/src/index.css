@@ -148,6 +148,15 @@
   }
 }
 
+@keyframes recording-pulse {
+  0%, 100% {
+    box-shadow: 0 0 6px hsl(0 84% 60% / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 16px hsl(0 84% 60% / 0.6);
+  }
+}
+
 @keyframes send-fly {
   0% {
     transform: scale(1);

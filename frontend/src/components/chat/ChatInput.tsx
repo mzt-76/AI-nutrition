@@ -2,12 +2,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Paperclip, X, FileText } from 'lucide-react';
+import { Send, Paperclip, X, FileText, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FileAttachment } from '@/types/database.types';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 interface ChatInputProps {
   onSendMessage: (message: string, files?: FileAttachment[]) => void;
@@ -20,6 +21,18 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const { isListening, startListening, stopListening, isSupported } = useSpeechRecognition({
+    onResult: (transcript) => {
+      setMessage((prev) => {
+        const separator = prev.length > 0 && !prev.endsWith(' ') ? ' ' : '';
+        return (prev + separator + transcript).slice(0, 4000);
+      });
+    },
+    onError: (error) => {
+      toast({ title: "Erreur micro", description: error, variant: "destructive" });
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,7 +206,32 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
               {files.length >= 5 ? "Limite atteinte (5 max)" : "Télécharger des fichiers (1 Mo max)"}
             </TooltipContent>
           </Tooltip>
-          
+
+          {/* Mic button — hidden if browser doesn't support Speech API */}
+          {isSupported && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className={cn(
+                    "mr-1 transition-all",
+                    isListening && "text-red-500 animate-[recording-pulse_1.5s_ease-in-out_infinite]"
+                  )}
+                  disabled={isLoading}
+                  onClick={isListening ? stopListening : startListening}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  <span className="sr-only">{isListening ? "Arrêter la dictée" : "Dictée vocale"}</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {isListening ? "Arrêter la dictée" : "Dictée vocale"}
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           <Button
             type="submit"
             size="sm"
