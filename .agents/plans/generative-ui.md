@@ -6,7 +6,7 @@ Pay special attention to naming of existing utils types and models. Import from 
 
 ## Feature Description
 
-Replace plain markdown text responses with **rich, interactive React components** rendered alongside text. The agent decides WHAT to show (component selection via structured JSON markers in text), and the frontend decides HOW to render it (component catalog + zone-based layout).
+Replace plain markdown text responses with **rich, interactive React components** rendered alongside text, plus a **dedicated meal plan visual page** accessible from chat. The agent decides WHAT to show (component selection via structured JSON markers in text), and the frontend decides HOW to render it (component catalog + zone-based layout).
 
 This extends the existing NDJSON streaming pipeline with a new `ui_component` chunk type. Zero new dependencies. Domain-specific nutrition components (MacroGauges, MealCard, etc.) instead of generic UI.
 
@@ -16,19 +16,44 @@ As a nutrition app user
 I want to see rich visual components (gauges, cards, charts) alongside text responses
 So that I can quickly understand my macro breakdown, meal plans, and weekly coaching results at a glance
 
+As a nutrition app user
+I want to click a link from chat to view my full meal plan on a dedicated visual page
+So that I can review and revisit my plan outside of the chat conversation
+
 ## Problem Statement
 
-All agent responses render as walls of markdown text. Structured data (macro breakdowns, meal plans, weekly coaching results) loses visual impact and interactivity. Users must parse long text to find key numbers.
+All agent responses render as walls of markdown text. Structured data (macro breakdowns, meal plans, weekly coaching results) loses visual impact and interactivity. Users must parse long text to find key numbers. Meal plans buried in chat history are hard to revisit.
 
 ## Solution Statement
 
-Extend the NDJSON streaming protocol with `<!--UI:ComponentName:{json}-->` markers that the backend extracts and emits as separate `ui_component` chunks. The frontend accumulates these and renders them via a component catalog mapped by semantic zones.
+Extend the NDJSON streaming protocol with `<!--UI:ComponentName:{json}-->` markers that the backend extracts and emits as separate `ui_component` chunks. The frontend accumulates these and renders them via a component catalog mapped by semantic zones. Additionally, a dedicated `/plans/:id` route renders stored meal plans as visual pages.
+
+## Architecture Decision
+
+**DIY approach extending existing NDJSON streaming** (not CopilotKit/A2UI).
+
+**Rationale:**
+- Zero new dependencies — extends what already works
+- The agent already knows what data it has — no 3-stage LLM pipeline needed (unlike the example project which handles unknown content)
+- Chat-native rendering for inline components
+- Simple REST endpoint for the meal plan page
+- 100% backward compatible with existing text-only messages
+
+**Borrowed from example project (`generative_UI_project_example/`):**
+- Component catalog pattern (`Record<string, React.FC>`)
+- Zone-based layout with semantic grouping
+- Lightweight validation before rendering
+- Fallback card for unknown components
+
+**Phase strategy:**
+- **Phase 1 (this plan, showcase):** Chat components + meal plan visual page
+- **Phase 2 (later, real app):** Food tracker dashboard, shopping list page, recipe pages, smartphone deployment
 
 ## Feature Metadata
 
 **Feature Type**: New Capability
 **Estimated Complexity**: High
-**Primary Systems Affected**: `src/api.py` (streaming), `src/prompt.py` (agent instructions), `src/db_utils.py` (storage), frontend chat components, frontend types
+**Primary Systems Affected**: `src/api.py` (streaming), `src/prompt.py` (agent instructions), `src/db_utils.py` (storage), frontend chat components, frontend types, frontend routing
 **Dependencies**: None new — uses existing NDJSON pipeline, React, Tailwind CSS classes
 
 ---
@@ -54,6 +79,17 @@ Extend the NDJSON streaming protocol with `<!--UI:ComponentName:{json}-->` marke
 - `frontend/src/types/database.types.ts` (lines 40-74) — Message type: `message: {type, content, files?}`. **Extend**: add `ui_components?` field.
 - `frontend/src/components/chat/ChatLayout.tsx` (lines 13-25) — Props include `onSendMessage`. Flow: `Chat.tsx → ChatLayout → MessageList → MessageItem`.
 - `frontend/src/index.css` (lines 97-109) — `.glass-effect` and `.gradient-green` CSS classes.
+- `frontend/src/App.tsx` — Current routes: `/login`, `/`, `/admin`, `/auth/callback`. **Add**: `/plans/:id`.
+
+**Meal plan data (already stored in Supabase):**
+- `meal_plans` table: `plan_data` JSONB column contains full nested structure:
+  ```json
+  {
+    "days": [{"day": "Lundi", "meals": [{"meal_type": "...", "name": "...", "nutrition": {...}, "ingredients": [...]}], "daily_totals": {...}}],
+    "weekly_summary": {"average_calories": ..., "average_protein_g": ...}
+  }
+  ```
+- `generate_week_plan.py` returns `meal_plan_id` — agent can include link in response.
 
 **Reference patterns (read-only):**
 - `generative_UI_project_example/` — Contains `a2ui-catalog.tsx` (catalog pattern: `Record<string, ComponentRenderer>`), `A2UIRenderer.tsx` (recursive render + error handling), `layout-engine.ts` (width-to-grid mapping, semantic zones). Key interface: `A2UIComponent { id, type, props, children?, layout?, styling?, zone? }`.
@@ -61,6 +97,7 @@ Extend the NDJSON streaming protocol with `<!--UI:ComponentName:{json}-->` marke
 ### New Files to Create
 
 - `src/ui_components.py` — Backend marker extraction
+- `tests/test_ui_components.py` — Backend unit tests
 - `frontend/src/types/generative-ui.types.ts` — TypeScript types for UI components
 - `frontend/src/components/generative-ui/ComponentRenderer.tsx` — Catalog + zone renderer
 - `frontend/src/components/generative-ui/components/NutritionSummaryCard.tsx`
@@ -70,7 +107,7 @@ Extend the NDJSON streaming protocol with `<!--UI:ComponentName:{json}-->` marke
 - `frontend/src/components/generative-ui/components/WeightTrendIndicator.tsx`
 - `frontend/src/components/generative-ui/components/AdjustmentCard.tsx`
 - `frontend/src/components/generative-ui/components/QuickReplyChips.tsx`
-- `tests/test_ui_components.py` — Backend unit tests
+- `frontend/src/pages/MealPlanView.tsx` — Dedicated visual plan page
 
 ### Patterns to Follow
 
@@ -110,28 +147,29 @@ const COMPONENT_CATALOG: Record<string, React.FC<any>> = {
 
 ## IMPLEMENTATION PLAN
 
-### Phase 1: Backend Foundation (src/ui_components.py + tests)
+### Part A: Chat-Embedded Components
 
+#### Phase 1: Backend Foundation (src/ui_components.py + tests)
 Create the marker extraction module and comprehensive tests. This is the core backend logic — everything else depends on it.
 
-### Phase 2: Backend Integration (api.py, db_utils.py, prompt.py)
-
+#### Phase 2: Backend Integration (api.py, db_utils.py, prompt.py)
 Wire extraction into the streaming pipeline. Extend message storage. Teach the agent about UI components in the system prompt.
 
-### Phase 3: Frontend Types & Stream Parser
-
+#### Phase 3: Frontend Types & Stream Parser
 Define TypeScript types, extend the streaming chunk interface, update the NDJSON parser and message accumulation hook.
 
-### Phase 4: Frontend Component Catalog & 7 Components
-
+#### Phase 4: Frontend Component Catalog & 7 Components
 Build the ComponentRenderer and all 7 Phase 1 components with green glass-morphism styling.
 
-### Phase 5: Integration & QuickReplyChips Wiring
-
+#### Phase 5: Integration & QuickReplyChips Wiring
 Wire ComponentRenderer into MessageItem, pass onAction callback through the component tree for QuickReplyChips interaction.
 
-### Phase 6: Testing & Validation
+### Part B: Meal Plan Visual Page
 
+#### Phase 6: API Endpoint + Page + Routing
+Add meal plan data endpoint, build the visual page, wire routing and navigation from chat.
+
+### Phase 7: Testing & Validation
 Backend unit tests, frontend lint/type-check, manual integration test.
 
 ---
@@ -146,6 +184,7 @@ Backend unit tests, frontend lint/type-check, manual integration test.
 import json
 import re
 import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -291,6 +330,7 @@ Then update the `store_message` call in `src/api.py` to pass `ui_components=ui_c
 #   3. Don't emit components when you don't have the data
 #   4. Text is always present — components are visual complements
 #   5. QuickReplyChips: use for follow-up suggestions
+#   6. When generating a meal plan, include a link: [Voir le plan complet](/plans/{meal_plan_id})
 # - Props schemas for each component (brief)
 ```
 
@@ -595,16 +635,62 @@ This allows QuickReplyChips clicks to send the chip's value as a new user messag
 
 - **VALIDATE**: Manual test — click a chip, verify message sends
 
-### Task 14: UPDATE `PRD.md` — Add Generative UI section
+### Task 14: CREATE `GET /api/meal-plans/{plan_id}` endpoint
 
-**IMPLEMENT**: Add section 16 before Next Steps. Content:
-- Philosophy: agent decides WHAT, frontend decides HOW
-- Architecture Decision Record (DIY vs CopilotKit)
-- Streaming Protocol Extension (NDJSON + ui_component chunks)
-- Component Catalog (Phase 1 list)
-- Semantic Zones
+**IMPLEMENT**: Add to `src/api.py`:
 
-- **VALIDATE**: Read the file, ensure section numbering is correct
+```python
+@app.get("/api/meal-plans/{plan_id}")
+async def get_meal_plan(plan_id: str, request: Request):
+    """Fetch a stored meal plan by ID for visual rendering."""
+    # Extract user_id from JWT (same pattern as existing endpoints)
+    user_id = await _get_user_id_from_token(request)
+
+    supabase = get_supabase_client()
+    result = supabase.table("meal_plans").select("*").eq("id", plan_id).single().execute()
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Meal plan not found")
+
+    # Verify ownership
+    if result.data.get("user_id") and result.data["user_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return result.data
+```
+
+- **Data already stored**: `meal_plans.plan_data` JSONB has full nested structure (days → meals → nutrition)
+- **VALIDATE**: `curl -H "Authorization: Bearer $TOKEN" http://localhost:8001/api/meal-plans/$PLAN_ID`
+
+### Task 15: CREATE `frontend/src/pages/MealPlanView.tsx`
+
+**IMPLEMENT**: Dedicated visual meal plan page:
+
+- Route: `/plans/:id`
+- Fetch plan data from `GET /api/meal-plans/:id` (with auth token)
+- Hero section: plan title, week dates, weekly average macros (reuse MacroGauges component)
+- Each day rendered as DayPlanCard containing MealCards
+- Daily macro summary bars
+- Loading skeleton while fetching
+- "Retour au chat" navigation button
+- Green glass-morphism design matching chat theme
+
+- **VALIDATE**: `cd frontend && npx tsc --noEmit`
+
+### Task 16: Wire route + navigation
+
+**IMPLEMENT**:
+
+1. **`App.tsx`**: Add route:
+```tsx
+<Route path="/plans/:id" element={<ProtectedRoute><MealPlanView /></ProtectedRoute>} />
+```
+
+2. **`src/prompt.py`**: Add instruction for agent to include plan link:
+   - When a meal plan is generated, include `[📋 Voir le plan complet](/plans/{meal_plan_id})` in the text response
+   - The `generate_week_plan.py` skill already returns `meal_plan_id`
+
+- **VALIDATE**: Generate a meal plan in chat → verify link appears → click → visual page loads
 
 ---
 
@@ -634,8 +720,10 @@ This allows QuickReplyChips clicks to send the chip's value as a new user messag
 1. Start backend + frontend
 2. Send "Calcule mes besoins nutritionnels" (nutrition calculation)
 3. Verify: text response appears first, then NutritionSummaryCard + MacroGauges render below
-4. Load an old conversation → verify text-only messages render unchanged
-5. Click a QuickReplyChip → verify message sends
+4. Send "Génère un plan repas pour lundi" → verify MealCards render inline
+5. Verify "Voir le plan complet" link appears → click → `/plans/:id` loads with visual plan
+6. Load an old conversation → verify text-only messages render unchanged
+7. Click a QuickReplyChip → verify message sends
 
 ---
 
@@ -671,15 +759,17 @@ cd frontend && npx tsc --noEmit && npm run lint
 
 ```bash
 # Terminal 1: Backend
-cd /mnt/c/Users/meuze/AI-nutrition && python -m uvicorn src.api:app --reload --port 8000
+cd /mnt/c/Users/meuze/AI-nutrition && uvicorn src.api:app --reload --port 8001
 
 # Terminal 2: Frontend
 cd /mnt/c/Users/meuze/AI-nutrition/frontend && npm run dev
 ```
 
-1. Send nutrition calculation request → verify rich components render
-2. Load old conversation → verify backward compatibility
-3. Click QuickReplyChip → verify message sends
+1. Send nutrition calculation request → verify rich components render inline
+2. Send meal plan request → verify components + "Voir le plan" link
+3. Click plan link → verify visual page renders
+4. Load old conversation → verify backward compatibility
+5. Click QuickReplyChip → verify message sends
 
 ---
 
@@ -694,6 +784,8 @@ cd /mnt/c/Users/meuze/AI-nutrition/frontend && npm run dev
 - [ ] ComponentRenderer renders known types, ignores unknown
 - [ ] All 7 Phase 1 components render with green glass-morphism theme
 - [ ] QuickReplyChips clicks send messages
+- [ ] `/plans/:id` page renders stored meal plan visually
+- [ ] Agent includes "Voir le plan complet" link after generating a plan
 - [ ] Old text-only conversations render unchanged (backward compatible)
 - [ ] All backend tests pass
 - [ ] Frontend type-check and lint pass
@@ -703,13 +795,13 @@ cd /mnt/c/Users/meuze/AI-nutrition/frontend && npm run dev
 
 ## COMPLETION CHECKLIST
 
-- [ ] All 14 tasks completed in order
+- [ ] All 16 tasks completed in order
 - [ ] `pytest tests/test_ui_components.py -v` — all pass
 - [ ] `ruff check src/ tests/` — no errors
 - [ ] `mypy src/` — no errors
 - [ ] `cd frontend && npx tsc --noEmit` — no errors
 - [ ] `cd frontend && npm run lint` — no errors
-- [ ] Manual integration test passed
+- [ ] Manual integration test passed (chat components + plan page)
 - [ ] Backward compatibility verified
 - [ ] All acceptance criteria met
 
@@ -717,8 +809,9 @@ cd /mnt/c/Users/meuze/AI-nutrition/frontend && npm run dev
 
 ## NOTES
 
-- **No new dependencies**: This is intentional. The entire feature is ~15 files of glue code.
-- **Phase 2 components** (future): CalorieBar, RecipeCard, MealTimeline, WeeklyProgressChart, ShoppingListCard, ProfileSummaryCard, GoalIndicator, ActionButton.
+- **No new dependencies**: This is intentional. The entire feature is ~16 files of glue code.
+- **Phase 2 components** (future — real app): CalorieProgressRing, FoodLogEntry, ShoppingListCard, RecipeCard, WeeklyProgressChart, ProfileSummaryCard. These need new DB tables (`food_log_entries`) and dedicated pages (`/tracker`, `/shopping-list/:id`).
 - **The agent won't emit markers immediately** — it needs to be prompted with the right system prompt instructions. The first real test is sending a nutrition calculation request after the prompt update.
 - **JSONB flexibility**: Supabase JSONB columns accept arbitrary keys without migration. The `ui_components` field is simply added to the existing message object.
 - **Streaming order**: Text chunks stream first (accumulated), then ui_component chunks emit after streaming completes. This ensures text is visible immediately while components appear at the end.
+- **Meal plan data already exists**: `meal_plans.plan_data` has the full nested structure. The visual page just fetches and renders — no new data generation needed.

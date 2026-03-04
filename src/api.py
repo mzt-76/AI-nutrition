@@ -12,6 +12,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -28,6 +29,7 @@ from pydantic_ai.messages import PartDeltaEvent, PartStartEvent, TextPartDelta
 
 from src.agent import agent, create_agent_deps, get_model
 from src.clients import get_memory_client, get_supabase_client
+from src.ui_components import extract_ui_components
 from src.db_utils import (
     check_rate_limit,
     convert_history_to_pydantic_format,
@@ -318,6 +320,37 @@ async def agent_endpoint(
         )
 
 
+@app.get("/api/meal-plans/{plan_id}")
+async def get_meal_plan(
+    plan_id: str,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> dict[str, Any]:
+    """Fetch a stored meal plan by ID for visual rendering."""
+    if not auth_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    # Validate UUID format to reject junk early
+    if not re.fullmatch(
+        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+        plan_id,
+        re.IGNORECASE,
+    ):
+        raise HTTPException(status_code=400, detail="Invalid plan ID format")
+
+    user_id = auth_user["id"]
+    result = (
+        supabase.table("meal_plans").select("*").eq("id", plan_id).single().execute()
+    )
+
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Meal plan not found")
+
+    if result.data.get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    return result.data
+
+
 async def _stream_agent_response(
     request: AgentRequest,
     session_id: str,
@@ -328,6 +361,7 @@ async def _stream_agent_response(
     """Stream agent response as NDJSON chunks."""
     agent_deps = create_agent_deps(memories=memories_str, user_id=request.user_id)
     full_response = ""
+    ui_components: list[dict[str, Any]] = []
 
     try:
         async with agent.iter(
@@ -357,6 +391,15 @@ async def _stream_agent_response(
                                     + b"\n"
                                 )
 
+        # Extract UI components from agent response
+        cleaned_text, ui_components = extract_ui_components(full_response)
+        if ui_components:
+            full_response = cleaned_text
+            for comp in ui_components:
+                yield (
+                    json.dumps({"type": "ui_component", **comp}).encode("utf-8") + b"\n"
+                )
+
         # Store AI response
         try:
             message_data = run.result.new_messages_json()
@@ -367,6 +410,7 @@ async def _stream_agent_response(
                 content=full_response,
                 message_data=message_data,
                 data={"request_id": request.request_id},
+                ui_components=ui_components if ui_components else None,
             )
         except Exception as e:
             logger.error(f"Failed to store AI response: {e}")
@@ -393,6 +437,8 @@ async def _stream_agent_response(
     }
     if conversation_title:
         final_data["conversation_title"] = conversation_title
+    if ui_components:
+        final_data["ui_components"] = ui_components
 
     yield json.dumps(final_data).encode("utf-8") + b"\n"
 

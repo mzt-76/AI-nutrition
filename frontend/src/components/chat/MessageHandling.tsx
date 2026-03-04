@@ -1,6 +1,7 @@
 
 import { useCallback, useRef } from 'react';
 import { Message, FileAttachment } from '@/types/database.types';
+import { UIComponentBlock, SemanticZone } from '@/types/generative-ui.types';
 import { sendMessage, fetchMessages } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Session } from '@supabase/supabase-js';
@@ -67,7 +68,8 @@ export const useMessageHandling = ({
       const aiMessageId = `temp-${Date.now()}-ai`;
       let aiMessageCreated = false;
       let completionReceived = false;
-      
+      const accumulatedComponents: UIComponentBlock[] = [];
+
       // Send to webhook API with streaming callback
       const response = await sendMessage(
         content, 
@@ -118,6 +120,30 @@ export const useMessageHandling = ({
             }
           }
           
+          // Handle UI component chunks
+          if (chunk.type === 'ui_component' && chunk.component) {
+            accumulatedComponents.push({
+              id: chunk.id || `${chunk.component}-${accumulatedComponents.length}`,
+              component: chunk.component,
+              props: chunk.props || {},
+              zone: (chunk.zone as SemanticZone) || 'content',
+            });
+            setMessages((prev) => {
+              const updated = [...prev];
+              const idx = updated.findIndex(msg => msg.id === aiMessageId);
+              if (idx !== -1) {
+                updated[idx] = {
+                  ...updated[idx],
+                  message: {
+                    ...updated[idx].message,
+                    ui_components: [...accumulatedComponents],
+                  },
+                };
+              }
+              return updated;
+            });
+          }
+
           // Check for completion flag
           if (chunk.complete === true && !completionReceived) {
             completionReceived = true;

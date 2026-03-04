@@ -11,10 +11,13 @@ import ReactMarkdown from 'react-markdown';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { cn } from '@/lib/utils';
+import { ComponentRenderer } from '@/components/generative-ui/ComponentRenderer';
+import { UIComponentBlock } from '@/types/generative-ui.types';
 
 interface MessageItemProps {
   message: Message;
   isLastMessage?: boolean;
+  onAction?: (value: string) => void;
 }
 
 interface CodeProps {
@@ -24,7 +27,7 @@ interface CodeProps {
   children: React.ReactNode;
 }
 
-export const MessageItem = ({ message, isLastMessage = false }: MessageItemProps) => {
+export const MessageItem = ({ message, isLastMessage = false, onAction }: MessageItemProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -161,6 +164,12 @@ export const MessageItem = ({ message, isLastMessage = false }: MessageItemProps
             <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&>p]:mb-4">
               {memoizedMarkdown}
             </div>
+            {isAI && message.message.ui_components && message.message.ui_components.length > 0 && (
+              <ComponentRenderer
+                components={message.message.ui_components as UIComponentBlock[]}
+                onAction={onAction}
+              />
+            )}
           </div>
           
           <div className="flex items-center gap-2">

@@ -124,10 +124,15 @@ run_skill_script("meal-planning", "generate_shopping_list", {
 })
 ```
 
-## Question pré-planification (OBLIGATOIRE avant generate_week_plan)
+## Question pré-planification (avant generate_week_plan)
 
 Avant de lancer la génération, poser **UNE SEULE question rapide** qui couvre tout
 en un message. Ne PAS poser les questions une par une en plusieurs messages.
+
+**EXCEPTION — Exécution immédiate (pas de question) :**
+Si l'utilisateur dit "go", "lance", "génère", "pas de préférence", ou si le message contient déjà toutes les infos (profil + objectif), lance directement `generate_week_plan` avec les défauts. Ne calcule PAS les besoins nutritionnels séparément — le skill le fait automatiquement.
+
+**Défaut : 1 SEUL JOUR.** Ne JAMAIS générer 7 jours sauf si explicitement demandé.
 
 **Message unique à envoyer :**
 > Avant de lancer le plan, quelques préférences rapides :
@@ -260,10 +265,10 @@ L'outil `generate_weekly_meal_plan` retourne UN SEUL JSON. Toutes les valeurs af
 Voir `references/presentation_format.md` pour le format détaillé avec exemples.
 
 **Résumé rapide** :
-- A. Résumé global : `weekly_summary.average_calories`, `weekly_summary.average_protein_g`, nombre de jours (`summary.total_days`), sécurité allergènes (filtrage Python garanti 2 couches)
-- B. Détails COMPLETS pour **TOUS les jours retournés** — lire depuis `meal_plan.days[*]` (par défaut 1 jour = Lundi). **Tu DOIS afficher le nom du jour exactement tel que retourné** (`meal_plan.days[i].day`, ex: "**Lundi**") comme titre de section.
-- C. Mentionner le document Markdown : `"Le plan complet est disponible ici : {markdown_document}"`
-- D. **OBLIGATOIRE** : Terminer en proposant de générer d'autres jours ou la liste de courses. Exemple : "Veux-tu que je génère d'autres jours ou la liste de courses ?" (mentionner l'ID du plan retourné)
+- A. Résumé global (texte) : `weekly_summary.average_calories`, `weekly_summary.average_protein_g`, nombre de jours (`summary.total_days`), sécurité allergènes (filtrage Python garanti 2 couches)
+- B. **Composants UI OBLIGATOIRES** : Émettre un marqueur `<!--UI:DayPlanCard:{...}-->` pour chaque jour dans `meal_plan.days[]` (max 2 jours détaillés). Construire les props depuis le JSON retourné — voir `references/presentation_format.md` pour le mapping exact des champs.
+- C. Lien vers le plan complet : `[Voir le plan complet](/plans/{meal_plan_id})`
+- D. **OBLIGATOIRE** : Terminer avec `<!--UI:QuickReplyChips:...-->` proposant d'afficher d'autres jours ou la liste de courses
 
 ## Sécurité Allergènes - TOLÉRANCE ZÉRO
 

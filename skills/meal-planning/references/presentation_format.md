@@ -1,30 +1,54 @@
 # Format de Presentation du Plan de Repas
 
-## Structure OBLIGATOIRE (strictement 2 niveaux)
+## Structure OBLIGATOIRE
 
-### A. Resume global
+### A. Resume global (texte)
 - Nombre total de recettes uniques
 - Temps de preparation moyen
 - Securite allergenes (validation passee)
 
-### B. Details COMPLETS pour 2 JOURS EXACTEMENT (Lundi ET Mardi)
+### B. Composants UI pour CHAQUE jour retourne
 
-Pour CHAQUE jour :
-- Nom du jour et date
-- **Pour CHAQUE repas/collation** :
-  * Nom de la recette (creatif)
-  * Liste complete des ingredients avec quantites ARRONDIES
-  * Instructions de preparation (phrase complete)
-  * Macros du repas (calories | proteines | glucides | lipides)
-- Total quotidien (calories | proteines | glucides | lipides)
+**Tu DOIS emettre un marqueur `DayPlanCard` pour chaque jour dans `meal_plan.days[]`.**
 
-**JAMAIS afficher ce niveau de detail pour plus de 2 jours**
+Construis le marqueur a partir du JSON retourne par le script :
 
-### C. ABSOLUMENT INTERDIT D'AFFICHER UN RESUME DES 5 AUTRES JOURS
+```
+<!--UI:DayPlanCard:{
+  "day_name": meal_plan.days[i].day,
+  "meals": [
+    {
+      "meal_type": meals[j].meal_type,
+      "recipe_name": meals[j].name,
+      "calories": meals[j].nutrition.calories,
+      "macros": {
+        "protein_g": meals[j].nutrition.protein_g,
+        "carbs_g": meals[j].nutrition.carbs_g,
+        "fat_g": meals[j].nutrition.fat_g
+      },
+      "prep_time": meals[j].prep_time_minutes,
+      "ingredients": meals[j].ingredients (convertir objets en strings: "nom (quantite unite)")
+    }
+  ],
+  "totals": {
+    "calories": days[i].daily_totals.calories,
+    "protein_g": days[i].daily_totals.protein_g,
+    "carbs_g": days[i].daily_totals.carbs_g,
+    "fat_g": days[i].daily_totals.fat_g
+  }
+}-->
+```
 
-- NE GENERE PAS : "Resume des 5 jours restants", "Les jours suivants"
+**Regles** :
+- Arrondir toutes les valeurs numeriques a l'entier
+- Convertir les ingredients objets `{name, quantity, unit}` en strings lisibles : `"Poulet (150 g)"`
+- Emettre un `DayPlanCard` par jour — ne PAS combiner plusieurs jours dans un seul marqueur
+- Maximum 2 jours en detail. Si plus de 2 jours, afficher les 2 premiers avec `DayPlanCard`, puis mentionner que le reste est dans la base
+
+### C. Pour les plans > 2 jours
+
+- NE GENERE PAS de resume des jours restants
 - NE LISTE PAS les totaux caloriques des jours 3-7
-- N'ECRIS RIEN sur les jours Mercredi a Dimanche
 
 **SEULEMENT CE MESSAGE** :
 ```
@@ -32,56 +56,35 @@ Pour CHAQUE jour :
 Le plan complet des 7 jours (avec tous les details) est sauvegarde dans la base de donnees.
 ```
 
-### D. Document Markdown
-- Le tool retourne un champ `markdown_document` avec le chemin du fichier
-- Mentionne : "Document complet telechargeable : [chemin_du_fichier.md]"
+### D. Lien vers le plan complet
+- Inclure : `[Voir le plan complet](/plans/{meal_plan_id})`
 
-### E. Proposition explicite (APRES le message ci-dessus)
-- "Veux-tu que je t'affiche les details d'un jour specifique ?"
-- "Ou preferes-tu que je genere la liste de courses pour la semaine ?"
+### E. Proposition explicite + QuickReplyChips
+
+Terminer avec des boutons de suivi :
+
+```
+<!--UI:QuickReplyChips:{"options":[{"label":"Afficher un autre jour","value":"show_another_day"},{"label":"Liste de courses","value":"generate_grocery_list"},{"label":"Regenerer le plan","value":"regenerate_plan"}]}-->
+```
 
 ## Exemple Complet
 
 ```
-Plan de 7 jours cree (6-12 janvier 2025)
+Plan de 7 jours cree avec succes ! Voici les details des 2 premiers jours :
 
-Resume Hebdomadaire
+**Resume Hebdomadaire**
 - 21 recettes uniques
 - Temps de preparation moyen : 35 min
-- Structure : 3 repas complets
+- Securite allergenes : aucun allergene detecte
 
-Securite Allergenes
-Aucun allergene detecte
+<!--UI:DayPlanCard:{"day_name":"Lundi 6 Janvier","meals":[{"meal_type":"Petit-dejeuner","recipe_name":"Omelette aux epinards et toast avocat","calories":520,"macros":{"protein_g":28,"carbs_g":45,"fat_g":24},"prep_time":15,"ingredients":["Oeufs (3)","Epinards frais (50 g)","Pain complet (60 g)","Avocat (80 g)"]},{"meal_type":"Dejeuner","recipe_name":"Poulet grille et salade quinoa","calories":680,"macros":{"protein_g":52,"carbs_g":55,"fat_g":22},"prep_time":25,"ingredients":["Poulet (150 g)","Quinoa cuit (80 g)","Tomates cerises (100 g)","Concombre (50 g)","Huile d'olive (15 ml)"]},{"meal_type":"Diner","recipe_name":"Saumon au four avec legumes rotis","calories":620,"macros":{"protein_g":48,"carbs_g":45,"fat_g":26},"prep_time":30,"ingredients":["Saumon (150 g)","Brocoli (100 g)","Carottes (100 g)","Pommes de terre (120 g)","Huile d'olive (10 ml)"]}],"totals":{"calories":1820,"protein_g":128,"carbs_g":145,"fat_g":72}}-->
 
----
-
-Lundi 6 Janvier
-
-Petit-dejeuner (07:30) - Omelette aux epinards et toast avocat
-- Ingredients : 3 oeufs, 50g epinards frais, 60g pain complet, 80g avocat
-- Instructions : Battre les oeufs. Faire revenir les epinards. Cuire en omelette. Griller le pain, etaler l'avocat.
-- Macros : 520 kcal | 28g proteines | 45g glucides | 24g lipides
-
-Dejeuner (12:30) - Poulet grille et salade quinoa
-- Ingredients : 150g poulet, 80g quinoa cuit, 100g tomates cerises, 50g concombre, 15ml huile d'olive
-- Instructions : Griller le poulet. Cuire le quinoa. Melanger avec les legumes et l'huile d'olive.
-- Macros : 680 kcal | 52g proteines | 55g glucides | 22g lipides
-
-Diner (19:30) - Saumon au four avec legumes rotis
-- Ingredients : 150g saumon, 100g brocoli, 100g carottes, 120g pommes de terre, 10ml huile d'olive
-- Instructions : Prechauffer le four a 200C. Disposer saumon et legumes. Cuire 25 minutes.
-- Macros : 620 kcal | 48g proteines | 45g glucides | 26g lipides
-
-Total quotidien : 1820 kcal | 128g proteines | 145g glucides | 72g lipides
+<!--UI:DayPlanCard:{"day_name":"Mardi 7 Janvier","meals":[...],"totals":{...}}-->
 
 ---
-
-[Mardi avec meme niveau de detail...]
-
----
-
 Le plan complet des 7 jours est sauvegarde dans la base de donnees.
 
-Veux-tu que je t'affiche les details d'un jour specifique ?
-Ou preferes-tu que je genere la liste de courses pour la semaine ?
+[Voir le plan complet](/plans/abc-123-def)
+
+<!--UI:QuickReplyChips:{"options":[{"label":"Afficher un autre jour","value":"show_another_day"},{"label":"Liste de courses","value":"generate_grocery_list"},{"label":"Regenerer le plan","value":"regenerate_plan"}]}-->
 ```

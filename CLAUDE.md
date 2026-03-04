@@ -29,6 +29,8 @@
     - `tests/`: deterministic logic only — calculations, validators, formatters, DB operations, agent structure with `FunctionModel`. Always passes. Runs on every commit.
     - `evals/`: real LLM behaviour — does the agent call the right skill? extract the right params? respond in the expected range? Scored not asserted. Run on demand before releases.
     - **Always define a `TEST_USER_PROFILE` constant** at the top of every eval file with ALL required fields (age, gender, height_cm, weight_kg, activity_level, goals). Never rely on implicit profile data mid-file.
+    - **Evals that test skills needing DB access** (meal-planning, weekly-coaching) must use `create_agent_deps(user_id=...)` with a real user ID from Supabase. Without `user_id`, the skill fails silently and the agent falls back to improvising.
+12. **`src/prompt.py` stays generic**: Skill-specific behavior (presentation formats, default params, routing exceptions) belongs in the skill's `SKILL.md` or `references/`, NOT in the system prompt. The system prompt only has rules that apply to ALL skills.
 
 ---
 
@@ -62,6 +64,8 @@
 - Design: green glass-morphism dark theme, French localization
 - Types: `src/types/database.types.ts` must match actual Supabase schema
 - Run: `cd frontend && npm run dev` (port 8080), needs `frontend/.env` with Supabase keys
+- **Generative UI**: Agent emits `<!--UI:Component:{json}-->` markers in text → `src/ui_components.py` extracts them → API streams as `ui_component` NDJSON chunks → frontend renders React components via `ComponentRenderer`. Zod validates all props before rendering. 7 components: NutritionSummaryCard, MacroGauges, MealCard, DayPlanCard, WeightTrendIndicator, AdjustmentCard, QuickReplyChips.
+- **Meal plan visual page**: `/plans/:id` route fetches from `GET /api/meal-plans/{plan_id}` and renders with DayPlanCard/MacroGauges
 - **Do not use lovable-tagger** — it was removed from the project
 
 **Skills:** `nutrition-calculating` | `meal-planning` | `weekly-coaching` | `knowledge-searching` | `body-analyzing` | `skill-creator`
@@ -89,4 +93,4 @@ Before starting work, try `find_tasks()`. If successful → use Archon for task 
 
 ---
 
-**Version:** 3.5 | **Updated:** 2026-02-25
+**Version:** 3.6 | **Updated:** 2026-03-04

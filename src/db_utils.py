@@ -153,6 +153,7 @@ async def store_message(
     message_data: bytes | None = None,
     data: dict[str, Any] | None = None,
     files: list[dict[str, str]] | None = None,
+    ui_components: list[dict[str, Any]] | None = None,
 ) -> None:
     """Store a message in the Supabase messages table.
 
@@ -164,12 +165,15 @@ async def store_message(
         message_data: Optional binary data (Pydantic AI message JSON)
         data: Optional additional data for the message
         files: Optional list of file attachments
+        ui_components: Optional list of UI component dicts for generative UI
     """
     message_obj: dict[str, Any] = {"type": message_type, "content": content}
     if data:
         message_obj["data"] = data
     if files:
         message_obj["files"] = files
+    if ui_components:
+        message_obj["ui_components"] = ui_components
 
     insert_data: dict[str, Any] = {"session_id": session_id, "message": message_obj}
     if message_data:

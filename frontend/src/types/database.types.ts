@@ -46,6 +46,12 @@ export interface Database {
             type: 'human' | 'ai';
             content: string;
             files?: FileAttachment[];
+            ui_components?: Array<{
+              id: string;
+              component: string;
+              props: Record<string, unknown>;
+              zone: string;
+            }>;
           };
           message_data: string | null;
           created_at: string | null;
@@ -57,6 +63,12 @@ export interface Database {
             type: 'human' | 'ai';
             content: string;
             files?: FileAttachment[];
+            ui_components?: Array<{
+              id: string;
+              component: string;
+              props: Record<string, unknown>;
+              zone: string;
+            }>;
           };
           message_data?: string | null;
           created_at?: string | null;
@@ -67,6 +79,12 @@ export interface Database {
             type: 'human' | 'ai';
             content: string;
             files?: FileAttachment[];
+            ui_components?: Array<{
+              id: string;
+              component: string;
+              props: Record<string, unknown>;
+              zone: string;
+            }>;
           };
           message_data?: string | null;
           created_at?: string | null;

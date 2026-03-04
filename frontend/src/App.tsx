@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "./hooks/useAuth";
 import Login from "./pages/Login";
 import Chat from "./pages/Chat";
 import Admin from "./pages/Admin";
+import MealPlanView from "./pages/MealPlanView";
 import NotFound from "./pages/NotFound";
 import { AuthCallback } from "./components/auth/AuthCallback";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -60,6 +61,14 @@ const AppRoutes = () => {
             <Admin />
           </ProtectedRoute>
         } 
+      />
+      <Route
+        path="/plans/:id"
+        element={
+          <ProtectedRoute>
+            <MealPlanView />
+          </ProtectedRoute>
+        }
       />
       {/* OAuth callback route for handling authentication redirects */}
       <Route path="/auth/callback" element={<AuthCallback />} />

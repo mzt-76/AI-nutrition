@@ -30,6 +30,7 @@ interface MessageListProps {
   isGeneratingResponse?: boolean;
   isLoadingMessages?: boolean;
   onSuggestedQuestion?: (question: string) => void;
+  onAction?: (value: string) => void;
 }
 
 export const MessageList = ({
@@ -38,6 +39,7 @@ export const MessageList = ({
   isGeneratingResponse = false,
   isLoadingMessages = false,
   onSuggestedQuestion,
+  onAction,
 }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -88,6 +90,7 @@ export const MessageList = ({
             <MessageItem
               message={message}
               isLastMessage={index === messages.length - 1}
+              onAction={onAction}
             />
           </div>
         ))}
