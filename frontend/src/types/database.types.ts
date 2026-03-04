@@ -1,4 +1,12 @@
 
+export interface ShoppingListItem {
+  name: string;
+  quantity: number;
+  unit: string;
+  category: string;
+  checked: boolean;
+}
+
 export interface FileAttachment {
   fileName: string;
   content: string; // Base64 encoded content
@@ -90,6 +98,111 @@ export interface Database {
           created_at?: string | null;
         };
       };
+      daily_food_log: {
+        Row: {
+          id: string;
+          user_id: string;
+          log_date: string;
+          meal_type: string;
+          food_name: string;
+          quantity: number | null;
+          unit: string | null;
+          calories: number;
+          protein_g: number;
+          carbs_g: number;
+          fat_g: number;
+          source: string | null;
+          meal_plan_id: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          log_date?: string;
+          meal_type: string;
+          food_name: string;
+          quantity?: number | null;
+          unit?: string | null;
+          calories?: number;
+          protein_g?: number;
+          carbs_g?: number;
+          fat_g?: number;
+          source?: string | null;
+          meal_plan_id?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          log_date?: string;
+          meal_type?: string;
+          food_name?: string;
+          quantity?: number | null;
+          unit?: string | null;
+          calories?: number;
+          protein_g?: number;
+          carbs_g?: number;
+          fat_g?: number;
+          source?: string | null;
+          meal_plan_id?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      favorite_recipes: {
+        Row: {
+          id: string;
+          user_id: string;
+          recipe_id: string;
+          notes: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          recipe_id: string;
+          notes?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          recipe_id?: string;
+          notes?: string | null;
+          created_at?: string | null;
+        };
+      };
+      shopping_lists: {
+        Row: {
+          id: string;
+          user_id: string;
+          meal_plan_id: string | null;
+          title: string;
+          items: ShoppingListItem[];
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          meal_plan_id?: string | null;
+          title?: string;
+          items?: ShoppingListItem[];
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          meal_plan_id?: string | null;
+          title?: string;
+          items?: ShoppingListItem[];
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
       user_profiles: {
         Row: {
           id: string;
@@ -178,3 +291,8 @@ export type Conversation = Database['public']['Tables']['conversations']['Row'];
 // Use string | number for Message id to support temporary UI messages with string IDs
 export type Message = Omit<Database['public']['Tables']['messages']['Row'], 'id'> & { id: string | number };
 export type UserProfile = Database['public']['Tables']['user_profiles']['Row'];
+export type DailyFoodLog = Database['public']['Tables']['daily_food_log']['Row'];
+export type DailyFoodLogInsert = Database['public']['Tables']['daily_food_log']['Insert'];
+export type DailyFoodLogUpdate = Database['public']['Tables']['daily_food_log']['Update'];
+export type FavoriteRecipe = Database['public']['Tables']['favorite_recipes']['Row'];
+export type ShoppingList = Database['public']['Tables']['shopping_lists']['Row'];

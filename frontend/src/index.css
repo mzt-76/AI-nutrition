@@ -190,6 +190,10 @@
   @apply text-blue-400;
 }
 
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

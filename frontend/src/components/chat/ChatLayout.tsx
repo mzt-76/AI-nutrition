@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { MessageList } from '@/components/chat/MessageList';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { ChatSidebar } from '@/components/sidebar/ChatSidebar';
-import { AlertCircle, Menu } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Message, Conversation } from '@/types/database.types';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { MobileHeader } from '@/components/navigation/MobileHeader';
+import { SettingsModal } from '@/components/sidebar/SettingsModal';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ChatLayoutProps {
   conversations: Conversation[];
@@ -38,7 +40,9 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   newConversationId
 }) => {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
 
   React.useEffect(() => {
@@ -123,24 +127,24 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
 
   if (isMobile) {
     return (
-      <div className="flex h-screen gradient-bg flex-col overflow-hidden">
-        <div className="flex items-center h-14 border-b border-border/50 px-4 glass-effect">
-          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="mr-2">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Ouvrir le menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-[280px]" showCloseButton={false}>
-              {renderSidebar()}
-            </SheetContent>
-          </Sheet>
-          <div className="font-semibold">
-            {selectedConversation?.title || "Nouvelle conversation"}
-          </div>
-        </div>
+      <div className="flex h-screen gradient-bg flex-col overflow-hidden pb-14">
+        <MobileHeader
+          title={selectedConversation?.title || "Nouvelle conversation"}
+          showMenu
+          onMenuClick={() => setSheetOpen(true)}
+          onProfileClick={() => setIsSettingsOpen(true)}
+        />
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetContent side="left" className="p-0 w-[280px]" showCloseButton={false}>
+            {renderSidebar()}
+          </SheetContent>
+        </Sheet>
         {renderChatContent()}
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          currentFullName={user?.user_metadata?.full_name || null}
+        />
       </div>
     );
   }

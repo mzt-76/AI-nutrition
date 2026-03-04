@@ -9,9 +9,13 @@ import Login from "./pages/Login";
 import Chat from "./pages/Chat";
 import Admin from "./pages/Admin";
 import MealPlanView from "./pages/MealPlanView";
+import DailyTracking from "./pages/DailyTracking";
+import MyPlans from "./pages/MyPlans";
 import NotFound from "./pages/NotFound";
 import { AuthCallback } from "./components/auth/AuthCallback";
+import { BottomTabs } from "./components/navigation/BottomTabs";
 import { ThemeProvider } from "@/components/theme-provider";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -39,41 +43,61 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppRoutes = () => {
   const { user } = useAuth();
-  
+  const isMobile = useIsMobile();
+
   return (
-    <Routes>
-      <Route 
-        path="/login" 
-        element={user ? <Navigate to="/" /> : <Login />} 
-      />
-      <Route 
-        path="/" 
-        element={
-          <ProtectedRoute>
-            <Chat />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/admin" 
-        element={
-          <ProtectedRoute>
-            <Admin />
-          </ProtectedRoute>
-        } 
-      />
-      <Route
-        path="/plans/:id"
-        element={
-          <ProtectedRoute>
-            <MealPlanView />
-          </ProtectedRoute>
-        }
-      />
-      {/* OAuth callback route for handling authentication redirects */}
-      <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/" /> : <Login />}
+        />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Chat />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tracking"
+          element={
+            <ProtectedRoute>
+              <DailyTracking />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/plans"
+          element={
+            <ProtectedRoute>
+              <MyPlans />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/plans/:id"
+          element={
+            <ProtectedRoute>
+              <MealPlanView />
+            </ProtectedRoute>
+          }
+        />
+        {/* OAuth callback route for handling authentication redirects */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      {isMobile && user && <BottomTabs />}
+    </>
   );
 };
 
