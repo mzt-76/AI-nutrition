@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Apple, Beef, Wheat, Milk, ShoppingCart, Package } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import type { ShoppingList, ShoppingListItem } from '@/types/database.types';
 import { updateShoppingList } from '@/lib/api';
 
@@ -29,6 +30,7 @@ const CATEGORY_ICONS: Record<string, typeof Apple> = {
 const CATEGORY_ORDER = ['produce', 'proteins', 'grains', 'dairy', 'pantry', 'other'];
 
 export function ShoppingListCard({ list, onUpdate }: ShoppingListCardProps) {
+  const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
   const items = list.items ?? [];
   const checkedCount = items.filter((i) => i.checked).length;
@@ -48,8 +50,8 @@ export function ShoppingListCard({ list, onUpdate }: ShoppingListCardProps) {
     try {
       await updateShoppingList(list.id, { items: newItems });
     } catch {
-      // Revert on error
       onUpdate(list);
+      toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de mettre à jour la liste.' });
     }
   };
 
@@ -57,13 +59,12 @@ export function ShoppingListCard({ list, onUpdate }: ShoppingListCardProps) {
     ? new Date(list.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
     : '';
 
-  // Find item's global index for toggle
+  // Build global index map for stable keys + toggle callbacks
+  const itemGlobalIndex = new Map<ShoppingListItem, number>();
   let globalIdx = 0;
-  const categoryStartIndex: Record<string, number> = {};
   for (const cat of CATEGORY_ORDER) {
-    if (grouped[cat]) {
-      categoryStartIndex[cat] = globalIdx;
-      globalIdx += grouped[cat].length;
+    for (const item of grouped[cat] ?? []) {
+      itemGlobalIndex.set(item, globalIdx++);
     }
   }
 
@@ -108,7 +109,6 @@ export function ShoppingListCard({ list, onUpdate }: ShoppingListCardProps) {
             const catItems = grouped[cat];
             if (!catItems?.length) return null;
             const CatIcon = CATEGORY_ICONS[cat] ?? Package;
-            const startIdx = categoryStartIndex[cat] ?? 0;
 
             return (
               <div key={cat}>
@@ -119,11 +119,11 @@ export function ShoppingListCard({ list, onUpdate }: ShoppingListCardProps) {
                   </span>
                 </div>
                 <div className="space-y-0.5 pl-5">
-                  {catItems.map((item, i) => {
-                    const idx = items.indexOf(item);
+                  {catItems.map((item) => {
+                    const idx = itemGlobalIndex.get(item) ?? 0;
                     return (
                       <label
-                        key={`${item.name}-${startIdx + i}`}
+                        key={`${item.name}-${idx}`}
                         className="flex items-center gap-2.5 py-1 px-1.5 -mx-1 rounded-md hover:bg-white/[0.03] cursor-pointer"
                       >
                         <input

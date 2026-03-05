@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { CalendarDays, Heart, ShoppingCart, Loader2 } from 'lucide-react';
+import { CalendarDays, Heart, ShoppingCart } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { MobileHeader } from '@/components/navigation/MobileHeader';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 import { fetchMealPlans, fetchFavorites, removeFavorite, fetchShoppingLists } from '@/lib/api';
 import type { MealPlanSummary } from '@/lib/api';
 import type { ShoppingList } from '@/types/database.types';
@@ -23,10 +25,12 @@ const TABS: { key: Tab; label: string; icon: typeof CalendarDays }[] = [
 const MyPlans = () => {
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { toast } = useToast();
   const userId = user?.id ?? '';
 
   const [tab, setTab] = useState<Tab>('plans');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   // Data
   const [plans, setPlans] = useState<MealPlanSummary[]>([]);
@@ -40,6 +44,7 @@ const MyPlans = () => {
 
     const load = async () => {
       setLoading(true);
+      setError(false);
       try {
         if (tab === 'plans') {
           const data = await fetchMealPlans(userId);
@@ -53,6 +58,10 @@ const MyPlans = () => {
         }
       } catch (err) {
         console.error(`Error loading ${tab}:`, err);
+        if (!cancelled) {
+          setError(true);
+          toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les données.' });
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -67,7 +76,7 @@ const MyPlans = () => {
     try {
       await removeFavorite(id);
     } catch {
-      // Re-fetch on error
+      toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de retirer le favori.' });
       if (userId) {
         const data = await fetchFavorites(userId);
         setFavorites(data as unknown as FavoriteWithRecipe[]);
@@ -116,8 +125,16 @@ const MyPlans = () => {
       <ScrollArea className="flex-1">
         <div className={`px-4 py-3 space-y-2.5 ${isMobile ? 'pb-20' : 'pb-8'}`}>
           {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-5 w-5 animate-spin text-emerald-500/60" />
+            <div className="space-y-2.5">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-xl border border-white/5 p-4 space-y-3">
+                  <Skeleton className="h-4 w-3/4 bg-white/[0.06]" />
+                  <div className="flex gap-3">
+                    <Skeleton className="h-3 w-16 bg-white/[0.04]" />
+                    <Skeleton className="h-3 w-20 bg-white/[0.04]" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <>
@@ -125,7 +142,7 @@ const MyPlans = () => {
               {tab === 'plans' && (
                 plans.length > 0
                   ? plans.map((p) => <PlanCard key={p.id} plan={p} />)
-                  : <EmptyState message={emptyMessages.plans} />
+                  : <EmptyState message={emptyMessages.plans} isError={error} />
               )}
 
               {/* Favoris */}
@@ -134,7 +151,7 @@ const MyPlans = () => {
                   ? favorites.map((f) => (
                       <FavoriteCard key={f.id} favorite={f} onRemove={handleRemoveFavorite} />
                     ))
-                  : <EmptyState message={emptyMessages.favoris} />
+                  : <EmptyState message={emptyMessages.favoris} isError={error} />
               )}
 
               {/* Courses */}
@@ -143,7 +160,7 @@ const MyPlans = () => {
                   ? shoppingLists.map((sl) => (
                       <ShoppingListCard key={sl.id} list={sl} onUpdate={handleShoppingListUpdate} />
                     ))
-                  : <EmptyState message={emptyMessages.courses} />
+                  : <EmptyState message={emptyMessages.courses} isError={error} />
               )}
             </>
           )}
@@ -153,10 +170,12 @@ const MyPlans = () => {
   );
 };
 
-function EmptyState({ message }: { message: string }) {
+function EmptyState({ message, isError }: { message: string; isError?: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <p className="text-sm text-gray-500">{message}</p>
+      <p className={`text-sm ${isError ? 'text-red-400/70' : 'text-gray-500'}`}>
+        {isError ? 'Erreur de chargement. Réessaie plus tard.' : message}
+      </p>
     </div>
   );
 }

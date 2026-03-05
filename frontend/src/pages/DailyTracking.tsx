@@ -1,7 +1,7 @@
-import { Loader2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileHeader } from '@/components/navigation/MobileHeader';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useDailyTracking } from '@/hooks/useDailyTracking';
 import { DateSelector } from '@/components/tracking/DateSelector';
 import { CalorieGauge } from '@/components/tracking/CalorieGauge';
@@ -53,8 +53,29 @@ const DailyTracking = () => {
           />
 
           {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-5 w-5 animate-spin text-emerald-500/60" />
+            <div className="px-4 pt-4 space-y-6">
+              {/* CalorieGauge skeleton */}
+              <div className="flex justify-center">
+                <Skeleton className="h-40 w-40 rounded-full bg-white/[0.04]" />
+              </div>
+              {/* TrackingMacros skeleton */}
+              <div className="space-y-3 px-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="space-y-1.5">
+                    <Skeleton className="h-3 w-20 bg-white/[0.04]" />
+                    <Skeleton className="h-2 w-full bg-white/[0.06] rounded-full" />
+                  </div>
+                ))}
+              </div>
+              {/* MealSection skeleton */}
+              <div className="space-y-2">
+                {[1, 2].map((i) => (
+                  <div key={i} className="px-2 space-y-2">
+                    <Skeleton className="h-3 w-24 bg-white/[0.04]" />
+                    <Skeleton className="h-10 w-full bg-white/[0.03] rounded-lg" />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <>

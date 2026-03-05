@@ -4,9 +4,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { MacroGauges } from '@/components/generative-ui/components/MacroGauges';
 import { DayPlanCard } from '@/components/generative-ui/components/DayPlanCard';
 import { MealCardProps } from '@/types/generative-ui.types';
-import { ArrowLeft, CalendarDays } from 'lucide-react';
+import { ArrowLeft, CalendarDays, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { API_BASE_URL } from '@/lib/api';
+import { LoadingDots } from '@/components/ui/loading-dots';
+import { apiFetch } from '@/lib/api';
 
 // Ingredient from recipe DB can be string or structured object
 interface IngredientObj {
@@ -59,32 +60,30 @@ export default function MealPlanView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!id || !session?.access_token) return;
+  const fetchPlan = async () => {
+    if (!id || !session) return;
+    setLoading(true);
+    setError(null);
 
-    fetch(`${API_BASE_URL}/api/meal-plans/${id}`, {
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-      },
-    })
-      .then(res => {
-        if (!res.ok) throw new Error(`Erreur ${res.status}`);
-        return res.json();
-      })
-      .then(data => {
-        setPlan(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [id, session?.access_token]);
+    try {
+      const data = await apiFetch<MealPlanData>(`/api/meal-plans/${id}`);
+      setPlan(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlan();
+  }, [id, session]);
 
   if (loading) {
     return (
-      <div className="min-h-screen gradient-bg flex items-center justify-center">
-        <div className="animate-pulse text-foreground">Chargement du plan...</div>
+      <div className="min-h-screen gradient-bg flex items-center justify-center gap-3">
+        <LoadingDots className="text-emerald-400" />
+        <span className="text-sm text-gray-400">Chargement du plan</span>
       </div>
     );
   }
@@ -92,11 +91,19 @@ export default function MealPlanView() {
   if (error || !plan) {
     return (
       <div className="min-h-screen gradient-bg flex flex-col items-center justify-center gap-4">
-        <p className="text-red-400">{error || 'Plan non trouvé'}</p>
-        <Button variant="outline" onClick={() => navigate('/')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Retour au chat
-        </Button>
+        <p className="text-sm text-red-400/80">
+          {error ? 'Impossible de charger le plan.' : 'Plan non trouvé.'}
+        </p>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={fetchPlan}>
+            <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+            Réessayer
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+            <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
+            Retour
+          </Button>
+        </div>
       </div>
     );
   }

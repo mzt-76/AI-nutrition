@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Send, Mic, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,14 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    };
+  }, []);
 
   const handleSpeechResult = useCallback((transcript: string) => {
     setText((prev) => (prev ? `${prev} ${transcript}` : transcript));
@@ -38,6 +46,9 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
     const trimmed = text.trim();
     if (!trimmed || !user || sending) return;
 
+    // Cancel any in-flight poll from a previous submit
+    if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+
     setSending(true);
     try {
       const prompt = `[SUIVI RAPIDE - date: ${dateStr}] L'utilisateur déclare avoir mangé : "${trimmed}". Enregistre ces aliments dans le journal du ${dateStr}. Réponds uniquement par une confirmation courte.`;
@@ -47,15 +58,20 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
       await sendMessage(prompt, user.id, '', session?.access_token, undefined, () => {});
 
       setText('');
-      toast({ title: 'Enregistré', description: 'Repas ajouté au journal.' });
-      // Poll for new entries — the agent may still be writing to DB
-      const poll = (attempts: number) => {
-        setTimeout(async () => {
+      toast({ title: 'Envoyé', description: "L'agent analyse vos aliments..." });
+      // Poll with exponential backoff — agent may need 5-10s for OFF lookups.
+      // Cancel previous poll chain on re-submit or unmount via pollTimerRef.
+      const delays = [1000, 2000, 3000, 4000, 5000];
+      let attempt = 0;
+      const poll = () => {
+        if (attempt >= delays.length) return;
+        pollTimerRef.current = setTimeout(async () => {
           await onEntryCreated();
-          if (attempts > 1) poll(attempts - 1);
-        }, 1000);
+          attempt++;
+          poll();
+        }, delays[attempt]);
       };
-      poll(3);
+      poll();
     } catch (err) {
       console.error('Tracking input error:', err);
       toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le repas." });

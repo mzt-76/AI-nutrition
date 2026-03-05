@@ -143,38 +143,57 @@ export function useDailyTracking() {
     refreshEntries();
   }, [refreshEntries]);
 
-  // Fetch active meal plan + match day
+  // Cache the full plan detail so we only fetch once (not on every date change)
+  const [cachedPlanDetail, setCachedPlanDetail] = useState<MealPlanDetail | null>(null);
+
+  // Fetch active meal plan (only when user changes)
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
+
     const fetchPlan = async () => {
       setPlanLoading(true);
       try {
         const plans = await fetchMealPlans(user.id);
+        if (cancelled) return;
         if (plans.length === 0) {
           setPlanDayMeals([]);
           setActivePlanId(null);
+          setCachedPlanDetail(null);
           return;
         }
-        // Take the most recent plan
         const latest = plans[0];
         setActivePlanId(latest.id);
 
         const detail = await apiFetch<MealPlanDetail>(`/api/meal-plans/${latest.id}`);
-        const weekday = format(selectedDate, 'EEEE', { locale: fr }); // e.g. "lundi"
-        const matchedDay = detail.plan_data.days.find(
-          (d) => (FRENCH_DAYS[d.day] ?? d.day.toLowerCase()) === weekday,
-        );
-        setPlanDayMeals(matchedDay?.meals ?? []);
+        if (!cancelled) setCachedPlanDetail(detail);
       } catch (err) {
         console.error('Failed to fetch meal plan:', err);
-        setPlanDayMeals([]);
-        setActivePlanId(null);
+        if (!cancelled) {
+          setPlanDayMeals([]);
+          setActivePlanId(null);
+          setCachedPlanDetail(null);
+        }
       } finally {
-        setPlanLoading(false);
+        if (!cancelled) setPlanLoading(false);
       }
     };
     fetchPlan();
-  }, [user, selectedDate]);
+    return () => { cancelled = true; };
+  }, [user]);
+
+  // Match day from cached plan when date changes (no API call)
+  useEffect(() => {
+    if (!cachedPlanDetail) {
+      setPlanDayMeals([]);
+      return;
+    }
+    const weekday = format(selectedDate, 'EEEE', { locale: fr });
+    const matchedDay = cachedPlanDetail.plan_data.days.find(
+      (d) => (FRENCH_DAYS[d.day] ?? d.day.toLowerCase()) === weekday,
+    );
+    setPlanDayMeals(matchedDay?.meals ?? []);
+  }, [selectedDate, cachedPlanDetail]);
 
   // Computed totals
   const totals: NutritionTotals = entries.reduce(

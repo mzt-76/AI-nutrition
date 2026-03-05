@@ -14,6 +14,7 @@ import logging
 import os
 import re
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from typing import Any
 
 from dotenv import load_dotenv
@@ -176,8 +177,6 @@ class DailyLogUpdate(BaseModel):
     protein_g: float | None = None
     carbs_g: float | None = None
     fat_g: float | None = None
-    source: str | None = None
-    meal_plan_id: str | None = None
 
 
 class FavoriteCreate(BaseModel):
@@ -186,9 +185,17 @@ class FavoriteCreate(BaseModel):
     notes: str | None = None
 
 
+class ShoppingListItemModel(BaseModel):
+    name: str
+    quantity: float = 0
+    unit: str = ""
+    category: str = "other"
+    checked: bool = False
+
+
 class ShoppingListUpdate(BaseModel):
     title: str | None = None
-    items: list[dict[str, Any]] | None = None
+    items: list[ShoppingListItemModel] | None = None
 
 
 # =============================================================================
@@ -399,11 +406,15 @@ async def list_meal_plans(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentication required")
     if auth_user.get("id") != user_id:
-        raise HTTPException(status_code=403, detail="user_id does not match authenticated user")
+        raise HTTPException(
+            status_code=403, detail="user_id does not match authenticated user"
+        )
 
     result = (
         supabase.table("meal_plans")
-        .select("id, user_id, week_start, target_calories_daily, target_protein_g, target_carbs_g, target_fat_g, notes, created_at")
+        .select(
+            "id, user_id, week_start, target_calories_daily, target_protein_g, target_carbs_g, target_fat_g, notes, created_at"
+        )
         .eq("user_id", user_id)
         .order("created_at", desc=True)
         .limit(50)
@@ -427,7 +438,14 @@ async def get_daily_log(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentication required")
     if auth_user.get("id") != user_id:
-        raise HTTPException(status_code=403, detail="user_id does not match authenticated user")
+        raise HTTPException(
+            status_code=403, detail="user_id does not match authenticated user"
+        )
+
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+        raise HTTPException(
+            status_code=400, detail="Invalid date format, expected YYYY-MM-DD"
+        )
 
     result = (
         supabase.table("daily_food_log")
@@ -449,7 +467,9 @@ async def create_daily_log(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentication required")
     if auth_user.get("id") != body.user_id:
-        raise HTTPException(status_code=403, detail="user_id does not match authenticated user")
+        raise HTTPException(
+            status_code=403, detail="user_id does not match authenticated user"
+        )
 
     row = body.model_dump(exclude_none=True)
     result = supabase.table("daily_food_log").insert(row).execute()
@@ -470,7 +490,13 @@ async def update_daily_log(
         raise HTTPException(status_code=401, detail="Authentication required")
 
     # Verify ownership
-    existing = supabase.table("daily_food_log").select("user_id").eq("id", entry_id).single().execute()
+    existing = (
+        supabase.table("daily_food_log")
+        .select("user_id")
+        .eq("id", entry_id)
+        .single()
+        .execute()
+    )
     if not existing.data:
         raise HTTPException(status_code=404, detail="Log entry not found")
     if existing.data.get("user_id") != auth_user["id"]:
@@ -480,8 +506,10 @@ async def update_daily_log(
     if not updates:
         raise HTTPException(status_code=400, detail="No fields to update")
 
-    updates["updated_at"] = "now()"
-    result = supabase.table("daily_food_log").update(updates).eq("id", entry_id).execute()
+    updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+    result = (
+        supabase.table("daily_food_log").update(updates).eq("id", entry_id).execute()
+    )
 
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to update log entry")
@@ -498,7 +526,13 @@ async def delete_daily_log(
         raise HTTPException(status_code=401, detail="Authentication required")
 
     # Verify ownership
-    existing = supabase.table("daily_food_log").select("user_id").eq("id", entry_id).single().execute()
+    existing = (
+        supabase.table("daily_food_log")
+        .select("user_id")
+        .eq("id", entry_id)
+        .single()
+        .execute()
+    )
     if not existing.data:
         raise HTTPException(status_code=404, detail="Log entry not found")
     if existing.data.get("user_id") != auth_user["id"]:
@@ -522,7 +556,9 @@ async def list_favorites(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentication required")
     if auth_user.get("id") != user_id:
-        raise HTTPException(status_code=403, detail="user_id does not match authenticated user")
+        raise HTTPException(
+            status_code=403, detail="user_id does not match authenticated user"
+        )
 
     result = (
         supabase.table("favorite_recipes")
@@ -543,7 +579,9 @@ async def add_favorite(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentication required")
     if auth_user.get("id") != body.user_id:
-        raise HTTPException(status_code=403, detail="user_id does not match authenticated user")
+        raise HTTPException(
+            status_code=403, detail="user_id does not match authenticated user"
+        )
 
     row = body.model_dump(exclude_none=True)
     result = supabase.table("favorite_recipes").insert(row).execute()
@@ -562,7 +600,13 @@ async def remove_favorite(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentication required")
 
-    existing = supabase.table("favorite_recipes").select("user_id").eq("id", favorite_id).single().execute()
+    existing = (
+        supabase.table("favorite_recipes")
+        .select("user_id")
+        .eq("id", favorite_id)
+        .single()
+        .execute()
+    )
     if not existing.data:
         raise HTTPException(status_code=404, detail="Favorite not found")
     if existing.data.get("user_id") != auth_user["id"]:
@@ -586,7 +630,9 @@ async def list_shopping_lists(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentication required")
     if auth_user.get("id") != user_id:
-        raise HTTPException(status_code=403, detail="user_id does not match authenticated user")
+        raise HTTPException(
+            status_code=403, detail="user_id does not match authenticated user"
+        )
 
     result = (
         supabase.table("shopping_lists")
@@ -607,7 +653,13 @@ async def get_shopping_list(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentication required")
 
-    result = supabase.table("shopping_lists").select("*").eq("id", list_id).single().execute()
+    result = (
+        supabase.table("shopping_lists")
+        .select("*")
+        .eq("id", list_id)
+        .single()
+        .execute()
+    )
     if not result.data:
         raise HTTPException(status_code=404, detail="Shopping list not found")
     if result.data.get("user_id") != auth_user["id"]:
@@ -626,18 +678,30 @@ async def update_shopping_list(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentication required")
 
-    existing = supabase.table("shopping_lists").select("user_id").eq("id", list_id).single().execute()
+    existing = (
+        supabase.table("shopping_lists")
+        .select("user_id")
+        .eq("id", list_id)
+        .single()
+        .execute()
+    )
     if not existing.data:
         raise HTTPException(status_code=404, detail="Shopping list not found")
     if existing.data.get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    updates = body.model_dump(exclude_none=True)
+    updates: dict[str, Any] = {}
+    if body.title is not None:
+        updates["title"] = body.title
+    if body.items is not None:
+        updates["items"] = [item.model_dump() for item in body.items]
     if not updates:
         raise HTTPException(status_code=400, detail="No fields to update")
 
-    updates["updated_at"] = "now()"
-    result = supabase.table("shopping_lists").update(updates).eq("id", list_id).execute()
+    updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+    result = (
+        supabase.table("shopping_lists").update(updates).eq("id", list_id).execute()
+    )
 
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to update shopping list")
