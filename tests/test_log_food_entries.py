@@ -31,11 +31,15 @@ _PATCH_TARGET = "log_food_entries.match_ingredient"
 
 @pytest.fixture
 def mock_supabase():
-    """Mock Supabase client with insert chain."""
+    """Mock Supabase client with insert and select chains."""
     client = MagicMock()
     table_mock = MagicMock()
     table_mock.insert.return_value.execute.return_value = MagicMock(
         data=[{"id": "abc"}]
+    )
+    # select().eq().eq().eq().ilike().execute() returns no existing entry (new insert path)
+    table_mock.select.return_value.eq.return_value.eq.return_value.eq.return_value.ilike.return_value.execute.return_value = MagicMock(
+        data=[]
     )
     client.table.return_value = table_mock
     return client
@@ -169,3 +173,133 @@ async def test_log_food_entries_insert_row_fields(mock_supabase):
         assert insert_call["quantity"] == 1
         assert insert_call["unit"] == "pièces"
         assert insert_call["source"] == "openfoodfacts"
+
+
+@pytest.mark.asyncio
+async def test_log_food_entries_updates_existing():
+    """When an entry already exists for the same food/date/meal, it updates instead of inserting."""
+    client = MagicMock()
+    table_mock = MagicMock()
+    # select chain returns an existing entry
+    table_mock.select.return_value.eq.return_value.eq.return_value.eq.return_value.ilike.return_value.execute.return_value = MagicMock(
+        data=[{"id": "existing-id-1"}]
+    )
+    table_mock.update.return_value.eq.return_value.execute.return_value = MagicMock(
+        data=[{"id": "existing-id-1"}]
+    )
+    client.table.return_value = table_mock
+
+    with patch(_PATCH_TARGET, new_callable=AsyncMock) as mock_match:
+        mock_match.return_value = _make_match_result("poulet", 300, 495, 93, 0, 10.8)
+
+        result = await execute(
+            supabase=client,
+            user_id="user-123",
+            items=[{"name": "poulet", "quantity": 300, "unit": "g"}],
+            log_date="2026-03-05",
+            meal_type="dejeuner",
+        )
+
+        data = json.loads(result)
+        assert data["success"] is True
+        assert data["item_count"] == 1
+
+        # Should update, not insert
+        table_mock.insert.assert_not_called()
+        table_mock.update.assert_called_once()
+        update_call = table_mock.update.call_args[0][0]
+        assert update_call["quantity"] == 300
+        assert update_call["calories"] == 495.0
+
+
+@pytest.mark.asyncio
+async def test_log_food_entries_entry_id_update():
+    """When entry_id is provided, update existing entry with new food name and recalculated macros."""
+    client = MagicMock()
+    table_mock = MagicMock()
+    # select().eq().single().execute() returns existing entry
+    table_mock.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(
+        data={"quantity": 200, "unit": "g", "user_id": "user-123"}
+    )
+    table_mock.update.return_value.eq.return_value.execute.return_value = MagicMock(
+        data=[{"id": "entry-abc"}]
+    )
+    client.table.return_value = table_mock
+
+    with patch(_PATCH_TARGET, new_callable=AsyncMock) as mock_match:
+        mock_match.return_value = _make_match_result("skyr", 200, 130, 22, 8, 0.4)
+
+        result = await execute(
+            supabase=client,
+            user_id="user-123",
+            entry_id="entry-abc",
+            items=[{"name": "skyr", "quantity": 200, "unit": "g"}],
+            log_date="2026-03-05",
+            meal_type="petit-dejeuner",
+        )
+
+        data = json.loads(result)
+        assert data["success"] is True
+        assert data["entry_id"] == "entry-abc"
+        assert data["updated"]["food_name"] == "skyr"
+        assert data["updated"]["calories"] == 130.0
+        assert data["updated"]["protein_g"] == 22.0
+
+        # Should update, not insert
+        table_mock.insert.assert_not_called()
+        table_mock.update.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_log_food_entries_entry_id_no_match():
+    """When entry_id update can't match ingredient, return NO_MATCH error."""
+    client = MagicMock()
+    table_mock = MagicMock()
+    table_mock.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(
+        data={"quantity": 100, "unit": "g", "user_id": "user-123"}
+    )
+    client.table.return_value = table_mock
+
+    with patch(_PATCH_TARGET, new_callable=AsyncMock) as mock_match:
+        mock_match.return_value = {
+            "ingredient_name": "unknown",
+            "matched_name": None,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "confidence": 0,
+        }
+
+        result = await execute(
+            supabase=client,
+            user_id="user-123",
+            entry_id="entry-abc",
+            items=[{"name": "unknown food xyz", "quantity": 100, "unit": "g"}],
+        )
+
+        data = json.loads(result)
+        assert data["code"] == "NO_MATCH"
+        table_mock.update.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_log_food_entries_entry_id_forbidden():
+    """When entry_id belongs to different user, return FORBIDDEN error."""
+    client = MagicMock()
+    table_mock = MagicMock()
+    table_mock.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(
+        data={"quantity": 100, "unit": "g", "user_id": "other-user"}
+    )
+    client.table.return_value = table_mock
+
+    result = await execute(
+        supabase=client,
+        user_id="user-123",
+        entry_id="entry-abc",
+        items=[{"name": "skyr", "quantity": 200, "unit": "g"}],
+    )
+
+    data = json.loads(result)
+    assert data["code"] == "FORBIDDEN"
+    table_mock.update.assert_not_called()

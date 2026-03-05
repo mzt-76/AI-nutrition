@@ -78,6 +78,7 @@ Si l'utilisateur demande une recette spécifique (ex: "risotto aux champignons")
 - `items` (list, **requis**) : Liste d'objets `{name: str, quantity: float, unit: str}`. Chaque item = 1 ingrédient simple (jamais un plat composé).
 - `log_date` (str, optionnel) : YYYY-MM-DD. Défaut = aujourd'hui.
 - `meal_type` (str, optionnel) : `"petit-dejeuner"` | `"dejeuner"` | `"diner"` | `"collation"`. Défaut = `"dejeuner"`.
+- `entry_id` (str, optionnel) : ID d'une entrée existante à modifier. Si fourni, le premier item de `items` remplace l'aliment de cette entrée (recalcul macros via OFF).
 
 **Règle de décomposition** : Si l'utilisateur mentionne un plat composé (ex: "pâtes carbonara", "salade niçoise"), le décomposer en ingrédients individuels avec des quantités estimées pour 1 portion AVANT d'appeler le script. Le script ne traite que des ingrédients simples.
 
@@ -145,6 +146,14 @@ run_skill_script("meal-planning", "log_food_entries", {
     ],
     "log_date": "2026-03-05",
     "meal_type": "dejeuner"
+})
+
+# Modifier un aliment existant (ex: "yaourt" → "skyr")
+run_skill_script("meal-planning", "log_food_entries", {
+    "entry_id": "uuid-de-l-entree",
+    "items": [{"name": "skyr", "quantity": 200, "unit": "g"}],
+    "log_date": "2026-03-05",
+    "meal_type": "petit-dejeuner"
 })
 ```
 

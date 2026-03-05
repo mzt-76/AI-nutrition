@@ -32,12 +32,68 @@ async def execute(**kwargs) -> str:
     items: list[dict] = kwargs.get("items", [])
     log_date = kwargs.get("log_date", date.today().isoformat())
     meal_type = kwargs.get("meal_type", "dejeuner")
-
-    if not items:
-        return json.dumps({"error": "No items provided", "code": "EMPTY_ITEMS"})
+    entry_id: str | None = kwargs.get("entry_id")
 
     if not user_id:
         return json.dumps({"error": "No user_id provided", "code": "NO_USER"})
+
+    # --- Modify existing entry by ID ---
+    if entry_id:
+        if not items:
+            return json.dumps({"error": "No items provided for rename", "code": "EMPTY_ITEMS"})
+
+        new_food_name = items[0].get("name", "")
+        if not new_food_name:
+            return json.dumps({"error": "No food name provided", "code": "EMPTY_NAME"})
+
+        # Fetch existing entry for quantity/unit
+        existing = (
+            supabase.table("daily_food_log")
+            .select("quantity, unit, user_id")
+            .eq("id", entry_id)
+            .single()
+            .execute()
+        )
+        if not existing.data:
+            return json.dumps({"error": "Entry not found", "code": "NOT_FOUND"})
+        if existing.data.get("user_id") != user_id:
+            return json.dumps({"error": "Not authorized", "code": "FORBIDDEN"})
+
+        qty = existing.data.get("quantity", 100)
+        unit = existing.data.get("unit", "g")
+
+        try:
+            macros = await match_ingredient(new_food_name, qty, unit, supabase)
+        except Exception as e:
+            logger.error(f"match_ingredient failed for '{new_food_name}': {e}")
+            return json.dumps({"error": "Failed to match ingredient", "code": "MATCH_ERROR"})
+
+        if macros.get("confidence", 0) == 0:
+            return json.dumps({"error": "Aliment non trouvé", "code": "NO_MATCH"})
+
+        update_fields = {
+            "food_name": new_food_name,
+            "calories": round(macros.get("calories", 0), 1),
+            "protein_g": round(macros.get("protein_g", 0), 1),
+            "carbs_g": round(macros.get("carbs_g", 0), 1),
+            "fat_g": round(macros.get("fat_g", 0), 1),
+        }
+        supabase.table("daily_food_log").update(update_fields).eq("id", entry_id).execute()
+
+        logger.info(f"Updated entry {entry_id} to '{new_food_name}' for user {user_id}")
+        return json.dumps(
+            {
+                "success": True,
+                "entry_id": entry_id,
+                "updated": update_fields,
+                "matched_name": macros.get("matched_name"),
+                "confidence": macros.get("confidence", 0),
+            },
+            ensure_ascii=False,
+        )
+
+    if not items:
+        return json.dumps({"error": "No items provided", "code": "EMPTY_ITEMS"})
 
     try:
         # Match all ingredients in parallel via OFF
@@ -66,11 +122,12 @@ async def execute(**kwargs) -> str:
             carbs = macros.get("carbs_g", 0) if macros else 0
             fat = macros.get("fat_g", 0) if macros else 0
 
+            food_name = item.get("name", "")
             row = {
                 "user_id": user_id,
                 "log_date": log_date,
                 "meal_type": meal_type,
-                "food_name": item.get("name", ""),
+                "food_name": food_name,
                 "quantity": item.get("quantity", 100),
                 "unit": item.get("unit", "g"),
                 "calories": round(cal, 1),
@@ -80,7 +137,24 @@ async def execute(**kwargs) -> str:
                 "source": "openfoodfacts",
             }
 
-            supabase.table("daily_food_log").insert(row).execute()
+            # Check if this food already exists for the same user/date/meal
+            existing = (
+                supabase.table("daily_food_log")
+                .select("id")
+                .eq("user_id", user_id)
+                .eq("log_date", log_date)
+                .eq("meal_type", meal_type)
+                .ilike("food_name", food_name)
+                .execute()
+            )
+
+            if existing.data:
+                # Update existing entry instead of creating a duplicate
+                entry_id = existing.data[0]["id"]
+                update_fields = {k: v for k, v in row.items() if k != "user_id"}
+                supabase.table("daily_food_log").update(update_fields).eq("id", entry_id).execute()
+            else:
+                supabase.table("daily_food_log").insert(row).execute()
 
             total_calories += cal
             total_protein += prot

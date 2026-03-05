@@ -26,6 +26,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pathlib import Path
 from pydantic import BaseModel
 from pydantic_ai import Agent
+
+from src.nutrition.openfoodfacts_client import match_ingredient
 from pydantic_ai.messages import PartDeltaEvent, PartStartEvent, TextPartDelta
 
 from src.agent import agent, create_agent_deps, get_model
@@ -505,6 +507,28 @@ async def update_daily_log(
     updates = body.model_dump(exclude_none=True)
     if not updates:
         raise HTTPException(status_code=400, detail="No fields to update")
+
+    # If food_name changed, recalculate macros via OpenFoodFacts
+    if "food_name" in updates:
+        current = (
+            supabase.table("daily_food_log")
+            .select("quantity, unit")
+            .eq("id", entry_id)
+            .single()
+            .execute()
+        )
+        qty = current.data["quantity"] if current.data else 100
+        unit = current.data["unit"] if current.data else "g"
+        macros = await match_ingredient(updates["food_name"], qty, unit, supabase)
+        if macros.get("confidence", 0) == 0:
+            raise HTTPException(
+                status_code=422,
+                detail="Aliment non trouvé dans la base",
+            )
+        updates["calories"] = round(macros["calories"], 1)
+        updates["protein_g"] = round(macros["protein_g"], 1)
+        updates["carbs_g"] = round(macros["carbs_g"], 1)
+        updates["fat_g"] = round(macros["fat_g"], 1)
 
     updates["updated_at"] = datetime.now(timezone.utc).isoformat()
     result = (
