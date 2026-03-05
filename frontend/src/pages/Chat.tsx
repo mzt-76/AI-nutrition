@@ -71,8 +71,6 @@ export const Chat = () => {
     }
   }, [selectedConversation, loadMessages]);
 
-  // No longer needed since we're simplifying the UI to just disable the send button during loading
-
   return (
     <ChatLayout
       conversations={conversations}

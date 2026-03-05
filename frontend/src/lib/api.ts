@@ -87,9 +87,6 @@ export const sendMessage = async (
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let finalText = '';
-      let title: string | undefined;
-      let responseSessionId = session_id;
-      let isCompleted = false;
 
       if (!reader) {
         throw new Error('Failed to get response reader');
@@ -128,10 +125,8 @@ export const sendMessage = async (
 
                   // Check for complete flag
                   if (chunk.complete === true) {
-                    // Store other metadata
                     if (chunk.conversation_title) finalTitle = chunk.conversation_title;
                     if (chunk.session_id) finalSessionId = chunk.session_id;
-                    isCompleted = true;
                   }
                 } catch (e) {}
               }
@@ -172,8 +167,6 @@ export const sendMessage = async (
               
               // Check if this chunk indicates completion
               if (chunk.complete === true) {
-                isCompleted = true;
-                
                 // If this chunk has text, use it as the final text
                 // Otherwise, keep the last text chunk we received
                 if (chunk.text !== undefined && chunk.text.trim() !== '') {
@@ -248,7 +241,7 @@ export const sendMessage = async (
 // Helper: authenticated fetch against backend API
 // =============================================================================
 
-async function apiFetch<T>(
+export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {

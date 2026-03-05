@@ -1,5 +1,5 @@
 ---
-description: "Create evals for a feature we just built (from conversation context)"
+description: "Create evals for a feature we just built (from conversation context and run it)"
 argument-hint: "[feature-name or description — leave empty to infer from conversation]"
 ---
 
