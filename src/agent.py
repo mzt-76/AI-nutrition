@@ -211,7 +211,7 @@ async def run_skill_script(
     ctx: RunContext[AgentDeps],
     skill_name: str,
     script_name: str,
-    parameters: dict[str, str | int | float | bool | None] | None = None,
+    parameters: dict[str, str | int | float | bool | list | dict | None] | None = None,
 ) -> str:
     """Execute a script from a skill's scripts/ folder.
 

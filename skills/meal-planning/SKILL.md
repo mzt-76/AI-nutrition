@@ -2,7 +2,8 @@
 name: meal-planning
 description: >-
     Plans de repas personnalisés via recipe DB, ou créativité IA si demande particulière + scaling mathématique.
-    Avant de générer, poser ces questions EN UN SEUL message :
+    AUSSI : enregistrement d'aliments dans le journal alimentaire (suivi rapide, food logging, "j'ai mangé...").
+    Avant de générer un PLAN, poser ces questions EN UN SEUL message :
     (1) Combien de jours ? → défaut = 1 seul jour. JAMAIS 7 par défaut.
     (2) Cuisiner en avance (même plat 2-3 jours) ou repas différents chaque jour ? → défaut = repas différents.
     (3) Même petit-dej chaque matin ou varié ? → défaut = même.
@@ -20,6 +21,7 @@ category: planning
 - L'utilisateur veut voir/récupérer un plan existant
 - L'utilisateur demande une recette spécifique
 - L'utilisateur demande une liste de courses
+- L'utilisateur déclare avoir mangé quelque chose / suivi alimentaire / enregistrement d'aliments
 
 ## Nouveau Workflow (Recipe DB + Day-by-Day)
 
@@ -47,6 +49,7 @@ Si l'utilisateur demande une recette spécifique (ex: "risotto aux champignons")
 | Script | Description |
 |--------|-------------|
 | `generate_week_plan` | Plan 7 jours (profile → macros → 7 × generate_day_plan → DB store) |
+| `log_food_entries` | Enregistrer des aliments dans le journal alimentaire (daily_food_log) |
 | `generate_custom_recipe` | Recette sur demande via Claude Sonnet 4.5 |
 | `fetch_stored_meal_plan` | Récupérer plan existant (~500ms, DB only) |
 | `generate_shopping_list` | Liste de courses catégorisée depuis plan stocké |
@@ -69,6 +72,14 @@ Si l'utilisateur demande une recette spécifique (ex: "risotto aux champignons")
 - `vary_breakfast` (bool, optionnel, défaut: false) : Par défaut, le même petit-déjeuner est servi chaque jour. Mettre à true si l'utilisateur veut varier ses petits-déjeuners.
 - `meal_preferences` (dict, optionnel) : Préférences de recettes par type de repas, appliquées à TOUS les jours. Clé = slug meal_type (`petit-dejeuner`, `dejeuner`, `diner`, `collation`), valeur = description de la recette souhaitée. Ex: `{"petit-dejeuner": "omelette aux oeufs et épinards"}`. Utilise le LLM pour générer une recette correspondante, puis la réutilise chaque jour via batch. Les demandes per-day dans `notes` prennent priorité.
 - `notes` (str, optionnel) : Préférences + demandes custom PAR JOUR (ex: "risotto mardi, pas de poisson vendredi")
+
+## Paramètres `log_food_entries`
+
+- `items` (list, **requis**) : Liste d'objets `{name: str, quantity: float, unit: str}`. Chaque item = 1 ingrédient simple (jamais un plat composé).
+- `log_date` (str, optionnel) : YYYY-MM-DD. Défaut = aujourd'hui.
+- `meal_type` (str, optionnel) : `"petit-dejeuner"` | `"dejeuner"` | `"diner"` | `"collation"`. Défaut = `"dejeuner"`.
+
+**Règle de décomposition** : Si l'utilisateur mentionne un plat composé (ex: "pâtes carbonara", "salade niçoise"), le décomposer en ingrédients individuels avec des quantités estimées pour 1 portion AVANT d'appeler le script. Le script ne traite que des ingrédients simples.
 
 ## Structures de repas disponibles
 
@@ -121,6 +132,19 @@ run_skill_script("meal-planning", "fetch_stored_meal_plan", {
 # Liste de courses
 run_skill_script("meal-planning", "generate_shopping_list", {
     "week_start": "2026-02-23"
+})
+
+# Enregistrer des aliments (suivi alimentaire)
+# IMPORTANT : AVANT d'appeler log_food_entries, décomposer les plats composés
+# en ingrédients individuels avec quantités estimées pour 1 portion.
+# Ex: "pâtes carbo" → pâtes 150g + lardons 50g + crème 30ml + oeuf 1 + parmesan 20g
+run_skill_script("meal-planning", "log_food_entries", {
+    "items": [
+        {"name": "poulet grillé", "quantity": 200, "unit": "g"},
+        {"name": "riz basmati", "quantity": 150, "unit": "g"}
+    ],
+    "log_date": "2026-03-05",
+    "meal_type": "dejeuner"
 })
 ```
 
@@ -303,4 +327,5 @@ Si la DB est vide → LLM fallback automatique (système fonctionne mais plus le
 - `scripts/generate_custom_recipe.py` : Recette custom via Claude Sonnet 4.5
 - `scripts/seed_recipe_db.py` : Peuplement initial de la recipe DB
 - `scripts/generate_shopping_list.py` : Liste de courses catégorisée
+- `scripts/log_food_entries.py` : Enregistrement d'aliments dans daily_food_log (suivi alimentaire)
 - `scripts/fetch_stored_meal_plan.py` : Récupération d'un plan existant
