@@ -28,6 +28,8 @@ const DailyTracking = () => {
     planDayMeals,
     loading,
     deleteEntry,
+    updateEntryQuantity,
+    updateEntryFood,
     logPlanMeal,
     isPlanMealLogged,
     refreshEntries,
@@ -97,6 +99,8 @@ const DailyTracking = () => {
                     mealType={mt}
                     entries={groupedEntries[mt]}
                     onDelete={deleteEntry}
+                    onUpdateQuantity={updateEntryQuantity}
+                    onUpdateFood={updateEntryFood}
                   />
                 ))}
               </div>

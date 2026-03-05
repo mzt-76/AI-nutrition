@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import {
   fetchDailyLog,
   createDailyLogEntry,
+  updateDailyLogEntry,
   deleteDailyLogEntry,
   fetchMealPlans,
   apiFetch,
@@ -237,6 +238,49 @@ export function useDailyTracking() {
     [refreshEntries, toast],
   );
 
+  // Update entry quantity (recalculates macros proportionally)
+  const updateEntryQuantity = useCallback(
+    async (id: string, newQuantity: number) => {
+      const entry = entries.find((e) => e.id === id);
+      if (!entry || !entry.quantity || entry.quantity === 0) return;
+
+      const ratio = newQuantity / entry.quantity;
+      try {
+        await updateDailyLogEntry(id, {
+          quantity: newQuantity,
+          calories: Math.round(entry.calories * ratio),
+          protein_g: Math.round(entry.protein_g * ratio * 10) / 10,
+          carbs_g: Math.round(entry.carbs_g * ratio * 10) / 10,
+          fat_g: Math.round(entry.fat_g * ratio * 10) / 10,
+        });
+        await refreshEntries();
+        toast({ title: 'Mis à jour', description: `Quantité modifiée à ${newQuantity}${entry.unit ?? 'g'}.` });
+      } catch (err) {
+        console.error('Failed to update entry quantity:', err);
+        toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de modifier la quantité.' });
+      }
+    },
+    [entries, refreshEntries, toast],
+  );
+
+  // Update entry food name (backend recalculates macros)
+  const updateEntryFood = useCallback(
+    async (id: string, newName: string) => {
+      try {
+        await updateDailyLogEntry(id, { food_name: newName });
+        await refreshEntries();
+        toast({ title: 'Mis à jour', description: `Aliment modifié en ${newName}.` });
+      } catch (err: unknown) {
+        const msg =
+          err instanceof Error && err.message?.includes('422')
+            ? 'Aliment non trouvé dans la base.'
+            : "Impossible de modifier l'aliment.";
+        toast({ variant: 'destructive', title: 'Erreur', description: msg });
+      }
+    },
+    [refreshEntries, toast],
+  );
+
   // Log a meal from the plan
   const logPlanMeal = useCallback(
     async (meal: PlanMeal) => {
@@ -294,6 +338,8 @@ export function useDailyTracking() {
     loading,
     planLoading,
     deleteEntry,
+    updateEntryQuantity,
+    updateEntryFood,
     logPlanMeal,
     isPlanMealLogged,
     refreshEntries,
