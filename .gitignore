@@ -92,3 +92,6 @@ fastapi-starter-for-ai-coding/
 frontend/node_modules/
 frontend/dist/
 frontend/.env
+
+# Test credentials (contains login info for agent-browser testing)
+.claude/reference/frontend-workflow.md

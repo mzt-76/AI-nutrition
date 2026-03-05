@@ -54,26 +54,26 @@ export const MessageList = ({
 
   if (messages.length === 0 && !isLoading) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-6 h-full">
-        <div className="max-w-lg text-center">
-          <div className="flex justify-center mb-4">
-            <div className="h-16 w-16 rounded-full gradient-green flex items-center justify-center glow-green">
-              <Salad className="h-8 w-8 text-white" />
+      <div className="flex-1 overflow-y-auto overscroll-contain touch-pan-y p-6 h-full">
+        <div className="max-w-lg mx-auto text-center flex flex-col items-center justify-center min-h-full">
+          <div className="flex justify-center mb-3 md:mb-4">
+            <div className={`${isMobile ? 'h-12 w-12' : 'h-16 w-16'} rounded-full gradient-green flex items-center justify-center glow-green`}>
+              <Salad className={`${isMobile ? 'h-6 w-6' : 'h-8 w-8'} text-white`} />
             </div>
           </div>
-          <h3 className="text-2xl font-bold mb-2">Nutritionniste IA</h3>
-          <p className="text-muted-foreground mb-6">
+          <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-1 md:mb-2`}>Nutritionniste IA</h3>
+          <p className="text-muted-foreground mb-4 md:mb-6 text-sm">
             Posez votre question ou choisissez un sujet ci-dessous
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 w-full">
             {SUGGESTED_QUESTIONS.map((item) => (
               <button
                 key={item.text}
                 onClick={() => onSuggestedQuestion?.(item.text)}
-                className="glass-effect rounded-lg p-4 text-left hover:border-primary/40 transition-all hover:shadow-glow cursor-pointer group"
+                className="glass-effect rounded-lg py-3 px-2 md:p-4 hover:border-primary/40 transition-all hover:shadow-glow cursor-pointer group flex flex-col items-center justify-center text-center"
               >
-                <item.icon className="h-5 w-5 text-primary mb-2 group-hover:scale-110 transition-transform" />
-                <p className="text-sm font-medium text-foreground">{item.text}</p>
+                <item.icon className="h-4 w-4 md:h-5 md:w-5 text-primary mb-1.5 group-hover:scale-110 transition-transform" />
+                <p className="text-[11px] md:text-sm font-medium text-foreground leading-tight">{item.text}</p>
               </button>
             ))}
           </div>
