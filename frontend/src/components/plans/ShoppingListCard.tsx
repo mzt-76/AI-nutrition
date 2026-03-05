@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Apple, Beef, Wheat, Milk, ShoppingCart, Package } from 'lucide-react';
+import { ChevronDown, ChevronUp, Apple, Beef, Wheat, Milk, ShoppingCart, Package, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ShoppingList, ShoppingListItem } from '@/types/database.types';
 import { updateShoppingList } from '@/lib/api';
@@ -7,6 +7,7 @@ import { updateShoppingList } from '@/lib/api';
 interface ShoppingListCardProps {
   list: ShoppingList;
   onUpdate: (list: ShoppingList) => void;
+  onDelete?: (listId: string) => void;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -29,7 +30,7 @@ const CATEGORY_ICONS: Record<string, typeof Apple> = {
 
 const CATEGORY_ORDER = ['produce', 'proteins', 'grains', 'dairy', 'pantry', 'other'];
 
-export function ShoppingListCard({ list, onUpdate }: ShoppingListCardProps) {
+export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardProps) {
   const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
   const items = list.items ?? [];
@@ -93,6 +94,14 @@ export function ShoppingListCard({ list, onUpdate }: ShoppingListCardProps) {
                 style={{ width: `${(checkedCount / items.length) * 100}%` }}
               />
             </div>
+          )}
+          {onDelete && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(list.id); }}
+              className="p-1 rounded-md hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors shrink-0"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
           )}
           {expanded ? (
             <ChevronUp className="h-4 w-4 text-gray-600 shrink-0" />

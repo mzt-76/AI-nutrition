@@ -7,6 +7,8 @@ import {
   DailyFoodLogInsert,
   DailyFoodLogUpdate,
   FavoriteRecipe,
+  FavoriteWithRecipe,
+  Recipe,
   ShoppingList,
   ShoppingListItem,
 } from '@/types/database.types';
@@ -308,7 +310,7 @@ export const fetchMealPlans = (userId: string): Promise<MealPlanSummary[]> =>
 // Favorite Recipes
 // =============================================================================
 
-export const fetchFavorites = (userId: string): Promise<FavoriteRecipe[]> =>
+export const fetchFavorites = (userId: string): Promise<FavoriteWithRecipe[]> =>
   apiFetch(`/api/favorites?user_id=${userId}`);
 
 export const addFavorite = (
@@ -324,6 +326,32 @@ export const addFavorite = (
 export const removeFavorite = (favoriteId: string): Promise<{ status: string }> =>
   apiFetch(`/api/favorites/${favoriteId}`, { method: 'DELETE' });
 
+export const checkFavorite = (
+  userId: string,
+  recipeId: string,
+): Promise<{ is_favorite: boolean; favorite_id: string | null }> =>
+  apiFetch(`/api/favorites/check?user_id=${userId}&recipe_id=${recipeId}`);
+
+// =============================================================================
+// Recipes
+// =============================================================================
+
+export const fetchRecipe = (recipeId: string): Promise<Recipe> =>
+  apiFetch(`/api/recipes/${recipeId}`);
+
+export const upsertRecipe = (data: {
+  name: string;
+  meal_type: string;
+  ingredients: Array<Record<string, unknown>>;
+  instructions?: string;
+  prep_time_minutes?: number;
+  calories_per_serving: number;
+  protein_g_per_serving: number;
+  carbs_g_per_serving: number;
+  fat_g_per_serving: number;
+}): Promise<Recipe> =>
+  apiFetch('/api/recipes', { method: 'POST', body: JSON.stringify(data) });
+
 // =============================================================================
 // Shopping Lists
 // =============================================================================
@@ -334,11 +362,22 @@ export const fetchShoppingLists = (userId: string): Promise<ShoppingList[]> =>
 export const fetchShoppingList = (listId: string): Promise<ShoppingList> =>
   apiFetch(`/api/shopping-lists/${listId}`);
 
+export const createShoppingList = (data: {
+  user_id: string;
+  meal_plan_id?: string;
+  title: string;
+  items: ShoppingListItem[];
+}): Promise<ShoppingList> =>
+  apiFetch('/api/shopping-lists', { method: 'POST', body: JSON.stringify(data) });
+
 export const updateShoppingList = (
   listId: string,
   updates: { title?: string; items?: ShoppingListItem[] },
 ): Promise<ShoppingList> =>
   apiFetch(`/api/shopping-lists/${listId}`, { method: 'PUT', body: JSON.stringify(updates) });
+
+export const deleteShoppingList = (listId: string): Promise<{ status: string }> =>
+  apiFetch(`/api/shopping-lists/${listId}`, { method: 'DELETE' });
 
 // =============================================================================
 // Conversations

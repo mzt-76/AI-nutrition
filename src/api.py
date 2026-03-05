@@ -27,7 +27,7 @@ from pathlib import Path
 from pydantic import BaseModel
 from pydantic_ai import Agent
 
-from src.nutrition.openfoodfacts_client import match_ingredient
+from src.nutrition.openfoodfacts_client import match_ingredient, normalize_ingredient_name
 from pydantic_ai.messages import PartDeltaEvent, PartStartEvent, TextPartDelta
 
 from src.agent import agent, create_agent_deps, get_model
@@ -187,12 +187,31 @@ class FavoriteCreate(BaseModel):
     notes: str | None = None
 
 
+class RecipeCreate(BaseModel):
+    name: str
+    meal_type: str
+    ingredients: list[dict[str, Any]]
+    instructions: str = ""
+    prep_time_minutes: int = 30
+    calories_per_serving: float
+    protein_g_per_serving: float
+    carbs_g_per_serving: float
+    fat_g_per_serving: float
+
+
 class ShoppingListItemModel(BaseModel):
     name: str
     quantity: float = 0
     unit: str = ""
     category: str = "other"
     checked: bool = False
+
+
+class ShoppingListCreate(BaseModel):
+    user_id: str
+    meal_plan_id: str | None = None
+    title: str
+    items: list[ShoppingListItemModel]
 
 
 class ShoppingListUpdate(BaseModel):
@@ -607,6 +626,18 @@ async def add_favorite(
             status_code=403, detail="user_id does not match authenticated user"
         )
 
+    # Return existing if already favorited (unique constraint on user_id + recipe_id)
+    existing = (
+        supabase.table("favorite_recipes")
+        .select("*")
+        .eq("user_id", body.user_id)
+        .eq("recipe_id", body.recipe_id)
+        .limit(1)
+        .execute()
+    )
+    if existing.data:
+        return existing.data[0]
+
     row = body.model_dump(exclude_none=True)
     result = supabase.table("favorite_recipes").insert(row).execute()
 
@@ -640,6 +671,106 @@ async def remove_favorite(
     return {"status": "deleted"}
 
 
+@app.get("/api/favorites/check")
+async def check_favorite(
+    user_id: str,
+    recipe_id: str,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> dict[str, Any]:
+    """Check if a recipe is already favorited by a user."""
+    if not auth_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    if auth_user.get("id") != user_id:
+        raise HTTPException(
+            status_code=403, detail="user_id does not match authenticated user"
+        )
+
+    result = (
+        supabase.table("favorite_recipes")
+        .select("id")
+        .eq("user_id", user_id)
+        .eq("recipe_id", recipe_id)
+        .limit(1)
+        .execute()
+    )
+    if result.data:
+        return {"is_favorite": True, "favorite_id": result.data[0]["id"]}
+    return {"is_favorite": False, "favorite_id": None}
+
+
+# =============================================================================
+# Recipes
+# =============================================================================
+
+
+@app.post("/api/recipes")
+async def upsert_recipe(
+    body: RecipeCreate,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> dict[str, Any]:
+    """Upsert a recipe by normalized name. Returns existing if found."""
+    if not auth_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    name_norm = normalize_ingredient_name(body.name)
+    meal_type_norm = body.meal_type.lower().replace("é", "e").replace("î", "i")
+
+    # Check for existing recipe with same normalized name and meal_type
+    existing = (
+        supabase.table("recipes")
+        .select("*")
+        .eq("name_normalized", name_norm)
+        .eq("meal_type", meal_type_norm)
+        .limit(1)
+        .execute()
+    )
+    if existing.data:
+        return existing.data[0]
+
+    row = {
+        "name": body.name,
+        "name_normalized": name_norm,
+        "meal_type": meal_type_norm,
+        "ingredients": body.ingredients,
+        "instructions": body.instructions,
+        "prep_time_minutes": body.prep_time_minutes,
+        "calories_per_serving": body.calories_per_serving,
+        "protein_g_per_serving": body.protein_g_per_serving,
+        "carbs_g_per_serving": body.carbs_g_per_serving,
+        "fat_g_per_serving": body.fat_g_per_serving,
+        "source": "user_validated",
+    }
+
+    result = supabase.table("recipes").insert(row).execute()
+    if not result.data:
+        raise HTTPException(status_code=500, detail="Failed to create recipe")
+    return result.data[0]
+
+
+@app.get("/api/recipes/{recipe_id}")
+async def get_recipe(
+    recipe_id: str,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> dict[str, Any]:
+    """Fetch a single recipe by ID."""
+    if not auth_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    if not re.fullmatch(
+        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+        recipe_id,
+        re.IGNORECASE,
+    ):
+        raise HTTPException(status_code=400, detail="Invalid recipe ID format")
+
+    result = (
+        supabase.table("recipes").select("*").eq("id", recipe_id).single().execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    return result.data
+
+
 # =============================================================================
 # Shopping Lists
 # =============================================================================
@@ -666,6 +797,33 @@ async def list_shopping_lists(
         .execute()
     )
     return result.data or []
+
+
+@app.post("/api/shopping-lists")
+async def create_shopping_list(
+    body: ShoppingListCreate,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> dict[str, Any]:
+    """Create a new shopping list."""
+    if not auth_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    if auth_user.get("id") != body.user_id:
+        raise HTTPException(
+            status_code=403, detail="user_id does not match authenticated user"
+        )
+
+    row: dict[str, Any] = {
+        "user_id": body.user_id,
+        "title": body.title,
+        "items": [item.model_dump() for item in body.items],
+    }
+    if body.meal_plan_id:
+        row["meal_plan_id"] = body.meal_plan_id
+
+    result = supabase.table("shopping_lists").insert(row).execute()
+    if not result.data:
+        raise HTTPException(status_code=500, detail="Failed to create shopping list")
+    return result.data[0]
 
 
 @app.get("/api/shopping-lists/{list_id}")
@@ -730,6 +888,31 @@ async def update_shopping_list(
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to update shopping list")
     return result.data[0]
+
+
+@app.delete("/api/shopping-lists/{list_id}")
+async def delete_shopping_list(
+    list_id: str,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> dict[str, str]:
+    """Delete a shopping list."""
+    if not auth_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    existing = (
+        supabase.table("shopping_lists")
+        .select("user_id")
+        .eq("id", list_id)
+        .single()
+        .execute()
+    )
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Shopping list not found")
+    if existing.data.get("user_id") != auth_user["id"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    supabase.table("shopping_lists").delete().eq("id", list_id).execute()
+    return {"status": "deleted"}
 
 
 async def _stream_agent_response(

@@ -8,6 +8,7 @@ from src.nutrition.meal_planning import (
     extract_ingredients_from_meal_plan,
     aggregate_ingredients,
     categorize_ingredients,
+    flatten_categorized_to_items,
     INGREDIENT_CATEGORIES,
 )
 
@@ -310,6 +311,47 @@ def test_aggregate_ingredients_unit_normalization():
 
     assert "poulet|g" in aggregated
     assert aggregated["poulet|g"] == 200.0
+
+
+def test_flatten_categorized_basic():
+    """Test flattening categorized ingredients to flat list."""
+    categorized = {
+        "produce": [{"name": "tomate", "quantity": 500, "unit": "g"}],
+        "proteins": [
+            {"name": "poulet", "quantity": 700, "unit": "g"},
+            {"name": "saumon", "quantity": 300, "unit": "g"},
+        ],
+    }
+    items = flatten_categorized_to_items(categorized)
+
+    assert len(items) == 3
+    assert items[0] == {
+        "name": "tomate",
+        "quantity": 500,
+        "unit": "g",
+        "category": "produce",
+        "checked": False,
+    }
+    assert items[1]["category"] == "proteins"
+    assert items[2]["name"] == "saumon"
+
+
+def test_flatten_categorized_empty():
+    """Test flattening empty categorized dict."""
+    assert flatten_categorized_to_items({}) == []
+    assert flatten_categorized_to_items({"produce": [], "dairy": []}) == []
+
+
+def test_flatten_categorized_all_unchecked():
+    """Test all flattened items have checked=False."""
+    categorized = {
+        "grains": [
+            {"name": "riz", "quantity": 200, "unit": "g"},
+            {"name": "pâtes", "quantity": 500, "unit": "g"},
+        ],
+    }
+    items = flatten_categorized_to_items(categorized)
+    assert all(item["checked"] is False for item in items)
 
 
 def test_ingredient_categories_completeness():

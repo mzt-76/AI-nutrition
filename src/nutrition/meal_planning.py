@@ -355,6 +355,37 @@ def categorize_ingredients(aggregated_ingredients: dict) -> dict:
     return categorized
 
 
+def flatten_categorized_to_items(categorized: dict[str, list[dict]]) -> list[dict]:
+    """Convert categorized shopping list to flat items list for DB storage.
+
+    Args:
+        categorized: Dict with category keys mapping to lists of
+            {"name": str, "quantity": float, "unit": str} dicts
+
+    Returns:
+        Flat list of items with category and checked fields added
+
+    Example:
+        >>> cat = {"produce": [{"name": "tomate", "quantity": 500, "unit": "g"}]}
+        >>> items = flatten_categorized_to_items(cat)
+        >>> items[0]["category"]
+        'produce'
+        >>> items[0]["checked"]
+        False
+    """
+    items: list[dict] = []
+    for category, category_items in categorized.items():
+        for item in category_items:
+            items.append({
+                "name": item["name"],
+                "quantity": item["quantity"],
+                "unit": item["unit"],
+                "category": category,
+                "checked": False,
+            })
+    return items
+
+
 def build_meal_plan_prompt_simple(
     profile: dict,
     meal_macros_distribution: dict,

@@ -14,6 +14,7 @@ from src.nutrition.meal_planning import (
     extract_ingredients_from_meal_plan,
     aggregate_ingredients,
     categorize_ingredients,
+    flatten_categorized_to_items,
 )
 
 logger = logging.getLogger(__name__)
@@ -143,14 +144,42 @@ async def execute(**kwargs) -> str:
         aggregated = aggregate_ingredients(ingredients_list, servings_multiplier)
         categorized = categorize_ingredients(aggregated)
 
-        # Step 7: Build response with metadata
+        # Step 7: Persist shopping list to database
         days_included = selected_days if selected_days else list(range(7))
         days_description = ", ".join([_DAY_NAMES[d] for d in sorted(days_included)])
         total_items = sum(len(items) for items in categorized.values())
+        flat_items = flatten_categorized_to_items(categorized)
 
+        title = f"Courses - Semaine du {week_start}"
+        if len(days_included) < 7:
+            title += f" ({len(days_included)} jours)"
+
+        meal_plan_id = meal_plan_record.get("id")
+        shopping_list_id: str | None = None
+
+        if user_id and flat_items:
+            try:
+                insert_result = (
+                    supabase.table("shopping_lists")
+                    .insert({
+                        "user_id": user_id,
+                        "meal_plan_id": meal_plan_id,
+                        "title": title,
+                        "items": flat_items,
+                    })
+                    .execute()
+                )
+                if insert_result.data:
+                    shopping_list_id = insert_result.data[0].get("id")
+                    logger.info(f"Shopping list saved: {shopping_list_id}")
+            except Exception as e:
+                logger.error(f"Failed to save shopping list: {e}")
+
+        # Step 8: Build response with metadata
         response = {
             "success": True,
             "shopping_list": categorized,
+            "shopping_list_id": shopping_list_id,
             "metadata": {
                 "week_start": week_start,
                 "days_included": days_included,

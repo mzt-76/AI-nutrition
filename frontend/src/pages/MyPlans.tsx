@@ -6,12 +6,12 @@ import { useToast } from '@/hooks/use-toast';
 import { MobileHeader } from '@/components/navigation/MobileHeader';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { fetchMealPlans, fetchFavorites, removeFavorite, fetchShoppingLists } from '@/lib/api';
+import { fetchMealPlans, fetchFavorites, removeFavorite, fetchShoppingLists, deleteShoppingList } from '@/lib/api';
 import type { MealPlanSummary } from '@/lib/api';
-import type { ShoppingList } from '@/types/database.types';
+import type { ShoppingList, FavoriteWithRecipe } from '@/types/database.types';
 import { PlanCard } from '@/components/plans/PlanCard';
 import { FavoriteCard } from '@/components/plans/FavoriteCard';
-import type { FavoriteWithRecipe } from '@/components/plans/FavoriteCard';
+import { RecipeDetailDrawer } from '@/components/recipes/RecipeDetailDrawer';
 import { ShoppingListCard } from '@/components/plans/ShoppingListCard';
 
 type Tab = 'plans' | 'favoris' | 'courses';
@@ -31,6 +31,8 @@ const MyPlans = () => {
   const [tab, setTab] = useState<Tab>('plans');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
 
   // Data
   const [plans, setPlans] = useState<MealPlanSummary[]>([]);
@@ -51,7 +53,7 @@ const MyPlans = () => {
           if (!cancelled) setPlans(data);
         } else if (tab === 'favoris') {
           const data = await fetchFavorites(userId);
-          if (!cancelled) setFavorites(data as unknown as FavoriteWithRecipe[]);
+          if (!cancelled) setFavorites(data);
         } else {
           const data = await fetchShoppingLists(userId);
           if (!cancelled) setShoppingLists(data);
@@ -79,13 +81,27 @@ const MyPlans = () => {
       toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de retirer le favori.' });
       if (userId) {
         const data = await fetchFavorites(userId);
-        setFavorites(data as unknown as FavoriteWithRecipe[]);
+        setFavorites(data as FavoriteWithRecipe[]);
       }
     }
   };
 
   const handleShoppingListUpdate = (updated: ShoppingList) => {
     setShoppingLists((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
+  };
+
+  const handleShoppingListDelete = async (listId: string) => {
+    setShoppingLists((prev) => prev.filter((l) => l.id !== listId));
+    try {
+      await deleteShoppingList(listId);
+      toast({ title: 'Liste supprimée' });
+    } catch {
+      toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer la liste.' });
+      if (userId) {
+        const data = await fetchShoppingLists(userId);
+        setShoppingLists(data);
+      }
+    }
   };
 
   const emptyMessages: Record<Tab, string> = {
@@ -149,7 +165,15 @@ const MyPlans = () => {
               {tab === 'favoris' && (
                 favorites.length > 0
                   ? favorites.map((f) => (
-                      <FavoriteCard key={f.id} favorite={f} onRemove={handleRemoveFavorite} />
+                      <FavoriteCard
+                        key={f.id}
+                        favorite={f}
+                        onRemove={handleRemoveFavorite}
+                        onClick={() => {
+                          setSelectedRecipeId(f.recipe_id);
+                          setDrawerOpen(true);
+                        }}
+                      />
                     ))
                   : <EmptyState message={emptyMessages.favoris} isError={error} />
               )}
@@ -158,7 +182,7 @@ const MyPlans = () => {
               {tab === 'courses' && (
                 shoppingLists.length > 0
                   ? shoppingLists.map((sl) => (
-                      <ShoppingListCard key={sl.id} list={sl} onUpdate={handleShoppingListUpdate} />
+                      <ShoppingListCard key={sl.id} list={sl} onUpdate={handleShoppingListUpdate} onDelete={handleShoppingListDelete} />
                     ))
                   : <EmptyState message={emptyMessages.courses} isError={error} />
               )}
@@ -166,6 +190,18 @@ const MyPlans = () => {
           )}
         </div>
       </ScrollArea>
+
+      <RecipeDetailDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        recipeId={selectedRecipeId ?? undefined}
+        onFavoriteChange={() => {
+          // Refresh favorites list when toggled from drawer
+          if (userId && tab === 'favoris') {
+            fetchFavorites(userId).then(setFavorites);
+          }
+        }}
+      />
     </div>
   );
 };
