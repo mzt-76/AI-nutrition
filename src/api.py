@@ -25,7 +25,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic_ai import Agent, BinaryContent
 
 from src.nutrition.calculations import (
@@ -181,9 +181,10 @@ def _validate_uuid(value: str) -> None:
 
 
 class FileAttachment(BaseModel):
-    file_name: str
+    model_config = {"populate_by_name": True}
+    file_name: str = Field(alias="fileName")
     content: str  # Base64 encoded
-    mime_type: str
+    mime_type: str = Field(alias="mimeType")
 
 
 class AgentRequest(BaseModel):
