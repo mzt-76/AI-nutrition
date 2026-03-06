@@ -2,7 +2,8 @@
 name: meal-planning
 description: >-
     Plans de repas personnalisés via recipe DB, ou créativité IA si demande particulière + scaling mathématique.
-    AUSSI : enregistrement d'aliments dans le journal alimentaire (suivi rapide, food logging, "j'ai mangé...").
+    AUSSI : enregistrement d'aliments dans le journal alimentaire via le script `log_food_entries` (suivi rapide, food logging, "j'ai mangé...").
+    ⚠️ Le script s'appelle `log_food_entries` (PAS `log_food`). Toujours utiliser ce nom exact.
     Avant de générer un PLAN, poser ces questions EN UN SEUL message :
     (1) Combien de jours ? → défaut = 1 seul jour. JAMAIS 7 par défaut.
     (2) Cuisiner en avance (même plat 2-3 jours) ou repas différents chaque jour ? → défaut = repas différents.
