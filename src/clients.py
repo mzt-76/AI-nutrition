@@ -14,7 +14,7 @@ from openai import AsyncOpenAI
 from anthropic import AsyncAnthropic
 from supabase import create_client, Client
 from httpx import AsyncClient
-from mem0 import Memory
+from mem0 import AsyncMemory, Memory
 from pathlib import Path
 from dotenv import load_dotenv
 import os
@@ -121,7 +121,6 @@ def get_memory_client() -> Memory:
     # (LLM_CHOICE may be an Anthropic model which doesn't work with OpenAI API)
     llm_model = os.getenv("MEM0_LLM_CHOICE", "gpt-4o-mini")
 
-    embedding_api_key = os.getenv("EMBEDDING_API_KEY")
     embedding_model = os.getenv("EMBEDDING_MODEL_CHOICE", "text-embedding-3-small")
 
     database_url = os.getenv("DATABASE_URL")
@@ -179,13 +178,85 @@ Return a JSON list under the key "facts". If nothing qualifies, return {"facts":
     # Set API keys in environment for mem0
     if llm_api_key:
         os.environ["OPENAI_API_KEY"] = llm_api_key
-    if embedding_api_key and embedding_api_key != llm_api_key:
-        # If they're different, prioritize LLM key for mem0
-        pass
 
     logger.info("Initializing mem0 Memory client")
 
     return Memory.from_config(config)
+
+
+async def get_async_memory_client() -> AsyncMemory:
+    """Create and return an async mem0 AsyncMemory client for the API.
+
+    Uses the same config as get_memory_client() but returns an AsyncMemory
+    instance that supports native await instead of requiring asyncio.to_thread().
+
+    Returns:
+        AsyncMemory: Configured async mem0 client
+    """
+    # Reuse the sync factory to set env vars and build config, then discard it.
+    # We duplicate the config inline to avoid the side-effect of creating
+    # a full sync Memory instance just to read its config.
+    llm_api_key = os.getenv("LLM_API_KEY")
+    llm_model = os.getenv("MEM0_LLM_CHOICE", "gpt-4o-mini")
+
+    embedding_api_key = os.getenv("EMBEDDING_API_KEY")  # noqa: F841 — used by RAG pipeline
+    embedding_model = os.getenv("EMBEDDING_MODEL_CHOICE", "text-embedding-3-small")
+
+    database_url = os.getenv("DATABASE_URL")
+
+    if not database_url:
+        raise ValueError("DATABASE_URL required for mem0")
+
+    custom_fact_prompt = """You are a Personal Information Organizer for a nutrition coaching app.
+Your job is to extract ONLY long-term personal facts from the conversation.
+
+STORE these (personal preferences that persist across sessions):
+- Food preferences: likes, dislikes, allergies, dietary restrictions
+- Cooking habits: batch cooking preference, prep time, kitchen equipment
+- Daily routine: wake time, work schedule, meal times, gym schedule
+- Body/health: conditions, injuries, supplements
+- Lifestyle: cuisine preferences, budget, family size
+
+NEVER STORE these (session-specific, transient, or already in the user profile):
+- Commands or requests: "créer un plan", "go", "lance", "calcule mes besoins"
+- Plan parameters: "3 jours", "7 jours", "1 semaine", number of days/meals requested
+- Biometrics already in profile: age, weight, height, gender, activity level, goals
+- Greetings, confirmations, or generic statements
+- Calculated values: BMR, TDEE, calorie targets, macro targets
+
+Return a JSON list under the key "facts". If nothing qualifies, return {"facts": []}.
+"""
+
+    config = {
+        "llm": {
+            "provider": "openai",
+            "config": {
+                "model": llm_model,
+                "temperature": 0.2,
+                "max_tokens": 2000,
+            },
+        },
+        "embedder": {
+            "provider": "openai",
+            "config": {"model": embedding_model, "embedding_dims": 1536},
+        },
+        "vector_store": {
+            "provider": "supabase",
+            "config": {
+                "connection_string": database_url,
+                "collection_name": "mem0_memories",
+                "embedding_model_dims": 1536,
+            },
+        },
+        "custom_fact_extraction_prompt": custom_fact_prompt,
+    }
+
+    if llm_api_key:
+        os.environ["OPENAI_API_KEY"] = llm_api_key
+
+    logger.info("Initializing async mem0 AsyncMemory client")
+
+    return await AsyncMemory.from_config(config)
 
 
 def get_anthropic_client() -> AsyncAnthropic | None:

@@ -66,13 +66,16 @@ dotenv_path = project_root / ".env"
 load_dotenv(dotenv_path, override=True)
 
 
-def get_model():
+def get_model(model_name: str | None = None):
     """
     Get configured LLM model from environment variables.
 
     Provider is auto-detected from the model name:
     - "claude-*" → Anthropic (requires ANTHROPIC_API_KEY)
     - anything else → OpenAI-compatible (requires LLM_API_KEY)
+
+    Args:
+        model_name: Override model name. Falls back to LLM_CHOICE env var.
 
     Environment Variables:
         LLM_CHOICE: Model name (default: gpt-4o-mini)
@@ -82,7 +85,7 @@ def get_model():
         LLM_BASE_URL: OpenAI-compatible base URL (default: https://api.openai.com/v1)
         ANTHROPIC_API_KEY: Anthropic API key (required for claude-* models)
     """
-    model_name = os.getenv("LLM_CHOICE", "gpt-4o-mini")
+    model_name = model_name or os.getenv("LLM_CHOICE", "gpt-4o-mini")
 
     if model_name.startswith("claude-"):
         api_key = os.getenv("ANTHROPIC_API_KEY")

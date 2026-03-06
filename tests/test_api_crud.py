@@ -194,20 +194,20 @@ class TestDailyLogDelete:
     """Tests for DELETE /api/daily-log/{entry_id}."""
 
     def test_deletes_own_entry(self, auth_client):
-        _setup_supabase(data={"user_id": USER_ID})
+        _setup_supabase(data=[{"user_id": USER_ID}])
 
         resp = auth_client.delete(f"/api/daily-log/{ENTRY_UUID}")
         assert resp.status_code == 200
         assert resp.json()["status"] == "deleted"
 
     def test_wrong_user_returns_403(self, auth_client):
-        _setup_supabase(data={"user_id": OTHER_USER_ID})
+        _setup_supabase(data=[{"user_id": OTHER_USER_ID}])
 
         resp = auth_client.delete(f"/api/daily-log/{ENTRY_UUID}")
         assert resp.status_code == 403
 
     def test_not_found_returns_404(self, auth_client):
-        _setup_supabase(data=None)
+        _setup_supabase(data=[])
 
         resp = auth_client.delete("/api/daily-log/99999999-9999-9999-9999-999999999999")
         assert resp.status_code == 404
@@ -226,14 +226,14 @@ class TestDailyLogUpdate:
         updated = {"id": "e1", "calories": 300}
 
         api_module.supabase = MagicMock()
-        # Ownership check chain: table().select().eq().single().execute()
+        # Ownership check chain: table().select().eq().limit().execute()
         ownership_resp = MagicMock()
-        ownership_resp.data = {"user_id": USER_ID}
+        ownership_resp.data = [{"user_id": USER_ID}]
         ownership_chain = MagicMock()
         ownership_chain.execute.return_value = ownership_resp
         select_chain = MagicMock()
         select_chain.eq.return_value = MagicMock()
-        select_chain.eq.return_value.single.return_value = ownership_chain
+        select_chain.eq.return_value.limit.return_value = ownership_chain
         table_mock = MagicMock()
         table_mock.select.return_value = select_chain
         # Update chain: table().update().eq().execute()
@@ -262,9 +262,9 @@ class TestDailyLogUpdate:
 
         api_module.supabase = MagicMock()
         ownership_resp = MagicMock()
-        ownership_resp.data = {"user_id": USER_ID}
+        ownership_resp.data = [{"user_id": USER_ID}]
         qty_resp = MagicMock()
-        qty_resp.data = {"quantity": 100, "unit": "g"}
+        qty_resp.data = [{"quantity": 100, "unit": "g"}]
         update_resp = MagicMock()
         update_resp.data = [updated]
 
@@ -274,7 +274,7 @@ class TestDailyLogUpdate:
             call_count["n"] += 1
             chain = MagicMock()
             resp = ownership_resp if call_count["n"] == 1 else qty_resp
-            chain.eq.return_value.single.return_value.execute.return_value = resp
+            chain.eq.return_value.limit.return_value.execute.return_value = resp
             return chain
 
         table_mock = MagicMock()
@@ -303,7 +303,7 @@ class TestDailyLogUpdate:
 
     def test_empty_update_returns_400(self, auth_client):
         # Ownership check passes, but no fields to update
-        _setup_supabase(data={"user_id": USER_ID})
+        _setup_supabase(data=[{"user_id": USER_ID}])
 
         resp = auth_client.put(f"/api/daily-log/{ENTRY_UUID}", json={})
         assert resp.status_code == 400
@@ -352,20 +352,20 @@ class TestMealPlanGet:
 
     def test_returns_plan(self, auth_client):
         plan = {"id": self.PLAN_UUID, "user_id": USER_ID, "plan_data": {"days": []}}
-        _setup_supabase(data=plan)
+        _setup_supabase(data=[plan])
 
         resp = auth_client.get(f"/api/meal-plans/{self.PLAN_UUID}")
         assert resp.status_code == 200
         assert resp.json()["id"] == self.PLAN_UUID
 
     def test_wrong_user_returns_403(self, auth_client):
-        _setup_supabase(data={"id": self.PLAN_UUID, "user_id": OTHER_USER_ID})
+        _setup_supabase(data=[{"id": self.PLAN_UUID, "user_id": OTHER_USER_ID}])
 
         resp = auth_client.get(f"/api/meal-plans/{self.PLAN_UUID}")
         assert resp.status_code == 403
 
     def test_not_found_returns_404(self, auth_client):
-        _setup_supabase(data=None)
+        _setup_supabase(data=[])
 
         resp = auth_client.get(f"/api/meal-plans/{self.PLAN_UUID}")
         assert resp.status_code == 404
@@ -433,20 +433,20 @@ class TestFavoritesDelete:
     """Tests for DELETE /api/favorites/{favorite_id}."""
 
     def test_removes_own_favorite(self, auth_client):
-        _setup_supabase(data={"user_id": USER_ID})
+        _setup_supabase(data=[{"user_id": USER_ID}])
 
         resp = auth_client.delete(f"/api/favorites/{FAV_UUID}")
         assert resp.status_code == 200
         assert resp.json()["status"] == "deleted"
 
     def test_wrong_user_returns_403(self, auth_client):
-        _setup_supabase(data={"user_id": OTHER_USER_ID})
+        _setup_supabase(data=[{"user_id": OTHER_USER_ID}])
 
         resp = auth_client.delete(f"/api/favorites/{FAV_UUID}")
         assert resp.status_code == 403
 
     def test_not_found_returns_404(self, auth_client):
-        _setup_supabase(data=None)
+        _setup_supabase(data=[])
 
         resp = auth_client.delete("/api/favorites/99999999-9999-9999-9999-999999999999")
         assert resp.status_code == 404
@@ -478,20 +478,20 @@ class TestShoppingListGet:
 
     def test_returns_list(self, auth_client):
         sl = {"id": "sl1", "user_id": USER_ID, "title": "Courses", "items": []}
-        _setup_supabase(data=sl)
+        _setup_supabase(data=[sl])
 
         resp = auth_client.get(f"/api/shopping-lists/{SL_UUID}")
         assert resp.status_code == 200
         assert resp.json()["title"] == "Courses"
 
     def test_wrong_user_returns_403(self, auth_client):
-        _setup_supabase(data={"id": "sl1", "user_id": OTHER_USER_ID})
+        _setup_supabase(data=[{"id": "sl1", "user_id": OTHER_USER_ID}])
 
         resp = auth_client.get(f"/api/shopping-lists/{SL_UUID}")
         assert resp.status_code == 403
 
     def test_not_found_returns_404(self, auth_client):
-        _setup_supabase(data=None)
+        _setup_supabase(data=[])
 
         resp = auth_client.get(
             "/api/shopping-lists/99999999-9999-9999-9999-999999999999"
@@ -508,12 +508,12 @@ class TestShoppingListUpdate:
         api_module.supabase = MagicMock()
         # Ownership check
         ownership_resp = MagicMock()
-        ownership_resp.data = {"user_id": USER_ID}
+        ownership_resp.data = [{"user_id": USER_ID}]
         ownership_chain = MagicMock()
         ownership_chain.execute.return_value = ownership_resp
         select_chain = MagicMock()
         select_chain.eq.return_value = MagicMock()
-        select_chain.eq.return_value.single.return_value = ownership_chain
+        select_chain.eq.return_value.limit.return_value = ownership_chain
         table_mock = MagicMock()
         table_mock.select.return_value = select_chain
         # Update chain
@@ -544,7 +544,7 @@ class TestShoppingListUpdate:
         assert resp.status_code == 200
 
     def test_empty_update_returns_400(self, auth_client):
-        _setup_supabase(data={"user_id": USER_ID})
+        _setup_supabase(data=[{"user_id": USER_ID}])
 
         resp = auth_client.put(f"/api/shopping-lists/{SL_UUID}", json={})
         assert resp.status_code == 400

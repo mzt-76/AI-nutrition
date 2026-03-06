@@ -43,7 +43,7 @@ from src.nutrition.openfoodfacts_client import (
 from pydantic_ai.messages import PartDeltaEvent, PartStartEvent, TextPartDelta
 
 from src.agent import agent, create_agent_deps, get_model
-from src.clients import get_memory_client, get_supabase_client
+from src.clients import get_async_memory_client, get_supabase_client
 from src.ui_components import extract_ui_components
 from src.db_utils import (
     check_rate_limit,
@@ -63,6 +63,15 @@ load_dotenv(project_root / ".env", override=True)
 
 logger = logging.getLogger(__name__)
 
+
+def _log_task_exception(task: asyncio.Task) -> None:  # type: ignore[type-arg]
+    """Log exceptions from fire-and-forget background tasks."""
+    if task.cancelled():
+        return
+    if exc := task.exception():
+        logger.error("Background task failed: %s", exc, exc_info=exc)
+
+
 # Global clients initialized in lifespan
 supabase: Any = None
 title_agent: Any = None
@@ -74,21 +83,24 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
     """Initialize and clean up global clients."""
     global supabase, title_agent, mem0_client
 
+    missing = [
+        v
+        for v in ("SUPABASE_URL", "SUPABASE_SERVICE_KEY", "LLM_API_KEY")
+        if not os.getenv(v)
+    ]
+    if missing:
+        raise RuntimeError(f"Missing required env vars: {', '.join(missing)}")
+
     supabase = get_supabase_client()
 
     # Title agent uses MEM0_LLM_CHOICE (cheap/fast model for 4-6 word titles).
-    # We go through get_model() so it picks up LLM_API_KEY and LLM_BASE_URL.
-    original_choice = os.getenv("LLM_CHOICE")
-    os.environ["LLM_CHOICE"] = os.getenv("MEM0_LLM_CHOICE", "gpt-4o-mini")
-    title_agent = Agent(model=get_model())
-    if original_choice:
-        os.environ["LLM_CHOICE"] = original_choice
-    else:
-        del os.environ["LLM_CHOICE"]
+    # We pass model_name directly to avoid mutating os.environ (race condition).
+    title_model_name = os.getenv("MEM0_LLM_CHOICE", "gpt-4o-mini")
+    title_agent = Agent(model=get_model(model_name=title_model_name))
 
     try:
-        mem0_client = get_memory_client()
-        logger.info("mem0 client initialized")
+        mem0_client = await get_async_memory_client()
+        logger.info("mem0 async client initialized")
     except Exception as e:
         logger.warning(f"mem0 not available: {e}")
         mem0_client = None
@@ -124,8 +136,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_parsed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 
@@ -197,6 +209,7 @@ class AgentRequest(BaseModel):
     request_id: str
     session_id: str = ""
     files: list[FileAttachment] | None = None
+    ephemeral: bool = False  # skip conversation/message storage (e.g. quick-add)
 
 
 class DailyLogCreate(BaseModel):
@@ -351,95 +364,104 @@ async def agent_endpoint(
             )
 
         # Fire-and-forget request tracking
-        asyncio.create_task(
+        task = asyncio.create_task(
             store_request(supabase, request.request_id, request.user_id, request.query)
         )
+        task.add_done_callback(_log_task_exception)
 
         # Session management
         session_id = request.session_id
         conversation_record = None
 
-        if not session_id:
-            session_id = generate_session_id(request.user_id)
-            try:
-                conversation_record = await create_conversation(
-                    supabase, request.user_id, session_id
-                )
-            except Exception as e:
-                logger.error(f"Failed to create conversation: {e}")
-
-        # Store user message
-        file_attachments = None
-        if request.files:
-            file_attachments = [
-                {
-                    "fileName": f.file_name,
-                    "content": f.content,
-                    "mimeType": f.mime_type,
-                }
-                for f in request.files
-            ]
-
-        try:
-            await store_message(
-                supabase=supabase,
-                session_id=session_id,
-                message_type="human",
-                content=request.query,
-                files=file_attachments,
-            )
-        except Exception as e:
-            logger.error(f"Failed to store user message: {e}")
-
-        # Load conversation history + mem0 memories in parallel
-        history_task = asyncio.create_task(
-            fetch_conversation_history(supabase, session_id)
-        )
-        memory_search_task = (
-            asyncio.create_task(
-                asyncio.to_thread(
-                    mem0_client.search,
-                    query=request.query,
-                    user_id=request.user_id,
-                    limit=3,
-                )
-            )
-            if mem0_client
-            else None
-        )
-
-        try:
-            conversation_history = await history_task
-            pydantic_messages = convert_history_to_pydantic_format(conversation_history)
-        except Exception as e:
-            logger.error(f"Failed to load conversation history: {e}")
-            pydantic_messages = []
-
-        memories_str = ""
-        if memory_search_task:
-            try:
-                relevant = await memory_search_task
-                if relevant and relevant.get("results"):
-                    memories_str = "\n".join(
-                        f"- {entry['memory']}" for entry in relevant["results"]
-                    )
-                    logger.info(f"mem0 memories injected: {memories_str}")
-            except Exception as e:
-                logger.warning(f"Could not load memories: {e}")
-
-        if mem0_client:
-
-            async def _save_memory() -> None:
+        if request.ephemeral:
+            # Ephemeral requests get a throwaway session_id; no DB records
+            session_id = session_id or generate_session_id(request.user_id)
+        else:
+            if not session_id:
+                session_id = generate_session_id(request.user_id)
                 try:
-                    await asyncio.to_thread(
-                        mem0_client.add,
-                        [{"role": "user", "content": request.query}],
-                        user_id=request.user_id,
+                    conversation_record = await create_conversation(
+                        supabase, request.user_id, session_id
                     )
                 except Exception as e:
-                    logger.warning(f"Could not save memory: {e}")
+                    logger.error(f"Failed to create conversation: {e}")
 
-            asyncio.create_task(_save_memory())
+            # Store user message
+            file_attachments = None
+            if request.files:
+                file_attachments = [
+                    {
+                        "fileName": f.file_name,
+                        "content": f.content,
+                        "mimeType": f.mime_type,
+                    }
+                    for f in request.files
+                ]
+
+            try:
+                await store_message(
+                    supabase=supabase,
+                    session_id=session_id,
+                    message_type="human",
+                    content=request.query,
+                    files=file_attachments,
+                )
+            except Exception as e:
+                logger.error(f"Failed to store user message: {e}")
+
+        # Load conversation history + mem0 memories in parallel
+        # Ephemeral requests skip history (no prior messages) and mem0
+        pydantic_messages: list = []  # type: ignore[type-arg]
+        memories_str = ""
+
+        if not request.ephemeral:
+            history_task = asyncio.create_task(
+                fetch_conversation_history(supabase, session_id)
+            )
+            memory_search_task = (
+                asyncio.create_task(
+                    mem0_client.search(
+                        query=request.query,
+                        user_id=request.user_id,
+                        limit=3,
+                    )
+                )
+                if mem0_client
+                else None
+            )
+
+            try:
+                conversation_history = await history_task
+                pydantic_messages = convert_history_to_pydantic_format(
+                    conversation_history
+                )
+            except Exception as e:
+                logger.error(f"Failed to load conversation history: {e}")
+
+            if memory_search_task:
+                try:
+                    relevant = await memory_search_task
+                    if relevant and relevant.get("results"):
+                        memories_str = "\n".join(
+                            f"- {entry['memory']}" for entry in relevant["results"]
+                        )
+                        logger.info(f"mem0 memories injected: {memories_str}")
+                except Exception as e:
+                    logger.warning(f"Could not load memories: {e}")
+
+            if mem0_client:
+
+                async def _save_memory() -> None:
+                    try:
+                        await mem0_client.add(
+                            [{"role": "user", "content": request.query}],
+                            user_id=request.user_id,
+                        )
+                    except Exception as e:
+                        logger.warning(f"Could not save memory: {e}")
+
+                task = asyncio.create_task(_save_memory())
+                task.add_done_callback(_log_task_exception)
 
         title_task = None
         if conversation_record and title_agent:
@@ -455,6 +477,7 @@ async def agent_endpoint(
                 pydantic_messages=pydantic_messages,
                 memories_str=memories_str,
                 title_task=title_task,
+                ephemeral=request.ephemeral,
             ),
             media_type="text/plain",
         )
@@ -482,16 +505,16 @@ async def get_meal_plan(
 
     user_id = auth_user["id"]
     result = (
-        supabase.table("meal_plans").select("*").eq("id", plan_id).single().execute()
+        supabase.table("meal_plans").select("*").eq("id", plan_id).limit(1).execute()
     )
 
     if not result.data:
         raise HTTPException(status_code=404, detail="Plan repas introuvable")
 
-    if result.data.get("user_id") != user_id:
+    if result.data[0].get("user_id") != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    return result.data
+    return result.data[0]
 
 
 @app.get("/api/meal-plans")
@@ -529,12 +552,12 @@ async def delete_meal_plan(
         supabase.table("meal_plans")
         .select("id, user_id")
         .eq("id", plan_id)
-        .single()
+        .limit(1)
         .execute()
     )
     if not result.data:
         raise HTTPException(status_code=404, detail="Plan repas introuvable")
-    if result.data.get("user_id") != user_id:
+    if result.data[0].get("user_id") != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     try:
@@ -550,6 +573,25 @@ async def delete_meal_plan(
 # =============================================================================
 # Daily Food Log
 # =============================================================================
+
+
+@app.get("/api/food-search")
+async def food_search(
+    q: str,
+    quantity: float = 100,
+    unit: str = "g",
+    auth_user: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    """Search for a food item and return its macros."""
+    q = q.strip()
+    if not q:
+        raise HTTPException(status_code=400, detail="Le paramètre 'q' est requis")
+
+    result = await match_ingredient(q, quantity, unit, supabase)
+    if result.get("confidence", 0) == 0:
+        raise HTTPException(status_code=404, detail="Aliment non trouvé")
+
+    return result
 
 
 @app.get("/api/daily-log")
@@ -573,6 +615,7 @@ async def get_daily_log(
         .eq("user_id", user_id)
         .eq("log_date", date)
         .order("created_at", desc=False)
+        .limit(200)
         .execute()
     )
     return result.data or []
@@ -609,12 +652,12 @@ async def update_daily_log(
         supabase.table("daily_food_log")
         .select("user_id")
         .eq("id", entry_id)
-        .single()
+        .limit(1)
         .execute()
     )
     if not existing.data:
         raise HTTPException(status_code=404, detail="Entrée introuvable")
-    if existing.data.get("user_id") != auth_user["id"]:
+    if existing.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     updates = body.model_dump(exclude_none=True)
@@ -627,11 +670,11 @@ async def update_daily_log(
             supabase.table("daily_food_log")
             .select("quantity, unit")
             .eq("id", entry_id)
-            .single()
+            .limit(1)
             .execute()
         )
-        qty = current.data["quantity"] if current.data else 100
-        unit = current.data["unit"] if current.data else "g"
+        qty = current.data[0]["quantity"] if current.data else 100
+        unit = current.data[0]["unit"] if current.data else "g"
         macros = await match_ingredient(updates["food_name"], qty, unit, supabase)
         if macros.get("confidence", 0) == 0:
             raise HTTPException(
@@ -668,12 +711,12 @@ async def delete_daily_log(
         supabase.table("daily_food_log")
         .select("user_id")
         .eq("id", entry_id)
-        .single()
+        .limit(1)
         .execute()
     )
     if not existing.data:
         raise HTTPException(status_code=404, detail="Entrée introuvable")
-    if existing.data.get("user_id") != auth_user["id"]:
+    if existing.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     try:
@@ -753,12 +796,12 @@ async def remove_favorite(
         supabase.table("favorite_recipes")
         .select("user_id")
         .eq("id", favorite_id)
-        .single()
+        .limit(1)
         .execute()
     )
     if not existing.data:
         raise HTTPException(status_code=404, detail="Favorite not found")
-    if existing.data.get("user_id") != auth_user["id"]:
+    if existing.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     try:
@@ -850,11 +893,11 @@ async def get_recipe(
     _validate_uuid(recipe_id)
 
     result = (
-        supabase.table("recipes").select("*").eq("id", recipe_id).single().execute()
+        supabase.table("recipes").select("*").eq("id", recipe_id).limit(1).execute()
     )
     if not result.data:
         raise HTTPException(status_code=404, detail="Recipe not found")
-    return result.data
+    return result.data[0]
 
 
 # =============================================================================
@@ -916,15 +959,15 @@ async def get_shopping_list(
         supabase.table("shopping_lists")
         .select("*")
         .eq("id", list_id)
-        .single()
+        .limit(1)
         .execute()
     )
     if not result.data:
         raise HTTPException(status_code=404, detail="Shopping list not found")
-    if result.data.get("user_id") != auth_user["id"]:
+    if result.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    return result.data
+    return result.data[0]
 
 
 @app.put("/api/shopping-lists/{list_id}")
@@ -940,12 +983,12 @@ async def update_shopping_list(
         supabase.table("shopping_lists")
         .select("user_id")
         .eq("id", list_id)
-        .single()
+        .limit(1)
         .execute()
     )
     if not existing.data:
         raise HTTPException(status_code=404, detail="Shopping list not found")
-    if existing.data.get("user_id") != auth_user["id"]:
+    if existing.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     updates: dict[str, Any] = {}
@@ -978,12 +1021,12 @@ async def delete_shopping_list(
         supabase.table("shopping_lists")
         .select("user_id")
         .eq("id", list_id)
-        .single()
+        .limit(1)
         .execute()
     )
     if not existing.data:
         raise HTTPException(status_code=404, detail="Shopping list not found")
-    if existing.data.get("user_id") != auth_user["id"]:
+    if existing.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     try:
@@ -1032,7 +1075,9 @@ async def recalculate_profile(
     target_calories = tdee + calorie_adjustments.get(primary_goal, 0)
 
     protein_g, _, _ = calculate_protein_target(body.weight_kg, primary_goal)
-    macros = calculate_macros(target_calories, protein_g, primary_goal, weight_kg=body.weight_kg)
+    macros = calculate_macros(
+        target_calories, protein_g, primary_goal, weight_kg=body.weight_kg
+    )
 
     result = {
         "bmr": bmr,
@@ -1072,6 +1117,7 @@ async def _stream_agent_response(
     pydantic_messages: list,
     memories_str: str,
     title_task: asyncio.Task | None,
+    ephemeral: bool = False,
 ):
     """Stream agent response as NDJSON chunks."""
     agent_deps = create_agent_deps(memories=memories_str, user_id=request.user_id)
@@ -1135,20 +1181,21 @@ async def _stream_agent_response(
                     json.dumps({"type": "ui_component", **comp}).encode("utf-8") + b"\n"
                 )
 
-        # Store AI response
-        try:
-            message_data = run.result.new_messages_json()
-            await store_message(
-                supabase=supabase,
-                session_id=session_id,
-                message_type="ai",
-                content=full_response,
-                message_data=message_data,
-                data={"request_id": request.request_id},
-                ui_components=ui_components if ui_components else None,
-            )
-        except Exception as e:
-            logger.error(f"Failed to store AI response: {e}")
+        # Store AI response (skip for ephemeral requests)
+        if not ephemeral:
+            try:
+                message_data = run.result.new_messages_json()
+                await store_message(
+                    supabase=supabase,
+                    session_id=session_id,
+                    message_type="ai",
+                    content=full_response,
+                    message_data=message_data,
+                    data={"request_id": request.request_id},
+                    ui_components=ui_components if ui_components else None,
+                )
+            except Exception as e:
+                logger.error(f"Failed to store AI response: {e}")
 
     except Exception as e:
         logger.error(f"Agent streaming error: {e}", exc_info=True)

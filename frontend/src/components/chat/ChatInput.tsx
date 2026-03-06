@@ -109,6 +109,20 @@ export const ChatInput = ({ onSendMessage, onStopResponse, isLoading }: ChatInpu
         return;
       }
 
+      // Check MIME type whitelist
+      const ALLOWED_TYPES = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        'application/pdf', 'text/plain', 'text/csv'
+      ];
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        toast({
+          title: "Type non supporté",
+          description: `${file.name}`,
+          variant: "destructive"
+        });
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
@@ -198,7 +212,7 @@ export const ChatInput = ({ onSendMessage, onStopResponse, isLoading }: ChatInpu
           className="hidden" 
           onChange={handleFileUpload}
           multiple
-          accept="*/*"
+          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,text/plain,text/csv"
         />
         <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center h-full">
           {message.length >= 3500 && (
