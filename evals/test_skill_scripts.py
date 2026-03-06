@@ -1787,7 +1787,7 @@ async def test_fetch_stored_meal_plan_eval():
 # ---------------------------------------------------------------------------
 
 _SHOPPING_LIST_SCRIPT = (
-    PROJECT_ROOT / "skills" / "meal-planning" / "scripts" / "generate_shopping_list.py"
+    PROJECT_ROOT / "skills" / "shopping-list" / "scripts" / "generate_shopping_list.py"
 )
 
 _STORED_PLAN_FOR_SHOPPING = {

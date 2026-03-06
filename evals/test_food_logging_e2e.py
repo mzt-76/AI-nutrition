@@ -3,7 +3,7 @@
 WHY THIS IS AN EVAL, NOT A TEST
 ================================
 These scenarios involve a real LLM (Haiku 4.5) making decisions:
-  - Does the agent route food logging to meal-planning/log_food_entries?
+  - Does the agent route food logging to food-tracking/log_food_entries?
   - Does the agent extract ingredient names, quantities, and units from NL?
   - Does the agent decompose composite dishes into individual ingredients?
   - Does the agent pass the correct meal_type and log_date?
@@ -271,7 +271,7 @@ async def _run_agent(message: str) -> AgentResult:
 # Scenario 1 — Simple food logging with explicit quantities
 #
 # User says "200g de poulet et 150g de riz" with SUIVI RAPIDE prefix.
-# Agent should route to meal-planning/log_food_entries with 2 items.
+# Agent should route to food-tracking/log_food_entries with 2 items.
 # ---------------------------------------------------------------------------
 
 

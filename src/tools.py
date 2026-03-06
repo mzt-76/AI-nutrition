@@ -7,8 +7,9 @@ This module contains core agent tools that do not belong to a specific skill dom
 
 Meal-planning tools have been fully migrated to skill scripts:
 - generate_weekly_meal_plan → skills/meal-planning/scripts/generate_week_plan.py
-- generate_shopping_list   → skills/meal-planning/scripts/generate_shopping_list.py
 - fetch_stored_meal_plan   → skills/meal-planning/scripts/fetch_stored_meal_plan.py
+- generate_shopping_list   → skills/shopping-list/scripts/generate_shopping_list.py
+- log_food_entries         → skills/food-tracking/scripts/log_food_entries.py
 
 Other skill domains:
 - calculate_nutritional_needs → skills/nutrition-calculating/scripts/

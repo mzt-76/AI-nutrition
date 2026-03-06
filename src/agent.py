@@ -234,7 +234,7 @@ async def run_skill_script(
         run_skill_script("meal-planning", "generate_week_plan",
             {"start_date": "2026-02-23", "target_calories_daily": 2800})
 
-        run_skill_script("meal-planning", "generate_shopping_list",
+        run_skill_script("shopping-list", "generate_shopping_list",
             {"week_start": "2026-02-23"})
     """
     logger.info(

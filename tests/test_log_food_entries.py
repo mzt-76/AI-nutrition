@@ -15,7 +15,7 @@ import pytest
 _SCRIPT_PATH = (
     Path(__file__).resolve().parent.parent
     / "skills"
-    / "meal-planning"
+    / "food-tracking"
     / "scripts"
     / "log_food_entries.py"
 )

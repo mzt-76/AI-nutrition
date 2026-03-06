@@ -32,6 +32,8 @@ SKILLS_DIR = PROJECT_ROOT / "skills"
 EXPECTED_SKILLS = {
     "nutrition-calculating",
     "meal-planning",
+    "food-tracking",
+    "shopping-list",
     "weekly-coaching",
     "knowledge-searching",
     "body-analyzing",
@@ -362,7 +364,7 @@ def skill_discovery_dataset() -> Dataset:
                 name="discover_all_project_skills",
                 inputs={},
                 evaluators=(
-                    DiscoverCountCheck(min_count=6),
+                    DiscoverCountCheck(min_count=8),
                     AllExpectedSkills(),
                     MetadataPromptHasSkills(),
                 ),

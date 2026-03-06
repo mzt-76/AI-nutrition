@@ -339,8 +339,8 @@ def scenario_1_custom_recipe_dataset() -> Dataset:
 
 # ---------------------------------------------------------------------------
 # Scenario 2 — Shopping list generation
-# Expected: agent calls load_skill("meal-planning") then
-#           run_skill_script("meal-planning", "generate_shopping_list", ...)
+# Expected: agent calls load_skill("shopping-list") then
+#           run_skill_script("shopping-list", "generate_shopping_list", ...)
 #           Response contains categorized items and mentions persistence.
 # ---------------------------------------------------------------------------
 
