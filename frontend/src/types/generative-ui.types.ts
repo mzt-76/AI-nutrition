@@ -29,6 +29,7 @@ export interface MealCardProps {
   macros: { protein_g: number; carbs_g: number; fat_g: number };
   prep_time?: number;
   ingredients?: string[];
+  instructions?: string;
   onClick?: () => void;
 }
 

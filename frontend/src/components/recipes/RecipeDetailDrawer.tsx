@@ -242,12 +242,13 @@ export function RecipeDetailDrawer({
                   </h4>
                   <ol className="space-y-2">
                     {instructions
-                      .split(/\n|(?<=\.)\s+/)
-                      .filter((s) => s.trim())
+                      .split(/\n|(?=\d+[\.\)]\s)/)
+                      .map((s) => s.trim().replace(/^\d+[\.\)]\s*/, ''))
+                      .filter(Boolean)
                       .map((step, i) => (
                         <li key={i} className="text-sm text-gray-300 flex gap-2">
                           <span className="text-emerald-400/70 font-medium shrink-0">{i + 1}.</span>
-                          {step.trim()}
+                          {step}
                         </li>
                       ))}
                   </ol>

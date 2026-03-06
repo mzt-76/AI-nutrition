@@ -41,6 +41,7 @@ export const MessageItem = ({ message, isLastMessage = false, onAction }: Messag
       name: (p.recipe_name as string) ?? '',
       meal_type: (p.meal_type as string) ?? '',
       ingredients: ((p.ingredients as string[]) ?? []),
+      instructions: (p.instructions as string) ?? undefined,
       prep_time_minutes: (p.prep_time as number) ?? undefined,
       nutrition: {
         calories: (p.calories as number) ?? 0,

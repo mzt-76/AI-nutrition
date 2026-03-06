@@ -28,6 +28,7 @@ const MealCardSchema = z.object({
   macros: MacrosSchema,
   prep_time: z.number().optional(),
   ingredients: z.array(z.string()).optional(),
+  instructions: z.string().optional(),
 });
 
 const DayPlanCardSchema = z.object({

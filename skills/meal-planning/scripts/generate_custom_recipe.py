@@ -240,6 +240,7 @@ async def execute(**kwargs) -> str:
                 },
                 "prep_time": recipe_to_save.get("prep_time_minutes", 30),
                 "ingredients": ingredient_labels,
+                "instructions": recipe_to_save.get("instructions", ""),
             },
             ensure_ascii=False,
         )
