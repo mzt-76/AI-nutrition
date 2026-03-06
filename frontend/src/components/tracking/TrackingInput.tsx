@@ -106,7 +106,7 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
           onKeyDown={handleKeyDown}
           placeholder={isListening ? 'Écoute en cours...' : "J'ai mangé..."}
           disabled={sending}
-          className="flex-1 bg-transparent text-sm text-gray-200 placeholder:text-gray-600 outline-none min-w-0 py-2 px-2"
+          className="flex-1 bg-transparent text-sm text-gray-200 placeholder:text-gray-600 outline-none min-w-0 py-2 px-2 disabled:opacity-50 disabled:cursor-not-allowed"
         />
 
         {/* Mic button — right side, next to send */}
@@ -132,7 +132,7 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
           disabled={!text.trim() || sending}
           className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-all
             bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30
-            disabled:opacity-20 disabled:cursor-default disabled:hover:bg-emerald-500/20"
+            disabled:opacity-30 disabled:cursor-default disabled:hover:bg-emerald-500/20"
         >
           {sending ? (
             <Loader2 className="h-4 w-4 animate-spin" />

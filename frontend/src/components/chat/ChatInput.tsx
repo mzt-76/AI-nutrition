@@ -174,7 +174,7 @@ export const ChatInput = ({ onSendMessage, onStopResponse, isLoading }: ChatInpu
           onChange={(e) => setMessage(e.target.value.slice(0, 4000))} // Limit to 4000 chars
           onKeyDown={handleKeyDown}
           placeholder={files.length > 0 ? "Ajoutez un message ou envoyez les fichiers..." : "Posez votre question..."}
-          className="min-h-[56px] max-h-[200px] resize-none border-0 py-3 px-3 pr-36 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="min-h-[56px] max-h-[200px] resize-none border-0 py-3 px-3 pr-36 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:ring-offset-0"
           style={{ 
             height: 'auto',
             wordBreak: 'break-word',

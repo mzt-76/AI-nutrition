@@ -46,7 +46,7 @@ const DailyTracking = () => {
       )}
 
       <ScrollArea className="flex-1">
-        <div className="pb-32">
+        <div className="pb-24">
           <DateSelector
             selectedDate={selectedDate}
             isToday={isSelectedToday}
@@ -90,7 +90,7 @@ const DailyTracking = () => {
               />
 
               {/* Separator */}
-              <div className="mx-4 my-4 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+              <div className="mx-4 my-3 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
               {/* Meal sections */}
               <div className="space-y-1">

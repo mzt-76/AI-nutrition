@@ -26,7 +26,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
       ) : (
         <div className="w-10" />
       )}
-      <div className="flex-1 text-center font-semibold truncate">{title}</div>
+      <div className="flex-1 text-center font-semibold truncate" title={title}>{title}</div>
       {onProfileClick ? (
         <Button variant="ghost" size="icon" className="ml-2" onClick={onProfileClick}>
           <Avatar className="h-7 w-7">

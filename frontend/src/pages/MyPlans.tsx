@@ -153,7 +153,7 @@ const MyPlans = () => {
       </div>
 
       {/* Content */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 [&>div>div]:!block [&>div>div]:!min-w-0">
         <div className={`px-4 py-3 space-y-2.5 ${isMobile ? 'pb-20' : 'pb-8'}`}>
           {loading ? (
             <div className="space-y-2.5">

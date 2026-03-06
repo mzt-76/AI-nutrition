@@ -184,7 +184,7 @@ function EntryRow({
       <Button
         variant="ghost"
         size="icon"
-        className="h-6 w-6 text-gray-600 hover:text-red-400 active:text-red-400 transition-colors shrink-0"
+        className="h-8 w-8 text-gray-600 hover:text-red-400 active:text-red-400 transition-colors shrink-0"
         onClick={() => onDelete(entry.id)}
       >
         <Trash2 className="h-3 w-3" />

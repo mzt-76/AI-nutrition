@@ -18,7 +18,7 @@ export function DateSelector({ selectedDate, isToday, onPrevious, onNext, onToda
         variant="ghost"
         size="icon"
         onClick={onPrevious}
-        className="h-9 w-9 rounded-full text-gray-400 hover:text-white hover:bg-white/5"
+        className="h-10 w-10 rounded-full text-gray-400 hover:text-white hover:bg-white/5"
       >
         <ChevronLeft className="h-5 w-5" />
         <span className="sr-only">Jour précédent</span>
@@ -46,7 +46,7 @@ export function DateSelector({ selectedDate, isToday, onPrevious, onNext, onToda
         variant="ghost"
         size="icon"
         onClick={onNext}
-        className="h-9 w-9 rounded-full text-gray-400 hover:text-white hover:bg-white/5"
+        className="h-10 w-10 rounded-full text-gray-400 hover:text-white hover:bg-white/5"
       >
         <ChevronRight className="h-5 w-5" />
         <span className="sr-only">Jour suivant</span>

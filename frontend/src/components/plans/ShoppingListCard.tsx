@@ -70,7 +70,7 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
   }
 
   return (
-    <div className="rounded-xl glass-effect border border-white/5 overflow-hidden">
+    <div className="rounded-xl glass-effect border border-white/5 overflow-hidden min-w-0 w-full">
       <div
         role="button"
         tabIndex={0}
@@ -78,10 +78,12 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded((v) => !v); } }}
         className="w-full text-left p-4 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors cursor-pointer"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <ShoppingCart className="h-5 w-5 text-emerald-400 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-200 truncate">{list.title}</p>
+            <p className="text-sm font-medium text-gray-200 truncate">
+              {list.title?.replace(/^(Courses|Liste de courses)\s*[-–—:]\s*/i, '')}
+            </p>
             <div className="flex items-center gap-2 mt-0.5">
               {createdLabel && <span className="text-[11px] text-gray-500">{createdLabel}</span>}
               <span className="text-[11px] text-gray-500">
@@ -101,7 +103,7 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
           {onDelete && (
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(list.id); }}
-              className="p-1 rounded-md hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors shrink-0"
+              className="p-2 rounded-md hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors shrink-0"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -124,27 +126,27 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
 
             return (
               <div key={cat}>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <CatIcon className="h-3 w-3 text-gray-500" />
-                  <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                <div className="flex items-center gap-2 mb-1.5 min-w-0">
+                  <CatIcon className="h-3 w-3 text-gray-500 shrink-0" />
+                  <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider truncate">
                     {CATEGORY_LABELS[cat]}
                   </span>
                 </div>
-                <div className="space-y-0.5 pl-5">
+                <div className="space-y-0.5 pl-5 min-w-0">
                   {catItems.map((item) => {
                     const idx = itemGlobalIndex.get(item) ?? 0;
                     return (
                       <label
                         key={`${item.name}-${idx}`}
-                        className="flex items-center gap-2.5 py-1 px-1.5 -mx-1 rounded-md hover:bg-white/[0.03] cursor-pointer"
+                        className="flex items-center gap-2.5 py-1 px-1.5 -mx-1 rounded-md hover:bg-white/[0.03] cursor-pointer min-w-0"
                       >
                         <input
                           type="checkbox"
                           checked={item.checked}
                           onChange={() => toggleItem(idx)}
-                          className="h-3.5 w-3.5 rounded border-gray-600 bg-transparent text-emerald-500 focus:ring-0 focus:ring-offset-0 accent-emerald-500"
+                          className="h-4 w-4 rounded border-gray-600 bg-transparent text-emerald-500 focus:ring-0 focus:ring-offset-0 accent-emerald-500 shrink-0"
                         />
-                        <span className={`text-sm flex-1 ${item.checked ? 'line-through text-gray-600' : 'text-gray-300'}`}>
+                        <span className={`text-sm flex-1 min-w-0 truncate ${item.checked ? 'line-through text-gray-600' : 'text-gray-300'}`}>
                           {item.name}
                         </span>
                         {item.quantity > 0 && (
