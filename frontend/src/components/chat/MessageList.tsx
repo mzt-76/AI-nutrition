@@ -29,6 +29,7 @@ interface MessageListProps {
   isLoading: boolean;
   isGeneratingResponse?: boolean;
   isLoadingMessages?: boolean;
+  hasActiveConversation?: boolean;
   onSuggestedQuestion?: (question: string) => void;
   onAction?: (value: string) => void;
 }
@@ -38,6 +39,7 @@ export const MessageList = ({
   isLoading,
   isGeneratingResponse = false,
   isLoadingMessages = false,
+  hasActiveConversation = false,
   onSuggestedQuestion,
   onAction,
 }: MessageListProps) => {
@@ -52,7 +54,7 @@ export const MessageList = ({
     return () => clearTimeout(scrollTimeout);
   }, [messages, isGeneratingResponse]);
 
-  if (messages.length === 0 && !isLoading) {
+  if (messages.length === 0 && !isLoading && !hasActiveConversation) {
     return (
       <div className="flex-1 overflow-y-auto overscroll-contain touch-pan-y p-6 h-full">
         <div className="max-w-lg mx-auto text-center flex flex-col items-center justify-center min-h-full">

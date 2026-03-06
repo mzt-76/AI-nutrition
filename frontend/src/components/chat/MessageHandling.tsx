@@ -1,5 +1,6 @@
 
 import { useCallback, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Message, FileAttachment } from '@/types/database.types';
 import { UIComponentBlock, SemanticZone } from '@/types/generative-ui.types';
 import { sendMessage, fetchMessages } from '@/lib/api';
@@ -34,6 +35,7 @@ export const useMessageHandling = ({
   setNewConversationId,
 }: MessageHandlingProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleStopResponse = useCallback(() => {
@@ -365,8 +367,9 @@ export const useMessageHandling = ({
       // This just fetches messages from the database, it doesn't call the webhook API
       const data = await fetchMessages(conversation.session_id, user.id);
       if (isMounted.current) {
-        // Set messages without showing loading state
         setMessages(data);
+        // Write to React Query cache so tab switches restore instantly
+        queryClient.setQueryData(['messages', conversation.session_id], data);
       }
     } catch (err) {
       console.error('Error loading messages:', err);
@@ -379,7 +382,7 @@ export const useMessageHandling = ({
       }
     }
     // No need to set loading to false since we never set it to true
-  }, [user, setMessages, toast, isMounted]);
+  }, [user, setMessages, toast, isMounted, queryClient]);
 
   return {
     handleSendMessage,

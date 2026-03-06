@@ -9,6 +9,7 @@ Usage:
 """
 
 import asyncio
+import base64
 import json
 import logging
 import os
@@ -25,7 +26,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pathlib import Path
 from pydantic import BaseModel
-from pydantic_ai import Agent
+from pydantic_ai import Agent, BinaryContent
 
 from src.nutrition.calculations import (
     calculate_macros,
@@ -313,6 +314,25 @@ async def agent_endpoint(
                 status_code=403,
                 detail="user_id does not match authenticated user",
             )
+
+        # Validate file attachments (defense in depth)
+        if request.files:
+            if len(request.files) > 5:
+                return StreamingResponse(
+                    _stream_error("Maximum 5 fichiers autorisés.", request.session_id),
+                    media_type="text/plain",
+                    status_code=400,
+                )
+            for f in request.files:
+                if len(f.content) > 1_400_000:  # ~1MB in base64
+                    return StreamingResponse(
+                        _stream_error(
+                            f"Le fichier {f.file_name} dépasse 1 Mo.",
+                            request.session_id,
+                        ),
+                        media_type="text/plain",
+                        status_code=400,
+                    )
 
         # Rate limit check (per-minute + daily)
         rate_limit_ok, rate_limit_msg = await check_rate_limit(
@@ -1021,9 +1041,29 @@ async def _stream_agent_response(
     full_response = ""
     ui_components: list[dict[str, Any]] = []
 
+    # Process file attachments into BinaryContent for the agent
+    binary_contents: list[BinaryContent] = []
+    if request.files:
+        for f in request.files:
+            try:
+                binary_data = base64.b64decode(f.content)
+                media_type = (
+                    "application/pdf" if f.mime_type == "text/plain" else f.mime_type
+                )
+                binary_contents.append(
+                    BinaryContent(data=binary_data, media_type=media_type)
+                )
+            except Exception as e:
+                logger.warning(f"Error processing file {f.file_name}: {e}")
+
+    # Build agent input: query + any binary contents
+    agent_input: str | list = request.query
+    if binary_contents:
+        agent_input = [request.query, *binary_contents]
+
     try:
         async with agent.iter(
-            request.query,
+            agent_input,
             deps=agent_deps,
             message_history=pydantic_messages,
         ) as run:

@@ -105,6 +105,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
             messages={messages}
             isLoading={loading}
             isGeneratingResponse={isGeneratingResponse}
+            hasActiveConversation={!!selectedConversation}
             onSuggestedQuestion={onSendMessage}
             onAction={onSendMessage}
           />
