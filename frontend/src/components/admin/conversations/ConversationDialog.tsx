@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Loader2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Message } from '@/types/database.types';
 import { Conversation } from '@/types/database.types';
 
@@ -29,6 +29,7 @@ export const ConversationDialog = ({
           <DialogTitle className="text-foreground">
             {selectedConversation?.title || 'Conversation Details'}
           </DialogTitle>
+          <DialogDescription className="sr-only">Détails de la conversation</DialogDescription>
         </DialogHeader>
         
         {loadingMessages ? (

@@ -1,7 +1,7 @@
 
-import { useEffect, useState, createContext, useContext, ReactNode } from 'react';
+import { useEffect, useState, useCallback, useMemo, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
-import { Session, User } from '@supabase/supabase-js';
+import { Session, User, AuthResponse } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthProviderProps {
@@ -14,7 +14,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null, data: any }>;
+  signUp: (email: string, password: string) => Promise<{ error: Error | null, data: AuthResponse['data'] | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
 }
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => subscription?.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
@@ -59,9 +59,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       return { error: error as Error };
     }
-  };
+  }, [toast]);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       return { error: error as Error };
     }
-  };
+  }, [toast]);
 
   // Update user profile with Google information after successful authentication
   useEffect(() => {
@@ -114,11 +114,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     if (user) {
-      updateProfileWithGoogleInfo();
+      updateProfileWithGoogleInfo().catch(err =>
+        console.error('Failed to update Google profile:', err)
+      );
     }
   }, [user]);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = useCallback(async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
@@ -135,17 +137,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       return { error: error as Error, data: null };
     }
-  };
+  }, [toast]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     toast({
       title: "Déconnexion",
       description: "Vous avez été déconnecté.",
     });
-  };
+  }, [toast]);
 
-  const resetPassword = async (email: string) => {
+  const resetPassword = useCallback(async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email);
       if (error) throw error;
@@ -162,9 +164,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       return { error: error as Error };
     }
-  };
+  }, [toast]);
 
-  const value = {
+  const value = useMemo(() => ({
     session,
     user,
     loading,
@@ -172,8 +174,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signInWithGoogle,
     signUp,
     signOut,
-    resetPassword
-  };
+    resetPassword,
+  }), [session, user, loading, signIn, signInWithGoogle, signUp, signOut, resetPassword]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

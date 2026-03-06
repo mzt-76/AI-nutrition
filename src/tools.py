@@ -21,6 +21,7 @@ Other skill domains:
 
 import json
 import logging
+from datetime import datetime, timezone
 
 from supabase import Client
 
@@ -287,7 +288,7 @@ async def update_my_profile_tool(
             )
 
         # Always update the timestamp
-        update_data["updated_at"] = "now()"
+        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
         if not user_id:
             return json.dumps(

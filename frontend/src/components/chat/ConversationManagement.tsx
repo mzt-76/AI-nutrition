@@ -4,9 +4,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchConversations } from '@/lib/api';
 import { Conversation } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
+import type { User } from '@supabase/supabase-js';
 
 interface ConversationManagementProps {
-  user: any;
+  user: User | null;
 }
 
 const SESSION_KEY = 'active_conversation_id';

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { format, addDays, subDays, isToday } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '@/lib/supabase';
@@ -141,7 +141,8 @@ export function useDailyTracking() {
   }, [user, dateStr, toast]);
 
   useEffect(() => {
-    refreshEntries();
+    const t = setTimeout(() => refreshEntries(), 300);
+    return () => clearTimeout(t);
   }, [refreshEntries]);
 
   // Cache the full plan detail so we only fetch once (not on every date change)
@@ -196,8 +197,7 @@ export function useDailyTracking() {
     setPlanDayMeals(matchedDay?.meals ?? []);
   }, [selectedDate, cachedPlanDetail]);
 
-  // Computed totals
-  const totals: NutritionTotals = entries.reduce(
+  const totals: NutritionTotals = useMemo(() => entries.reduce(
     (acc, e) => ({
       calories: acc.calories + (e.calories ?? 0),
       protein_g: acc.protein_g + (e.protein_g ?? 0),
@@ -205,23 +205,25 @@ export function useDailyTracking() {
       fat_g: acc.fat_g + (e.fat_g ?? 0),
     }),
     { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
-  );
+  ), [entries]);
 
-  // Group entries by meal_type
-  const groupedEntries: Record<MealType, DailyFoodLog[]> = {
-    'petit-dejeuner': [],
-    dejeuner: [],
-    diner: [],
-    collation: [],
-  };
-  for (const entry of entries) {
-    const mt = entry.meal_type as MealType;
-    if (mt in groupedEntries) {
-      groupedEntries[mt].push(entry);
-    } else {
-      groupedEntries.collation.push(entry);
+  const groupedEntries: Record<MealType, DailyFoodLog[]> = useMemo(() => {
+    const groups: Record<MealType, DailyFoodLog[]> = {
+      'petit-dejeuner': [],
+      dejeuner: [],
+      diner: [],
+      collation: [],
+    };
+    for (const entry of entries) {
+      const mt = entry.meal_type as MealType;
+      if (mt in groups) {
+        groups[mt].push(entry);
+      } else {
+        groups.collation.push(entry);
+      }
     }
-  }
+    return groups;
+  }, [entries]);
 
   // Delete entry
   const deleteEntry = useCallback(

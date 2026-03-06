@@ -1,6 +1,5 @@
 
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -16,15 +15,17 @@ import { AuthCallback } from "./components/auth/AuthCallback";
 import { BottomTabs } from "./components/navigation/BottomTabs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 30_000 } },
+});
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  
-  // Show loading state
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -32,12 +33,44 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  
-  // Redirect to login if not authenticated
+
   if (!user) {
     return <Navigate to="/login" />;
   }
-  
+
+  return <>{children}</>;
+};
+
+// Admin-only route — checks user_profiles.is_admin
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('user_profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        setIsAdmin(data?.is_admin === true);
+      })
+      .catch(() => setIsAdmin(false));
+  }, [user]);
+
+  if (loading || isAdmin === null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="animate-pulse">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/" />;
+  }
+
   return <>{children}</>;
 };
 
@@ -63,9 +96,9 @@ const AppRoutes = () => {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute>
+            <AdminRoute>
               <Admin />
-            </ProtectedRoute>
+            </AdminRoute>
           }
         />
         <Route
@@ -101,29 +134,17 @@ const AppRoutes = () => {
   );
 };
 
-// Force dark theme
-const DarkThemeEnforcer = ({ children }: { children: React.ReactNode }) => {
-  useEffect(() => {
-    document.documentElement.classList.add('dark');
-  }, []);
-
-  return <>{children}</>;
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="dark" forcedTheme="dark">
-      <DarkThemeEnforcer>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
-      </DarkThemeEnforcer>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <AppRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

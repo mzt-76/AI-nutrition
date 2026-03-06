@@ -95,10 +95,12 @@ export function RecipeDetailDrawer({
 
       // Check favorite status
       if (userId) {
-        checkFavorite(userId, propRecipeId).then((res) => {
-          setIsFavorite(res.is_favorite);
-          setFavoriteId(res.favorite_id);
-        });
+        checkFavorite(userId, propRecipeId)
+          .then((res) => {
+            setIsFavorite(res.is_favorite);
+            setFavoriteId(res.favorite_id);
+          })
+          .catch(err => console.error('Failed to check favorite:', err));
       }
     } else if (mealData) {
       // Mode A: use inline data, no fetch needed

@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Message } from '@/types/database.types';
@@ -11,6 +12,17 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const SESSION_MESSAGES_KEY = 'active_messages';
 const SESSION_CONV_KEY = 'active_conversation';
+
+const messageSchema = z.array(z.object({
+  id: z.string(),
+  session_id: z.string(),
+  computed_session_user_id: z.string(),
+  message: z.object({
+    type: z.string(),
+    content: z.string(),
+  }).passthrough(),
+  created_at: z.string(),
+}).passthrough());
 
 export const Chat = () => {
   const { user, session } = useAuth();
@@ -24,9 +36,9 @@ export const Chat = () => {
     if (savedConv && savedMsgs) {
       try {
         const conv = JSON.parse(savedConv);
-        const msgs: Message[] = JSON.parse(savedMsgs);
+        const msgs = messageSchema.parse(JSON.parse(savedMsgs));
         if (msgs.length > 0 && msgs[0].session_id === conv.session_id) {
-          return msgs;
+          return msgs as Message[];
         }
       } catch { /* fall through */ }
     }

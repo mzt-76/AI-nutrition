@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { UIComponentBlock, SemanticZone } from '@/types/generative-ui.types';
 import { validateComponentProps } from './validateProps';
 import { NutritionSummaryCard } from './components/NutritionSummaryCard';
@@ -41,12 +41,15 @@ interface ComponentRendererProps {
 }
 
 export function ComponentRenderer({ components, onAction, onMealClick }: ComponentRendererProps) {
-  const grouped = new Map<SemanticZone, UIComponentBlock[]>();
-  for (const comp of components) {
-    const zone = comp.zone as SemanticZone;
-    if (!grouped.has(zone)) grouped.set(zone, []);
-    grouped.get(zone)!.push(comp);
-  }
+  const grouped = useMemo(() => {
+    const g = new Map<SemanticZone, UIComponentBlock[]>();
+    for (const comp of components) {
+      const zone = comp.zone as SemanticZone;
+      if (!g.has(zone)) g.set(zone, []);
+      g.get(zone)!.push(comp);
+    }
+    return g;
+  }, [components]);
 
   return (
     <div className="grid grid-cols-12 gap-3 mt-4">

@@ -1,10 +1,9 @@
 import { useState, useMemo, useCallback } from 'react';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import breaks from 'remark-breaks';
 import { Message, FileAttachment } from '@/types/database.types';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Check, Copy, User, FileText, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import ReactMarkdown from 'react-markdown';
@@ -12,32 +11,32 @@ import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { cn } from '@/lib/utils';
 import { ComponentRenderer } from '@/components/generative-ui/ComponentRenderer';
-import { RecipeDetailDrawer } from '@/components/recipes/RecipeDetailDrawer';
 import type { MealDataFromPlan } from '@/components/recipes/RecipeDetailDrawer';
 import { UIComponentBlock } from '@/types/generative-ui.types';
+
+export type { MealDataFromPlan };
 
 interface MessageItemProps {
   message: Message;
   isLastMessage?: boolean;
   onAction?: (value: string) => void;
+  onMealClick?: (data: MealDataFromPlan) => void;
 }
 
 interface CodeProps {
-  node?: any;
   inline?: boolean;
   className?: string;
   children: React.ReactNode;
 }
 
-export const MessageItem = ({ message, isLastMessage = false, onAction }: MessageItemProps) => {
+export const MessageItem = ({ message, isLastMessage = false, onAction, onMealClick }: MessageItemProps) => {
   const [copied, setCopied] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedMeal, setSelectedMeal] = useState<MealDataFromPlan | null>(null);
 
   const handleMealClick = useCallback((comp: UIComponentBlock) => {
+    if (!onMealClick) return;
     const p = comp.props;
     const macros = (p.macros ?? {}) as { protein_g?: number; carbs_g?: number; fat_g?: number };
-    setSelectedMeal({
+    onMealClick({
       name: (p.recipe_name as string) ?? '',
       meal_type: (p.meal_type as string) ?? '',
       ingredients: ((p.ingredients as string[]) ?? []),
@@ -50,8 +49,7 @@ export const MessageItem = ({ message, isLastMessage = false, onAction }: Messag
         fat_g: macros.fat_g ?? 0,
       },
     });
-    setDrawerOpen(true);
-  }, []);
+  }, [onMealClick]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message.message.content);
@@ -63,16 +61,7 @@ export const MessageItem = ({ message, isLastMessage = false, onAction }: Messag
   const isAI = message.message.type.toLowerCase() === 'ai';
   const isUser = !isAI;
 
-  // Process the message content to properly handle double newlines
-  const processedContent = useMemo(() => {
-    if (!message.message.content) return '';
-    return message.message.content;
-  }, [message.message.content]);
-  
-  // Check if the message has file attachments
-  const hasFiles = useMemo(() => {
-    return message.message.files && message.message.files.length > 0;
-  }, [message.message.files]);
+  const hasFiles = (message.message.files?.length ?? 0) > 0;
   
   // Function to download a file
   const downloadFile = (file: FileAttachment) => {
@@ -102,12 +91,16 @@ export const MessageItem = ({ message, isLastMessage = false, onAction }: Messag
     return (
       <ReactMarkdown
         remarkPlugins={[remarkGfm, breaks]} // Add GFM support and preserve line breaks
-        rehypePlugins={[rehypeRaw]} // Allow HTML in markdown
         components={{
           // Add proper paragraph handling with increased spacing
           p: ({children}) => <p className="mb-6 last:mb-0">{children}</p>,
           // Ensure proper link styling with a distinct color
-          a: ({href, children}) => <a href={href} className="text-blue-400 hover:text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">{children}</a>,
+          a: ({href, children}) => {
+            const isSafe = href && /^https?:\/\//i.test(href);
+            return isSafe
+              ? <a href={href} className="text-blue-400 hover:text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">{children}</a>
+              : <span className="text-blue-400">{children}</span>;
+          },
           // Ensure proper line break handling
           br: () => <br className="mb-2" />,
           // Handle code blocks with syntax highlighting
@@ -131,10 +124,10 @@ export const MessageItem = ({ message, isLastMessage = false, onAction }: Messag
           }
         }}
       >
-        {processedContent}
+        {message.message.content ?? ''}
       </ReactMarkdown>
     );
-  }, [processedContent]);
+  }, [message.message.content]);
 
   return (
     <div 
@@ -171,8 +164,8 @@ export const MessageItem = ({ message, isLastMessage = false, onAction }: Messag
             {hasFiles && (
               <div className="mb-3 flex flex-wrap gap-2">
                 {message.message.files?.map((file, index) => (
-                  <Badge 
-                    key={index} 
+                  <Badge
+                    key={`${file.fileName}-${index}`}
                     variant="outline" 
                     className="flex items-center gap-1 py-1 cursor-pointer hover:bg-secondary"
                     onClick={() => downloadFile(file)}
@@ -227,12 +220,6 @@ export const MessageItem = ({ message, isLastMessage = false, onAction }: Messag
           </Avatar>
         )}
       </div>
-
-      <RecipeDetailDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        mealData={selectedMeal ?? undefined}
-      />
     </div>
   );
 };

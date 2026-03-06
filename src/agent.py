@@ -28,6 +28,11 @@ import importlib.util
 import os
 import logging
 
+from anthropic import AsyncAnthropic
+from httpx import AsyncClient
+from openai import AsyncOpenAI
+from supabase import Client
+
 from src.prompt import AGENT_SYSTEM_PROMPT
 from src.clients import (
     get_supabase_client,
@@ -135,15 +140,15 @@ class AgentDeps:
         anthropic_client: Anthropic client for skill-level LLM calls (Claude Sonnet 4.5)
     """
 
-    supabase: any  # Supabase Client
-    openai_client: any  # AsyncOpenAI (general)
-    embedding_client: any  # AsyncOpenAI (embeddings)
-    http_client: any  # AsyncClient
+    supabase: Client
+    openai_client: AsyncOpenAI
+    embedding_client: AsyncOpenAI
+    http_client: AsyncClient
     brave_api_key: str | None
     searxng_base_url: str | None
     memories: str
     skill_loader: SkillLoader | None = None
-    anthropic_client: any = None  # AsyncAnthropic (skills)
+    anthropic_client: AsyncAnthropic | None = None
     user_id: str | None = None
 
 

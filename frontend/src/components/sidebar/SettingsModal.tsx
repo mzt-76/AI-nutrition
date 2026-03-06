@@ -4,12 +4,14 @@ import { User, Ruler, Target, UtensilsCrossed, LogOut, RefreshCw, X } from 'luci
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
@@ -551,6 +553,7 @@ export const SettingsModal = ({ isOpen, onClose, currentFullName }: SettingsModa
         <DrawerContent className="max-h-[90vh] glass-effect border-emerald-500/20">
           <DrawerHeader className="text-left">
             <DrawerTitle className="text-lg font-semibold">Mon profil</DrawerTitle>
+            <DrawerDescription className="sr-only">Modifier votre profil nutritionnel</DrawerDescription>
           </DrawerHeader>
           <div className="overflow-y-auto px-4 pb-6">
             {formContent}
@@ -565,6 +568,7 @@ export const SettingsModal = ({ isOpen, onClose, currentFullName }: SettingsModa
       <DialogContent className="sm:max-w-[480px] max-h-[85vh] overflow-y-auto glass-effect border-emerald-500/20">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">Mon profil</DialogTitle>
+          <DialogDescription className="sr-only">Modifier votre profil nutritionnel</DialogDescription>
         </DialogHeader>
         {formContent}
       </DialogContent>

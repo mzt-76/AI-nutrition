@@ -16,6 +16,7 @@ import os
 import re
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from uuid import UUID as _UUID
 from typing import Any
 
 from dotenv import load_dotenv
@@ -92,6 +93,13 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
         logger.warning(f"mem0 not available: {e}")
         mem0_client = None
 
+    # Validate main agent model at startup
+    try:
+        get_model()
+        logger.info("Agent model validated")
+    except Exception as e:
+        logger.error(f"Agent model configuration error: {e}", exc_info=True)
+
     logger.info("API startup complete")
     yield
     logger.info("API shutdown")
@@ -163,15 +171,11 @@ async def require_auth(
     return auth_user
 
 
-_UUID_RE = re.compile(
-    r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-    re.IGNORECASE,
-)
-
-
 def _validate_uuid(value: str) -> None:
     """Raise 400 if value is not a valid UUID."""
-    if not _UUID_RE.fullmatch(value):
+    try:
+        _UUID(value)
+    except ValueError:
         raise HTTPException(status_code=400, detail="Format d'identifiant invalide")
 
 
@@ -228,15 +232,15 @@ class FavoriteCreate(BaseModel):
 
 
 class RecipeCreate(BaseModel):
-    name: str
-    meal_type: str
-    ingredients: list[dict[str, Any]]
-    instructions: str = ""
-    prep_time_minutes: int = 30
-    calories_per_serving: float
-    protein_g_per_serving: float
-    carbs_g_per_serving: float
-    fat_g_per_serving: float
+    name: str = Field(..., min_length=1, max_length=200)
+    meal_type: str = Field(..., min_length=1, max_length=50)
+    ingredients: list[dict[str, Any]] = Field(..., max_length=50)
+    instructions: str = Field(default="", max_length=5000)
+    prep_time_minutes: int = Field(default=30, ge=1, le=480)
+    calories_per_serving: float = Field(..., ge=0, le=5000)
+    protein_g_per_serving: float = Field(..., ge=0, le=500)
+    carbs_g_per_serving: float = Field(..., ge=0, le=500)
+    fat_g_per_serving: float = Field(..., ge=0, le=500)
 
 
 class RecalculateRequest(BaseModel):
@@ -533,7 +537,13 @@ async def delete_meal_plan(
     if result.data.get("user_id") != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    supabase.table("meal_plans").delete().eq("id", plan_id).execute()
+    try:
+        supabase.table("meal_plans").delete().eq("id", plan_id).execute()
+    except Exception as e:
+        logger.error(f"Erreur suppression plan repas {plan_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail="Erreur lors de la suppression du plan repas"
+        )
     return {"status": "deleted"}
 
 
@@ -666,7 +676,15 @@ async def delete_daily_log(
     if existing.data.get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    supabase.table("daily_food_log").delete().eq("id", entry_id).execute()
+    try:
+        supabase.table("daily_food_log").delete().eq("id", entry_id).execute()
+    except Exception as e:
+        logger.error(
+            f"Erreur suppression entrée journal {entry_id}: {e}", exc_info=True
+        )
+        raise HTTPException(
+            status_code=500, detail="Erreur lors de la suppression de l'entrée"
+        )
     return {"status": "deleted"}
 
 
@@ -743,7 +761,13 @@ async def remove_favorite(
     if existing.data.get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    supabase.table("favorite_recipes").delete().eq("id", favorite_id).execute()
+    try:
+        supabase.table("favorite_recipes").delete().eq("id", favorite_id).execute()
+    except Exception as e:
+        logger.error(f"Erreur suppression favori {favorite_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail="Erreur lors de la suppression du favori"
+        )
     return {"status": "deleted"}
 
 
@@ -962,7 +986,13 @@ async def delete_shopping_list(
     if existing.data.get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    supabase.table("shopping_lists").delete().eq("id", list_id).execute()
+    try:
+        supabase.table("shopping_lists").delete().eq("id", list_id).execute()
+    except Exception as e:
+        logger.error(f"Erreur suppression liste courses {list_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail="Erreur lors de la suppression de la liste"
+        )
     return {"status": "deleted"}
 
 
@@ -1015,17 +1045,23 @@ async def recalculate_profile(
     }
 
     # Persist to user_profiles
-    supabase.table("user_profiles").update(
-        {
-            "bmr": bmr,
-            "tdee": tdee,
-            "target_calories": target_calories,
-            "target_protein_g": protein_g,
-            "target_carbs_g": macros["carbs_g"],
-            "target_fat_g": macros["fat_g"],
-            "updated_at": datetime.now(timezone.utc).isoformat(),
-        }
-    ).eq("id", user_id).execute()
+    try:
+        supabase.table("user_profiles").update(
+            {
+                "bmr": bmr,
+                "tdee": tdee,
+                "target_calories": target_calories,
+                "target_protein_g": protein_g,
+                "target_carbs_g": macros["carbs_g"],
+                "target_fat_g": macros["fat_g"],
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+        ).eq("id", user_id).execute()
+    except Exception as e:
+        logger.error(f"Erreur mise à jour profil {user_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail="Erreur lors de la mise à jour du profil"
+        )
 
     return result
 

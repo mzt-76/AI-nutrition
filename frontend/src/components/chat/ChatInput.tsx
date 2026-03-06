@@ -115,7 +115,7 @@ export const ChatInput = ({ onSendMessage, onStopResponse, isLoading }: ChatInpu
           // Extract the base64 data (remove the prefix like "data:image/png;base64,")
           const base64Content = event.target.result.toString();
           const base64Data = base64Content.split(',')[1] || base64Content;
-          
+
           setFiles(prevFiles => [
             ...prevFiles,
             {
@@ -125,6 +125,13 @@ export const ChatInput = ({ onSendMessage, onStopResponse, isLoading }: ChatInpu
             }
           ]);
         }
+      };
+      reader.onerror = () => {
+        toast({
+          title: "Erreur de lecture",
+          description: `Impossible de lire ${file.name}`,
+          variant: "destructive"
+        });
       };
       reader.readAsDataURL(file);
     });
