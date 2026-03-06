@@ -74,7 +74,7 @@ class TestAgentEndpoint:
     def test_rate_limit_exceeded_returns_429(self, client):
         """Should return 429 when rate limit is exceeded."""
         with patch("src.api.check_rate_limit", new_callable=AsyncMock) as mock_rl:
-            mock_rl.return_value = False
+            mock_rl.return_value = (False, "Limite atteinte.")
 
             response = client.post(
                 "/api/agent",
@@ -91,7 +91,7 @@ class TestAgentEndpoint:
             lines = response.text.strip().split("\n")
             last_line = json.loads(lines[-1])
             assert last_line["complete"] is True
-            assert "rate limit" in last_line["error"].lower()
+            assert "limite" in last_line["error"].lower()
 
     def test_agent_endpoint_accepts_request(self, client):
         """Should accept a valid request and stream a response."""
@@ -104,7 +104,7 @@ class TestAgentEndpoint:
             patch("src.api.store_request", new_callable=AsyncMock),
             patch("src.api.agent") as mock_agent,
         ):
-            mock_rl.return_value = True
+            mock_rl.return_value = (True, None)
             mock_hist.return_value = []
 
             # Mock agent.iter() context manager

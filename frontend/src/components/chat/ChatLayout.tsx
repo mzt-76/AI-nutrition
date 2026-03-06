@@ -20,6 +20,7 @@ interface ChatLayoutProps {
   error: string | null;
   isSidebarCollapsed: boolean;
   onSendMessage: (message: string) => void;
+  onStopResponse: () => void;
   onNewChat: () => void;
   onSelectConversation: (conversation: Conversation) => void;
   onToggleSidebar: () => void;
@@ -34,6 +35,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   error,
   isSidebarCollapsed,
   onSendMessage,
+  onStopResponse,
   onNewChat,
   onSelectConversation,
   onToggleSidebar,
@@ -113,6 +115,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
             <div className="glass-effect rounded-lg">
               <ChatInput
                 onSendMessage={onSendMessage}
+                onStopResponse={onStopResponse}
                 isLoading={loading}
               />
             </div>

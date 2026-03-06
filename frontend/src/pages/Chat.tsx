@@ -45,8 +45,9 @@ export const Chat = () => {
   } = useConversationManagement({ user, isMounted });
   
   // Use our extracted message handling hook
-  const { 
+  const {
     handleSendMessage,
+    handleStopResponse,
     loadMessages
   } = useMessageHandling({
     setNewConversationId,
@@ -80,6 +81,7 @@ export const Chat = () => {
       error={error}
       isSidebarCollapsed={isSidebarCollapsed}
       onSendMessage={handleSendMessage}
+      onStopResponse={handleStopResponse}
       onNewChat={handleNewChat}
       onSelectConversation={handleSelectConversation}
       onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}

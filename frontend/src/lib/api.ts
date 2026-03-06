@@ -57,7 +57,8 @@ export const sendMessage = async (
   session_id: string = '',
   access_token?: string,
   files?: FileAttachment[],
-  onStreamChunk?: (chunk: StreamingChunk) => void
+  onStreamChunk?: (chunk: StreamingChunk) => void,
+  abortSignal?: AbortSignal
 ): Promise<ApiResponse> => {
   try {
     const request_id = uuidv4();
@@ -76,6 +77,7 @@ export const sendMessage = async (
         'Authorization': access_token ? `Bearer ${access_token}` : '',
       },
       body: JSON.stringify(payload),
+      signal: abortSignal,
     });
 
     if (!response.ok) {

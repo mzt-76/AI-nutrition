@@ -34,13 +34,26 @@ export const useMessageHandling = ({
   setNewConversationId,
 }: MessageHandlingProps) => {
   const { toast } = useToast();
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const handleStopResponse = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setLoading(false);
+  }, [setLoading]);
 
   const handleSendMessage = async (content: string, files?: FileAttachment[]) => {
     if (!user) return;
     
     setError(null);
     setLoading(true);
-    
+
+    // Create a new AbortController for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
     try {
       // Get current session ID from selected conversation, if any
       const currentSessionId = selectedConversation?.session_id || '';
@@ -72,13 +85,15 @@ export const useMessageHandling = ({
 
       // Send to webhook API with streaming callback
       const response = await sendMessage(
-        content, 
-        user.id, 
+        content,
+        user.id,
         currentSessionId,
         session?.access_token,
         files,
         // Streaming callback function with enhanced completion handling
         (chunk) => {
+          // Ignore chunks after abort
+          if (abortController.signal.aborted) return;
           if (!isMounted.current) return;
           
           // Process text chunks
@@ -195,7 +210,8 @@ export const useMessageHandling = ({
             // End loading state immediately when we receive the complete flag
             setLoading(false);
           }
-        }
+        },
+        abortController.signal
       );
       
       if (isMounted.current && !completionReceived) {
@@ -298,11 +314,16 @@ export const useMessageHandling = ({
       }
       
     } catch (err) {
+      // Abort is expected when user clicks Stop — not an error
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return;
+      }
+
       console.error('Error in chat flow:', err);
       if (isMounted.current) {
         // Create an error message for display
         const errorMessage = err instanceof Error ? err.message : 'Failed to process your message. Please try again.';
-        
+
         // Add an error message to the chat
         const aiErrorMessage: Message = {
           id: `error-${Date.now()}`,
@@ -314,10 +335,10 @@ export const useMessageHandling = ({
           },
           created_at: new Date().toISOString(),
         };
-        
+
         // Add the error message to the UI
         setMessages((prev) => [...prev, aiErrorMessage]);
-        
+
         setError(errorMessage);
         toast({
           title: 'Erreur',
@@ -326,6 +347,7 @@ export const useMessageHandling = ({
         });
       }
     } finally {
+      abortControllerRef.current = null;
       if (isMounted.current) {
         setLoading(false);
       }
@@ -361,6 +383,7 @@ export const useMessageHandling = ({
 
   return {
     handleSendMessage,
+    handleStopResponse,
     loadMessages
   };
 };

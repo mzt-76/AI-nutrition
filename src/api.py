@@ -314,13 +314,13 @@ async def agent_endpoint(
                 detail="user_id does not match authenticated user",
             )
 
-        # Rate limit check
-        rate_limit_ok = await check_rate_limit(supabase, request.user_id)
+        # Rate limit check (per-minute + daily)
+        rate_limit_ok, rate_limit_msg = await check_rate_limit(
+            supabase, request.user_id
+        )
         if not rate_limit_ok:
             return StreamingResponse(
-                _stream_error(
-                    "Rate limit exceeded. Please try again later.", request.session_id
-                ),
+                _stream_error(rate_limit_msg or "Limite atteinte.", request.session_id),
                 media_type="text/plain",
                 status_code=429,
             )

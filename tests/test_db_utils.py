@@ -53,20 +53,40 @@ class TestCheckRateLimit:
 
         mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.return_value = mock_response
 
-        result = await check_rate_limit(mock_supabase, "user1", rate_limit=10)
-        assert result is True
+        allowed, msg = await check_rate_limit(mock_supabase, "user1", per_minute=10)
+        assert allowed is True
+        assert msg is None
 
     @pytest.mark.asyncio
-    async def test_over_limit_returns_false(self):
-        """User over rate limit should be blocked."""
+    async def test_over_minute_limit_returns_false(self):
+        """User over per-minute rate limit should be blocked."""
         mock_supabase = MagicMock()
         mock_response = MagicMock()
         mock_response.count = 15
 
         mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.return_value = mock_response
 
-        result = await check_rate_limit(mock_supabase, "user1", rate_limit=10)
-        assert result is False
+        allowed, msg = await check_rate_limit(mock_supabase, "user1", per_minute=10)
+        assert allowed is False
+        assert msg is not None
+
+    @pytest.mark.asyncio
+    async def test_over_daily_limit_returns_false(self):
+        """User over daily rate limit should be blocked."""
+        mock_supabase = MagicMock()
+        # First call (per-minute) returns under limit, second call (daily) returns over
+        minute_resp = MagicMock()
+        minute_resp.count = 2
+        day_resp = MagicMock()
+        day_resp.count = 100
+
+        mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.side_effect = [
+            minute_resp, day_resp
+        ]
+
+        allowed, msg = await check_rate_limit(mock_supabase, "user1", per_minute=10, per_day=100)
+        assert allowed is False
+        assert "demain" in msg
 
     @pytest.mark.asyncio
     async def test_error_allows_request(self):
@@ -74,8 +94,9 @@ class TestCheckRateLimit:
         mock_supabase = MagicMock()
         mock_supabase.table.side_effect = Exception("DB down")
 
-        result = await check_rate_limit(mock_supabase, "user1")
-        assert result is True
+        allowed, msg = await check_rate_limit(mock_supabase, "user1")
+        assert allowed is True
+        assert msg is None
 
 
 class TestStoreMessage:

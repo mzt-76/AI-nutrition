@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Paperclip, X, FileText, Mic, MicOff } from 'lucide-react';
+import { Send, Square, Paperclip, X, FileText, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FileAttachment } from '@/types/database.types';
@@ -12,10 +12,11 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 interface ChatInputProps {
   onSendMessage: (message: string, files?: FileAttachment[]) => void;
+  onStopResponse: () => void;
   isLoading: boolean;
 }
 
-export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
+export const ChatInput = ({ onSendMessage, onStopResponse, isLoading }: ChatInputProps) => {
   const [message, setMessage] = useState('');
   const [files, setFiles] = useState<FileAttachment[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -248,20 +249,37 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
             </Tooltip>
           )}
 
-          <Button
-            type="submit"
-            size="sm"
-            variant="default"
-            disabled={(message.trim() === '' && files.length === 0) || isLoading}
-            className={cn(
-              "transition-all gradient-green text-white",
-              (message.trim() === '' && files.length === 0) ? "opacity-60" : "opacity-100",
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            )}
-          >
-            <Send className="h-4 w-4" />
-            <span className="sr-only">Envoyer</span>
-          </Button>
+          {isLoading ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={onStopResponse}
+                  className="transition-all text-muted-foreground hover:text-red-400 hover:bg-red-500/15"
+                >
+                  <Square className="h-3 w-3 fill-current" />
+                  <span className="sr-only">Arrêter</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Arrêter la génération</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              type="submit"
+              size="sm"
+              variant="default"
+              disabled={message.trim() === '' && files.length === 0}
+              className={cn(
+                "transition-all gradient-green text-white",
+                (message.trim() === '' && files.length === 0) ? "opacity-60" : "opacity-100"
+              )}
+            >
+              <Send className="h-4 w-4" />
+              <span className="sr-only">Envoyer</span>
+            </Button>
+          )}
         </div>
       </form>
     </div>

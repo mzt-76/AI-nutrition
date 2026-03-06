@@ -211,37 +211,57 @@ def convert_history_to_pydantic_format(
 
 
 async def check_rate_limit(
-    supabase: Client, user_id: str, rate_limit: int = 10
-) -> bool:
-    """Check if the user has exceeded the rate limit.
+    supabase: Client,
+    user_id: str,
+    per_minute: int = 10,
+    per_day: int = 100,
+) -> tuple[bool, str | None]:
+    """Check per-minute and daily rate limits.
 
     Args:
         supabase: Supabase client
         user_id: User ID to check
-        rate_limit: Maximum number of requests allowed per minute
+        per_minute: Maximum requests allowed per minute
+        per_day: Maximum requests allowed per day
 
     Returns:
-        True if rate limit is NOT exceeded (request allowed), False otherwise
+        Tuple of (allowed, error_message). If allowed, error_message is None.
     """
     try:
-        one_minute_ago = (datetime.now(timezone.utc) - timedelta(minutes=1)).strftime(
+        now = datetime.now(timezone.utc)
+        one_minute_ago = (now - timedelta(minutes=1)).strftime("%Y-%m-%d %H:%M:%S")
+        start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0).strftime(
             "%Y-%m-%d %H:%M:%S"
         )
 
-        response = (
+        # Per-minute check
+        minute_resp = (
             supabase.table("requests")
             .select("*", count="exact")
             .eq("user_id", user_id)
             .gte("timestamp", one_minute_ago)
             .execute()
         )
+        minute_count: int = minute_resp.count if minute_resp.count is not None else 0
+        if minute_count >= per_minute:
+            return False, "Doucement ! Veuillez patienter quelques secondes avant de renvoyer un message. 🕐"
 
-        request_count: int = response.count if response.count is not None else 0
-        return request_count < rate_limit
+        # Daily check
+        day_resp = (
+            supabase.table("requests")
+            .select("*", count="exact")
+            .eq("user_id", user_id)
+            .gte("timestamp", start_of_day)
+            .execute()
+        )
+        day_count: int = day_resp.count if day_resp.count is not None else 0
+        if day_count >= per_day:
+            return False, "Vous avez atteint votre limite de messages pour aujourd'hui. Revenez demain pour continuer ! 🌅"
+
+        return True, None
     except Exception as e:
         logger.error(f"Error checking rate limit: {e}")
-        # Allow the request on error
-        return True
+        return True, None
 
 
 async def store_request(
