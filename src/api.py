@@ -325,6 +325,11 @@ async def agent_endpoint(
                 status_code=429,
             )
 
+        # Fire-and-forget request tracking
+        asyncio.create_task(
+            store_request(supabase, request.request_id, request.user_id, request.query)
+        )
+
         # Session management
         session_id = request.session_id
         conversation_record = None
@@ -396,11 +401,6 @@ async def agent_endpoint(
                     logger.info(f"mem0 memories injected: {memories_str}")
             except Exception as e:
                 logger.warning(f"Could not load memories: {e}")
-
-        # Fire-and-forget background tasks
-        asyncio.create_task(
-            store_request(supabase, request.request_id, request.user_id, request.query)
-        )
 
         if mem0_client:
 
