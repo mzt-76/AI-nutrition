@@ -243,7 +243,7 @@ async def list_conversations(
     """
     if auth_user and auth_user.get("id") != user_id:
         raise HTTPException(
-            status_code=403, detail="user_id does not match authenticated user"
+            status_code=403, detail="Accès non autorisé"
         )
     response = (
         supabase.table("conversations")
@@ -394,7 +394,7 @@ async def get_meal_plan(
 ) -> dict[str, Any]:
     """Fetch a stored meal plan by ID for visual rendering."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
 
     # Validate UUID format to reject junk early
     if not re.fullmatch(
@@ -402,7 +402,7 @@ async def get_meal_plan(
         plan_id,
         re.IGNORECASE,
     ):
-        raise HTTPException(status_code=400, detail="Invalid plan ID format")
+        raise HTTPException(status_code=400, detail="Format d'identifiant invalide")
 
     user_id = auth_user["id"]
     result = (
@@ -410,10 +410,10 @@ async def get_meal_plan(
     )
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Meal plan not found")
+        raise HTTPException(status_code=404, detail="Plan repas introuvable")
 
     if result.data.get("user_id") != user_id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     return result.data
 
@@ -425,10 +425,10 @@ async def list_meal_plans(
 ) -> list[dict[str, Any]]:
     """List meal plans for a user (metadata only, no plan_data blob)."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
         raise HTTPException(
-            status_code=403, detail="user_id does not match authenticated user"
+            status_code=403, detail="Accès non autorisé"
         )
 
     result = (
@@ -444,6 +444,39 @@ async def list_meal_plans(
     return result.data or []
 
 
+@app.delete("/api/meal-plans/{plan_id}")
+async def delete_meal_plan(
+    plan_id: str,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> dict[str, str]:
+    """Delete a meal plan by ID (owner only)."""
+    if not auth_user:
+        raise HTTPException(status_code=401, detail="Authentification requise")
+
+    if not re.fullmatch(
+        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+        plan_id,
+        re.IGNORECASE,
+    ):
+        raise HTTPException(status_code=400, detail="Format d'identifiant invalide")
+
+    user_id = auth_user["id"]
+    result = (
+        supabase.table("meal_plans")
+        .select("id, user_id")
+        .eq("id", plan_id)
+        .single()
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Plan repas introuvable")
+    if result.data.get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
+
+    supabase.table("meal_plans").delete().eq("id", plan_id).execute()
+    return {"status": "deleted"}
+
+
 # =============================================================================
 # Daily Food Log
 # =============================================================================
@@ -457,15 +490,15 @@ async def get_daily_log(
 ) -> list[dict[str, Any]]:
     """Get food log entries for a user on a specific date."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
         raise HTTPException(
-            status_code=403, detail="user_id does not match authenticated user"
+            status_code=403, detail="Accès non autorisé"
         )
 
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
         raise HTTPException(
-            status_code=400, detail="Invalid date format, expected YYYY-MM-DD"
+            status_code=400, detail="Format de date invalide (AAAA-MM-JJ attendu)"
         )
 
     result = (
@@ -486,17 +519,17 @@ async def create_daily_log(
 ) -> dict[str, Any]:
     """Create a new food log entry."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != body.user_id:
         raise HTTPException(
-            status_code=403, detail="user_id does not match authenticated user"
+            status_code=403, detail="Accès non autorisé"
         )
 
     row = body.model_dump(exclude_none=True)
     result = supabase.table("daily_food_log").insert(row).execute()
 
     if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to create log entry")
+        raise HTTPException(status_code=500, detail="Impossible de créer l'entrée")
     return result.data[0]
 
 
@@ -508,7 +541,7 @@ async def update_daily_log(
 ) -> dict[str, Any]:
     """Update a food log entry (partial update)."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
 
     # Verify ownership
     existing = (
@@ -519,13 +552,13 @@ async def update_daily_log(
         .execute()
     )
     if not existing.data:
-        raise HTTPException(status_code=404, detail="Log entry not found")
+        raise HTTPException(status_code=404, detail="Entrée introuvable")
     if existing.data.get("user_id") != auth_user["id"]:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     updates = body.model_dump(exclude_none=True)
     if not updates:
-        raise HTTPException(status_code=400, detail="No fields to update")
+        raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
 
     # If food_name changed, recalculate macros via OpenFoodFacts
     if "food_name" in updates:
@@ -555,7 +588,7 @@ async def update_daily_log(
     )
 
     if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to update log entry")
+        raise HTTPException(status_code=500, detail="Impossible de mettre à jour l'entrée")
     return result.data[0]
 
 
@@ -566,7 +599,7 @@ async def delete_daily_log(
 ) -> dict[str, str]:
     """Delete a food log entry."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
 
     # Verify ownership
     existing = (
@@ -577,9 +610,9 @@ async def delete_daily_log(
         .execute()
     )
     if not existing.data:
-        raise HTTPException(status_code=404, detail="Log entry not found")
+        raise HTTPException(status_code=404, detail="Entrée introuvable")
     if existing.data.get("user_id") != auth_user["id"]:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     supabase.table("daily_food_log").delete().eq("id", entry_id).execute()
     return {"status": "deleted"}
@@ -597,10 +630,10 @@ async def list_favorites(
 ) -> list[dict[str, Any]]:
     """List favorite recipes for a user, with joined recipe data."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
         raise HTTPException(
-            status_code=403, detail="user_id does not match authenticated user"
+            status_code=403, detail="Accès non autorisé"
         )
 
     result = (
@@ -620,10 +653,10 @@ async def add_favorite(
 ) -> dict[str, Any]:
     """Add a recipe to favorites."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != body.user_id:
         raise HTTPException(
-            status_code=403, detail="user_id does not match authenticated user"
+            status_code=403, detail="Accès non autorisé"
         )
 
     # Return existing if already favorited (unique constraint on user_id + recipe_id)
@@ -653,7 +686,7 @@ async def remove_favorite(
 ) -> dict[str, str]:
     """Remove a recipe from favorites."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
 
     existing = (
         supabase.table("favorite_recipes")
@@ -665,7 +698,7 @@ async def remove_favorite(
     if not existing.data:
         raise HTTPException(status_code=404, detail="Favorite not found")
     if existing.data.get("user_id") != auth_user["id"]:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     supabase.table("favorite_recipes").delete().eq("id", favorite_id).execute()
     return {"status": "deleted"}
@@ -679,10 +712,10 @@ async def check_favorite(
 ) -> dict[str, Any]:
     """Check if a recipe is already favorited by a user."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
         raise HTTPException(
-            status_code=403, detail="user_id does not match authenticated user"
+            status_code=403, detail="Accès non autorisé"
         )
 
     result = (
@@ -710,7 +743,7 @@ async def upsert_recipe(
 ) -> dict[str, Any]:
     """Upsert a recipe by normalized name. Returns existing if found."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
 
     name_norm = normalize_ingredient_name(body.name)
     meal_type_norm = body.meal_type.lower().replace("é", "e").replace("î", "i")
@@ -754,7 +787,7 @@ async def get_recipe(
 ) -> dict[str, Any]:
     """Fetch a single recipe by ID."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
 
     if not re.fullmatch(
         r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
@@ -783,10 +816,10 @@ async def list_shopping_lists(
 ) -> list[dict[str, Any]]:
     """List all shopping lists for a user."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
         raise HTTPException(
-            status_code=403, detail="user_id does not match authenticated user"
+            status_code=403, detail="Accès non autorisé"
         )
 
     result = (
@@ -806,10 +839,10 @@ async def create_shopping_list(
 ) -> dict[str, Any]:
     """Create a new shopping list."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != body.user_id:
         raise HTTPException(
-            status_code=403, detail="user_id does not match authenticated user"
+            status_code=403, detail="Accès non autorisé"
         )
 
     row: dict[str, Any] = {
@@ -833,7 +866,7 @@ async def get_shopping_list(
 ) -> dict[str, Any]:
     """Get a single shopping list with items."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
 
     result = (
         supabase.table("shopping_lists")
@@ -845,7 +878,7 @@ async def get_shopping_list(
     if not result.data:
         raise HTTPException(status_code=404, detail="Shopping list not found")
     if result.data.get("user_id") != auth_user["id"]:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     return result.data
 
@@ -858,7 +891,7 @@ async def update_shopping_list(
 ) -> dict[str, Any]:
     """Update a shopping list (e.g., check off items, rename)."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
 
     existing = (
         supabase.table("shopping_lists")
@@ -870,7 +903,7 @@ async def update_shopping_list(
     if not existing.data:
         raise HTTPException(status_code=404, detail="Shopping list not found")
     if existing.data.get("user_id") != auth_user["id"]:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     updates: dict[str, Any] = {}
     if body.title is not None:
@@ -878,7 +911,7 @@ async def update_shopping_list(
     if body.items is not None:
         updates["items"] = [item.model_dump() for item in body.items]
     if not updates:
-        raise HTTPException(status_code=400, detail="No fields to update")
+        raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
 
     updates["updated_at"] = datetime.now(timezone.utc).isoformat()
     result = (
@@ -897,7 +930,7 @@ async def delete_shopping_list(
 ) -> dict[str, str]:
     """Delete a shopping list."""
     if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail="Authentification requise")
 
     existing = (
         supabase.table("shopping_lists")
@@ -909,7 +942,7 @@ async def delete_shopping_list(
     if not existing.data:
         raise HTTPException(status_code=404, detail="Shopping list not found")
     if existing.data.get("user_id") != auth_user["id"]:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     supabase.table("shopping_lists").delete().eq("id", list_id).execute()
     return {"status": "deleted"}

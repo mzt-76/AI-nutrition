@@ -7,7 +7,7 @@ import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Message, Conversation } from '@/types/database.types';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { MobileHeader } from '@/components/navigation/MobileHeader';
 import { SettingsModal } from '@/components/sidebar/SettingsModal';
 import { useAuth } from '@/hooks/useAuth';
@@ -135,7 +135,8 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
           onProfileClick={() => setIsSettingsOpen(true)}
         />
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-          <SheetContent side="left" className="p-0 w-[280px]" showCloseButton={false}>
+          <SheetContent side="left" className="p-0 w-[280px]" showCloseButton={false} aria-describedby={undefined}>
+            <SheetTitle className="sr-only">Conversations</SheetTitle>
             {renderSidebar()}
           </SheetContent>
         </Sheet>

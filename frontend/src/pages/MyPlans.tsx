@@ -4,9 +4,10 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { MobileHeader } from '@/components/navigation/MobileHeader';
+import { NavSidebar } from '@/components/navigation/NavSidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { fetchMealPlans, fetchFavorites, removeFavorite, fetchShoppingLists, deleteShoppingList } from '@/lib/api';
+import { fetchMealPlans, deleteMealPlan, fetchFavorites, removeFavorite, fetchShoppingLists, deleteShoppingList } from '@/lib/api';
 import type { MealPlanSummary } from '@/lib/api';
 import type { ShoppingList, FavoriteWithRecipe } from '@/types/database.types';
 import { PlanCard } from '@/components/plans/PlanCard';
@@ -73,6 +74,20 @@ const MyPlans = () => {
     return () => { cancelled = true; };
   }, [tab, userId]);
 
+  const handleDeletePlan = async (planId: string) => {
+    setPlans((prev) => prev.filter((p) => p.id !== planId));
+    try {
+      await deleteMealPlan(planId);
+      toast({ title: 'Plan supprimé' });
+    } catch {
+      toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le plan.' });
+      if (userId) {
+        const data = await fetchMealPlans(userId);
+        setPlans(data);
+      }
+    }
+  };
+
   const handleRemoveFavorite = async (id: string) => {
     setFavorites((prev) => prev.filter((f) => f.id !== id));
     try {
@@ -110,8 +125,8 @@ const MyPlans = () => {
     courses: 'Génère une liste de courses depuis un plan',
   };
 
-  return (
-    <div className="flex flex-col h-screen gradient-bg">
+  const pageContent = (
+    <div className="flex flex-col flex-1 min-w-0 h-screen gradient-bg">
       {isMobile && <MobileHeader title="Mes Plans" />}
       {!isMobile && (
         <div className="flex items-center h-14 border-b border-border/50 px-6">
@@ -157,7 +172,7 @@ const MyPlans = () => {
               {/* Plans */}
               {tab === 'plans' && (
                 plans.length > 0
-                  ? plans.map((p) => <PlanCard key={p.id} plan={p} />)
+                  ? plans.map((p) => <PlanCard key={p.id} plan={p} onDelete={handleDeletePlan} />)
                   : <EmptyState message={emptyMessages.plans} isError={error} />
               )}
 
@@ -202,6 +217,15 @@ const MyPlans = () => {
           }
         }}
       />
+    </div>
+  );
+
+  if (isMobile) return pageContent;
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <NavSidebar />
+      {pageContent}
     </div>
   );
 };

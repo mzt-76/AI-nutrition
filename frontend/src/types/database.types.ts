@@ -296,3 +296,46 @@ export type DailyFoodLogInsert = Database['public']['Tables']['daily_food_log'][
 export type DailyFoodLogUpdate = Database['public']['Tables']['daily_food_log']['Update'];
 export type FavoriteRecipe = Database['public']['Tables']['favorite_recipes']['Row'];
 export type ShoppingList = Database['public']['Tables']['shopping_lists']['Row'];
+
+// Full recipe from the recipes table
+export interface Recipe {
+  id: string;
+  name: string;
+  name_normalized: string;
+  description: string | null;
+  meal_type: string;
+  cuisine_type: string | null;
+  diet_type: string | null;
+  tags: string[] | null;
+  ingredients: Array<{
+    name: string;
+    quantity?: number;
+    unit?: string;
+    macros_calculated?: {
+      calories: number;
+      protein_g: number;
+      carbs_g: number;
+      fat_g: number;
+      confidence?: number;
+    };
+  }>;
+  instructions: string | null;
+  prep_time_minutes: number | null;
+  calories_per_serving: number;
+  protein_g_per_serving: number;
+  carbs_g_per_serving: number;
+  fat_g_per_serving: number;
+  allergen_tags: string[] | null;
+  source: string | null;
+  created_at: string | null;
+}
+
+// Favorite with joined recipe data (from select("*, recipes(*)"))
+export interface FavoriteWithRecipe {
+  id: string;
+  user_id: string;
+  recipe_id: string;
+  notes: string | null;
+  created_at: string | null;
+  recipes: Recipe | null;
+}

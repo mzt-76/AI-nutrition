@@ -28,6 +28,16 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
         const separator = prev.length > 0 && !prev.endsWith(' ') ? ' ' : '';
         return (prev + separator + transcript).slice(0, 4000);
       });
+      // Move cursor to end after dictation result
+      requestAnimationFrame(() => {
+        const ta = textareaRef.current;
+        if (ta) {
+          ta.focus();
+          ta.selectionStart = ta.value.length;
+          ta.selectionEnd = ta.value.length;
+          ta.scrollTop = ta.scrollHeight;
+        }
+      });
     },
     onError: (error) => {
       toast({ title: "Erreur micro", description: error, variant: "destructive" });
@@ -37,6 +47,8 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if ((message.trim() || files.length > 0) && !isLoading) {
+      // Stop mic if active before sending
+      if (isListening) stopListening();
       // Enforce the 4,000 character limit before sending
       const truncatedMessage = message.slice(0, 4000);
       onSendMessage(truncatedMessage, files.length > 0 ? files : undefined);
@@ -181,9 +193,11 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
           accept="*/*"
         />
         <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center h-full">
-          <div className={`text-xs mr-2 ${message.length >= 4000 ? 'text-red-500 font-semibold' : 'text-muted-foreground'}`}>
-            {message.length} / 4000
-          </div>
+          {message.length >= 3500 && (
+            <div className={`text-xs mr-2 ${message.length >= 4000 ? 'text-red-500 font-semibold' : 'text-muted-foreground'}`}>
+              {message.length} / 4000
+            </div>
+          )}
           
           {/* File upload button */}
           <Tooltip>
@@ -216,8 +230,10 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
                   size="sm"
                   variant="ghost"
                   className={cn(
-                    "mr-1 transition-all",
-                    isListening && "text-red-500 animate-[recording-pulse_1.5s_ease-in-out_infinite]"
+                    "mr-1",
+                    isListening
+                      ? "text-emerald-400 bg-emerald-500/15"
+                      : "text-muted-foreground bg-transparent"
                   )}
                   disabled={isLoading}
                   onClick={isListening ? stopListening : startListening}

@@ -1,5 +1,6 @@
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileHeader } from '@/components/navigation/MobileHeader';
+import { NavSidebar } from '@/components/navigation/NavSidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDailyTracking } from '@/hooks/useDailyTracking';
@@ -35,8 +36,8 @@ const DailyTracking = () => {
     refreshEntries,
   } = useDailyTracking();
 
-  return (
-    <div className="flex flex-col h-screen gradient-bg">
+  const pageContent = (
+    <div className="flex flex-col flex-1 min-w-0 h-screen gradient-bg">
       {isMobile && <MobileHeader title="Suivi du Jour" />}
       {!isMobile && (
         <div className="flex items-center h-14 border-b border-border/50 px-6">
@@ -122,6 +123,15 @@ const DailyTracking = () => {
       </ScrollArea>
 
       <TrackingInput dateStr={dateStr} onEntryCreated={refreshEntries} />
+    </div>
+  );
+
+  if (isMobile) return pageContent;
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <NavSidebar />
+      {pageContent}
     </div>
   );
 };

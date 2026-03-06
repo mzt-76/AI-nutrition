@@ -14,7 +14,9 @@ import {
   Settings,
   MessageSquare,
   Users,
-  Salad
+  Salad,
+  Activity,
+  BookOpen,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -81,8 +83,28 @@ export const ChatSidebar = ({
             </Link>
           </Button>
         )}
-        <Button variant="outline" size="icon" onClick={onNewChat} className="mb-6">
+        <Button variant="outline" size="icon" onClick={onNewChat} className="mb-4">
           <Plus className="h-5 w-5" />
+        </Button>
+        <Button
+          variant={location.pathname.startsWith('/tracking') ? 'secondary' : 'ghost'}
+          size="icon"
+          className="mb-2"
+          asChild
+        >
+          <Link to="/tracking">
+            <Activity className="h-5 w-5" />
+          </Link>
+        </Button>
+        <Button
+          variant={location.pathname === '/plans' ? 'secondary' : 'ghost'}
+          size="icon"
+          className="mb-2"
+          asChild
+        >
+          <Link to="/plans">
+            <BookOpen className="h-5 w-5" />
+          </Link>
         </Button>
         <div className="flex-1" />
         <Button variant="ghost" size="icon" onClick={() => signOut()}>
@@ -129,6 +151,29 @@ export const ChatSidebar = ({
           <Plus className="mr-2 h-5 w-5" />
           Nouvelle conversation
         </Button>
+
+        <div className="mt-3 space-y-1">
+          <Button
+            variant={location.pathname.startsWith('/tracking') ? 'secondary' : 'ghost'}
+            className="w-full justify-start"
+            asChild
+          >
+            <Link to="/tracking">
+              <Activity className="mr-2 h-5 w-5" />
+              Suivi du Jour
+            </Link>
+          </Button>
+          <Button
+            variant={location.pathname === '/plans' ? 'secondary' : 'ghost'}
+            className="w-full justify-start"
+            asChild
+          >
+            <Link to="/plans">
+              <BookOpen className="mr-2 h-5 w-5" />
+              Mes Plans
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="px-4 pt-4 pb-2">

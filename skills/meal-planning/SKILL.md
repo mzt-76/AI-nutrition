@@ -125,6 +125,11 @@ run_skill_script("meal-planning", "generate_custom_recipe", {
 # ❌ INTERDIT : "breakfast", "lunch", "dinner", "snack", "Déjeuner", "Dîner"
 # Les majuscules et les accents sont invalides — utiliser uniquement les slugs ci-dessus.
 
+# After calling generate_custom_recipe:
+# The response JSON contains a `ui_marker` field — you MUST include it
+# verbatim at the END of your text response. This renders the interactive
+# MealCard component for the user.
+
 # Récupérer un plan existant
 run_skill_script("meal-planning", "fetch_stored_meal_plan", {
     "week_start": "2026-02-23"

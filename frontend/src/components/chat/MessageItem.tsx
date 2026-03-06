@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import breaks from 'remark-breaks';
@@ -12,6 +12,8 @@ import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { cn } from '@/lib/utils';
 import { ComponentRenderer } from '@/components/generative-ui/ComponentRenderer';
+import { RecipeDetailDrawer } from '@/components/recipes/RecipeDetailDrawer';
+import type { MealDataFromPlan } from '@/components/recipes/RecipeDetailDrawer';
 import { UIComponentBlock } from '@/types/generative-ui.types';
 
 interface MessageItemProps {
@@ -29,6 +31,26 @@ interface CodeProps {
 
 export const MessageItem = ({ message, isLastMessage = false, onAction }: MessageItemProps) => {
   const [copied, setCopied] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState<MealDataFromPlan | null>(null);
+
+  const handleMealClick = useCallback((comp: UIComponentBlock) => {
+    const p = comp.props;
+    const macros = (p.macros ?? {}) as { protein_g?: number; carbs_g?: number; fat_g?: number };
+    setSelectedMeal({
+      name: (p.recipe_name as string) ?? '',
+      meal_type: (p.meal_type as string) ?? '',
+      ingredients: ((p.ingredients as string[]) ?? []),
+      prep_time_minutes: (p.prep_time as number) ?? undefined,
+      nutrition: {
+        calories: (p.calories as number) ?? 0,
+        protein_g: macros.protein_g ?? 0,
+        carbs_g: macros.carbs_g ?? 0,
+        fat_g: macros.fat_g ?? 0,
+      },
+    });
+    setDrawerOpen(true);
+  }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message.message.content);
@@ -168,6 +190,7 @@ export const MessageItem = ({ message, isLastMessage = false, onAction }: Messag
               <ComponentRenderer
                 components={message.message.ui_components as UIComponentBlock[]}
                 onAction={onAction}
+                onMealClick={handleMealClick}
               />
             )}
           </div>
@@ -203,6 +226,12 @@ export const MessageItem = ({ message, isLastMessage = false, onAction }: Messag
           </Avatar>
         )}
       </div>
+
+      <RecipeDetailDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        mealData={selectedMeal ?? undefined}
+      />
     </div>
   );
 };

@@ -71,9 +71,12 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
 
   return (
     <div className="rounded-xl glass-effect border border-white/5 overflow-hidden">
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setExpanded((v) => !v)}
-        className="w-full text-left p-4 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors"
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded((v) => !v); } }}
+        className="w-full text-left p-4 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-3">
           <ShoppingCart className="h-5 w-5 text-emerald-400 shrink-0" />
@@ -109,7 +112,7 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
             <ChevronDown className="h-4 w-4 text-gray-600 shrink-0" />
           )}
         </div>
-      </button>
+      </div>
 
       {expanded && (
         <div className="px-4 pb-4 space-y-3">

@@ -57,9 +57,34 @@
 - [x] Data fetching via useEffect+useState (same pattern as DailyTracking)
 - [x] TypeScript build passes, mobile-friendly layout
 
-### Step 5: Integration + polish + deploy ← CURRENT
-- [ ] Agent integration: food logging via chat → OpenFoodFacts → daily_food_log
+### Step 5: Integration + polish + deploy
+- [x] Agent food logging via chat (log_food_entries skill script)
+- [x] Code review + security/efficiency fixes
+- [x] Editable food name in daily tracking UI
 - [ ] End-to-end testing
 - [ ] UI polish, loading states, error handling
 - [ ] Deploy backend (Railway/Fly.io) + frontend (Vercel)
 - [ ] TWA → APK generation + distribution
+
+---
+
+## Feature: Recettes favorites + vue détail ← CURRENT
+
+### Étape 1 : Vue détail recette + bouton favori
+- [ ] **Backend**: `POST /api/recipes` (upsert par nom) — insère une recette depuis plan_data
+- [ ] **Backend**: `GET /api/recipes/{id}` — fetch recette individuelle
+- [ ] **Frontend**: Composant `RecipeDetailDrawer` (modale bottom-sheet mobile)
+  - Nom, meal_type, temps de préparation
+  - Ingrédients avec quantités + unités
+  - Instructions étape par étape
+  - Macros détaillés (calories, P/G/L)
+  - Bouton favori (coeur) → toggle favori
+- [ ] **Frontend**: Recettes cliquables dans `MealPlanView` → ouvre RecipeDetailDrawer
+- [ ] **Frontend**: Favoris cliquables dans `MyPlans` → ouvre RecipeDetailDrawer
+- [ ] **Frontend**: Type `FavoriteWithRecipe` exporté proprement (remplacer cast `as unknown`)
+- [ ] Tests unitaires backend + build frontend
+
+### Étape 2 : Édition des favoris
+- [ ] Depuis le détail d'un favori, modifier quantités/ingrédients/notes
+- [ ] `PATCH /api/recipes/{id}` endpoint
+- [ ] Recalcul des macros à la modification (OpenFoodFacts)

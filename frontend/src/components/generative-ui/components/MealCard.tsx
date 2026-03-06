@@ -1,9 +1,15 @@
 import { MealCardProps } from '@/types/generative-ui.types';
 import { Clock, UtensilsCrossed } from 'lucide-react';
 
-export function MealCard({ meal_type, recipe_name, calories, macros, prep_time, ingredients }: MealCardProps) {
+export function MealCard({ meal_type, recipe_name, calories, macros, prep_time, ingredients, onClick }: MealCardProps) {
   return (
-    <div className="glass-effect rounded-lg border border-emerald-500/20 p-4">
+    <div
+      className={`glass-effect rounded-lg border border-emerald-500/20 p-4 ${onClick ? 'cursor-pointer hover:border-emerald-500/40 transition-colors' : ''}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
+    >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <UtensilsCrossed className="h-4 w-4 text-emerald-400" />

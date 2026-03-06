@@ -65,8 +65,8 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
       let attempt = 0;
       const poll = () => {
         if (attempt >= delays.length) return;
-        pollTimerRef.current = setTimeout(async () => {
-          await onEntryCreated();
+        pollTimerRef.current = setTimeout(() => {
+          onEntryCreated().catch(() => {});
           attempt++;
           poll();
         }, delays[attempt]);
@@ -92,28 +92,11 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
       <div
         className={`pointer-events-auto rounded-2xl border flex items-center gap-1.5 px-1.5 py-1 max-w-lg mx-auto transition-all duration-300
           ${isListening
-            ? 'border-red-500/30 bg-red-500/[0.06] shadow-[0_0_20px_hsl(0,84%,60%/0.15)]'
-            : 'border-white/10 glass-effect shadow-[0_4px_24px_rgba(0,0,0,0.4)]'
+            ? 'border-emerald-500/40 bg-emerald-500/[0.06] shadow-[0_0_20px_hsl(152,84%,40%/0.15)]'
+            : 'border-emerald-500/20 glass-effect shadow-[0_4px_24px_rgba(0,0,0,0.4)]'
           }
         `}
       >
-        {/* Mic button */}
-        {isSupported && (
-          <button
-            onClick={isListening ? stopListening : startListening}
-            className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-all
-              ${isListening
-                ? 'bg-red-500/20 text-red-400'
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
-              }
-            `}
-            style={isListening ? { animation: 'recording-pulse 2s ease-in-out infinite' } : undefined}
-          >
-            <Mic className="h-4 w-4" />
-            <span className="sr-only">{isListening ? 'Arrêter le micro' : 'Activer le micro'}</span>
-          </button>
-        )}
-
         {/* Input */}
         <input
           ref={inputRef}
@@ -123,8 +106,25 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
           onKeyDown={handleKeyDown}
           placeholder={isListening ? 'Écoute en cours...' : "J'ai mangé..."}
           disabled={sending}
-          className="flex-1 bg-transparent text-sm text-gray-200 placeholder:text-gray-600 outline-none min-w-0 py-2 px-1"
+          className="flex-1 bg-transparent text-sm text-gray-200 placeholder:text-gray-600 outline-none min-w-0 py-2 px-2"
         />
+
+        {/* Mic button — right side, next to send */}
+        {isSupported && (
+          <button
+            onClick={isListening ? stopListening : startListening}
+            className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-all
+              ${isListening
+                ? 'bg-emerald-500/20 text-emerald-400'
+                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+              }
+            `}
+            style={isListening ? { animation: 'recording-pulse 2s ease-in-out infinite' } : undefined}
+          >
+            <Mic className="h-4 w-4" />
+            <span className="sr-only">{isListening ? 'Arrêter le micro' : 'Activer le micro'}</span>
+          </button>
+        )}
 
         {/* Send button */}
         <button

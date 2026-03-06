@@ -1,12 +1,13 @@
-import { ChevronRight, CalendarDays, Flame, Beef } from 'lucide-react';
+import { ChevronRight, CalendarDays, Flame, Beef, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { MealPlanSummary } from '@/lib/api';
 
 interface PlanCardProps {
   plan: MealPlanSummary;
+  onDelete?: (planId: string) => void;
 }
 
-export function PlanCard({ plan }: PlanCardProps) {
+export function PlanCard({ plan, onDelete }: PlanCardProps) {
   const navigate = useNavigate();
 
   const weekLabel = plan.week_start
@@ -18,9 +19,12 @@ export function PlanCard({ plan }: PlanCardProps) {
     : '';
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => navigate(`/plans/${plan.id}`)}
-      className="w-full text-left rounded-xl glass-effect border border-white/5 p-4 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors"
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/plans/${plan.id}`); } }}
+      className="w-full text-left rounded-xl glass-effect border border-white/5 p-4 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors cursor-pointer"
     >
       <div className="flex items-center gap-3">
         <CalendarDays className="h-5 w-5 text-emerald-400 shrink-0" />
@@ -42,8 +46,16 @@ export function PlanCard({ plan }: PlanCardProps) {
             </span>
           )}
         </div>
+        {onDelete && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(plan.id); }}
+            className="p-1 rounded-md hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors shrink-0"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
         <ChevronRight className="h-4 w-4 text-gray-600 shrink-0" />
       </div>
-    </button>
+    </div>
   );
 }

@@ -223,12 +223,35 @@ async def execute(**kwargs) -> str:
             f"OFF validated: {off_validated} ({matched_count}/{len(ingredients)} ingredients)"
         )
 
+        # Build MealCard marker for generative UI
+        ingredient_labels = [
+            f"{ing['name']} {ing['quantity']}{ing['unit']}"
+            for ing in ingredients
+        ]
+        mealcard_payload = json.dumps(
+            {
+                "meal_type": recipe_to_save.get("meal_type", meal_type),
+                "recipe_name": recipe_to_save["name"],
+                "calories": round(total_calories),
+                "macros": {
+                    "protein_g": round(total_protein),
+                    "carbs_g": round(total_carbs),
+                    "fat_g": round(total_fat),
+                },
+                "prep_time": recipe_to_save.get("prep_time_minutes", 30),
+                "ingredients": ingredient_labels,
+            },
+            ensure_ascii=False,
+        )
+        ui_marker = f"<!--UI:MealCard:{mealcard_payload}-->"
+
         return json.dumps(
             {
                 "recipe": recipe_to_save,
                 "off_validated": off_validated,
                 "matched_ingredients": matched_count,
                 "total_ingredients": len(ingredients),
+                "ui_marker": ui_marker,
             },
             indent=2,
             ensure_ascii=False,

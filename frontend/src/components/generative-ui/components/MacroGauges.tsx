@@ -1,71 +1,60 @@
 import { MacroGaugesProps } from '@/types/generative-ui.types';
+import { Flame } from 'lucide-react';
 
-interface MacroBarProps {
+interface MacroRingProps {
   label: string;
   grams: number;
-  calPerGram: number;
-  targetCalories: number;
-  textColor: string;
-  barColor: string;
-  bgColor: string;
+  percentage: number;
+  color: string;
+  ringColor: string;
 }
 
-function MacroBar({ label, grams, calPerGram, targetCalories, textColor, barColor, bgColor }: MacroBarProps) {
-  const calories = grams * calPerGram;
-  const percentage = Math.round((calories / targetCalories) * 100);
+function MacroRing({ label, grams, percentage, color, ringColor }: MacroRingProps) {
+  const radius = 28;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="flex-1">
-      <div className="flex justify-between items-baseline mb-1">
-        <span className="text-sm font-medium text-gray-300">{label}</span>
-        <span className={`text-lg font-bold ${textColor}`}>{grams}g</span>
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="relative w-16 h-16">
+        <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
+          <circle cx="32" cy="32" r={radius} fill="none" stroke="currentColor" strokeWidth="4" className="text-white/[0.04]" />
+          <circle
+            cx="32" cy="32" r={radius} fill="none"
+            stroke={ringColor} strokeWidth="4" strokeLinecap="round"
+            strokeDasharray={circumference} strokeDashoffset={strokeDashoffset}
+            className="transition-all duration-700"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className={`text-sm font-bold ${color}`}>{percentage}%</span>
+        </div>
       </div>
-      <div className={`h-2 rounded-full ${bgColor}`}>
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${barColor}`}
-          style={{ width: `${Math.min(percentage, 100)}%` }}
-        />
-      </div>
-      <div className="flex justify-between mt-1">
-        <span className="text-xs text-gray-500">{calories} kcal</span>
-        <span className="text-xs text-gray-500">{percentage}%</span>
-      </div>
+      <span className="text-xs font-medium text-gray-400">{label}</span>
+      <span className={`text-sm font-semibold ${color}`}>{Math.round(grams)}g</span>
     </div>
   );
 }
 
 export function MacroGauges({ protein_g, carbs_g, fat_g, target_calories }: MacroGaugesProps) {
+  const totalCal = protein_g * 4 + carbs_g * 4 + fat_g * 9;
+  const pPct = totalCal > 0 ? Math.round((protein_g * 4 / totalCal) * 100) : 0;
+  const cPct = totalCal > 0 ? Math.round((carbs_g * 4 / totalCal) * 100) : 0;
+  const fPct = totalCal > 0 ? Math.round((fat_g * 9 / totalCal) * 100) : 0;
+
   return (
-    <div className="glass-effect rounded-lg border border-emerald-500/20 p-4">
-      <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wide">Répartition Macros</h4>
-      <div className="flex gap-4">
-        <MacroBar
-          label="Protéines"
-          grams={protein_g}
-          calPerGram={4}
-          targetCalories={target_calories}
-          textColor="text-blue-400"
-          barColor="bg-blue-400"
-          bgColor="bg-blue-400/10"
-        />
-        <MacroBar
-          label="Glucides"
-          grams={carbs_g}
-          calPerGram={4}
-          targetCalories={target_calories}
-          textColor="text-amber-400"
-          barColor="bg-amber-400"
-          bgColor="bg-amber-400/10"
-        />
-        <MacroBar
-          label="Lipides"
-          grams={fat_g}
-          calPerGram={9}
-          targetCalories={target_calories}
-          textColor="text-rose-400"
-          barColor="bg-rose-400"
-          bgColor="bg-rose-400/10"
-        />
+    <div className="glass-effect rounded-xl border border-emerald-500/20 p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Moyenne journalière</h4>
+        <div className="flex items-center gap-1.5 text-emerald-400">
+          <Flame className="h-4 w-4" />
+          <span className="text-sm font-bold">{Math.round(target_calories)} kcal</span>
+        </div>
+      </div>
+      <div className="flex justify-around">
+        <MacroRing label="Protéines" grams={protein_g} percentage={pPct} color="text-blue-400" ringColor="hsl(217, 91%, 60%)" />
+        <MacroRing label="Glucides" grams={carbs_g} percentage={cPct} color="text-amber-400" ringColor="hsl(43, 96%, 56%)" />
+        <MacroRing label="Lipides" grams={fat_g} percentage={fPct} color="text-rose-400" ringColor="hsl(351, 95%, 71%)" />
       </div>
     </div>
   );

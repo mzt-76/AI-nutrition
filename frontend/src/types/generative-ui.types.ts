@@ -29,12 +29,14 @@ export interface MealCardProps {
   macros: { protein_g: number; carbs_g: number; fat_g: number };
   prep_time?: number;
   ingredients?: string[];
+  onClick?: () => void;
 }
 
 export interface DayPlanCardProps {
   day_name: string;
   meals: MealCardProps[];
   totals: { calories: number; protein_g: number; carbs_g: number; fat_g: number };
+  onMealClick?: (mealIndex: number) => void;
 }
 
 export interface WeightTrendIndicatorProps {

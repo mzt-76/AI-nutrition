@@ -37,9 +37,10 @@ function getZoneClassName(zone: SemanticZone): string {
 interface ComponentRendererProps {
   components: UIComponentBlock[];
   onAction?: (value: string) => void;
+  onMealClick?: (component: UIComponentBlock) => void;
 }
 
-export function ComponentRenderer({ components, onAction }: ComponentRendererProps) {
+export function ComponentRenderer({ components, onAction, onMealClick }: ComponentRendererProps) {
   const grouped = new Map<SemanticZone, UIComponentBlock[]>();
   for (const comp of components) {
     const zone = comp.zone as SemanticZone;
@@ -62,9 +63,13 @@ export function ComponentRenderer({ components, onAction }: ComponentRendererPro
           if (!validatedProps) {
             return null;
           }
+          const extraProps: Record<string, unknown> = { onAction };
+          if (comp.component === 'MealCard' && onMealClick) {
+            extraProps.onClick = () => onMealClick(comp);
+          }
           return (
             <div key={comp.id} className={getZoneClassName(zone)}>
-              <Component {...validatedProps} onAction={onAction} />
+              <Component {...validatedProps} {...extraProps} />
             </div>
           );
         });

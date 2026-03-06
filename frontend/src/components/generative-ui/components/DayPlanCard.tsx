@@ -2,7 +2,7 @@ import { DayPlanCardProps } from '@/types/generative-ui.types';
 import { MealCard } from './MealCard';
 import { CalendarDays } from 'lucide-react';
 
-export function DayPlanCard({ day_name, meals, totals }: DayPlanCardProps) {
+export function DayPlanCard({ day_name, meals, totals, onMealClick }: DayPlanCardProps) {
   return (
     <div className="glass-effect rounded-lg border border-emerald-500/20 p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -12,7 +12,11 @@ export function DayPlanCard({ day_name, meals, totals }: DayPlanCardProps) {
 
       <div className="space-y-3 mb-3">
         {meals.map((meal, idx) => (
-          <MealCard key={`${meal.meal_type}-${idx}`} {...meal} />
+          <MealCard
+            key={`${meal.meal_type}-${idx}`}
+            {...meal}
+            onClick={onMealClick ? () => onMealClick(idx) : undefined}
+          />
         ))}
       </div>
 

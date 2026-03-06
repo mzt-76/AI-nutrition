@@ -306,6 +306,9 @@ export interface MealPlanSummary {
 export const fetchMealPlans = (userId: string): Promise<MealPlanSummary[]> =>
   apiFetch(`/api/meal-plans?user_id=${userId}`);
 
+export const deleteMealPlan = (planId: string): Promise<{ status: string }> =>
+  apiFetch(`/api/meal-plans/${planId}`, { method: 'DELETE' });
+
 // =============================================================================
 // Favorite Recipes
 // =============================================================================

@@ -3,11 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { MacroGauges } from '@/components/generative-ui/components/MacroGauges';
 import { DayPlanCard } from '@/components/generative-ui/components/DayPlanCard';
+import { RecipeDetailDrawer } from '@/components/recipes/RecipeDetailDrawer';
+import type { MealDataFromPlan } from '@/components/recipes/RecipeDetailDrawer';
 import { MealCardProps } from '@/types/generative-ui.types';
 import { ArrowLeft, CalendarDays, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LoadingDots } from '@/components/ui/loading-dots';
 import { apiFetch } from '@/lib/api';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { NavSidebar } from '@/components/navigation/NavSidebar';
 
 // Ingredient from recipe DB can be string or structured object
 interface IngredientObj {
@@ -28,6 +32,7 @@ interface MealPlanDay {
       fat_g: number;
     };
     ingredients?: Array<string | IngredientObj>;
+    instructions?: string;
     prep_time_minutes?: number;
   }>;
   daily_totals: {
@@ -56,9 +61,12 @@ export default function MealPlanView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { session } = useAuth();
+  const isMobile = useIsMobile();
   const [plan, setPlan] = useState<MealPlanData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState<MealDataFromPlan | null>(null);
 
   const fetchPlan = async () => {
     if (!id || !session) return;
@@ -79,8 +87,18 @@ export default function MealPlanView() {
     fetchPlan();
   }, [id, session]);
 
-  if (loading) {
+  const withSidebar = (content: React.ReactNode) => {
+    if (isMobile) return <>{content}</>;
     return (
+      <div className="flex h-screen overflow-hidden">
+        <NavSidebar />
+        <div className="flex-1 min-w-0 overflow-auto">{content}</div>
+      </div>
+    );
+  };
+
+  if (loading) {
+    return withSidebar(
       <div className="min-h-screen gradient-bg flex items-center justify-center gap-3">
         <LoadingDots className="text-emerald-400" />
         <span className="text-sm text-gray-400">Chargement du plan</span>
@@ -89,7 +107,7 @@ export default function MealPlanView() {
   }
 
   if (error || !plan) {
-    return (
+    return withSidebar(
       <div className="min-h-screen gradient-bg flex flex-col items-center justify-center gap-4">
         <p className="text-sm text-red-400/80">
           {error ? 'Impossible de charger le plan.' : 'Plan non trouvé.'}
@@ -99,7 +117,7 @@ export default function MealPlanView() {
             <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
             Réessayer
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/plans')}>
             <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
             Retour
           </Button>
@@ -111,12 +129,12 @@ export default function MealPlanView() {
   const { plan_data } = plan;
   const summary = plan_data.weekly_summary;
 
-  return (
+  return withSidebar(
     <div className="min-h-screen gradient-bg">
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/plans')}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
@@ -166,11 +184,29 @@ export default function MealPlanView() {
                 day_name={day.day}
                 meals={meals}
                 totals={day.daily_totals}
+                onMealClick={(mealIdx) => {
+                  const m = day.meals[mealIdx];
+                  setSelectedMeal({
+                    name: m.name,
+                    meal_type: m.meal_type,
+                    ingredients: m.ingredients ?? [],
+                    instructions: m.instructions,
+                    prep_time_minutes: m.prep_time_minutes,
+                    nutrition: m.nutrition,
+                  });
+                  setDrawerOpen(true);
+                }}
               />
             );
           })}
         </div>
       </div>
+
+      <RecipeDetailDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        mealData={selectedMeal ?? undefined}
+      />
     </div>
   );
 }
