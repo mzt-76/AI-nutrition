@@ -22,6 +22,7 @@ from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.toolsets import FunctionToolset
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 from dotenv import load_dotenv
 import importlib.util
 import os
@@ -398,9 +399,45 @@ def add_dynamic_context(ctx: RunContext[AgentDeps]) -> str:
     return "".join(sections)
 
 
+# Cached shared resources (initialized once, reused across requests)
+_shared_clients: dict[str, Any] | None = None
+_shared_skill_loader: SkillLoader | None = None
+
+
+def _get_shared_clients() -> dict[str, Any]:
+    """Return cached clients, creating them on first call."""
+    global _shared_clients
+    if _shared_clients is None:
+        logger.info("Initializing shared clients (first request)...")
+        _shared_clients = {
+            "supabase": get_supabase_client(),
+            "openai_client": get_openai_client(),
+            "embedding_client": get_embedding_client(),
+            "http_client": get_http_client(),
+            "brave_api_key": get_brave_api_key(),
+            "searxng_base_url": get_searxng_base_url(),
+            "anthropic_client": get_anthropic_client(),
+        }
+    return _shared_clients
+
+
+def _get_shared_skill_loader() -> SkillLoader:
+    """Return cached skill loader, discovering skills on first call."""
+    global _shared_skill_loader
+    if _shared_skill_loader is None:
+        skills_dir = project_root / "skills"
+        _shared_skill_loader = SkillLoader(skills_dir)
+        discovered = _shared_skill_loader.discover_skills()
+        logger.info(f"Skills loaded: {len(discovered)} skills discovered")
+    return _shared_skill_loader
+
+
 def create_agent_deps(memories: str = "", user_id: str | None = None) -> AgentDeps:
     """
     Create agent dependencies with all initialized clients.
+
+    Clients and skill loader are cached and reused across requests.
+    Only per-request state (memories, user_id) is set fresh.
 
     Args:
         memories: Optional memory string for context
@@ -411,24 +448,19 @@ def create_agent_deps(memories: str = "", user_id: str | None = None) -> AgentDe
     Example:
         >>> deps = create_agent_deps(memories="User prefers Mediterranean cuisine")
     """
-    logger.info("Initializing agent dependencies...")
-
-    # Initialize skill loader
-    skills_dir = project_root / "skills"
-    skill_loader = SkillLoader(skills_dir)
-    discovered = skill_loader.discover_skills()
-    logger.info(f"Skills loaded: {len(discovered)} skills discovered")
+    clients = _get_shared_clients()
+    skill_loader = _get_shared_skill_loader()
 
     return AgentDeps(
-        supabase=get_supabase_client(),
-        openai_client=get_openai_client(),
-        embedding_client=get_embedding_client(),
-        http_client=get_http_client(),
-        brave_api_key=get_brave_api_key(),
-        searxng_base_url=get_searxng_base_url(),
+        supabase=clients["supabase"],
+        openai_client=clients["openai_client"],
+        embedding_client=clients["embedding_client"],
+        http_client=clients["http_client"],
+        brave_api_key=clients["brave_api_key"],
+        searxng_base_url=clients["searxng_base_url"],
         memories=memories,
         skill_loader=skill_loader,
-        anthropic_client=get_anthropic_client(),
+        anthropic_client=clients["anthropic_client"],
         user_id=user_id,
     )
 
