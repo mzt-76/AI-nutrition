@@ -2,7 +2,9 @@
 name: food-tracking
 description: >-
     Suivi alimentaire et food logging. Enregistrement d'aliments dans le journal
-    alimentaire via le script `log_food_entries` ("j'ai mange...", suivi rapide).
+    alimentaire via `log_food_entries` ("j'ai mange...", suivi rapide) et
+    consultation du bilan calorique du jour via `get_daily_summary`
+    ("combien il me reste ?", "mon bilan du jour").
 category: tracking
 ---
 
@@ -13,12 +15,22 @@ category: tracking
 - L'utilisateur declare avoir mange quelque chose
 - Suivi alimentaire / enregistrement d'aliments
 - Modification d'une entree existante dans le journal
+- L'utilisateur demande combien de calories/macros il lui reste aujourd'hui
+- L'utilisateur demande un bilan ou resume de sa journee alimentaire
+- L'utilisateur demande des conseils pour finir/completer son quota calorique
 
 ## Outils disponibles
 
 | Script | Description |
 |--------|-------------|
 | `log_food_entries` | Enregistrer des aliments dans le journal alimentaire (daily_food_log) |
+| `get_daily_summary` | Consulter le bilan calorique/macros du jour (consomme vs objectifs) |
+
+## Parametres `get_daily_summary`
+
+| Parametre | Type | Requis | Description |
+|-----------|------|--------|-------------|
+| `log_date` | str | non | YYYY-MM-DD. Defaut = aujourd'hui. |
 
 ## Parametres `log_food_entries`
 
@@ -56,4 +68,10 @@ run_skill_script("food-tracking", "log_food_entries", {
     "log_date": "2026-03-05",
     "meal_type": "petit-dejeuner"
 })
+
+# Consulter le bilan du jour (consomme vs objectifs)
+run_skill_script("food-tracking", "get_daily_summary", {})
+
+# Bilan d'une date specifique
+run_skill_script("food-tracking", "get_daily_summary", {"log_date": "2026-03-05"})
 ```

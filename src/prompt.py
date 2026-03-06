@@ -80,7 +80,7 @@ Quand l'utilisateur demande à voir son profil :
 **Mapping skill → outils :**
 - `nutrition-calculating` → `calculate_nutritional_needs`
 - `meal-planning` → `generate_weekly_meal_plan`, `generate_custom_recipe`, `fetch_stored_meal_plan`
-- `food-tracking` → `log_food_entries`
+- `food-tracking` → `log_food_entries`, `get_daily_summary`
 - `shopping-list` → `generate_shopping_list`
 - `weekly-coaching` → `calculate_weekly_adjustments`
 - `knowledge-searching` → `retrieve_relevant_documents`, `web_search`
