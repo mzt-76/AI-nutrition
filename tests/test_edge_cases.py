@@ -277,8 +277,21 @@ class TestMacroCalculationEdgeCases:
         """Protein + carbs + fat calories should approximately equal total."""
         macros = calculate_macros(2964, 172, "muscle_gain")
         total_kcal = 172 * 4 + macros["carbs_g"] * 4 + macros["fat_g"] * 9
-        # Allow ±20 kcal rounding tolerance
-        assert abs(total_kcal - 2964) < 20, f"Sum {total_kcal} != 2964"
+        # Reconciliation closes the gap to ±4 kcal (at most 1g carb rounding)
+        assert abs(total_kcal - 2964) <= 4, f"Sum {total_kcal} != 2964"
+
+    def test_macros_fat_floor_enforced(self):
+        """Fat should never drop below 0.6g/kg when weight_kg is provided."""
+        # Low-cal profile: 1200 kcal, 120g protein, performance (20% fat)
+        # Without floor: 1200*0.20/9 = 27g. With floor for 50kg: 30g
+        macros = calculate_macros(1200, 120, "performance", weight_kg=50.0)
+        assert macros["fat_g"] >= 30, f"Fat {macros['fat_g']}g < floor 30g (0.6*50)"
+
+    def test_macros_fat_floor_not_applied_without_weight(self):
+        """Fat floor should not apply when weight_kg is not provided."""
+        macros = calculate_macros(1200, 120, "performance")
+        # 20% of 1200 / 9 ≈ 27g — no floor applied
+        assert macros["fat_g"] < 30
 
 
 class TestAllergenValidationEdgeCases:

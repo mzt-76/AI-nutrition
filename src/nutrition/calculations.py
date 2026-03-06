@@ -257,7 +257,7 @@ def calculate_protein_target(
             # Start at 2.5g/kg (middle of 2.3-3.1 range) for better adherence
             protein_per_kg = 2.5
         elif primary_goal == "muscle_gain":
-            # Start at 1.8g/kg (middle of 1.6-2.4 range)
+            # Start at 2g/kg (high-middle of 1.6-2.2 range)
             protein_per_kg = 2
         else:
             # Use middle of range for other goals
@@ -266,11 +266,11 @@ def calculate_protein_target(
         # Use maximum for aggressive goals
         protein_per_kg = max_protein_per_kg
 
-    protein_g = int(weight_kg * protein_per_kg)
+    protein_g = round(weight_kg * protein_per_kg)
 
     # Calculate range bounds
-    min_protein_g = int(weight_kg * min_protein_per_kg)
-    max_protein_g = int(weight_kg * max_protein_per_kg)
+    min_protein_g = round(weight_kg * min_protein_per_kg)
+    max_protein_g = round(weight_kg * max_protein_per_kg)
     protein_range = (min_protein_g, max_protein_g)
 
     logger.info(
@@ -282,18 +282,23 @@ def calculate_protein_target(
 
 
 def calculate_macros(
-    target_calories: int, protein_g: int, goal_type: str = "muscle_gain"
+    target_calories: int,
+    protein_g: int,
+    goal_type: str = "muscle_gain",
+    weight_kg: float | None = None,
 ) -> Dict[str, int]:
     """
     Calculate carb and fat targets based on calories and protein.
 
     Fat is calculated as a percentage of TOTAL calories (20-25% range depending
-    on goal). Carbs receive the remaining calories after protein and fat.
+    on goal), with a minimum floor of 0.6g/kg for hormonal health when weight
+    is provided. Carbs are reconciled so macros sum exactly to target calories.
 
     Args:
         target_calories: Total daily calorie target
         protein_g: Protein target in grams
         goal_type: Primary goal (affects fat % of total)
+        weight_kg: Body weight in kg (optional, enables fat floor of 0.6g/kg)
 
     Returns:
         Dict with carbs_g and fat_g
@@ -306,6 +311,7 @@ def calculate_macros(
     References:
         ISSN (2017): 20-35% of total calories from fat recommended.
         20-25% range used here to maximize carb budget for training.
+        ISSN (2017): Minimum 0.6g/kg fat for hormonal health.
     """
     # Caloric values per gram
     PROTEIN_KCAL = 4
@@ -322,14 +328,23 @@ def calculate_macros(
     }
 
     fat_pct = FAT_PCT_OF_TOTAL.get(goal_type, 0.25)
-    fat_g = int((target_calories * fat_pct) / FAT_KCAL)
+    fat_g = round((target_calories * fat_pct) / FAT_KCAL)
+
+    # Fat floor: minimum 0.6g/kg for hormonal health (ISSN guideline)
+    if weight_kg is not None:
+        min_fat_g = round(weight_kg * 0.6)
+        fat_g = max(fat_g, min_fat_g)
 
     # Carbs get the remaining calories after protein and fat
     protein_calories = protein_g * PROTEIN_KCAL
     fat_calories = fat_g * FAT_KCAL
-    carbs_g = int((target_calories - protein_calories - fat_calories) / CARB_KCAL)
+    remaining = target_calories - protein_calories - fat_calories
+    carbs_g = max(0, round(remaining / CARB_KCAL))
 
-    # Safety: ensure non-negative carbs (extreme high-protein edge case)
+    # Reconcile: adjust carbs so macros sum exactly to target_calories
+    actual_total = protein_g * PROTEIN_KCAL + carbs_g * CARB_KCAL + fat_g * FAT_KCAL
+    diff = target_calories - actual_total
+    carbs_g += round(diff / CARB_KCAL)
     carbs_g = max(0, carbs_g)
 
     logger.info(

@@ -82,7 +82,7 @@ async def execute(**kwargs) -> str:
         )
 
         # Step 7: Calculate carbs and fat
-        macros = calculate_macros(target_calories, protein_g, primary_goal)
+        macros = calculate_macros(target_calories, protein_g, primary_goal, weight_kg=weight_kg)
 
         # Build result
         result = {

@@ -1032,7 +1032,7 @@ async def recalculate_profile(
     target_calories = tdee + calorie_adjustments.get(primary_goal, 0)
 
     protein_g, _, _ = calculate_protein_target(body.weight_kg, primary_goal)
-    macros = calculate_macros(target_calories, protein_g, primary_goal)
+    macros = calculate_macros(target_calories, protein_g, primary_goal, weight_kg=body.weight_kg)
 
     result = {
         "bmr": bmr,
