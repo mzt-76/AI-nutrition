@@ -499,3 +499,69 @@ class TestShoppingListUpdate:
     def test_no_auth_returns_401(self, noauth_client):
         resp = noauth_client.put("/api/shopping-lists/sl1", json={"title": "Updated"})
         assert resp.status_code == 401
+
+
+# =============================================================================
+# Profile Recalculate
+# =============================================================================
+
+
+class TestProfileRecalculate:
+    """Tests for POST /api/profile/recalculate."""
+
+    VALID_BODY = {
+        "age": 30,
+        "gender": "male",
+        "weight_kg": 80.0,
+        "height_cm": 178,
+        "activity_level": "moderate",
+    }
+
+    def test_calculates_correctly(self, auth_client):
+        _setup_supabase(data=[{"id": USER_ID}])
+
+        resp = auth_client.post("/api/profile/recalculate", json=self.VALID_BODY)
+        assert resp.status_code == 200
+
+        data = resp.json()
+        assert "bmr" in data
+        assert "tdee" in data
+        assert "target_calories" in data
+        assert "target_protein_g" in data
+        assert "target_carbs_g" in data
+        assert "target_fat_g" in data
+        assert "primary_goal" in data
+
+        # Mifflin-St Jeor for 30yo male, 80kg, 178cm:
+        # BMR = 10*80 + 6.25*178 - 5*30 + 5 = 800 + 1112.5 - 150 + 5 = 1767
+        assert data["bmr"] == 1767
+        # TDEE = 1767 * 1.55 = 2738
+        assert data["tdee"] == 2738
+        # Default goal = maintenance (score 7), target_cal = TDEE + 0
+        assert data["primary_goal"] == "maintenance"
+        assert data["target_calories"] == 2738
+        assert data["target_protein_g"] > 0
+        assert data["target_carbs_g"] > 0
+        assert data["target_fat_g"] > 0
+
+    def test_no_auth_returns_401(self, noauth_client):
+        resp = noauth_client.post("/api/profile/recalculate", json=self.VALID_BODY)
+        assert resp.status_code == 401
+
+    def test_invalid_gender_returns_422(self, auth_client):
+        body = {**self.VALID_BODY, "gender": "other"}
+        resp = auth_client.post("/api/profile/recalculate", json=body)
+        assert resp.status_code == 422
+
+    def test_invalid_activity_level_returns_500(self, auth_client):
+        body = {**self.VALID_BODY, "activity_level": "extreme"}
+        resp = auth_client.post("/api/profile/recalculate", json=body)
+        # calculate_tdee raises ValueError -> 500
+        assert resp.status_code == 500
+
+    def test_missing_required_field_returns_422(self, auth_client):
+        resp = auth_client.post(
+            "/api/profile/recalculate",
+            json={"age": 30, "gender": "male"},
+        )
+        assert resp.status_code == 422

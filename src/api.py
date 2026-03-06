@@ -27,7 +27,17 @@ from pathlib import Path
 from pydantic import BaseModel
 from pydantic_ai import Agent
 
-from src.nutrition.openfoodfacts_client import match_ingredient, normalize_ingredient_name
+from src.nutrition.calculations import (
+    calculate_macros,
+    calculate_protein_target,
+    calculate_tdee,
+    infer_goals_from_context,
+    mifflin_st_jeor_bmr,
+)
+from src.nutrition.openfoodfacts_client import (
+    match_ingredient,
+    normalize_ingredient_name,
+)
 from pydantic_ai.messages import PartDeltaEvent, PartStartEvent, TextPartDelta
 
 from src.agent import agent, create_agent_deps, get_model
@@ -199,6 +209,15 @@ class RecipeCreate(BaseModel):
     fat_g_per_serving: float
 
 
+class RecalculateRequest(BaseModel):
+    age: int
+    gender: str
+    weight_kg: float
+    height_cm: int
+    activity_level: str
+    goals: dict[str, int] | None = None
+
+
 class ShoppingListItemModel(BaseModel):
     name: str
     quantity: float = 0
@@ -242,9 +261,7 @@ async def list_conversations(
         auth_user: Authenticated user from JWT (injected by Depends)
     """
     if auth_user and auth_user.get("id") != user_id:
-        raise HTTPException(
-            status_code=403, detail="Accès non autorisé"
-        )
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
     response = (
         supabase.table("conversations")
         .select("*")
@@ -427,9 +444,7 @@ async def list_meal_plans(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
-        raise HTTPException(
-            status_code=403, detail="Accès non autorisé"
-        )
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     result = (
         supabase.table("meal_plans")
@@ -492,9 +507,7 @@ async def get_daily_log(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
-        raise HTTPException(
-            status_code=403, detail="Accès non autorisé"
-        )
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
         raise HTTPException(
@@ -521,9 +534,7 @@ async def create_daily_log(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != body.user_id:
-        raise HTTPException(
-            status_code=403, detail="Accès non autorisé"
-        )
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     row = body.model_dump(exclude_none=True)
     result = supabase.table("daily_food_log").insert(row).execute()
@@ -588,7 +599,9 @@ async def update_daily_log(
     )
 
     if not result.data:
-        raise HTTPException(status_code=500, detail="Impossible de mettre à jour l'entrée")
+        raise HTTPException(
+            status_code=500, detail="Impossible de mettre à jour l'entrée"
+        )
     return result.data[0]
 
 
@@ -632,9 +645,7 @@ async def list_favorites(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
-        raise HTTPException(
-            status_code=403, detail="Accès non autorisé"
-        )
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     result = (
         supabase.table("favorite_recipes")
@@ -655,9 +666,7 @@ async def add_favorite(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != body.user_id:
-        raise HTTPException(
-            status_code=403, detail="Accès non autorisé"
-        )
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     # Return existing if already favorited (unique constraint on user_id + recipe_id)
     existing = (
@@ -714,9 +723,7 @@ async def check_favorite(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
-        raise HTTPException(
-            status_code=403, detail="Accès non autorisé"
-        )
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     result = (
         supabase.table("favorite_recipes")
@@ -818,9 +825,7 @@ async def list_shopping_lists(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != user_id:
-        raise HTTPException(
-            status_code=403, detail="Accès non autorisé"
-        )
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     result = (
         supabase.table("shopping_lists")
@@ -841,9 +846,7 @@ async def create_shopping_list(
     if not auth_user:
         raise HTTPException(status_code=401, detail="Authentification requise")
     if auth_user.get("id") != body.user_id:
-        raise HTTPException(
-            status_code=403, detail="Accès non autorisé"
-        )
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     row: dict[str, Any] = {
         "user_id": body.user_id,
@@ -946,6 +949,73 @@ async def delete_shopping_list(
 
     supabase.table("shopping_lists").delete().eq("id", list_id).execute()
     return {"status": "deleted"}
+
+
+# =============================================================================
+# Profile Recalculate
+# =============================================================================
+
+
+@app.post("/api/profile/recalculate")
+async def recalculate_profile(
+    body: RecalculateRequest,
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> dict[str, Any]:
+    """Recalculate BMR/TDEE/macros from biometric data and persist to user_profiles."""
+    if not auth_user:
+        raise HTTPException(status_code=401, detail="Authentification requise")
+
+    user_id = auth_user["id"]
+
+    # Validate gender
+    if body.gender not in ("male", "female"):
+        raise HTTPException(
+            status_code=422, detail="gender doit être 'male' ou 'female'"
+        )
+
+    # Calculate
+    bmr = mifflin_st_jeor_bmr(body.age, body.gender, body.weight_kg, body.height_cm)
+    tdee = calculate_tdee(bmr, body.activity_level)
+
+    goals = infer_goals_from_context(None, None, body.goals)
+    primary_goal = max(goals, key=lambda k: goals[k]) if goals else "muscle_gain"
+
+    # Target calories based on goal
+    calorie_adjustments = {
+        "weight_loss": -500,
+        "muscle_gain": 300,
+        "maintenance": 0,
+        "performance": 200,
+    }
+    target_calories = tdee + calorie_adjustments.get(primary_goal, 0)
+
+    protein_g, _, _ = calculate_protein_target(body.weight_kg, primary_goal)
+    macros = calculate_macros(target_calories, protein_g, primary_goal)
+
+    result = {
+        "bmr": bmr,
+        "tdee": tdee,
+        "target_calories": target_calories,
+        "target_protein_g": protein_g,
+        "target_carbs_g": macros["carbs_g"],
+        "target_fat_g": macros["fat_g"],
+        "primary_goal": primary_goal,
+    }
+
+    # Persist to user_profiles
+    supabase.table("user_profiles").update(
+        {
+            "bmr": bmr,
+            "tdee": tdee,
+            "target_calories": target_calories,
+            "target_protein_g": protein_g,
+            "target_carbs_g": macros["carbs_g"],
+            "target_fat_g": macros["fat_g"],
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+    ).eq("id", user_id).execute()
+
+    return result
 
 
 async def _stream_agent_response(

@@ -383,6 +383,32 @@ export const deleteShoppingList = (listId: string): Promise<{ status: string }> 
   apiFetch(`/api/shopping-lists/${listId}`, { method: 'DELETE' });
 
 // =============================================================================
+// Profile Recalculate
+// =============================================================================
+
+export interface RecalculateRequest {
+  age: number;
+  gender: string;
+  weight_kg: number;
+  height_cm: number;
+  activity_level: string;
+  goals?: Record<string, number>;
+}
+
+export interface RecalculateResponse {
+  bmr: number;
+  tdee: number;
+  target_calories: number;
+  target_protein_g: number;
+  target_carbs_g: number;
+  target_fat_g: number;
+  primary_goal: string;
+}
+
+export const recalculateProfile = (data: RecalculateRequest): Promise<RecalculateResponse> =>
+  apiFetch('/api/profile/recalculate', { method: 'POST', body: JSON.stringify(data) });
+
+// =============================================================================
 // Conversations
 // =============================================================================
 

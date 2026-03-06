@@ -69,9 +69,10 @@
 - **Meal plan visual page**: `/plans/:id` route fetches from `GET /api/meal-plans/{plan_id}` and renders with DayPlanCard/MacroGauges
 - **Do not use lovable-tagger** — it was removed from the project
 
-**Skills:** `nutrition-calculating` | `meal-planning` | `weekly-coaching` | `knowledge-searching` | `body-analyzing` | `skill-creator`
+**Skills:** `nutrition-calculating` | `meal-planning` | `weekly-coaching` | `knowledge-searching` | `body-analyzing`
 
 **Run commands:** See `.claude/reference/dev-commands.md`
+                      `.claude/reference/frontend-workflow.md`
 
 ---
 
