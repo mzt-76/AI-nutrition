@@ -24,6 +24,7 @@ from src.nutrition.meal_plan_optimizer import (
     calculate_meal_plan_macros,
     optimize_meal_plan_portions,
 )
+from src.nutrition.meal_type_utils import normalize_meal_type
 from src.nutrition.validators import validate_allergens, validate_daily_macros
 
 logger = logging.getLogger(__name__)
@@ -40,34 +41,6 @@ LLM_FALLBACK_WARN_THRESHOLD = 0.5
 
 # Project root for sibling script imports
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-
-# Meal type normalization map (same as select_recipes.py)
-_MEAL_TYPE_MAP = {
-    "petit-déjeuner": "petit-dejeuner",
-    "petit-dejeuner": "petit-dejeuner",
-    "déjeuner": "dejeuner",
-    "dejeuner": "dejeuner",
-    "dîner": "diner",
-    "diner": "diner",
-    "collation": "collation",
-}
-
-
-def _normalize_meal_type_inline(meal_type_display: str) -> str:
-    """Map display meal type to DB meal_type key (without importing sibling script)."""
-    meal_lower = meal_type_display.lower()
-    for key, value in _MEAL_TYPE_MAP.items():
-        if key in meal_lower:
-            return value
-    if "petit" in meal_lower or "breakfast" in meal_lower:
-        return "petit-dejeuner"
-    if "djeuner" in meal_lower or "lunch" in meal_lower:
-        return "dejeuner"
-    if "dner" in meal_lower or "dinner" in meal_lower or "soir" in meal_lower:
-        return "diner"
-    if "collation" in meal_lower or "snack" in meal_lower:
-        return "collation"
-    return "dejeuner"
 
 
 def _import_sibling_script(script_name: str):
@@ -233,7 +206,7 @@ async def _get_recipe_for_slot(
     # NOTE: calorie_range filter intentionally omitted — scale_recipe_to_targets adjusts
     # portions to match any calorie target. Filtering by range would exclude valid recipes
     # (e.g. a 400 kcal breakfast when target is 988 kcal) causing unnecessary LLM fallback.
-    db_meal_type = _normalize_meal_type_inline(meal_type_display)
+    db_meal_type = normalize_meal_type(meal_type_display)
 
     candidates = await search_recipes(
         supabase=supabase,
@@ -315,7 +288,7 @@ async def _select_and_scale_meals(
         custom_request = _find_custom_request(custom_requests, meal_slot)
 
         # Resolve batch recipe ID for this slot's meal type
-        db_meal_type = _normalize_meal_type_inline(meal_type_display)
+        db_meal_type = normalize_meal_type(meal_type_display)
         batch_id = (batch_recipe_ids or {}).get(db_meal_type)
 
         recipe, is_llm = await _get_recipe_for_slot(

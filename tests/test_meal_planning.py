@@ -2,8 +2,6 @@
 Tests for nutrition meal_planning module.
 
 Tests daily totals calculation, response formatting, and meal structures.
-Note: build_meal_plan_prompt() was removed in the weekplan redesign (replaced by
-day-by-day recipe DB approach). build_meal_plan_prompt_simple() is kept for LLM fallback.
 """
 
 import json

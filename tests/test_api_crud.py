@@ -4,7 +4,7 @@ Uses FastAPI TestClient with mocked Supabase. No real database calls.
 Follows the same pattern as test_api.py (mock supabase, override verify_token).
 """
 
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -220,7 +220,7 @@ class TestDailyLogUpdate:
     def test_updates_own_entry(self, auth_client):
         import src.api as api_module
 
-        updated = {"id": "e1", "food_name": "poulet grille", "calories": 300}
+        updated = {"id": "e1", "calories": 300}
 
         api_module.supabase = MagicMock()
         # Ownership check chain: table().select().eq().single().execute()
@@ -244,10 +244,58 @@ class TestDailyLogUpdate:
 
         api_module.supabase.table.return_value = table_mock
 
+        # Send only calories (no food_name) to avoid triggering match_ingredient
         resp = auth_client.put(
             "/api/daily-log/e1",
-            json={"food_name": "poulet grille", "calories": 300},
+            json={"calories": 300},
         )
+        assert resp.status_code == 200
+
+    def test_updates_food_name_recalculates_macros(self, auth_client):
+        """When food_name changes, match_ingredient recalculates macros."""
+        import src.api as api_module
+
+        updated = {"id": "e1", "food_name": "poulet grille", "calories": 165}
+
+        api_module.supabase = MagicMock()
+        ownership_resp = MagicMock()
+        ownership_resp.data = {"user_id": USER_ID}
+        qty_resp = MagicMock()
+        qty_resp.data = {"quantity": 100, "unit": "g"}
+        update_resp = MagicMock()
+        update_resp.data = [updated]
+
+        call_count = {"n": 0}
+
+        def select_side_effect(*args, **kwargs):
+            call_count["n"] += 1
+            chain = MagicMock()
+            resp = ownership_resp if call_count["n"] == 1 else qty_resp
+            chain.eq.return_value.single.return_value.execute.return_value = resp
+            return chain
+
+        table_mock = MagicMock()
+        table_mock.select.side_effect = select_side_effect
+        table_mock.update.return_value.eq.return_value.execute.return_value = (
+            update_resp
+        )
+        api_module.supabase.table.return_value = table_mock
+
+        with patch(
+            "src.api.match_ingredient",
+            new_callable=AsyncMock,
+            return_value={
+                "calories": 165,
+                "protein_g": 31,
+                "carbs_g": 0,
+                "fat_g": 3.6,
+                "confidence": 0.95,
+            },
+        ):
+            resp = auth_client.put(
+                "/api/daily-log/e1",
+                json={"food_name": "poulet grille"},
+            )
         assert resp.status_code == 200
 
     def test_empty_update_returns_400(self, auth_client):

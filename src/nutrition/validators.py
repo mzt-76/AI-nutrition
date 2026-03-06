@@ -50,6 +50,10 @@ ALLERGEN_FAMILIES = {
         "yoghurt",
         "crémeux",
         "cremeaux",
+        "pâte feuilletée",
+        "pâte brisée",
+        "béchamel",
+        "gratin",
     ],
     "gluten": [
         "blé",
@@ -62,6 +66,12 @@ ALLERGEN_FAMILIES = {
         "flour",
         "seigle",
         "orge",
+        "pâte feuilletée",
+        "pâte brisée",
+        "pâte sablée",
+        "croûte",
+        "panure",
+        "chapelure",
     ],
     "oeuf": ["oeuf", "oeufs", "egg", "eggs", "mayonnaise"],
     "soja": ["soja", "soy", "tofu", "edamame", "tempeh", "miso"],
@@ -99,6 +109,43 @@ ALLERGEN_FALSE_POSITIVES = {
     "lait d'avoine": "lactose",  # Oat milk is plant-based (no lactose)
     "lait de coco": "lactose",  # Coconut milk is plant-based (no lactose)
 }
+
+
+def matches_allergen(ingredient_name: str, user_allergens: list[str]) -> list[str]:
+    """Check if an ingredient name matches any user allergen.
+
+    Uses ALLERGEN_FAMILIES for family-based detection and ALLERGEN_FALSE_POSITIVES
+    to avoid false matches (e.g. "coconut" is not a tree nut).
+
+    Args:
+        ingredient_name: Ingredient name to check
+        user_allergens: List of allergen names (e.g. ["arachides", "lactose"])
+
+    Returns:
+        List of matched allergen names (empty if safe)
+    """
+    if not user_allergens or not ingredient_name:
+        return []
+
+    name_lower = ingredient_name.lower().strip()
+    normalized_allergens = [a.lower().strip() for a in user_allergens]
+
+    # Check false positives first
+    for fp_keyword, fp_allergen in ALLERGEN_FALSE_POSITIVES.items():
+        if fp_keyword in name_lower and fp_allergen in normalized_allergens:
+            return []
+
+    matched: list[str] = []
+    for allergen in normalized_allergens:
+        keywords = [allergen]
+        if allergen in ALLERGEN_FAMILIES:
+            keywords.extend(ALLERGEN_FAMILIES[allergen])
+        for keyword in keywords:
+            if keyword.lower() in name_lower:
+                matched.append(allergen)
+                break
+
+    return matched
 
 
 def validate_allergens(meal_plan: dict, user_allergens: list[str]) -> list[str]:
@@ -616,7 +663,7 @@ def validate_meal_plan_completeness(meal_plan: dict, meal_structure: str) -> dic
         >>> result["valid"]
         True
     """
-    from nutrition.meal_planning import MEAL_STRUCTURES
+    from src.nutrition.meal_distribution import MEAL_STRUCTURES
 
     errors = []
 

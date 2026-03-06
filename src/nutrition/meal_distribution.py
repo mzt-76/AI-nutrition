@@ -34,7 +34,7 @@ class MealDistributionResult(TypedDict):
     daily_totals: dict[str, int]
 
 
-# Meal structure definitions (must match meal_planning.py)
+# Meal structure definitions — single source of truth
 MEAL_STRUCTURES = {
     "3_meals_2_snacks": {
         "description": "3 main meals + 2 snacks",

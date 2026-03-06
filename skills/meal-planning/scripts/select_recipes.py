@@ -9,41 +9,10 @@ Source: New script for day-by-day meal planning workflow
 import json
 import logging
 
+from src.nutrition.meal_type_utils import normalize_meal_type
 from src.nutrition.recipe_db import search_recipes, score_recipe_variety
 
 logger = logging.getLogger(__name__)
-
-# Meal type mapping from display names to DB keys
-MEAL_TYPE_MAP = {
-    "Petit-déjeuner": "petit-dejeuner",
-    "Déjeuner": "dejeuner",
-    "Dîner": "diner",
-    "Collation AM": "collation",
-    "Collation PM": "collation",
-    "Collation": "collation",
-    "Repas 1": "dejeuner",
-    "Repas 2": "dejeuner",
-    "Repas 3": "diner",
-    "Repas 4": "diner",
-}
-
-
-def _normalize_meal_type(meal_type_display: str) -> str:
-    """Map display meal type to DB meal_type key."""
-    for key, value in MEAL_TYPE_MAP.items():
-        if key.lower() in meal_type_display.lower():
-            return value
-    # Default fallback based on common keywords
-    meal_lower = meal_type_display.lower()
-    if "dejeuner" in meal_lower or "déjeuner" in meal_lower:
-        return "dejeuner"
-    if "diner" in meal_lower or "dîner" in meal_lower:
-        return "diner"
-    if "petit" in meal_lower or "breakfast" in meal_lower:
-        return "petit-dejeuner"
-    if "collation" in meal_lower or "snack" in meal_lower:
-        return "collation"
-    return "dejeuner"  # Safe fallback
 
 
 async def execute(**kwargs) -> str:
@@ -91,7 +60,7 @@ async def execute(**kwargs) -> str:
 
         for meal_slot in meal_targets:
             meal_type_display = meal_slot.get("meal_type", "Déjeuner")
-            db_meal_type = _normalize_meal_type(meal_type_display)
+            db_meal_type = normalize_meal_type(meal_type_display)
 
             target_calories = meal_slot.get("target_calories", 600)
 

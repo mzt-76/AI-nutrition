@@ -16,10 +16,8 @@ import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from src.nutrition.meal_planning import (
-    MEAL_STRUCTURES,
-    format_meal_plan_response,
-)
+from src.nutrition.meal_distribution import MEAL_STRUCTURES
+from src.nutrition.meal_planning import format_meal_plan_response
 from src.nutrition.meal_distribution import calculate_meal_macros_distribution
 from src.nutrition.meal_plan_formatter import format_meal_plan_as_markdown
 from src.tools import fetch_my_profile_tool

@@ -166,8 +166,8 @@ class TestRealSkillsDiscovery:
         loader = SkillLoader(skills_dir)
         discovered = loader.discover_skills()
 
-        # Should find at least our 5 new skills + skill-creator
-        assert len(discovered) >= 6
+        # Should find at least our 5 skills (skill-creator moved to .claude/skills)
+        assert len(discovered) >= 5
 
         expected_skills = {
             "nutrition-calculating",
@@ -175,7 +175,6 @@ class TestRealSkillsDiscovery:
             "weekly-coaching",
             "knowledge-searching",
             "body-analyzing",
-            "skill-creator",
         }
         actual_skills = {s.name for s in discovered}
         assert expected_skills.issubset(

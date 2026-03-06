@@ -12,8 +12,8 @@ import logging
 from src.nutrition.meal_plan_optimizer import (
     MIN_SCALE_FACTOR,
     MAX_SCALE_FACTOR,
-    round_quantity_smart,
 )
+from src.nutrition.quantity_rounding import round_quantity_smart
 
 logger = logging.getLogger(__name__)
 

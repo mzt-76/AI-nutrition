@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from supabase import Client
 
 from src.nutrition.openfoodfacts_client import normalize_ingredient_name
+from src.nutrition.validators import matches_allergen
 
 logger = logging.getLogger(__name__)
 
@@ -102,14 +103,29 @@ async def search_recipes(
         results = response.data or []
 
         # Python-side filtering: allergens (zero tolerance)
+        # Checks both allergen_tags metadata AND ingredient names via allergen families
         if exclude_allergens:
             normalized_allergens = set(a.lower().strip() for a in exclude_allergens)
-            results = [
-                r
-                for r in results
-                if not set(tag.lower() for tag in r.get("allergen_tags", []))
-                & normalized_allergens
-            ]
+            filtered_allergen = []
+            for r in results:
+                # Tag-based check
+                if (
+                    set(tag.lower() for tag in r.get("allergen_tags", []))
+                    & normalized_allergens
+                ):
+                    continue
+                # Ingredient-name-based check (catches compound foods like "pâte feuilletée")
+                ingredient_names = [
+                    ing.get("name", "") for ing in r.get("ingredients", [])
+                ]
+                has_allergen = any(
+                    matches_allergen(name, exclude_allergens)
+                    for name in ingredient_names
+                )
+                if has_allergen:
+                    continue
+                filtered_allergen.append(r)
+            results = filtered_allergen
 
         # Python-side filtering: disliked foods (check name + ingredient names)
         if exclude_ingredients:
@@ -232,7 +248,7 @@ async def save_recipe(supabase: Client, recipe: dict) -> dict:
 
 
 async def increment_usage(supabase: Client, recipe_id: str) -> None:
-    """Increment usage_count for a recipe.
+    """Increment usage_count for a recipe via Postgres RPC (single round-trip).
 
     Args:
         supabase: Supabase client
@@ -242,20 +258,8 @@ async def increment_usage(supabase: Client, recipe_id: str) -> None:
         >>> await increment_usage(supabase, "some-uuid")
     """
     try:
-        # Fetch current count first (Supabase SDK doesn't support raw SQL increment)
-        current = await get_recipe_by_id(supabase, recipe_id)
-        if current is None:
-            logger.warning(f"Recipe {recipe_id} not found for usage increment")
-            return
-
-        new_count = current.get("usage_count", 0) + 1
-        supabase.table("recipes").update(
-            {
-                "usage_count": new_count,
-                "last_used_date": datetime.now(timezone.utc).isoformat(),
-            }
-        ).eq("id", recipe_id).execute()
-        logger.debug(f"Recipe {recipe_id} usage_count → {new_count}")
+        supabase.rpc("increment_recipe_usage", {"p_recipe_id": recipe_id}).execute()
+        logger.debug(f"Recipe {recipe_id} usage incremented via RPC")
     except Exception as e:
         logger.error(f"Error incrementing usage for {recipe_id}: {e}", exc_info=True)
 
