@@ -31,7 +31,7 @@ if python_version < "3.11":
 # 2. Check dependencies
 print("\n2. Core Dependencies:")
 try:
-    import pydantic_ai
+    import pydantic_ai  # noqa: F401
 
     print("   ✅ pydantic-ai installed")
 except ImportError as e:
@@ -45,21 +45,21 @@ except ImportError as e:
     print(f"   ❌ supabase missing: {e}")
 
 try:
-    import openai
+    import openai  # noqa: F401
 
     print("   ✅ openai installed")
 except ImportError as e:
     print(f"   ❌ openai missing: {e}")
 
 try:
-    import streamlit
+    import streamlit  # noqa: F401
 
     print("   ✅ streamlit installed")
 except ImportError as e:
     print(f"   ❌ streamlit missing: {e}")
 
 try:
-    import mem0
+    import mem0  # noqa: F401
 
     print("   ✅ mem0 installed")
 except ImportError as e:

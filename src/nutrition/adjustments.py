@@ -491,19 +491,6 @@ def generate_calorie_adjustment(
             "aggressive_adjustment": 100,
         }
     """
-    # Get target change based on goal
-    goal_info = {
-        "weight_loss": -0.5,
-        "muscle_gain": 0.3,
-        "maintenance": 0.0,
-        "performance": 0.0,
-    }
-    target_change = goal_info.get(goal, 0.0)
-
-    # Calculate deviation from target
-    deviation = weight_change_kg - target_change
-    deviation_percent = (deviation / target_change * 100) if target_change != 0 else 0
-
     # Rule-based adjustment
     adjustment_kcal = 0
     reasoning = []

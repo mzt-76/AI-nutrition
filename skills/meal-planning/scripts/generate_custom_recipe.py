@@ -216,6 +216,24 @@ async def execute(**kwargs) -> str:
                 logger.info(f"Custom recipe saved to DB: {recipe_to_save['name']}")
             except Exception as save_err:
                 logger.warning(f"Could not save recipe to DB: {save_err}")
+                # Duplicate recipe — fetch existing ID so caller can use it
+                try:
+                    from src.nutrition.recipe_db import normalize_ingredient_name
+
+                    name_norm = normalize_ingredient_name(recipe_to_save["name"])
+                    existing = (
+                        supabase.table("recipes")
+                        .select("id")
+                        .eq("name_normalized", name_norm)
+                        .eq("meal_type", recipe_to_save.get("meal_type", meal_type))
+                        .limit(1)
+                        .execute()
+                    )
+                    if existing.data:
+                        recipe_to_save["id"] = existing.data[0]["id"]
+                        logger.info(f"Found existing recipe ID: {recipe_to_save['id']}")
+                except Exception as fetch_err:
+                    logger.warning(f"Could not fetch existing recipe ID: {fetch_err}")
 
         logger.info(
             f"Custom recipe generated: '{recipe_to_save['name']}', "
@@ -225,8 +243,7 @@ async def execute(**kwargs) -> str:
 
         # Build MealCard marker for generative UI
         ingredient_labels = [
-            f"{ing['name']} {ing['quantity']}{ing['unit']}"
-            for ing in ingredients
+            f"{ing['name']} {ing['quantity']}{ing['unit']}" for ing in ingredients
         ]
         mealcard_payload = json.dumps(
             {

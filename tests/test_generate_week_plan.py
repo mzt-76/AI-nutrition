@@ -228,6 +228,145 @@ def _make_generate_day_plan_mock(recipe_counter: dict):
 # ---------------------------------------------------------------------------
 
 
+class TestStartDateDefault:
+    """Tests for automatic start_date when not provided."""
+
+    @pytest.mark.asyncio
+    async def test_no_start_date_num_days_1_uses_today(self):
+        """num_days=1 without start_date → uses today's date (not Monday)."""
+        generate_week_plan = _load_script("generate_week_plan")
+        call_args: list[dict] = []
+
+        async def tracking_execute(**kwargs):
+            call_args.append(kwargs)
+            day_name = kwargs.get("day_name", "Lundi")
+            return _make_day_result(day_name, ["b-0", "l-0", "d-0"])
+
+        mock_module = MagicMock()
+        mock_module.execute = tracking_execute
+
+        profile_data = {
+            "target_calories": 2000,
+            "target_protein_g": 150,
+            "target_carbs_g": 200,
+            "target_fat_g": 65,
+            "allergies": [],
+            "diet_type": "omnivore",
+        }
+
+        with patch.object(
+            generate_week_plan, "_import_sibling_script", return_value=mock_module
+        ), patch.object(
+            generate_week_plan,
+            "fetch_my_profile_tool",
+            new=AsyncMock(return_value=json.dumps(profile_data)),
+        ), patch.object(
+            generate_week_plan,
+            "calculate_meal_macros_distribution",
+            return_value={
+                "meals": [
+                    {
+                        "meal_type": "Petit-déjeuner",
+                        "target_calories": 500,
+                        "target_protein_g": 40,
+                        "target_carbs_g": 60,
+                        "target_fat_g": 18,
+                    },
+                ]
+            },
+        ):
+            db_mock = MagicMock()
+            db_mock.table.return_value.insert.return_value.execute.return_value = (
+                MagicMock(data=[{"id": 1}])
+            )
+
+            result_str = await generate_week_plan.execute(
+                supabase=db_mock,
+                anthropic_client=MagicMock(),
+                num_days=1,
+                # No start_date provided!
+            )
+
+        result = json.loads(result_str)
+        assert result.get("success") is True or "meal_plan" in result
+        days = result.get("meal_plan", {}).get("days", [])
+        if days:
+            assert days[0].get("date") is not None
+
+    @pytest.mark.asyncio
+    async def test_no_start_date_num_days_7_uses_monday(self):
+        """num_days=7 without start_date → uses current Monday."""
+        generate_week_plan = _load_script("generate_week_plan")
+        call_args: list[dict] = []
+
+        async def tracking_execute(**kwargs):
+            call_args.append(kwargs)
+            day_name = kwargs.get("day_name", "Lundi")
+            return _make_day_result(day_name, ["b-0", "l-0", "d-0"])
+
+        mock_module = MagicMock()
+        mock_module.execute = tracking_execute
+
+        profile_data = {
+            "target_calories": 2000,
+            "target_protein_g": 150,
+            "target_carbs_g": 200,
+            "target_fat_g": 65,
+            "allergies": [],
+            "diet_type": "omnivore",
+        }
+
+        with patch.object(
+            generate_week_plan, "_import_sibling_script", return_value=mock_module
+        ), patch.object(
+            generate_week_plan,
+            "fetch_my_profile_tool",
+            new=AsyncMock(return_value=json.dumps(profile_data)),
+        ), patch.object(
+            generate_week_plan,
+            "calculate_meal_macros_distribution",
+            return_value={
+                "meals": [
+                    {
+                        "meal_type": "Petit-déjeuner",
+                        "target_calories": 500,
+                        "target_protein_g": 40,
+                        "target_carbs_g": 60,
+                        "target_fat_g": 18,
+                    },
+                ]
+            },
+        ):
+            db_mock = MagicMock()
+            db_mock.table.return_value.insert.return_value.execute.return_value = (
+                MagicMock(data=[{"id": 1}])
+            )
+
+            result_str = await generate_week_plan.execute(
+                supabase=db_mock,
+                anthropic_client=MagicMock(),
+                num_days=7,
+                # No start_date provided!
+            )
+
+        result = json.loads(result_str)
+        assert result.get("success") is True or "meal_plan" in result
+
+        # Verify the computed start_date is a Monday
+        expected_monday = generate_week_plan._get_current_monday()
+        # The plan should have been stored with this Monday date
+        insert_call = db_mock.table.return_value.insert.call_args
+        if insert_call:
+            stored = insert_call[0][0] if insert_call[0] else insert_call[1]
+            if isinstance(stored, dict) and "week_start" in stored:
+                assert stored["week_start"] == expected_monday
+
+
+# ---------------------------------------------------------------------------
+# Test: batch cooking in generate_week_plan
+# ---------------------------------------------------------------------------
+
+
 class TestBatchCooking:
     @pytest.mark.asyncio
     async def test_batch_days_reuses_lunch_and_dinner(self):

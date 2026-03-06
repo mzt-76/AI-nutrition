@@ -155,14 +155,19 @@ async def execute(**kwargs) -> str:
     supabase = kwargs["supabase"]
     anthropic_client = kwargs["anthropic_client"]
     user_id = kwargs.get("user_id")
-    start_date = kwargs.get("start_date") or _get_current_monday()
+    num_days = int(kwargs.get("num_days", 1))
+    start_date = kwargs.get("start_date")
+    if not start_date:
+        if num_days >= 7:
+            start_date = _get_current_monday()
+        else:
+            start_date = datetime.now().strftime("%Y-%m-%d")
     target_calories_daily = kwargs.get("target_calories_daily")
     target_protein_g = kwargs.get("target_protein_g")
     target_carbs_g = kwargs.get("target_carbs_g")
     target_fat_g = kwargs.get("target_fat_g")
     meal_structure = kwargs.get("meal_structure")  # None = auto-detect
     notes = kwargs.get("notes")
-    num_days = int(kwargs.get("num_days", 1))
     batch_days = int(kwargs.get("batch_days") or 0) or None
     vary_breakfast = bool(kwargs.get("vary_breakfast", False))
     meal_preferences: dict[str, str] = kwargs.get("meal_preferences") or {}

@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from src.skill_loader import SkillLoader, SkillMetadata
+from src.skill_loader import SkillLoader
 
 
 @pytest.fixture

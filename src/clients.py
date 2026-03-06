@@ -116,13 +116,11 @@ def get_memory_client() -> Memory:
         ValueError: If required environment variables not set
     """
     # Get configuration
-    llm_provider = os.getenv("LLM_PROVIDER", "openai")
     llm_api_key = os.getenv("LLM_API_KEY")
     # mem0 always uses OpenAI provider, so use a dedicated model env var
     # (LLM_CHOICE may be an Anthropic model which doesn't work with OpenAI API)
     llm_model = os.getenv("MEM0_LLM_CHOICE", "gpt-4o-mini")
 
-    embedding_provider = os.getenv("EMBEDDING_PROVIDER", "openai")
     embedding_api_key = os.getenv("EMBEDDING_API_KEY")
     embedding_model = os.getenv("EMBEDDING_MODEL_CHOICE", "text-embedding-3-small")
 

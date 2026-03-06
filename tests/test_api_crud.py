@@ -10,6 +10,9 @@ import pytest
 
 USER_ID = "user-abc-123"
 OTHER_USER_ID = "user-other-456"
+ENTRY_UUID = "00000000-0000-0000-0000-000000000001"
+FAV_UUID = "00000000-0000-0000-0000-000000000002"
+SL_UUID = "00000000-0000-0000-0000-000000000003"
 
 
 def _setup_supabase(data=None):
@@ -193,24 +196,24 @@ class TestDailyLogDelete:
     def test_deletes_own_entry(self, auth_client):
         _setup_supabase(data={"user_id": USER_ID})
 
-        resp = auth_client.delete("/api/daily-log/entry-1")
+        resp = auth_client.delete(f"/api/daily-log/{ENTRY_UUID}")
         assert resp.status_code == 200
         assert resp.json()["status"] == "deleted"
 
     def test_wrong_user_returns_403(self, auth_client):
         _setup_supabase(data={"user_id": OTHER_USER_ID})
 
-        resp = auth_client.delete("/api/daily-log/entry-1")
+        resp = auth_client.delete(f"/api/daily-log/{ENTRY_UUID}")
         assert resp.status_code == 403
 
     def test_not_found_returns_404(self, auth_client):
         _setup_supabase(data=None)
 
-        resp = auth_client.delete("/api/daily-log/nonexistent")
+        resp = auth_client.delete("/api/daily-log/99999999-9999-9999-9999-999999999999")
         assert resp.status_code == 404
 
     def test_no_auth_returns_401(self, noauth_client):
-        resp = noauth_client.delete("/api/daily-log/entry-1")
+        resp = noauth_client.delete(f"/api/daily-log/{ENTRY_UUID}")
         assert resp.status_code == 401
 
 
@@ -246,7 +249,7 @@ class TestDailyLogUpdate:
 
         # Send only calories (no food_name) to avoid triggering match_ingredient
         resp = auth_client.put(
-            "/api/daily-log/e1",
+            f"/api/daily-log/{ENTRY_UUID}",
             json={"calories": 300},
         )
         assert resp.status_code == 200
@@ -293,7 +296,7 @@ class TestDailyLogUpdate:
             },
         ):
             resp = auth_client.put(
-                "/api/daily-log/e1",
+                f"/api/daily-log/{ENTRY_UUID}",
                 json={"food_name": "poulet grille"},
             )
         assert resp.status_code == 200
@@ -302,11 +305,11 @@ class TestDailyLogUpdate:
         # Ownership check passes, but no fields to update
         _setup_supabase(data={"user_id": USER_ID})
 
-        resp = auth_client.put("/api/daily-log/e1", json={})
+        resp = auth_client.put(f"/api/daily-log/{ENTRY_UUID}", json={})
         assert resp.status_code == 400
 
     def test_no_auth_returns_401(self, noauth_client):
-        resp = noauth_client.put("/api/daily-log/e1", json={"calories": 100})
+        resp = noauth_client.put(f"/api/daily-log/{ENTRY_UUID}", json={"calories": 100})
         assert resp.status_code == 401
 
 
@@ -432,20 +435,20 @@ class TestFavoritesDelete:
     def test_removes_own_favorite(self, auth_client):
         _setup_supabase(data={"user_id": USER_ID})
 
-        resp = auth_client.delete("/api/favorites/f1")
+        resp = auth_client.delete(f"/api/favorites/{FAV_UUID}")
         assert resp.status_code == 200
         assert resp.json()["status"] == "deleted"
 
     def test_wrong_user_returns_403(self, auth_client):
         _setup_supabase(data={"user_id": OTHER_USER_ID})
 
-        resp = auth_client.delete("/api/favorites/f1")
+        resp = auth_client.delete(f"/api/favorites/{FAV_UUID}")
         assert resp.status_code == 403
 
     def test_not_found_returns_404(self, auth_client):
         _setup_supabase(data=None)
 
-        resp = auth_client.delete("/api/favorites/nonexistent")
+        resp = auth_client.delete("/api/favorites/99999999-9999-9999-9999-999999999999")
         assert resp.status_code == 404
 
 
@@ -477,20 +480,22 @@ class TestShoppingListGet:
         sl = {"id": "sl1", "user_id": USER_ID, "title": "Courses", "items": []}
         _setup_supabase(data=sl)
 
-        resp = auth_client.get("/api/shopping-lists/sl1")
+        resp = auth_client.get(f"/api/shopping-lists/{SL_UUID}")
         assert resp.status_code == 200
         assert resp.json()["title"] == "Courses"
 
     def test_wrong_user_returns_403(self, auth_client):
         _setup_supabase(data={"id": "sl1", "user_id": OTHER_USER_ID})
 
-        resp = auth_client.get("/api/shopping-lists/sl1")
+        resp = auth_client.get(f"/api/shopping-lists/{SL_UUID}")
         assert resp.status_code == 403
 
     def test_not_found_returns_404(self, auth_client):
         _setup_supabase(data=None)
 
-        resp = auth_client.get("/api/shopping-lists/nonexistent")
+        resp = auth_client.get(
+            "/api/shopping-lists/99999999-9999-9999-9999-999999999999"
+        )
         assert resp.status_code == 404
 
 
@@ -523,7 +528,7 @@ class TestShoppingListUpdate:
         api_module.supabase.table.return_value = table_mock
 
         resp = auth_client.put(
-            "/api/shopping-lists/sl1",
+            f"/api/shopping-lists/{SL_UUID}",
             json={
                 "items": [
                     {
@@ -541,11 +546,13 @@ class TestShoppingListUpdate:
     def test_empty_update_returns_400(self, auth_client):
         _setup_supabase(data={"user_id": USER_ID})
 
-        resp = auth_client.put("/api/shopping-lists/sl1", json={})
+        resp = auth_client.put(f"/api/shopping-lists/{SL_UUID}", json={})
         assert resp.status_code == 400
 
     def test_no_auth_returns_401(self, noauth_client):
-        resp = noauth_client.put("/api/shopping-lists/sl1", json={"title": "Updated"})
+        resp = noauth_client.put(
+            f"/api/shopping-lists/{SL_UUID}", json={"title": "Updated"}
+        )
         assert resp.status_code == 401
 
 

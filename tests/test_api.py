@@ -21,8 +21,11 @@ def client():
     api_module.title_agent = MagicMock()
     api_module.mem0_client = None  # Disable mem0 for tests
 
-    # Override JWT verification to bypass auth in tests
-    api_module.app.dependency_overrides[api_module.verify_token] = lambda: None
+    # Override JWT verification to return a fake authenticated user
+    api_module.app.dependency_overrides[api_module.verify_token] = lambda: {
+        "id": "user1",
+        "email": "test@example.com",
+    }
 
     with TestClient(api_module.app, raise_server_exceptions=False) as c:
         yield c
@@ -150,40 +153,33 @@ class TestAgentEndpoint:
 
         assert response.status_code == 403
 
-        # Restore no-auth override
+        # Restore default auth override
+        api_module.app.dependency_overrides[api_module.verify_token] = lambda: {
+            "id": "user1",
+            "email": "test@example.com",
+        }
+
+    def test_no_token_returns_401(self, client):
+        """Should reject requests without token (auth required)."""
+        import src.api as api_module
+
+        # Override verify_token to return None (no token)
         api_module.app.dependency_overrides[api_module.verify_token] = lambda: None
 
-    def test_no_token_allows_request(self, client):
-        """Should allow requests without token (CLI backward compat)."""
-        with (
-            patch("src.api.check_rate_limit", new_callable=AsyncMock) as mock_rl,
-            patch("src.api.store_message", new_callable=AsyncMock),
-            patch(
-                "src.api.fetch_conversation_history", new_callable=AsyncMock
-            ) as mock_hist,
-            patch("src.api.store_request", new_callable=AsyncMock),
-            patch("src.api.agent") as mock_agent,
-        ):
-            mock_rl.return_value = True
-            mock_hist.return_value = []
+        response = client.post(
+            "/api/agent",
+            json={
+                "query": "Hello",
+                "user_id": "cli_user",
+                "request_id": "req1",
+                "session_id": "cli~session",
+            },
+        )
 
-            mock_run = AsyncMock()
-            mock_run.__aenter__ = AsyncMock(return_value=mock_run)
-            mock_run.__aexit__ = AsyncMock(return_value=False)
-            mock_run.__aiter__ = AsyncMock(return_value=iter([]))
-            mock_run.result = MagicMock()
-            mock_run.result.new_messages_json.return_value = b"[]"
-            mock_agent.iter.return_value = mock_run
+        assert response.status_code == 401
 
-            # verify_token returns None (no token) — this is the default override
-            response = client.post(
-                "/api/agent",
-                json={
-                    "query": "Hello",
-                    "user_id": "cli_user",
-                    "request_id": "req1",
-                    "session_id": "cli~session",
-                },
-            )
-
-            assert response.status_code == 200
+        # Restore default auth override
+        api_module.app.dependency_overrides[api_module.verify_token] = lambda: {
+            "id": "user1",
+            "email": "test@example.com",
+        }

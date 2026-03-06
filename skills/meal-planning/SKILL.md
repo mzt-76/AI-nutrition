@@ -20,6 +20,12 @@ category: planning
 - L'utilisateur veut voir/récupérer un plan existant
 - L'utilisateur demande une recette spécifique
 
+**REGLE : Ne JAMAIS improviser une recette en texte libre.**
+Toute demande de recette DOIT passer par `generate_custom_recipe`.
+Le script sauvegarde la recette en DB et retourne un `recipe_id` dans `recipe.id` —
+conserver ce `recipe_id` pour la liste de courses si demandee ensuite
+(via `run_skill_script("shopping-list", "generate_from_recipes", {"recipe_ids": [recipe_id]})`).
+
 ## Nouveau Workflow (Recipe DB + Day-by-Day)
 
 ### Architecture

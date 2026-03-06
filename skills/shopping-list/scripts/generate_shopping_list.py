@@ -49,17 +49,29 @@ async def execute(**kwargs) -> str:
     """
     supabase = kwargs["supabase"]
     user_id = kwargs.get("user_id", "")
-    week_start = kwargs["week_start"]
+    week_start = kwargs.get("week_start")
     selected_days = kwargs.get("selected_days")
     servings_multiplier = kwargs.get("servings_multiplier", 1.0)
 
     try:
-        logger.info(
-            f"Generating shopping list: week={week_start}, days={selected_days}, "
-            f"multiplier={servings_multiplier}"
-        )
+        # Step 1: Resolve week_start — use most recent plan if not provided
+        if not week_start:
+            query = supabase.table("meal_plans").select("week_start")
+            if user_id:
+                query = query.eq("user_id", user_id)
+            latest = query.order("created_at", desc=True).limit(1).execute()
+            if latest.data:
+                week_start = latest.data[0]["week_start"]
+                logger.info(f"No week_start provided, using most recent plan: {week_start}")
+            else:
+                return json.dumps(
+                    {
+                        "error": "Aucun plan repas trouvé. Génère d'abord un plan avec le skill meal-planning.",
+                        "code": "MEAL_PLAN_NOT_FOUND",
+                    }
+                )
 
-        # Step 1: Validate date format
+        # Step 2: Validate date format
         try:
             datetime.strptime(week_start, "%Y-%m-%d")
         except ValueError:
@@ -70,7 +82,12 @@ async def execute(**kwargs) -> str:
                 }
             )
 
-        # Step 2: Validate servings multiplier
+        logger.info(
+            f"Generating shopping list: week={week_start}, days={selected_days}, "
+            f"multiplier={servings_multiplier}"
+        )
+
+        # Step 3: Validate servings multiplier
         if servings_multiplier <= 0:
             return json.dumps(
                 {
@@ -79,7 +96,7 @@ async def execute(**kwargs) -> str:
                 }
             )
 
-        # Step 3: Validate selected_days if provided
+        # Step 4: Validate selected_days if provided
         if selected_days is not None:
             if not selected_days:
                 return json.dumps(
@@ -96,7 +113,7 @@ async def execute(**kwargs) -> str:
                     }
                 )
 
-        # Step 4: Fetch meal plan from database
+        # Step 5: Fetch meal plan from database
         query = supabase.table("meal_plans").select("*").eq("week_start", week_start)
         if user_id:
             query = query.eq("user_id", user_id)
@@ -126,7 +143,7 @@ async def execute(**kwargs) -> str:
             f"Meal plan retrieved: {len(plan_data.get('days', []))} days available"
         )
 
-        # Step 5: Extract ingredients from selected days
+        # Step 6: Extract ingredients from selected days
         ingredients_list = extract_ingredients_from_meal_plan(plan_data, selected_days)
 
         if not ingredients_list:
@@ -140,11 +157,11 @@ async def execute(**kwargs) -> str:
 
         logger.info(f"Extracted {len(ingredients_list)} total ingredients")
 
-        # Step 6: Aggregate and categorize
+        # Step 7: Aggregate and categorize
         aggregated = aggregate_ingredients(ingredients_list, servings_multiplier)
         categorized = categorize_ingredients(aggregated)
 
-        # Step 7: Persist shopping list to database
+        # Step 8: Persist shopping list to database
         days_included = selected_days if selected_days else list(range(7))
         days_description = ", ".join([_DAY_NAMES[d] for d in sorted(days_included)])
         total_items = sum(len(items) for items in categorized.values())
@@ -175,7 +192,7 @@ async def execute(**kwargs) -> str:
             except Exception as e:
                 logger.error(f"Failed to save shopping list: {e}")
 
-        # Step 8: Build response with metadata
+        # Step 9: Build response with metadata
         response = {
             "success": True,
             "shopping_list": categorized,

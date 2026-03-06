@@ -104,9 +104,16 @@ app = FastAPI(
 
 # CORS — configurable via environment
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")
+_parsed_origins = [o.strip() for o in cors_origins.split(",")]
+if "*" in _parsed_origins:
+    logger.warning(
+        "CORS_ORIGINS contains '*' with allow_credentials=True — "
+        "this is insecure. Set explicit origins for production."
+    )
+    _parsed_origins = ["http://localhost:5173", "http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in cors_origins.split(",")],
+    allow_origins=_parsed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -144,6 +151,27 @@ async def verify_token(
         raise HTTPException(status_code=401, detail="Token invalide ou expiré")
 
     return response.json()
+
+
+async def require_auth(
+    auth_user: dict[str, Any] | None = Depends(verify_token),
+) -> dict[str, Any]:
+    """Dependency that always requires authentication. Use on all data endpoints."""
+    if not auth_user:
+        raise HTTPException(status_code=401, detail="Authentification requise")
+    return auth_user
+
+
+_UUID_RE = re.compile(
+    r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    re.IGNORECASE,
+)
+
+
+def _validate_uuid(value: str) -> None:
+    """Raise 400 if value is not a valid UUID."""
+    if not _UUID_RE.fullmatch(value):
+        raise HTTPException(status_code=400, detail="Format d'identifiant invalide")
 
 
 # =============================================================================
@@ -252,15 +280,10 @@ async def health_check() -> dict[str, str]:
 @app.get("/api/conversations")
 async def list_conversations(
     user_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
-    """List conversations for a user.
-
-    Args:
-        user_id: User ID to list conversations for
-        auth_user: Authenticated user from JWT (injected by Depends)
-    """
-    if auth_user and auth_user.get("id") != user_id:
+    """List conversations for a user."""
+    if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
     response = (
         supabase.table("conversations")
@@ -276,7 +299,7 @@ async def list_conversations(
 @app.post("/api/agent")
 async def agent_endpoint(
     request: AgentRequest,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ):
     """Main streaming agent endpoint.
 
@@ -285,8 +308,7 @@ async def agent_endpoint(
     Final chunk adds: {"session_id": "...", "conversation_title": "...", "complete": true}
     """
     try:
-        # Verify user_id matches the authenticated user
-        if auth_user and auth_user.get("id") != request.user_id:
+        if auth_user["id"] != request.user_id:
             raise HTTPException(
                 status_code=403,
                 detail="user_id does not match authenticated user",
@@ -339,23 +361,34 @@ async def agent_endpoint(
         except Exception as e:
             logger.error(f"Failed to store user message: {e}")
 
-        # Load conversation history
-        try:
-            conversation_history = await fetch_conversation_history(
-                supabase, session_id
+        # Load conversation history + mem0 memories in parallel
+        history_task = asyncio.create_task(
+            fetch_conversation_history(supabase, session_id)
+        )
+        memory_search_task = (
+            asyncio.create_task(
+                asyncio.to_thread(
+                    mem0_client.search,
+                    query=request.query,
+                    user_id=request.user_id,
+                    limit=3,
+                )
             )
+            if mem0_client
+            else None
+        )
+
+        try:
+            conversation_history = await history_task
             pydantic_messages = convert_history_to_pydantic_format(conversation_history)
         except Exception as e:
             logger.error(f"Failed to load conversation history: {e}")
             pydantic_messages = []
 
-        # Load mem0 memories
         memories_str = ""
-        if mem0_client:
+        if memory_search_task:
             try:
-                relevant = mem0_client.search(
-                    query=request.query, user_id=request.user_id, limit=3
-                )
+                relevant = await memory_search_task
                 if relevant and relevant.get("results"):
                     memories_str = "\n".join(
                         f"- {entry['memory']}" for entry in relevant["results"]
@@ -370,11 +403,18 @@ async def agent_endpoint(
         )
 
         if mem0_client:
-            try:
-                memory_messages = [{"role": "user", "content": request.query}]
-                mem0_client.add(memory_messages, user_id=request.user_id)
-            except Exception as e:
-                logger.warning(f"Could not save memory: {e}")
+
+            async def _save_memory() -> None:
+                try:
+                    await asyncio.to_thread(
+                        mem0_client.add,
+                        [{"role": "user", "content": request.query}],
+                        user_id=request.user_id,
+                    )
+                except Exception as e:
+                    logger.warning(f"Could not save memory: {e}")
+
+            asyncio.create_task(_save_memory())
 
         title_task = None
         if conversation_record and title_agent:
@@ -399,7 +439,10 @@ async def agent_endpoint(
     except Exception as e:
         logger.error(f"Error processing request: {e}", exc_info=True)
         return StreamingResponse(
-            _stream_error(f"Error: {e}", request.session_id),
+            _stream_error(
+                "Une erreur interne est survenue. Veuillez réessayer.",
+                request.session_id,
+            ),
             media_type="text/plain",
         )
 
@@ -407,19 +450,10 @@ async def agent_endpoint(
 @app.get("/api/meal-plans/{plan_id}")
 async def get_meal_plan(
     plan_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Fetch a stored meal plan by ID for visual rendering."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-
-    # Validate UUID format to reject junk early
-    if not re.fullmatch(
-        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-        plan_id,
-        re.IGNORECASE,
-    ):
-        raise HTTPException(status_code=400, detail="Format d'identifiant invalide")
+    _validate_uuid(plan_id)
 
     user_id = auth_user["id"]
     result = (
@@ -438,12 +472,10 @@ async def get_meal_plan(
 @app.get("/api/meal-plans")
 async def list_meal_plans(
     user_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
     """List meal plans for a user (metadata only, no plan_data blob)."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-    if auth_user.get("id") != user_id:
+    if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     result = (
@@ -462,18 +494,10 @@ async def list_meal_plans(
 @app.delete("/api/meal-plans/{plan_id}")
 async def delete_meal_plan(
     plan_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, str]:
     """Delete a meal plan by ID (owner only)."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-
-    if not re.fullmatch(
-        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-        plan_id,
-        re.IGNORECASE,
-    ):
-        raise HTTPException(status_code=400, detail="Format d'identifiant invalide")
+    _validate_uuid(plan_id)
 
     user_id = auth_user["id"]
     result = (
@@ -501,12 +525,10 @@ async def delete_meal_plan(
 async def get_daily_log(
     user_id: str,
     date: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
     """Get food log entries for a user on a specific date."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-    if auth_user.get("id") != user_id:
+    if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
@@ -528,12 +550,10 @@ async def get_daily_log(
 @app.post("/api/daily-log")
 async def create_daily_log(
     body: DailyLogCreate,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Create a new food log entry."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-    if auth_user.get("id") != body.user_id:
+    if auth_user["id"] != body.user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     row = body.model_dump(exclude_none=True)
@@ -548,11 +568,10 @@ async def create_daily_log(
 async def update_daily_log(
     entry_id: str,
     body: DailyLogUpdate,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Update a food log entry (partial update)."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
+    _validate_uuid(entry_id)
 
     # Verify ownership
     existing = (
@@ -608,11 +627,10 @@ async def update_daily_log(
 @app.delete("/api/daily-log/{entry_id}")
 async def delete_daily_log(
     entry_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, str]:
     """Delete a food log entry."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
+    _validate_uuid(entry_id)
 
     # Verify ownership
     existing = (
@@ -639,12 +657,10 @@ async def delete_daily_log(
 @app.get("/api/favorites")
 async def list_favorites(
     user_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
     """List favorite recipes for a user, with joined recipe data."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-    if auth_user.get("id") != user_id:
+    if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     result = (
@@ -660,12 +676,10 @@ async def list_favorites(
 @app.post("/api/favorites")
 async def add_favorite(
     body: FavoriteCreate,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Add a recipe to favorites."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-    if auth_user.get("id") != body.user_id:
+    if auth_user["id"] != body.user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     # Return existing if already favorited (unique constraint on user_id + recipe_id)
@@ -691,11 +705,10 @@ async def add_favorite(
 @app.delete("/api/favorites/{favorite_id}")
 async def remove_favorite(
     favorite_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, str]:
     """Remove a recipe from favorites."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
+    _validate_uuid(favorite_id)
 
     existing = (
         supabase.table("favorite_recipes")
@@ -717,12 +730,10 @@ async def remove_favorite(
 async def check_favorite(
     user_id: str,
     recipe_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Check if a recipe is already favorited by a user."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-    if auth_user.get("id") != user_id:
+    if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     result = (
@@ -746,11 +757,9 @@ async def check_favorite(
 @app.post("/api/recipes")
 async def upsert_recipe(
     body: RecipeCreate,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Upsert a recipe by normalized name. Returns existing if found."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
 
     name_norm = normalize_ingredient_name(body.name)
     meal_type_norm = body.meal_type.lower().replace("é", "e").replace("î", "i")
@@ -790,18 +799,10 @@ async def upsert_recipe(
 @app.get("/api/recipes/{recipe_id}")
 async def get_recipe(
     recipe_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Fetch a single recipe by ID."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-
-    if not re.fullmatch(
-        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-        recipe_id,
-        re.IGNORECASE,
-    ):
-        raise HTTPException(status_code=400, detail="Invalid recipe ID format")
+    _validate_uuid(recipe_id)
 
     result = (
         supabase.table("recipes").select("*").eq("id", recipe_id).single().execute()
@@ -819,12 +820,10 @@ async def get_recipe(
 @app.get("/api/shopping-lists")
 async def list_shopping_lists(
     user_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
     """List all shopping lists for a user."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-    if auth_user.get("id") != user_id:
+    if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     result = (
@@ -840,12 +839,10 @@ async def list_shopping_lists(
 @app.post("/api/shopping-lists")
 async def create_shopping_list(
     body: ShoppingListCreate,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Create a new shopping list."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-    if auth_user.get("id") != body.user_id:
+    if auth_user["id"] != body.user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     row: dict[str, Any] = {
@@ -865,11 +862,10 @@ async def create_shopping_list(
 @app.get("/api/shopping-lists/{list_id}")
 async def get_shopping_list(
     list_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Get a single shopping list with items."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
+    _validate_uuid(list_id)
 
     result = (
         supabase.table("shopping_lists")
@@ -890,11 +886,10 @@ async def get_shopping_list(
 async def update_shopping_list(
     list_id: str,
     body: ShoppingListUpdate,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Update a shopping list (e.g., check off items, rename)."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
+    _validate_uuid(list_id)
 
     existing = (
         supabase.table("shopping_lists")
@@ -929,11 +924,10 @@ async def update_shopping_list(
 @app.delete("/api/shopping-lists/{list_id}")
 async def delete_shopping_list(
     list_id: str,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, str]:
     """Delete a shopping list."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
+    _validate_uuid(list_id)
 
     existing = (
         supabase.table("shopping_lists")
@@ -959,12 +953,9 @@ async def delete_shopping_list(
 @app.post("/api/profile/recalculate")
 async def recalculate_profile(
     body: RecalculateRequest,
-    auth_user: dict[str, Any] | None = Depends(verify_token),
+    auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Recalculate BMR/TDEE/macros from biometric data and persist to user_profiles."""
-    if not auth_user:
-        raise HTTPException(status_code=401, detail="Authentification requise")
-
     user_id = auth_user["id"]
 
     # Validate gender

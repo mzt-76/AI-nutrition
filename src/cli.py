@@ -229,7 +229,7 @@ async def _stream_agent(
                                     console.print(f"    [dim]{args_str}[/dim]")
 
                         elif event_type == "FunctionToolResultEvent":
-                            console.print(f"  [green]Outil termine[/green]")
+                            console.print("  [green]Outil termine[/green]")
 
             # Handle end node
             elif Agent.is_end_node(node):

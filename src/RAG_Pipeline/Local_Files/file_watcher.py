@@ -200,9 +200,6 @@ class LocalFileWatcher:
                     or mod_time > self.last_check_time
                     or create_time > self.last_check_time
                 ):
-                    # Get relative path for display
-                    rel_path = os.path.relpath(file_path, self.watch_directory)
-
                     # Get MIME type
                     mime_type = self.get_mime_type(file_path)
 

@@ -200,8 +200,8 @@ class TestIsTabularFile:
     def test_with_custom_config(self):
         """Test identifying tabular file with custom config"""
         config = {"tabular_mime_types": ["custom/tabular"]}
-        assert is_tabular_file("custom/tabular", config) == True
-        assert is_tabular_file("text/csv", config) == False
+        assert is_tabular_file("custom/tabular", config) is True
+        assert is_tabular_file("text/csv", config) is False
 
 
 class TestExtractSchemaFromCsv:

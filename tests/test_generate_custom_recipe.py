@@ -7,7 +7,7 @@ No real API calls.
 import json
 import importlib.util
 from pathlib import Path
-from unittest.mock import MagicMock, AsyncMock, patch, call
+from unittest.mock import MagicMock, AsyncMock, patch
 
 import pytest
 

@@ -64,9 +64,7 @@ def delete_document_by_file_id(file_id: str) -> None:
 
         # Delete the document_metadata record
         try:
-            metadata_response = (
-                supabase.table("document_metadata").delete().eq("id", file_id).execute()
-            )
+            supabase.table("document_metadata").delete().eq("id", file_id).execute()
             print(f"Deleted metadata for file ID: {file_id}")
         except Exception as e:
             print(f"Error deleting document metadata: {e}")
@@ -245,7 +243,7 @@ def process_file_for_rag(
         # Chunk the text
         chunks = chunk_text(text, chunk_size=chunk_size, overlap=chunk_overlap)
         if not chunks:
-            print(f"No chunks were created for file '{file_name}' (Path: {file_path})")
+            print(f"No chunks were created for file '{file_title}' (ID: {file_id})")
             return
 
         # Create embeddings for the chunks

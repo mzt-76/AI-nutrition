@@ -292,7 +292,7 @@ def scenario_1_simple_food_logging() -> Dataset:
                     NoRefusal(),
                     # Must route to log_food_entries
                     SkillScriptRouting(
-                        expected_skill="meal-planning",
+                        expected_skill="food-tracking",
                         expected_script="log_food_entries",
                         evaluation_name="routes_to_log_food_entries",
                     ),
@@ -348,7 +348,7 @@ def scenario_2_composite_dish_decomposition() -> Dataset:
                     NoRefusal(),
                     # Must route to log_food_entries
                     SkillScriptRouting(
-                        expected_skill="meal-planning",
+                        expected_skill="food-tracking",
                         expected_script="log_food_entries",
                         evaluation_name="routes_to_log_food_entries",
                     ),
@@ -401,7 +401,7 @@ def scenario_3_meal_type_inference() -> Dataset:
                 evaluators=(
                     NoRefusal(),
                     SkillScriptRouting(
-                        expected_skill="meal-planning",
+                        expected_skill="food-tracking",
                         expected_script="log_food_entries",
                         evaluation_name="routes_to_log_food_entries",
                     ),
@@ -428,7 +428,7 @@ def scenario_3_meal_type_inference() -> Dataset:
                 evaluators=(
                     NoRefusal(),
                     SkillScriptRouting(
-                        expected_skill="meal-planning",
+                        expected_skill="food-tracking",
                         expected_script="log_food_entries",
                         evaluation_name="routes_to_log_food_entries",
                     ),
