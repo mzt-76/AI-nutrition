@@ -10,6 +10,7 @@ import {
   updateDailyLogEntry,
   deleteDailyLogEntry,
   fetchMealPlans,
+  searchFood,
   apiFetch,
 } from '@/lib/api';
 import type { DailyFoodLog, DailyFoodLogInsert } from '@/types/database.types';
@@ -126,9 +127,9 @@ export function useDailyTracking() {
   }, [user]);
 
   // Fetch daily log entries
-  const refreshEntries = useCallback(async () => {
+  const refreshEntries = useCallback(async (silent = false) => {
     if (!user) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const data = await fetchDailyLog(user.id, dateStr);
       setEntries(data);
@@ -136,7 +137,7 @@ export function useDailyTracking() {
       console.error('Failed to fetch daily log:', err);
       toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger le journal.' });
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [user, dateStr, toast]);
 
@@ -230,7 +231,7 @@ export function useDailyTracking() {
     async (id: string) => {
       try {
         await deleteDailyLogEntry(id);
-        await refreshEntries();
+        await refreshEntries(true);
         toast({ title: 'Supprimé', description: 'Entrée supprimée.' });
       } catch (err) {
         console.error('Failed to delete entry:', err);
@@ -255,7 +256,7 @@ export function useDailyTracking() {
           carbs_g: Math.round(entry.carbs_g * ratio * 10) / 10,
           fat_g: Math.round(entry.fat_g * ratio * 10) / 10,
         });
-        await refreshEntries();
+        await refreshEntries(true);
         toast({ title: 'Mis à jour', description: `Quantité modifiée à ${newQuantity}${entry.unit ?? 'g'}.` });
       } catch (err) {
         console.error('Failed to update entry quantity:', err);
@@ -270,7 +271,7 @@ export function useDailyTracking() {
     async (id: string, newName: string) => {
       try {
         await updateDailyLogEntry(id, { food_name: newName });
-        await refreshEntries();
+        await refreshEntries(true);
         toast({ title: 'Mis à jour', description: `Aliment modifié en ${newName}.` });
       } catch (err: unknown) {
         const msg =
@@ -303,7 +304,7 @@ export function useDailyTracking() {
 
       try {
         await createDailyLogEntry(entry);
-        await refreshEntries();
+        await refreshEntries(true);
         toast({ title: 'Ajouté', description: `${meal.name} enregistré.` });
       } catch (err) {
         console.error('Failed to log plan meal:', err);
@@ -324,6 +325,34 @@ export function useDailyTracking() {
     [entries, activePlanId],
   );
 
+  // Add a manual food entry by name (searches macros, creates log entry)
+  const addManualEntry = useCallback(
+    async (mealType: MealType, foodName: string) => {
+      if (!user) return;
+
+      const result = await searchFood(foodName, 100, 'g');
+
+      const entry: DailyFoodLogInsert = {
+        user_id: user.id,
+        log_date: dateStr,
+        meal_type: mealType,
+        food_name: result.matched_name.toLowerCase(),
+        calories: Math.round(result.calories),
+        protein_g: Math.round(result.protein_g * 10) / 10,
+        carbs_g: Math.round(result.carbs_g * 10) / 10,
+        fat_g: Math.round(result.fat_g * 10) / 10,
+        quantity: result.quantity,
+        unit: result.unit,
+        source: 'manual_entry',
+      };
+
+      await createDailyLogEntry(entry);
+      await refreshEntries(true);
+      toast({ title: 'Ajouté', description: `${result.matched_name.toLowerCase()} enregistré.` });
+    },
+    [user, dateStr, refreshEntries, toast],
+  );
+
   return {
     selectedDate,
     dateStr,
@@ -342,6 +371,7 @@ export function useDailyTracking() {
     deleteEntry,
     updateEntryQuantity,
     updateEntryFood,
+    addManualEntry,
     logPlanMeal,
     isPlanMealLogged,
     refreshEntries,

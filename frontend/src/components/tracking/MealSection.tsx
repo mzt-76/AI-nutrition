@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Trash2, Coffee, Sun, Moon, Cookie } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Trash2, Coffee, Sun, Moon, Cookie, Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import type { DailyFoodLog } from '@/types/database.types';
 import type { MealType } from '@/hooks/useDailyTracking';
 import { MEAL_TYPE_LABELS } from '@/hooks/useDailyTracking';
@@ -11,6 +12,7 @@ interface MealSectionProps {
   onDelete: (id: string) => void;
   onUpdateQuantity: (id: string, quantity: number) => void;
   onUpdateFood: (id: string, newName: string) => void;
+  onAddEntry: (mealType: MealType, foodName: string) => Promise<void>;
 }
 
 const MEAL_ICONS: Record<MealType, typeof Coffee> = {
@@ -27,18 +29,66 @@ const MEAL_ACCENT: Record<MealType, string> = {
   collation: 'text-emerald-400/70',
 };
 
-export function MealSection({ mealType, entries, onDelete, onUpdateQuantity, onUpdateFood }: MealSectionProps) {
+export function MealSection({ mealType, entries, onDelete, onUpdateQuantity, onUpdateFood, onAddEntry }: MealSectionProps) {
+  const { toast } = useToast();
   const totalKcal = entries.reduce((sum, e) => sum + (e.calories ?? 0), 0);
   const Icon = MEAL_ICONS[mealType];
+
+  const [adding, setAdding] = useState(false);
+  const [nameDraft, setNameDraft] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = async () => {
+    const trimmed = nameDraft.trim();
+    if (!trimmed || submitting) return;
+
+    setSubmitting(true);
+    try {
+      await onAddEntry(mealType, trimmed);
+      setAdding(false);
+      setNameDraft('');
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error && err.message?.includes('404')
+          ? 'Aliment non trouvé dans la base.'
+          : "Impossible d'ajouter l'aliment.";
+      toast({ variant: 'destructive', title: 'Erreur', description: msg });
+      // Keep the row open so the user can retry or correct
+      inputRef.current?.focus();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setAdding(false);
+    setNameDraft('');
+  };
 
   return (
     <div className="px-4 py-1.5">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1.5">
         <Icon className={`h-3.5 w-3.5 ${MEAL_ACCENT[mealType]}`} />
-        <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider flex-1">
+        <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
           {MEAL_TYPE_LABELS[mealType]}
         </span>
+        <button
+          type="button"
+          onClick={() => {
+            setAdding(true);
+            // Focus happens via autoFocus on the input
+          }}
+          className={`h-5 w-5 rounded-md flex items-center justify-center transition-all
+            border border-emerald-500/40 text-emerald-400/70 hover:text-emerald-300 hover:border-emerald-400/60 hover:bg-emerald-500/10
+            ${adding ? 'opacity-0 pointer-events-none' : 'opacity-80 hover:opacity-100'}
+          `}
+          title="Ajouter un aliment"
+        >
+          <Plus className="h-3 w-3" />
+        </button>
+        <span className="flex-1" />
         {entries.length > 0 && (
           <span className="text-[11px] text-gray-500 tabular-nums font-medium">
             {Math.round(totalKcal)} kcal
@@ -47,7 +97,7 @@ export function MealSection({ mealType, entries, onDelete, onUpdateQuantity, onU
       </div>
 
       {/* Entries */}
-      {entries.length === 0 ? (
+      {entries.length === 0 && !adding ? (
         <div className="py-2 pl-5.5">
           <span className="text-xs text-gray-600 italic">Aucun aliment</span>
         </div>
@@ -62,6 +112,40 @@ export function MealSection({ mealType, entries, onDelete, onUpdateQuantity, onU
               onUpdateFood={onUpdateFood}
             />
           ))}
+        </div>
+      )}
+
+      {/* Inline add row */}
+      {adding && (
+        <div className="flex items-center gap-1.5 py-1.5 px-2 -mx-1 rounded-lg bg-white/[0.02]">
+          {submitting ? (
+            <Loader2 className="w-3 h-3 text-emerald-400 animate-spin shrink-0" />
+          ) : (
+            <div className="w-1 h-1 rounded-full bg-emerald-500/50 shrink-0" />
+          )}
+          <input
+            ref={inputRef}
+            type="text"
+            className="text-sm text-gray-300 bg-white/10 border border-emerald-500/30 rounded px-1.5 py-0.5 flex-1 min-w-0
+              placeholder:text-gray-600 outline-none focus:border-emerald-500/50 transition-colors
+              disabled:opacity-50 disabled:cursor-not-allowed"
+            value={nameDraft}
+            autoFocus
+            disabled={submitting}
+            placeholder="Nom de l'aliment..."
+            onChange={(e) => setNameDraft(e.target.value)}
+            onBlur={() => {
+              // Only cancel on blur if empty and not submitting
+              if (!nameDraft.trim() && !submitting) handleCancel();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSubmit();
+              if (e.key === 'Escape') handleCancel();
+            }}
+          />
+          {submitting && (
+            <span className="text-[10px] text-gray-500 shrink-0">Recherche...</span>
+          )}
         </div>
       )}
     </div>
