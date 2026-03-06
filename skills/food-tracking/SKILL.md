@@ -22,10 +22,14 @@ category: tracking
 
 ## Parametres `log_food_entries`
 
-- `items` (list, **requis**) : Liste d'objets `{name: str, quantity: float, unit: str}`. Chaque item = 1 ingredient simple (jamais un plat compose).
-- `log_date` (str, optionnel) : YYYY-MM-DD. Defaut = aujourd'hui.
-- `meal_type` (str, optionnel) : `"petit-dejeuner"` | `"dejeuner"` | `"diner"` | `"collation"`. Defaut = `"dejeuner"`.
-- `entry_id` (str, optionnel) : ID d'une entree existante a modifier. Si fourni, le premier item de `items` remplace l'aliment de cette entree (recalcul macros via OFF).
+Les noms de parametres ci-dessous sont les noms exacts a utiliser.
+
+| Parametre | Type | Requis | Description |
+|-----------|------|--------|-------------|
+| `items` | list | **oui** | Liste d'objets `{name: str, quantity: float, unit: str}`. Chaque item = 1 ingredient simple. La cle de chaque objet doit etre `name` (pas `food_name`). |
+| `log_date` | str | non | YYYY-MM-DD. Defaut = aujourd'hui. La cle doit etre `log_date` (pas `date`). |
+| `meal_type` | str | non | `"petit-dejeuner"` \| `"dejeuner"` \| `"diner"` \| `"collation"`. Defaut = `"dejeuner"`. Ce parametre doit etre au **niveau racine** des parametres, pas a l'interieur de chaque item. |
+| `entry_id` | str | non | ID d'une entree existante a modifier. Si fourni, le premier item de `items` remplace l'aliment de cette entree (recalcul macros via OFF). |
 
 **Regle de decomposition** : Si l'utilisateur mentionne un plat compose (ex: "pates carbonara", "salade nicoise"), le decomposer en ingredients individuels avec des quantites estimees pour 1 portion AVANT d'appeler le script. Le script ne traite que des ingredients simples.
 

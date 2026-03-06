@@ -29,9 +29,51 @@ async def execute(**kwargs) -> str:
     """
     supabase = kwargs["supabase"]
     user_id = kwargs["user_id"]
-    items: list[dict] = kwargs.get("items", [])
-    log_date = kwargs.get("log_date", date.today().isoformat())
-    meal_type = kwargs.get("meal_type", "dejeuner")
+
+    # --- Normalize keys (LLMs sometimes drift from the documented interface) ---
+    # Flat item lists: accept items / entries / foods / food_entries / food_items
+    raw_items: list[dict] = (
+        kwargs.get("items")
+        or kwargs.get("entries")
+        or kwargs.get("foods")
+        or kwargs.get("food_entries")
+        or kwargs.get("food_items")
+        or []
+    )
+    # Handle nested "meals" wrapper: [{meal_type: "...", foods: [...]}]
+    meals_wrapper = kwargs.get("meals")
+    meal_type = kwargs.get("meal_type")
+    if isinstance(meals_wrapper, list) and meals_wrapper and not raw_items:
+        first_meal = meals_wrapper[0] if isinstance(meals_wrapper[0], dict) else {}
+        raw_items = first_meal.get("foods") or first_meal.get("items") or []
+        if not meal_type:
+            meal_type = first_meal.get("meal_type")
+    # Extract meal_type from individual items if not at top level
+    if not meal_type and raw_items:
+        for raw_item in raw_items:
+            if isinstance(raw_item, dict) and raw_item.get("meal_type"):
+                meal_type = raw_item["meal_type"]
+                break
+    # Normalize item keys: accept "food_name" as alias for "name", skip non-dicts
+    items: list[dict] = [
+        {
+            "name": it.get("name") or it.get("food_name", ""),
+            "quantity": it.get("quantity", 100),
+            "unit": it.get("unit", "g"),
+        }
+        for it in raw_items
+        if isinstance(it, dict)
+    ]
+    log_date = kwargs.get("log_date") or kwargs.get("date") or date.today().isoformat()
+    # Normalize English → French meal types
+    _MEAL_TYPE_ALIASES = {
+        "breakfast": "petit-dejeuner",
+        "petit_dejeuner": "petit-dejeuner",
+        "lunch": "dejeuner",
+        "dinner": "diner",
+        "snack": "collation",
+    }
+    meal_type = _MEAL_TYPE_ALIASES.get(meal_type or "", meal_type) or "dejeuner"
     entry_id: str | None = kwargs.get("entry_id")
 
     if not user_id:
