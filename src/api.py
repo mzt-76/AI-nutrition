@@ -76,12 +76,13 @@ def _log_task_exception(task: asyncio.Task) -> None:  # type: ignore[type-arg]
 supabase: Any = None
 title_agent: Any = None
 mem0_client: Any = None
+_http_client: httpx.AsyncClient | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # noqa: ARG001
     """Initialize and clean up global clients."""
-    global supabase, title_agent, mem0_client
+    global supabase, title_agent, mem0_client, _http_client
 
     missing = [
         v
@@ -112,8 +113,11 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
     except Exception as e:
         logger.error(f"Agent model configuration error: {e}", exc_info=True)
 
+    _http_client = httpx.AsyncClient()
+
     logger.info("API startup complete")
     yield
+    await _http_client.aclose()
     logger.info("API shutdown")
 
 
@@ -127,11 +131,10 @@ app = FastAPI(
 cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")
 _parsed_origins = [o.strip() for o in cors_origins.split(",")]
 if "*" in _parsed_origins:
-    logger.warning(
-        "CORS_ORIGINS contains '*' with allow_credentials=True — "
-        "this is insecure. Set explicit origins for production."
+    raise RuntimeError(
+        "CORS_ORIGINS='*' is incompatible with allow_credentials=True. "
+        "Set explicit origins (e.g. CORS_ORIGINS=https://myapp.example.com)."
     )
-    _parsed_origins = ["http://localhost:5173", "http://localhost:3000"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_parsed_origins,
@@ -159,14 +162,14 @@ async def verify_token(
     supabase_url = os.getenv("SUPABASE_URL", "")
     service_key = os.getenv("SUPABASE_SERVICE_KEY", "")
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{supabase_url}/auth/v1/user",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "apikey": service_key,
-            },
-        )
+    assert _http_client is not None, "HTTP client not initialized"
+    response = await _http_client.get(
+        f"{supabase_url}/auth/v1/user",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "apikey": service_key,
+        },
+    )
 
     if response.status_code != 200:
         raise HTTPException(status_code=401, detail="Token invalide ou expiré")
@@ -189,6 +192,12 @@ def _validate_uuid(value: str) -> None:
         _UUID(value)
     except ValueError:
         raise HTTPException(status_code=400, detail="Format d'identifiant invalide")
+
+
+def _validate_session_id(value: str) -> None:
+    """Raise 400 if session_id is empty or suspiciously long."""
+    if not value or len(value) > 60:
+        raise HTTPException(status_code=400, detail="Format de session_id invalide")
 
 
 # =============================================================================
@@ -566,6 +575,39 @@ async def delete_meal_plan(
         logger.error(f"Erreur suppression plan repas {plan_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail="Erreur lors de la suppression du plan repas"
+        )
+    return {"status": "deleted"}
+
+
+@app.delete("/api/conversations/{session_id}")
+async def delete_conversation(
+    session_id: str,
+    auth_user: dict[str, Any] = Depends(require_auth),
+) -> dict[str, str]:
+    """Delete a conversation and its messages (owner only)."""
+    _validate_session_id(session_id)
+    user_id = auth_user["id"]
+    result = (
+        supabase.table("conversations")
+        .select("session_id, user_id")
+        .eq("session_id", session_id)
+        .limit(1)
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Conversation introuvable")
+    if result.data[0].get("user_id") != user_id:
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
+
+    try:
+        supabase.table("messages").delete().eq("session_id", session_id).execute()
+        supabase.table("conversations").delete().eq("session_id", session_id).execute()
+    except Exception as e:
+        logger.error(
+            f"Erreur suppression conversation {session_id}: {e}", exc_info=True
+        )
+        raise HTTPException(
+            status_code=500, detail="Erreur lors de la suppression de la conversation"
         )
     return {"status": "deleted"}
 
@@ -1091,17 +1133,31 @@ async def recalculate_profile(
 
     # Persist to user_profiles
     try:
-        supabase.table("user_profiles").update(
-            {
-                "bmr": bmr,
-                "tdee": tdee,
-                "target_calories": target_calories,
-                "target_protein_g": protein_g,
-                "target_carbs_g": macros["carbs_g"],
-                "target_fat_g": macros["fat_g"],
-                "updated_at": datetime.now(timezone.utc).isoformat(),
-            }
-        ).eq("id", user_id).execute()
+        db_result = (
+            supabase.table("user_profiles")
+            .update(
+                {
+                    "bmr": bmr,
+                    "tdee": tdee,
+                    "target_calories": target_calories,
+                    "target_protein_g": protein_g,
+                    "target_carbs_g": macros["carbs_g"],
+                    "target_fat_g": macros["fat_g"],
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+            .eq("id", user_id)
+            .execute()
+        )
+        if not db_result.data:
+            logger.error(
+                f"Profil non trouvé pour user_id={user_id} — aucun row mis à jour"
+            )
+            raise HTTPException(
+                status_code=404, detail="Profil utilisateur introuvable"
+            )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Erreur mise à jour profil {user_id}: {e}", exc_info=True)
         raise HTTPException(

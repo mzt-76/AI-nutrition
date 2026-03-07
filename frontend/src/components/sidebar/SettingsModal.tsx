@@ -183,6 +183,7 @@ export const SettingsModal = ({ isOpen, onClose, currentFullName }: SettingsModa
   const [targetProtein, setTargetProtein] = useState<number | null>(null);
   const [targetCarbs, setTargetCarbs] = useState<number | null>(null);
   const [targetFat, setTargetFat] = useState<number | null>(null);
+  const [goals, setGoals] = useState<Record<string, number> | null>(null);
 
   // Fetch profile on open
   const fetchProfile = useCallback(async () => {
@@ -211,6 +212,7 @@ export const SettingsModal = ({ isOpen, onClose, currentFullName }: SettingsModa
       setFavoriteFoods(p.favorite_foods || []);
       setPreferredCuisines(p.preferred_cuisines || []);
       setMaxPrepTime(p.max_prep_time ?? '');
+      setGoals(p.goals as Record<string, number> | null);
       setBmr(p.bmr);
       setTdee(p.tdee);
       setTargetCalories(p.target_calories);
@@ -266,7 +268,7 @@ export const SettingsModal = ({ isOpen, onClose, currentFullName }: SettingsModa
     } catch (err) {
       toast({
         title: 'Erreur',
-        description: (err as Error)?.message || 'Impossible de sauvegarder le profil',
+        description: err instanceof Error ? err.message : 'Impossible de sauvegarder le profil',
         variant: 'destructive',
       });
     } finally {
@@ -291,6 +293,7 @@ export const SettingsModal = ({ isOpen, onClose, currentFullName }: SettingsModa
         weight_kg: Number(weightKg),
         height_cm: Number(heightCm),
         activity_level: activityLevel,
+        goals: goals ?? undefined,
       });
       setBmr(result.bmr);
       setTdee(result.tdee);

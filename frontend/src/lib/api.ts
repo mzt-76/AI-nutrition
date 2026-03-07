@@ -23,6 +23,13 @@ export const API_BASE_URL = (() => {
   catch { return ''; }
 })();
 
+if (!API_BASE_URL) {
+  console.error(
+    '[api] VITE_AGENT_ENDPOINT is missing or invalid — all apiFetch calls will fail. ' +
+    'Set it in frontend/.env (e.g. VITE_AGENT_ENDPOINT=http://localhost:8001/api/agent)',
+  );
+}
+
 interface ApiResponse {
   title?: string;
   session_id?: string;
@@ -51,6 +58,85 @@ interface StreamingChunk {
   }>;
 }
 
+async function parseNDJSONStream(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  onChunk: (chunk: StreamingChunk) => void,
+  initialSessionId: string,
+): Promise<ApiResponse> {
+  const decoder = new TextDecoder();
+  let lastTextChunk = '';
+  let finalText = '';
+  let finalTitle = '';
+  let finalSessionId = initialSessionId;
+
+  function processLine(line: string): 'complete' | void {
+    try {
+      const chunk: StreamingChunk = JSON.parse(line);
+
+      if (chunk.text !== undefined && chunk.text.trim() !== '') {
+        lastTextChunk = chunk.text;
+        finalText = chunk.text;
+        onChunk(chunk);
+      }
+
+      if (chunk.type === 'ui_component' && chunk.component) {
+        onChunk(chunk);
+      }
+
+      if (chunk.title) finalTitle = chunk.title;
+      if (chunk.session_id) finalSessionId = chunk.session_id;
+      if (chunk.conversation_title) finalTitle = chunk.conversation_title;
+
+      if (chunk.complete === true) {
+        if (chunk.text !== undefined && chunk.text.trim() !== '') {
+          lastTextChunk = chunk.text;
+          finalText = chunk.text;
+        }
+        onChunk({
+          text: lastTextChunk,
+          complete: true,
+          session_id: finalSessionId,
+          conversation_title: finalTitle,
+        });
+        return 'complete';
+      }
+    } catch (e) {
+      console.warn('Skipped invalid NDJSON line:', e);
+    }
+  }
+
+  while (true) {
+    const { done, value } = await reader.read();
+
+    if (done) {
+      const remaining = decoder.decode();
+      if (remaining) {
+        const lines = remaining.split('\n').filter(l => l.trim() !== '');
+        for (const line of lines) processLine(line);
+      }
+      break;
+    }
+
+    const chunkText = decoder.decode(value, { stream: true });
+    const lines = chunkText.split('\n').filter(l => l.trim() !== '');
+    for (const line of lines) {
+      if (processLine(line) === 'complete') {
+        return {
+          title: finalTitle || 'New conversation',
+          session_id: finalSessionId,
+          output: lastTextChunk || finalText,
+        };
+      }
+    }
+  }
+
+  return {
+    title: finalTitle || 'New conversation',
+    session_id: finalSessionId,
+    output: lastTextChunk || finalText,
+  };
+}
+
 export const sendMessage = async (
   query: string,
   user_id: string,
@@ -58,7 +144,8 @@ export const sendMessage = async (
   access_token?: string,
   files?: FileAttachment[],
   onStreamChunk?: (chunk: StreamingChunk) => void,
-  abortSignal?: AbortSignal
+  abortSignal?: AbortSignal,
+  ephemeral?: boolean,
 ): Promise<ApiResponse> => {
   try {
     const request_id = uuidv4();
@@ -67,14 +154,15 @@ export const sendMessage = async (
       user_id,
       request_id,
       session_id,
-      files
+      files,
+      ephemeral: ephemeral ?? false,
     };
 
     const response = await fetch(AGENT_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': access_token ? `Bearer ${access_token}` : '',
+        ...(access_token ? { Authorization: `Bearer ${access_token}` } : {}),
       },
       body: JSON.stringify(payload),
       signal: abortSignal,
@@ -87,127 +175,11 @@ export const sendMessage = async (
 
     // Handle streaming response if enabled
     if (ENABLE_STREAMING && onStreamChunk) {
-      // For streaming responses
       const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let finalText = '';
-
       if (!reader) {
         throw new Error('Failed to get response reader');
       }
-
-      // Variables to track the state of the stream
-      let lastTextChunk = '';
-      let finalTitle = '';
-      let finalSessionId = session_id;
-
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        // If the stream is done
-        if (done) {
-          // Make sure to flush the decoder when we're done
-          const finalChunk = decoder.decode();
-          if (finalChunk) {
-            try {
-              const finalLines = finalChunk.split('\n').filter(line => line.trim() !== '');
-              for (const line of finalLines) {
-                try {
-                  const chunk = JSON.parse(line);
-                  
-                  // Process text if present
-                  if (chunk.text !== undefined && chunk.text.trim() !== '') {
-                    lastTextChunk = chunk.text;
-                    finalText = chunk.text;
-                    onStreamChunk(chunk);
-                  }
-
-                  // Forward ui_component chunks to the callback
-                  if (chunk.type === 'ui_component' && chunk.component) {
-                    onStreamChunk(chunk);
-                  }
-
-                  // Check for complete flag
-                  if (chunk.complete === true) {
-                    if (chunk.conversation_title) finalTitle = chunk.conversation_title;
-                    if (chunk.session_id) finalSessionId = chunk.session_id;
-                  }
-                } catch (e) {}
-              }
-            } catch (e) {}
-          }
-          break;
-        }
-
-        // Decode the chunk with stream true to maintain state between chunks
-        const chunkText = decoder.decode(value, { stream: true });
-        
-        try {
-          // Split by newlines in case we get multiple JSON objects in one chunk
-          const lines = chunkText.split('\n').filter(line => line.trim() !== '');
-          
-          for (const line of lines) {
-            try {
-              // Each line should be a JSON object with a text field
-              const chunk = JSON.parse(line);
-              
-              // Process text if present
-              if (chunk.text !== undefined && chunk.text.trim() !== '') {
-                lastTextChunk = chunk.text;
-                finalText = chunk.text;
-                // Pass the chunk to the callback
-                onStreamChunk(chunk);
-              }
-
-              // Forward ui_component chunks to the callback
-              if (chunk.type === 'ui_component' && chunk.component) {
-                onStreamChunk(chunk);
-              }
-
-              // Store metadata if present
-              if (chunk.title) finalTitle = chunk.title;
-              if (chunk.session_id) finalSessionId = chunk.session_id;
-              if (chunk.conversation_title) finalTitle = chunk.conversation_title;
-              
-              // Check if this chunk indicates completion
-              if (chunk.complete === true) {
-                // If this chunk has text, use it as the final text
-                // Otherwise, keep the last text chunk we received
-                if (chunk.text !== undefined && chunk.text.trim() !== '') {
-                  lastTextChunk = chunk.text;
-                  finalText = chunk.text;
-                }
-                
-                // Send a final chunk with the complete flag to signal completion
-                onStreamChunk({
-                  text: lastTextChunk,
-                  complete: true,
-                  session_id: finalSessionId,
-                  conversation_title: finalTitle
-                });
-                
-                // We can exit the streaming loop now
-                return {
-                  title: finalTitle || 'New conversation',
-                  session_id: finalSessionId,
-                  output: lastTextChunk || finalText
-                };
-              }
-            } catch (error) {
-              // Skip invalid JSON
-            }
-          }
-        } catch (error) {
-          // Skip any errors in processing
-        }
-      }
-      
-      // Return the final response with the most complete information
-      return {
-        title: finalTitle || 'New conversation',
-        session_id: finalSessionId,
-        output: lastTextChunk || finalText
-      };
+      return parseNDJSONStream(reader, onStreamChunk, session_id);
     } else {
       // For non-streaming responses (original implementation)
       const responseText = await response.text();
@@ -221,6 +193,9 @@ export const sendMessage = async (
         
         // If the response is an array, take the first item
         if (Array.isArray(parsedData)) {
+          if (parsedData.length === 0) {
+            throw new Error('Réponse vide du serveur.');
+          }
           return {
             title: parsedData[0]?.conversation_title || "New conversation",
             session_id: parsedData[0]?.session_id || session_id,
@@ -232,7 +207,7 @@ export const sendMessage = async (
         return parsedData;
       } catch (jsonError) {
         console.error('Error parsing JSON response:', jsonError, 'Response text:', responseText);
-        throw new Error(`Invalid JSON response from API: ${jsonError.message}`);
+        throw new Error(`Invalid JSON response from API: ${jsonError instanceof Error ? jsonError.message : String(jsonError)}`);
       }
     }
   } catch (error) {
@@ -249,14 +224,23 @@ export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token ?? '';
+  if (!API_BASE_URL) {
+    throw new Error('API_BASE_URL is empty — VITE_AGENT_ENDPOINT is not configured');
+  }
+
+  let token = '';
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    token = session?.access_token ?? '';
+  } catch (e) {
+    console.warn('[apiFetch] getSession() failed, proceeding without token:', e);
+  }
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : '',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers ?? {}),
     },
   });
@@ -271,11 +255,33 @@ export async function apiFetch<T>(
 }
 
 // =============================================================================
+// Food Search
+// =============================================================================
+
+export interface FoodSearchResult {
+  matched_name: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  quantity: number;
+  unit: string;
+  confidence: number;
+}
+
+export const searchFood = (
+  query: string,
+  quantity: number = 100,
+  unit: string = 'g',
+): Promise<FoodSearchResult> =>
+  apiFetch(`/api/food-search?${new URLSearchParams({ q: query, quantity: String(quantity), unit })}`);
+
+// =============================================================================
 // Daily Food Log
 // =============================================================================
 
 export const fetchDailyLog = (userId: string, date: string): Promise<DailyFoodLog[]> =>
-  apiFetch(`/api/daily-log?user_id=${userId}&date=${date}`);
+  apiFetch(`/api/daily-log?${new URLSearchParams({ user_id: userId, date })}`);
 
 export const createDailyLogEntry = (entry: DailyFoodLogInsert): Promise<DailyFoodLog> =>
   apiFetch('/api/daily-log', { method: 'POST', body: JSON.stringify(entry) });
@@ -306,7 +312,7 @@ export interface MealPlanSummary {
 }
 
 export const fetchMealPlans = (userId: string): Promise<MealPlanSummary[]> =>
-  apiFetch(`/api/meal-plans?user_id=${userId}`);
+  apiFetch(`/api/meal-plans?${new URLSearchParams({ user_id: userId })}`);
 
 export const deleteMealPlan = (planId: string): Promise<{ status: string }> =>
   apiFetch(`/api/meal-plans/${planId}`, { method: 'DELETE' });
@@ -316,7 +322,7 @@ export const deleteMealPlan = (planId: string): Promise<{ status: string }> =>
 // =============================================================================
 
 export const fetchFavorites = (userId: string): Promise<FavoriteWithRecipe[]> =>
-  apiFetch(`/api/favorites?user_id=${userId}`);
+  apiFetch(`/api/favorites?${new URLSearchParams({ user_id: userId })}`);
 
 export const addFavorite = (
   userId: string,
@@ -335,7 +341,7 @@ export const checkFavorite = (
   userId: string,
   recipeId: string,
 ): Promise<{ is_favorite: boolean; favorite_id: string | null }> =>
-  apiFetch(`/api/favorites/check?user_id=${userId}&recipe_id=${recipeId}`);
+  apiFetch(`/api/favorites/check?${new URLSearchParams({ user_id: userId, recipe_id: recipeId })}`);
 
 // =============================================================================
 // Recipes
@@ -362,7 +368,7 @@ export const upsertRecipe = (data: {
 // =============================================================================
 
 export const fetchShoppingLists = (userId: string): Promise<ShoppingList[]> =>
-  apiFetch(`/api/shopping-lists?user_id=${userId}`);
+  apiFetch(`/api/shopping-lists?${new URLSearchParams({ user_id: userId })}`);
 
 export const fetchShoppingList = (listId: string): Promise<ShoppingList> =>
   apiFetch(`/api/shopping-lists/${listId}`);
@@ -413,6 +419,9 @@ export const recalculateProfile = (data: RecalculateRequest): Promise<Recalculat
 // =============================================================================
 // Conversations
 // =============================================================================
+
+export const deleteConversation = (sessionId: string): Promise<{ status: string }> =>
+  apiFetch(`/api/conversations/${sessionId}`, { method: 'DELETE' });
 
 export const fetchConversations = async (user_id: string) => {
   try {
