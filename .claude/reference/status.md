@@ -57,13 +57,20 @@
 - [x] Data fetching via useEffect+useState (same pattern as DailyTracking)
 - [x] TypeScript build passes, mobile-friendly layout
 
-### Step 5: Integration + polish + deploy
+### Step 5: Integration + polish + deploy ✅
 - [x] Agent food logging via chat (log_food_entries skill script)
 - [x] Code review + security/efficiency fixes
 - [x] Editable food name in daily tracking UI
-- [ ] End-to-end testing
-- [ ] UI polish, loading states, error handling
+- [x] Pre-deploy cleanup (console.log removal, requirements.txt sync, CRLF fix, linting)
+- [x] 490 tests passing, frontend build OK
+
+### Step 6: Deployment infrastructure
+- [ ] Préparer la base de données production (Supabase séparé, 14 migrations SQL, seed OpenFoodFacts + recettes)
+- [ ] Créer la config de déploiement (Dockerfile/Procfile selon plateforme)
+- [ ] Configurer les variables d'environnement production (CORS_ORIGINS, API keys, Supabase)
+- [ ] CI/CD pipeline (GitHub Actions : pytest, ruff, npm lint, npm build)
 - [ ] Deploy backend (Railway/Fly.io) + frontend (Vercel)
+- [ ] Smoke test end-to-end
 - [ ] TWA → APK generation + distribution
 
 ---
