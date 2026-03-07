@@ -177,7 +177,7 @@ export const ChatInput = ({ onSendMessage, onStopResponse, isLoading }: ChatInpu
                 onClick={() => removeFile(index)}
               >
                 <X className="h-3 w-3" />
-                <span className="sr-only">Remove file</span>
+                <span className="sr-only">Supprimer le fichier</span>
               </Button>
             </Badge>
           ))}
@@ -235,7 +235,7 @@ export const ChatInput = ({ onSendMessage, onStopResponse, isLoading }: ChatInpu
                 }}
               >
                 <Paperclip className="h-4 w-4" />
-                <span className="sr-only">Upload file</span>
+                <span className="sr-only">Télécharger un fichier</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>

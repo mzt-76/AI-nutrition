@@ -1,6 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Message } from '@/types/database.types';
 import { MessageItem } from './MessageItem';
+import type { MealDataFromPlan } from './MessageItem';
+import { RecipeDetailDrawer } from '@/components/recipes/RecipeDetailDrawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LoadingDots } from '@/components/ui/loading-dots';
 import { Salad, Calculator, UtensilsCrossed, CalendarCheck, BookOpen } from 'lucide-react';
@@ -45,6 +47,13 @@ export const MessageList = ({
 }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState<MealDataFromPlan | null>(null);
+
+  const handleMealClick = useCallback((data: MealDataFromPlan) => {
+    setSelectedMeal(data);
+    setDrawerOpen(true);
+  }, []);
 
   useEffect(() => {
     const scrollTimeout = setTimeout(() => {
@@ -93,6 +102,7 @@ export const MessageList = ({
               message={message}
               isLastMessage={index === messages.length - 1}
               onAction={onAction}
+              onMealClick={handleMealClick}
             />
           </div>
         ))}
@@ -121,6 +131,12 @@ export const MessageList = ({
 
         <div ref={messagesEndRef} className="h-10" />
       </div>
+
+      <RecipeDetailDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        mealData={selectedMeal ?? undefined}
+      />
     </div>
   );
 };

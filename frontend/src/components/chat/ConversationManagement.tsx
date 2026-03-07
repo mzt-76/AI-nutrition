@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchConversations } from '@/lib/api';
+import { fetchConversations, deleteConversation } from '@/lib/api';
 import { Conversation } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 import type { User } from '@supabase/supabase-js';
@@ -103,6 +103,23 @@ export const useConversationManagement = ({
     setSelectedConversation(conversation);
   };
 
+  const handleDeleteConversation = useCallback(async (sessionId: string) => {
+    try {
+      await deleteConversation(sessionId);
+      queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] });
+      if (selectedConversation?.session_id === sessionId) {
+        handleNewChat();
+      }
+    } catch (err) {
+      console.error('Error deleting conversation:', err);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de supprimer la conversation.',
+        variant: 'destructive',
+      });
+    }
+  }, [user?.id, queryClient, selectedConversation, handleNewChat, toast]);
+
   return {
     conversations,
     selectedConversation,
@@ -110,6 +127,7 @@ export const useConversationManagement = ({
     setConversations,
     loadConversations,
     handleNewChat,
-    handleSelectConversation
+    handleSelectConversation,
+    handleDeleteConversation,
   };
 };

@@ -88,9 +88,7 @@ export const useConversations = () => {
       setSelectedConversation(conversationClone);
       setOpenDialog(true);
       
-      console.log('Fetching messages for session:', conversation.session_id);
       const messages = await fetchMessages(conversation.session_id, conversation.user_id);
-      console.log('Fetched messages:', messages);
       
       // Use the functional update to ensure we're working with the most current state
       setSelectedConversation((prev) => {

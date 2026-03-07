@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { MacroGauges } from '@/components/generative-ui/components/MacroGauges';
@@ -68,7 +68,7 @@ export default function MealPlanView() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<MealDataFromPlan | null>(null);
 
-  const fetchPlan = async () => {
+  const fetchPlan = useCallback(async () => {
     if (!id || !session) return;
     setLoading(true);
     setError(null);
@@ -81,11 +81,11 @@ export default function MealPlanView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, session]);
 
   useEffect(() => {
     fetchPlan();
-  }, [id, session]);
+  }, [fetchPlan]);
 
   const withSidebar = (content: React.ReactNode) => {
     if (isMobile) return <>{content}</>;

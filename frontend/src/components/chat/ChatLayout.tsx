@@ -23,6 +23,7 @@ interface ChatLayoutProps {
   onStopResponse: () => void;
   onNewChat: () => void;
   onSelectConversation: (conversation: Conversation) => void;
+  onDeleteConversation: (sessionId: string) => void;
   onToggleSidebar: () => void;
   newConversationId?: string | null;
 }
@@ -38,6 +39,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
   onStopResponse,
   onNewChat,
   onSelectConversation,
+  onDeleteConversation,
   onToggleSidebar,
   newConversationId
 }) => {
@@ -84,6 +86,7 @@ export const ChatLayout: React.FC<ChatLayoutProps> = ({
       onNewChat={handleNewChat}
       onSelectConversation={handleSelectConversation}
       selectedConversationId={selectedConversation?.session_id || null}
+      onDeleteConversation={onDeleteConversation}
       onToggleSidebar={handleToggleSidebar}
       newConversationId={newConversationId}
     />

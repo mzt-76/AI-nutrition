@@ -30,6 +30,13 @@ const CATEGORY_ICONS: Record<string, typeof Apple> = {
 
 const CATEGORY_ORDER = ['produce', 'proteins', 'grains', 'dairy', 'pantry', 'other'];
 
+function formatShoppingTitle(title: string): string {
+  return title.replace(/(\d{4}-\d{2}-\d{2})/g, (iso) => {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  });
+}
+
 export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardProps) {
   const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
@@ -82,7 +89,7 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
           <ShoppingCart className="h-5 w-5 text-emerald-400 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-200 truncate">
-              {list.title?.replace(/^(Courses|Liste de courses)\s*[-–—:]\s*/i, '')}
+              {formatShoppingTitle(list.title?.replace(/^(Courses|Liste de courses)\s*[-–—:]\s*/i, '') ?? '')}
             </p>
             <div className="flex items-center gap-2 mt-0.5">
               {createdLabel && <span className="text-[11px] text-gray-500">{createdLabel}</span>}
@@ -103,7 +110,7 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
           {onDelete && (
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(list.id); }}
-              className="p-2 rounded-md hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors shrink-0"
+              className="p-1 rounded-md hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors shrink-0"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -149,11 +156,9 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
                         <span className={`text-sm flex-1 min-w-0 truncate ${item.checked ? 'line-through text-gray-600' : 'text-gray-300'}`}>
                           {item.name}
                         </span>
-                        {item.quantity > 0 && (
-                          <span className="text-[10px] text-gray-600 shrink-0">
-                            {item.quantity} {item.unit}
-                          </span>
-                        )}
+                        <span className="text-[10px] text-gray-600 shrink-0">
+                          {item.quantity > 0 ? `${item.quantity} ${item.unit}` : (item.unit || '1 pce')}
+                        </span>
                       </label>
                     );
                   })}

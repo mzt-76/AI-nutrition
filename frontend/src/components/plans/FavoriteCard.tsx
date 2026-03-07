@@ -17,18 +17,31 @@ const MEAL_ICONS: Record<string, typeof Coffee> = {
 };
 
 const MEAL_LABELS: Record<string, string> = {
-  'petit-dejeuner': 'Petit-dej',
-  dejeuner: 'Dejeuner',
-  diner: 'Diner',
+  'petit-dejeuner': 'Petit-déjeuner',
+  dejeuner: 'Déjeuner',
+  diner: 'Dîner',
   collation: 'Collation',
 };
+
+function normalizeMealType(raw: string): string {
+  return raw
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[_\s]+/g, '-');
+}
+
+function formatMealTypeFallback(raw: string): string {
+  return raw.replace(/_/g, ' ').toLowerCase().replace(/^./, c => c.toUpperCase());
+}
 
 export function FavoriteCard({ favorite, onRemove, onClick }: FavoriteCardProps) {
   const [removing, setRemoving] = useState(false);
   const recipe = favorite.recipes;
   if (!recipe) return null;
 
-  const Icon = MEAL_ICONS[recipe.meal_type] ?? Coffee;
+  const mealTypeNorm = normalizeMealType(recipe.meal_type);
+  const Icon = MEAL_ICONS[mealTypeNorm] ?? Coffee;
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -50,7 +63,7 @@ export function FavoriteCard({ favorite, onRemove, onClick }: FavoriteCardProps)
           <div className="flex items-start gap-2">
             <p className="text-sm font-medium text-gray-200 break-words">{recipe.name}</p>
             <span className="text-[10px] text-gray-500 bg-white/[0.04] rounded-full px-1.5 py-0.5 shrink-0 mt-0.5">
-              {MEAL_LABELS[recipe.meal_type] ?? recipe.meal_type}
+              {MEAL_LABELS[mealTypeNorm] ?? formatMealTypeFallback(recipe.meal_type)}
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1.5 text-[11px] text-gray-500 tabular-nums">

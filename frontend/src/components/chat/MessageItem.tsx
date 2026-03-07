@@ -65,24 +65,29 @@ export const MessageItem = ({ message, isLastMessage = false, onAction, onMealCl
   
   // Function to download a file
   const downloadFile = (file: FileAttachment) => {
-    // Convert base64 to blob
-    const byteCharacters = atob(file.content);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    try {
+      // Convert base64 to blob
+      const byteCharacters = atob(file.content);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: file.mimeType });
+
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Failed to decode file attachment:', e);
+      alert(`Impossible de télécharger "${file.fileName}" — fichier corrompu.`);
     }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: file.mimeType });
-    
-    // Create download link
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
   
   // Memoize the markdown content to prevent unnecessary re-renders
@@ -206,7 +211,7 @@ export const MessageItem = ({ message, isLastMessage = false, onAction, onMealCl
                 ) : (
                   <Copy className="h-3 w-3" />
                 )}
-                <span className="sr-only">Copy message</span>
+                <span className="sr-only">Copier le message</span>
               </Button>
             )}
           </div>

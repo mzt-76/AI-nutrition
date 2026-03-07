@@ -70,7 +70,8 @@ export const Chat = () => {
     setConversations,
     loadConversations,
     handleNewChat,
-    handleSelectConversation
+    handleSelectConversation,
+    handleDeleteConversation,
   } = useConversationManagement({ user });
 
   // Persist messages to sessionStorage when loading completes
@@ -134,6 +135,7 @@ export const Chat = () => {
       onStopResponse={handleStopResponse}
       onNewChat={wrappedHandleNewChat}
       onSelectConversation={handleSelectConversation}
+      onDeleteConversation={handleDeleteConversation}
       onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       newConversationId={newConversationId}
     />

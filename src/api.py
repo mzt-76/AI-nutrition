@@ -343,6 +343,7 @@ async def agent_endpoint(
             )
 
         # Validate file attachments (defense in depth)
+        _ALLOWED_MIME_PREFIXES = ("image/", "text/plain", "application/pdf")
         if request.files:
             if len(request.files) > 5:
                 return StreamingResponse(
@@ -360,6 +361,17 @@ async def agent_endpoint(
                         media_type="text/plain",
                         status_code=400,
                     )
+                if not any(
+                    f.mime_type.startswith(prefix) for prefix in _ALLOWED_MIME_PREFIXES
+                ):
+                    return StreamingResponse(
+                        _stream_error(
+                            f"Type de fichier non supporté : {f.mime_type}",
+                            request.session_id,
+                        ),
+                        media_type="text/plain",
+                        status_code=400,
+                    )
 
         # Rate limit check (per-minute + daily)
         rate_limit_ok, rate_limit_msg = await check_rate_limit(
@@ -370,6 +382,7 @@ async def agent_endpoint(
                 _stream_error(rate_limit_msg or "Limite atteinte.", request.session_id),
                 media_type="text/plain",
                 status_code=429,
+                headers={"Retry-After": "60"},
             )
 
         # Fire-and-forget request tracking
@@ -975,6 +988,12 @@ async def create_shopping_list(
     if auth_user["id"] != body.user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
+    if not body.items:
+        raise HTTPException(
+            status_code=422,
+            detail="La liste de courses ne peut pas être vide.",
+        )
+
     row: dict[str, Any] = {
         "user_id": body.user_id,
         "title": body.title,
@@ -1255,7 +1274,9 @@ async def _stream_agent_response(
 
     except Exception as e:
         logger.error(f"Agent streaming error: {e}", exc_info=True)
-        error_text = "I apologize, but I encountered an error processing your request."
+        error_text = (
+            "Désolé, une erreur est survenue lors du traitement de votre demande."
+        )
         yield json.dumps({"text": error_text}).encode("utf-8") + b"\n"
         full_response = error_text
 

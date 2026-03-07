@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 const NAV_ITEMS = [
   { path: '/', label: 'Chat', icon: MessageSquare, exact: true },
   { path: '/tracking', label: 'Suivi', icon: Activity, exact: false },
-  { path: '/plans', label: 'Plans', icon: BookOpen, exact: false },
+  { path: '/plans', label: 'Bibliothèque', icon: BookOpen, exact: false },
 ] as const;
 
 export const NavSidebar = () => {

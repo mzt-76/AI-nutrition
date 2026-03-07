@@ -133,16 +133,15 @@ async def generate_conversation_title(title_agent: Agent, query: str) -> str:
     """
     try:
         prompt = (
-            "Based on the user message below, create a 4-6 word sentence "
-            "for the conversation description since this is the first message "
-            f"in the description.\n\n{query}"
+            "D'après le message utilisateur ci-dessous, génère un titre de conversation "
+            f"de 4 à 6 mots en français.\n\n{query}"
         )
         result = await title_agent.run(prompt)
         title: str = result.output.strip()
         return title
     except Exception as e:
         logger.error(f"Error generating conversation title: {e}")
-        return "New Conversation"
+        return "Nouvelle conversation"
 
 
 async def store_message(
@@ -244,7 +243,10 @@ async def check_rate_limit(
         )
         minute_count: int = minute_resp.count if minute_resp.count is not None else 0
         if minute_count >= per_minute:
-            return False, "Doucement ! Veuillez patienter quelques secondes avant de renvoyer un message. 🕐"
+            return (
+                False,
+                "Doucement ! Veuillez patienter quelques secondes avant de renvoyer un message. 🕐",
+            )
 
         # Daily check
         day_resp = (
@@ -256,7 +258,10 @@ async def check_rate_limit(
         )
         day_count: int = day_resp.count if day_resp.count is not None else 0
         if day_count >= per_day:
-            return False, "Vous avez atteint votre limite de messages pour aujourd'hui. Revenez demain pour continuer ! 🌅"
+            return (
+                False,
+                "Vous avez atteint votre limite de messages pour aujourd'hui. Revenez demain pour continuer ! 🌅",
+            )
 
         return True, None
     except Exception as e:

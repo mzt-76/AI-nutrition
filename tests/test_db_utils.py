@@ -81,10 +81,13 @@ class TestCheckRateLimit:
         day_resp.count = 100
 
         mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.side_effect = [
-            minute_resp, day_resp
+            minute_resp,
+            day_resp,
         ]
 
-        allowed, msg = await check_rate_limit(mock_supabase, "user1", per_minute=10, per_day=100)
+        allowed, msg = await check_rate_limit(
+            mock_supabase, "user1", per_minute=10, per_day=100
+        )
         assert allowed is False
         assert "demain" in msg
 

@@ -4,7 +4,7 @@ import { MessageSquare, Activity, BookOpen } from 'lucide-react';
 const tabs = [
   { path: '/', label: 'Chat', icon: MessageSquare, exact: true },
   { path: '/tracking', label: 'Suivi', icon: Activity, exact: false },
-  { path: '/plans', label: 'Mes Plans', icon: BookOpen, exact: false },
+  { path: '/plans', label: 'Bibliothèque', icon: BookOpen, exact: false },
 ] as const;
 
 export const BottomTabs = () => {

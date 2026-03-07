@@ -29,7 +29,7 @@ export function PlanCard({ plan, onDelete }: PlanCardProps) {
       <div className="flex items-center gap-3">
         <CalendarDays className="h-5 w-5 text-emerald-400 shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-200 truncate">{weekLabel}</p>
+          <p className="text-sm font-medium text-gray-200 break-words">{weekLabel}</p>
           {createdLabel && <p className="text-[11px] text-gray-500 mt-0.5">{createdLabel}</p>}
         </div>
         <div className="flex items-center gap-2 shrink-0">

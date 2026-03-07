@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { Trash2, Coffee, Sun, Moon, Cookie, Plus, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import type { DailyFoodLog } from '@/types/database.types';
 import type { MealType } from '@/hooks/useDailyTracking';
@@ -126,6 +125,7 @@ export function MealSection({ mealType, entries, onDelete, onUpdateQuantity, onU
           <input
             ref={inputRef}
             type="text"
+            maxLength={100}
             className="text-sm text-gray-300 bg-white/10 border border-emerald-500/30 rounded px-1.5 py-0.5 flex-1 min-w-0
               placeholder:text-gray-600 outline-none focus:border-emerald-500/50 transition-colors
               disabled:opacity-50 disabled:cursor-not-allowed"
@@ -194,6 +194,7 @@ function EntryRow({
       {editingName ? (
         <input
           type="text"
+          maxLength={100}
           className="text-sm text-gray-300 bg-white/10 border border-white/20 rounded px-1 py-0.5 flex-1 min-w-0"
           value={nameDraft}
           autoFocus
@@ -217,7 +218,7 @@ function EntryRow({
           }}
           title="Modifier l'aliment"
         >
-          {entry.food_name}
+          {entry.food_name ? entry.food_name.charAt(0).toUpperCase() + entry.food_name.slice(1) : ''}
         </button>
       )}
       {/* Per-item macros */}
@@ -265,15 +266,13 @@ function EntryRow({
         {Math.round(entry.calories)}
         <span className="text-[8px] text-gray-600">kcal</span>
       </span>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 text-gray-600 hover:text-red-400 active:text-red-400 transition-colors shrink-0"
+      <button
+        className="p-1 rounded-md hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors shrink-0"
         onClick={() => onDelete(entry.id)}
       >
         <Trash2 className="h-3 w-3" />
         <span className="sr-only">Supprimer {entry.food_name}</span>
-      </Button>
+      </button>
     </div>
   );
 }

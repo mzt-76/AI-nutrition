@@ -1,23 +1,24 @@
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Message, FileAttachment } from '@/types/database.types';
 import { UIComponentBlock, SemanticZone } from '@/types/generative-ui.types';
 import { sendMessage, fetchMessages } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
-import { Session } from '@supabase/supabase-js';
+import { Session, User } from '@supabase/supabase-js';
+import { Conversation } from '@/types/database.types';
 
 interface MessageHandlingProps {
-  user: any;
+  user: User | null;
   session: Session | null;
-  selectedConversation: any;
+  selectedConversation: Conversation | null;
   setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   isMounted: React.MutableRefObject<boolean>;
-  setSelectedConversation: (conversation: any) => void;
-  setConversations: (conversations: any[] | ((prev: any[]) => any[])) => void;
-  loadConversations: () => Promise<any[]>;
+  setSelectedConversation: (conversation: Conversation | null) => void;
+  setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>;
+  loadConversations: () => Promise<Conversation[]>;
   setNewConversationId?: (id: string | null) => void;
 }
 
@@ -37,6 +38,13 @@ export const useMessageHandling = ({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const abortControllerRef = useRef<AbortController | null>(null);
+  const newConvTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (newConvTimerRef.current) clearTimeout(newConvTimerRef.current);
+    };
+  }, []);
 
   const handleStopResponse = useCallback(() => {
     if (abortControllerRef.current) {
@@ -46,21 +54,48 @@ export const useMessageHandling = ({
     setLoading(false);
   }, [setLoading]);
 
+  const finalizeNewConversation = useCallback(async (sessionId: string, aiMessageId: string) => {
+    const newConversations = await loadConversations();
+    const newConversation = newConversations.find(
+      (conv) => conv.session_id === sessionId
+    );
+
+    if (newConversation) {
+      setMessages((prev) => {
+        const updated = [...prev];
+        const idx = updated.findIndex(msg => msg.id === aiMessageId);
+        if (idx !== -1) {
+          updated[idx] = { ...updated[idx], session_id: sessionId };
+        }
+        return updated;
+      });
+
+      setSelectedConversation(newConversation);
+
+      if (setNewConversationId) {
+        setNewConversationId(sessionId);
+        const timerId = setTimeout(() => {
+          if (isMounted.current && setNewConversationId) {
+            setNewConversationId(null);
+          }
+        }, 300);
+        newConvTimerRef.current = timerId;
+      }
+    }
+  }, [loadConversations, setMessages, setSelectedConversation, setNewConversationId, isMounted]);
+
   const handleSendMessage = async (content: string, files?: FileAttachment[]) => {
     if (!user) return;
-    
+
     setError(null);
     setLoading(true);
 
-    // Create a new AbortController for this request
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
 
     try {
-      // Get current session ID from selected conversation, if any
       const currentSessionId = selectedConversation?.session_id || '';
-      
-      // Create a temporary user message object for UI display only
+
       const userMessage: Message = {
         id: `temp-${Date.now()}-user`,
         session_id: currentSessionId,
@@ -72,36 +107,27 @@ export const useMessageHandling = ({
         },
         created_at: new Date().toISOString(),
       };
-      
-      // Update UI with user message
+
       setMessages((prev) => [...prev, userMessage]);
-      
-      // Track if this is a new conversation
+
       const isNewConversation = !currentSessionId;
-      
-      // Create an ID for the AI message that will be created
       const aiMessageId = `temp-${Date.now()}-ai`;
       let aiMessageCreated = false;
       let completionReceived = false;
       const accumulatedComponents: UIComponentBlock[] = [];
 
-      // Send to webhook API with streaming callback
       const response = await sendMessage(
         content,
         user.id,
         currentSessionId,
         session?.access_token,
         files,
-        // Streaming callback function with enhanced completion handling
         (chunk) => {
-          // Ignore chunks after abort
           if (abortController.signal.aborted) return;
           if (!isMounted.current) return;
-          
-          // Process text chunks
+
           if (chunk.text && chunk.text.trim() !== '') {
             if (!aiMessageCreated) {
-              // First time we get text, create the AI message
               const aiMessage: Message = {
                 id: aiMessageId,
                 session_id: currentSessionId,
@@ -112,16 +138,14 @@ export const useMessageHandling = ({
                 },
                 created_at: new Date().toISOString(),
               };
-              
-              // Add the AI message to the UI
+
               setMessages((prev) => [...prev, aiMessage]);
               aiMessageCreated = true;
             } else {
-              // Update existing message with new content
               setMessages((prev) => {
                 const updatedMessages = [...prev];
                 const aiMessageIndex = updatedMessages.findIndex(msg => msg.id === aiMessageId);
-                
+
                 if (aiMessageIndex !== -1) {
                   updatedMessages[aiMessageIndex] = {
                     ...updatedMessages[aiMessageIndex],
@@ -131,13 +155,12 @@ export const useMessageHandling = ({
                     },
                   };
                 }
-                
+
                 return updatedMessages;
               });
             }
           }
-          
-          // Handle UI component chunks
+
           if (chunk.type === 'ui_component' && chunk.component) {
             accumulatedComponents.push({
               id: chunk.id || `${chunk.component}-${accumulatedComponents.length}`,
@@ -161,68 +184,37 @@ export const useMessageHandling = ({
             });
           }
 
-          // Check for completion flag
           if (chunk.complete === true && !completionReceived) {
             completionReceived = true;
-            
-            // If we have a session_id in the completion chunk, update the message
+
             if (chunk.session_id && chunk.session_id !== currentSessionId) {
               setMessages((prev) => {
                 const updatedMessages = [...prev];
                 const aiMessageIndex = updatedMessages.findIndex(msg => msg.id === aiMessageId);
-                
+
                 if (aiMessageIndex !== -1) {
                   updatedMessages[aiMessageIndex] = {
                     ...updatedMessages[aiMessageIndex],
                     session_id: chunk.session_id,
                   };
                 }
-                
+
                 return updatedMessages;
               });
             }
-            
-            // If this is a new conversation and we got a session_id, update UI immediately
+
             if (isNewConversation && chunk.session_id) {
-              // Load conversations to get the latest data including the new conversation
-              loadConversations().then(newConversations => {
-                const newConversation = newConversations.find(
-                  (conv) => conv.session_id === chunk.session_id
-                );
-                
-                if (newConversation) {
-                  // Update the selected conversation
-                  setSelectedConversation(newConversation);
-                  
-                  // Set the new conversation ID for animation
-                  if (setNewConversationId && chunk.session_id) {
-                    setNewConversationId(chunk.session_id);
-                    
-                    // Clear the new conversation ID after 300ms
-                    setTimeout(() => {
-                      if (isMounted.current && setNewConversationId) {
-                        setNewConversationId(null);
-                      }
-                    }, 300);
-                  }
-                }
-              });
+              finalizeNewConversation(chunk.session_id, aiMessageId);
             }
-            
-            // End loading state immediately when we receive the complete flag
+
             setLoading(false);
           }
         },
         abortController.signal
       );
-      
+
       if (isMounted.current && !completionReceived) {
-        // Only process this section if we haven't already received a completion flag
-        // This avoids redundant processing and UI updates
-        
-        // For non-streaming responses or if no AI message was created during streaming
         if (!aiMessageCreated) {
-          // Create a new AI message with the final response
           const newAiMessage: Message = {
             id: aiMessageId,
             session_id: response.session_id || currentSessionId,
@@ -233,100 +225,51 @@ export const useMessageHandling = ({
             },
             created_at: new Date().toISOString(),
           };
-          
-          // Add the new AI message to the UI
+
           setMessages((prev) => [...prev, newAiMessage]);
         } else {
-          // For streaming responses, ensure the final content is set correctly
-          // This ensures a smooth transition without flashing
           setTimeout(() => {
             if (isMounted.current && !completionReceived) {
               setMessages((prev) => {
                 const updatedMessages = [...prev];
                 const aiMessageIndex = updatedMessages.findIndex(msg => msg.id === aiMessageId);
-                
-                if (aiMessageIndex !== -1) {
-                  // Always update with the final response to ensure we have the complete text
-                  if (response.output) {
-                    updatedMessages[aiMessageIndex] = {
-                      ...updatedMessages[aiMessageIndex],
-                      message: {
-                        ...updatedMessages[aiMessageIndex].message,
-                        content: response.output,
-                      },
-                    };
-                  }
+
+                if (aiMessageIndex !== -1 && response.output) {
+                  updatedMessages[aiMessageIndex] = {
+                    ...updatedMessages[aiMessageIndex],
+                    message: {
+                      ...updatedMessages[aiMessageIndex].message,
+                      content: response.output,
+                    },
+                  };
                 }
-                
+
                 return updatedMessages;
               });
             }
-          }, 100); // Small delay to ensure smooth transition
+          }, 100);
         }
-        
-        // If we got a session_id back and it's a new conversation, update the UI
+
         if (isNewConversation && response.session_id) {
-          // First load the conversations to get the latest data
-          const newConversations = await loadConversations();
-          const newConversation = newConversations.find(
-            (conv) => conv.session_id === response.session_id
-          );
-          
-          // Batch our state updates to prevent multiple re-renders
-          if (newConversation) {
-            // Update messages and selected conversation in one render cycle
-            setMessages((prev) => {
-              const updatedMessages = [...prev];
-              const aiMessageIndex = updatedMessages.findIndex(msg => msg.id === aiMessageId);
-              
-              if (aiMessageIndex !== -1) {
-                updatedMessages[aiMessageIndex] = {
-                  ...updatedMessages[aiMessageIndex],
-                  session_id: response.session_id,
-                };
-              }
-              
-              return updatedMessages;
-            });
-            
-            setSelectedConversation(newConversation);
-            
-            // Set the new conversation ID for animation
-            if (setNewConversationId && response.session_id) {
-              setNewConversationId(response.session_id);
-              
-              // Clear the new conversation ID after 300ms
-              setTimeout(() => {
-                if (isMounted.current && setNewConversationId) {
-                  setNewConversationId(null);
-                }
-              }, 300);
-            }
-          }
+          await finalizeNewConversation(response.session_id, aiMessageId);
         }
-        
-        // End loading state if it hasn't been ended by the completion flag
+
         setLoading(false);
       }
-      
-      // Only refresh conversations if this wasn't a new conversation
-      // For new conversations, we already loaded them above
+
       if (!isNewConversation) {
         loadConversations();
       }
-      
+
     } catch (err) {
-      // Abort is expected when user clicks Stop — not an error
       if (err instanceof DOMException && err.name === 'AbortError') {
         return;
       }
 
       console.error('Error in chat flow:', err);
       if (isMounted.current) {
-        // Create an error message for display
-        const errorMessage = err instanceof Error ? err.message : 'Failed to process your message. Please try again.';
+        const errorMessage = err instanceof Error ? err.message : 'Impossible de traiter votre message. Veuillez réessayer.';
 
-        // Add an error message to the chat
         const aiErrorMessage: Message = {
           id: `error-${Date.now()}`,
           session_id: selectedConversation?.session_id || '',
@@ -338,7 +281,6 @@ export const useMessageHandling = ({
           created_at: new Date().toISOString(),
         };
 
-        // Add the error message to the UI
         setMessages((prev) => [...prev, aiErrorMessage]);
 
         setError(errorMessage);
@@ -357,7 +299,7 @@ export const useMessageHandling = ({
   };
 
   // Load messages for the selected conversation
-  const loadMessages = useCallback(async (conversation: any) => {
+  const loadMessages = useCallback(async (conversation: Conversation) => {
     if (!user) return;
     
     try {

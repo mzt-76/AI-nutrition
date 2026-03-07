@@ -41,8 +41,8 @@ def _mock_supabase(
     )
 
     log_table = MagicMock()
-    log_table.select.return_value.eq.return_value.eq.return_value.execute.return_value = (
-        MagicMock(data=log_data)
+    log_table.select.return_value.eq.return_value.eq.return_value.execute.return_value = MagicMock(
+        data=log_data
     )
 
     def table_router(name: str) -> MagicMock:
@@ -62,9 +62,27 @@ SAMPLE_PROFILE = {
 }
 
 SAMPLE_LOG = [
-    {"calories": 500, "protein_g": 40, "carbs_g": 60, "fat_g": 15, "meal_type": "petit-dejeuner"},
-    {"calories": 700, "protein_g": 50, "carbs_g": 80, "fat_g": 20, "meal_type": "dejeuner"},
-    {"calories": 250, "protein_g": 20, "carbs_g": 30, "fat_g": 5, "meal_type": "dejeuner"},
+    {
+        "calories": 500,
+        "protein_g": 40,
+        "carbs_g": 60,
+        "fat_g": 15,
+        "meal_type": "petit-dejeuner",
+    },
+    {
+        "calories": 700,
+        "protein_g": 50,
+        "carbs_g": 80,
+        "fat_g": 20,
+        "meal_type": "dejeuner",
+    },
+    {
+        "calories": 250,
+        "protein_g": 20,
+        "carbs_g": 30,
+        "fat_g": 5,
+        "meal_type": "dejeuner",
+    },
 ]
 
 
@@ -104,7 +122,12 @@ async def test_empty_log_returns_full_targets_as_remaining():
     raw = await execute(supabase=sb, user_id="user-123", log_date="2026-03-06")
     result = json.loads(raw)
 
-    assert result["consumed"] == {"calories": 0.0, "protein_g": 0.0, "carbs_g": 0.0, "fat_g": 0.0}
+    assert result["consumed"] == {
+        "calories": 0.0,
+        "protein_g": 0.0,
+        "carbs_g": 0.0,
+        "fat_g": 0.0,
+    }
     assert result["remaining"]["calories"] == 2200.0
     assert result["entries_count"] == 0
     assert result["meals_logged"] == []
@@ -177,7 +200,13 @@ async def test_supabase_exception_returns_script_error():
 async def test_overconsumption_shows_negative_remaining():
     """When consumed > targets, remaining is negative."""
     over_log = [
-        {"calories": 2500, "protein_g": 200, "carbs_g": 300, "fat_g": 80, "meal_type": "dejeuner"},
+        {
+            "calories": 2500,
+            "protein_g": 200,
+            "carbs_g": 300,
+            "fat_g": 80,
+            "meal_type": "dejeuner",
+        },
     ]
     sb = _mock_supabase(profile_data=[SAMPLE_PROFILE], log_data=over_log)
     raw = await execute(supabase=sb, user_id="user-123")
@@ -195,4 +224,5 @@ async def test_log_date_defaults_to_today():
     result = json.loads(raw)
 
     from datetime import date
+
     assert result["log_date"] == date.today().isoformat()

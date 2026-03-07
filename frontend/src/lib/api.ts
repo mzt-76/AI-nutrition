@@ -197,9 +197,9 @@ export const sendMessage = async (
             throw new Error('Réponse vide du serveur.');
           }
           return {
-            title: parsedData[0]?.conversation_title || "New conversation",
+            title: parsedData[0]?.conversation_title || "Nouvelle conversation",
             session_id: parsedData[0]?.session_id || session_id,
-            output: parsedData[0]?.output || "Sorry, I couldn't process your request."
+            output: parsedData[0]?.output || "Désolé, je n'ai pas pu traiter votre demande."
           };
         }
         

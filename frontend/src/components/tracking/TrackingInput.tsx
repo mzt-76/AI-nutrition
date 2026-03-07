@@ -55,7 +55,7 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
 
       // Pass a no-op streaming callback so sendMessage uses the NDJSON
       // streaming path instead of trying to JSON.parse the full response.
-      await sendMessage(prompt, user.id, '', session?.access_token, undefined, () => {});
+      await sendMessage(prompt, user.id, '', session?.access_token, undefined, () => {}, undefined, true);
 
       setText('');
       toast({ title: 'Envoyé', description: "L'agent analyse vos aliments..." });
@@ -66,7 +66,7 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
       const poll = () => {
         if (attempt >= delays.length) return;
         pollTimerRef.current = setTimeout(() => {
-          onEntryCreated().catch(() => {});
+          onEntryCreated().catch(err => console.error('Polling refresh failed:', err));
           attempt++;
           poll();
         }, delays[attempt]);
@@ -104,6 +104,7 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
+          onBlur={(e) => { e.target.scrollLeft = e.target.scrollWidth; }}
           placeholder={isListening ? 'Écoute en cours...' : "J'ai mangé..."}
           disabled={sending}
           className="flex-1 bg-transparent text-sm text-gray-200 placeholder:text-gray-600 outline-none min-w-0 py-2 px-2 disabled:opacity-50 disabled:cursor-not-allowed"

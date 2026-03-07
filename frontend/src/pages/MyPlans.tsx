@@ -19,7 +19,7 @@ type Tab = 'plans' | 'favoris' | 'courses';
 
 const TABS: { key: Tab; label: string; icon: typeof CalendarDays }[] = [
   { key: 'plans', label: 'Plans', icon: CalendarDays },
-  { key: 'favoris', label: 'Favoris', icon: Heart },
+  { key: 'favoris', label: 'Recettes', icon: Heart },
   { key: 'courses', label: 'Courses', icon: ShoppingCart },
 ];
 
@@ -127,10 +127,10 @@ const MyPlans = () => {
 
   const pageContent = (
     <div className="flex flex-col flex-1 min-w-0 h-screen gradient-bg">
-      {isMobile && <MobileHeader title="Mes Plans" />}
+      {isMobile && <MobileHeader title="Bibliothèque" />}
       {!isMobile && (
         <div className="flex items-center h-14 border-b border-border/50 px-6">
-          <h1 className="text-lg font-semibold">Mes Plans</h1>
+          <h1 className="text-lg font-semibold">Bibliothèque</h1>
         </div>
       )}
 
@@ -213,7 +213,7 @@ const MyPlans = () => {
         onFavoriteChange={() => {
           // Refresh favorites list when toggled from drawer
           if (userId && tab === 'favoris') {
-            fetchFavorites(userId).then(setFavorites);
+            fetchFavorites(userId).then(setFavorites).catch(err => console.error('Failed to refresh favorites:', err));
           }
         }}
       />

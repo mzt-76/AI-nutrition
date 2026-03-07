@@ -43,11 +43,15 @@ const MEAL_ICONS: Record<string, typeof Coffee> = {
 };
 
 const MEAL_LABELS: Record<string, string> = {
-  'petit-dejeuner': 'Petit-dej',
-  dejeuner: 'Dejeuner',
-  diner: 'Diner',
+  'petit-dejeuner': 'Petit-déjeuner',
+  dejeuner: 'Déjeuner',
+  diner: 'Dîner',
   collation: 'Collation',
 };
+
+function formatMealTypeFallback(raw: string): string {
+  return raw.replace(/_/g, ' ').toLowerCase().replace(/^./, c => c.toUpperCase());
+}
 
 function normalizeMealType(raw: string): string {
   return raw
@@ -114,7 +118,7 @@ export function RecipeDetailDrawer({
   const rawMealType = recipe?.meal_type ?? mealData?.meal_type ?? '';
   const mealTypeNorm = normalizeMealType(rawMealType);
   const MealIcon = MEAL_ICONS[mealTypeNorm] ?? UtensilsCrossed;
-  const mealLabel = MEAL_LABELS[mealTypeNorm] ?? rawMealType;
+  const mealLabel = MEAL_LABELS[mealTypeNorm] ?? formatMealTypeFallback(rawMealType);
 
   const calories = recipe?.calories_per_serving ?? mealData?.nutrition.calories ?? 0;
   const protein = recipe?.protein_g_per_serving ?? mealData?.nutrition.protein_g ?? 0;
@@ -186,7 +190,7 @@ export function RecipeDetailDrawer({
             <DrawerHeader className="text-left">
               <div className="flex items-center gap-2 mb-1">
                 <MealIcon className="h-4 w-4 text-emerald-400" />
-                <span className="text-[10px] font-medium uppercase tracking-wide text-gray-500 bg-white/[0.04] rounded-full px-2 py-0.5">
+                <span className="text-[10px] font-medium tracking-wide text-gray-500 bg-white/[0.04] rounded-full px-2 py-0.5">
                   {mealLabel}
                 </span>
                 {prepTime && (
@@ -237,10 +241,10 @@ export function RecipeDetailDrawer({
               )}
 
               {/* Instructions */}
-              {instructions && (
+              {instructions ? (
                 <div>
                   <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-                    Preparation
+                    Préparation
                   </h4>
                   <ol className="space-y-2">
                     {instructions
@@ -254,6 +258,13 @@ export function RecipeDetailDrawer({
                         </li>
                       ))}
                   </ol>
+                </div>
+              ) : (
+                <div>
+                  <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+                    Préparation
+                  </h4>
+                  <p className="text-sm text-gray-500 italic">Aucune instruction disponible.</p>
                 </div>
               )}
             </div>
@@ -274,7 +285,7 @@ export function RecipeDetailDrawer({
                 ) : (
                   <Heart className={`h-4 w-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
                 )}
-                {isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+                {isFavorite ? 'Retirer des recettes' : 'Ajouter aux recettes'}
               </Button>
             </DrawerFooter>
           </>
