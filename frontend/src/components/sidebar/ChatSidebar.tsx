@@ -17,6 +17,7 @@ import {
   Salad,
   Activity,
   BookOpen,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -33,6 +34,7 @@ interface ChatSidebarProps {
   onNewChat: () => void;
   onSelectConversation: (conversation: Conversation) => void;
   selectedConversationId: string | null;
+  onDeleteConversation: (sessionId: string) => void;
   onToggleSidebar: () => void;
   newConversationId?: string | null;
 }
@@ -43,6 +45,7 @@ export const ChatSidebar = ({
   onNewChat,
   onSelectConversation,
   selectedConversationId,
+  onDeleteConversation,
   onToggleSidebar,
   newConversationId,
 }: ChatSidebarProps) => {
@@ -170,7 +173,7 @@ export const ChatSidebar = ({
           >
             <Link to="/plans">
               <BookOpen className="mr-2 h-5 w-5" />
-              Mes Plans
+              Bibliothèque
             </Link>
           </Button>
         </div>
@@ -193,27 +196,34 @@ export const ChatSidebar = ({
         <div className="space-y-1 p-2">
           {filteredConversations.length > 0 ? (
             filteredConversations.map((conversation) => (
-              <Button
-                key={conversation.session_id}
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "w-full justify-start font-normal text-sm",
-                  selectedConversationId === conversation.session_id && "bg-sidebar-accent text-sidebar-accent-foreground"
-                )}
-                onClick={() => onSelectConversation(conversation)}
-              >
-                <MessageSquare className="mr-2 h-4 w-4" />
-                {newConversationId === conversation.session_id ? (
-                  <TypewriterText
-                    text={conversation.title || ''}
-                    duration={300}
-                    className="truncate"
-                  />
-                ) : (
-                  <span className="truncate">{conversation.title}</span>
-                )}
-              </Button>
+              <div key={conversation.session_id} className="group flex items-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "flex-1 min-w-0 justify-start font-normal text-sm",
+                    selectedConversationId === conversation.session_id && "bg-sidebar-accent text-sidebar-accent-foreground"
+                  )}
+                  onClick={() => onSelectConversation(conversation)}
+                >
+                  <MessageSquare className="mr-2 h-4 w-4 shrink-0" />
+                  {newConversationId === conversation.session_id ? (
+                    <TypewriterText
+                      text={conversation.title || ''}
+                      duration={300}
+                      className="truncate"
+                    />
+                  ) : (
+                    <span className="truncate">{conversation.title}</span>
+                  )}
+                </Button>
+                <button
+                  className="p-1 rounded-md hover:bg-red-500/10 text-white/40 hover:text-red-400 transition-colors shrink-0"
+                  onClick={(e) => { e.stopPropagation(); onDeleteConversation(conversation.session_id); }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
             ))
           ) : (
             <div className="py-4 text-center text-sm text-muted-foreground">
