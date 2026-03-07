@@ -59,7 +59,7 @@ markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mcp==1.6.0
 mdurl==0.1.2
-mem0ai==0.1.102
+mem0ai==1.0.5
 monotonic==1.6
 multidict==6.3.2
 narwhals==1.34.0

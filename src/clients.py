@@ -37,7 +37,11 @@ NEVER STORE these (session-specific, transient, or already in the user profile):
 - Greetings, confirmations, or generic statements
 - Calculated values: BMR, TDEE, calorie targets, macro targets
 
-Return a JSON list under the key "facts". If nothing qualifies, return {"facts": []}.
+Return a JSON object with key "facts" containing a list of SHORT PLAIN STRINGS.
+Each fact must be a simple sentence string, NOT a dict/object.
+
+Example output: {"facts": ["allergique aux arachides", "fait du sport le mardi et jeudi"]}
+If nothing qualifies, return {"facts": []}.
 """
 import logging
 
@@ -198,7 +202,6 @@ async def get_async_memory_client() -> AsyncMemory:
     llm_api_key = os.getenv("LLM_API_KEY")
     llm_model = os.getenv("MEM0_LLM_CHOICE", "gpt-4o-mini")
 
-    embedding_api_key = os.getenv("EMBEDDING_API_KEY")  # noqa: F841 — used by RAG pipeline
     embedding_model = os.getenv("EMBEDDING_MODEL_CHOICE", "text-embedding-3-small")
 
     database_url = os.getenv("DATABASE_URL")
