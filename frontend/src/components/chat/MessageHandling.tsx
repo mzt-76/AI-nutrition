@@ -18,7 +18,6 @@ interface MessageHandlingProps {
   setError: (error: string | null) => void;
   isMounted: React.MutableRefObject<boolean>;
   setSelectedConversation: (conversation: Conversation | null) => void;
-  setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>;
   loadConversations: () => Promise<Conversation[]>;
   setNewConversationId?: (id: string | null) => void;
 }
@@ -32,7 +31,6 @@ export const useMessageHandling = ({
   setError,
   isMounted,
   setSelectedConversation,
-  setConversations,
   loadConversations,
   setNewConversationId,
 }: MessageHandlingProps) => {

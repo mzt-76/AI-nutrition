@@ -8,6 +8,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import Login from "./pages/Login";
 import { lazy, Suspense, useState, useEffect } from "react";
 import { AuthCallback } from "./components/auth/AuthCallback";
+import { PasswordRecoveryModal } from "./components/auth/PasswordRecoveryModal";
 import { BottomTabs } from "./components/navigation/BottomTabs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -44,19 +45,30 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 // Admin-only route — checks user_profiles.is_admin
+const adminCache = new Map<string, boolean>();
+
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(() => {
+    if (user && adminCache.has(user.id)) return adminCache.get(user.id)!;
+    return null;
+  });
 
   useEffect(() => {
     if (!user) return;
+    if (adminCache.has(user.id)) {
+      setIsAdmin(adminCache.get(user.id)!);
+      return;
+    }
     supabase
       .from('user_profiles')
       .select('is_admin')
       .eq('id', user.id)
       .single()
       .then(({ data }) => {
-        setIsAdmin(data?.is_admin === true);
+        const val = data?.is_admin === true;
+        adminCache.set(user.id, val);
+        setIsAdmin(val);
       })
       .catch(() => setIsAdmin(false));
   }, [user]);
@@ -77,10 +89,12 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppRoutes = () => {
-  const { user } = useAuth();
+  const { user, isRecovery } = useAuth();
   const isMobile = useIsMobile();
 
   return (
+    <>
+      {isRecovery && <PasswordRecoveryModal />}
     <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-background"><div className="animate-pulse">Loading...</div></div>}>
       <Routes>
         <Route
@@ -133,6 +147,7 @@ const AppRoutes = () => {
       </Routes>
       {isMobile && user && <BottomTabs />}
     </Suspense>
+    </>
   );
 };
 

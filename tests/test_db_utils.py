@@ -25,14 +25,13 @@ class TestGenerateSessionId:
         assert "~" in session_id
         prefix, suffix = session_id.split("~", 1)
         assert prefix == "user123"
-        assert len(suffix) == 10
+        assert len(suffix) >= 8  # secrets.token_urlsafe(8) produces ~11 chars
 
-    def test_random_part_is_alphanumeric_lowercase(self):
-        """Random suffix should be lowercase alphanumeric."""
+    def test_random_part_is_url_safe(self):
+        """Random suffix should be URL-safe (base64url characters)."""
         session_id = generate_session_id("test")
         suffix = session_id.split("~")[1]
-        assert suffix.isalnum()
-        assert suffix == suffix.lower()
+        assert all(c.isalnum() or c in "-_" for c in suffix)
 
     def test_unique_across_calls(self):
         """Two calls should produce different session IDs."""

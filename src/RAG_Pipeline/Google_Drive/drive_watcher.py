@@ -1,4 +1,4 @@
-from typing import Dict, Any, List, Optional
+import logging
 from datetime import datetime, timezone
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
@@ -11,6 +11,9 @@ import json
 import sys
 import os
 import io
+from typing import Any
+
+logger = logging.getLogger(__name__)
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from common.text_processor import extract_text_from_file
@@ -28,8 +31,8 @@ class GoogleDriveWatcher:
         self,
         credentials_path: str = "credentials.json",
         token_path: str = "token.json",
-        folder_id: str = None,
-        config_path: str = None,
+        folder_id: str | None = None,
+        config_path: str | None = None,
     ):
         """
         Initialize the Google Drive watcher.
@@ -64,7 +67,7 @@ class GoogleDriveWatcher:
         try:
             with open(self.config_path, "r") as f:
                 self.config = json.load(f)
-            print(f"Loaded configuration from {self.config_path}")
+            logger.info(f"Loaded configuration from {self.config_path}")
 
             # Load the last check time from config
             last_check_time_str = self.config.get(
@@ -74,19 +77,19 @@ class GoogleDriveWatcher:
                 self.last_check_time = datetime.strptime(
                     last_check_time_str, "%Y-%m-%dT%H:%M:%S.%fZ"
                 )
-                print(f"Resuming from last check time: {self.last_check_time}")
+                logger.info(f"Resuming from last check time: {self.last_check_time}")
             except ValueError:
                 # If the date format is invalid, use the default
                 self.last_check_time = datetime.strptime(
                     "1970-01-01T00:00:00.000Z", "%Y-%m-%dT%H:%M:%S.%fZ"
                 )
-                print("Invalid last check time format in config, using default")
+                logger.warning("Invalid last check time format in config, using default")
 
             if not self.folder_id:
                 self.folder_id = self.config.get("watch_folder_id", None)
 
         except Exception as e:
-            print(f"Error loading configuration: {e}")
+            logger.error(f"Error loading configuration: {e}")
             self.config = {
                 "supported_mime_types": [
                     "application/pdf",
@@ -111,7 +114,7 @@ class GoogleDriveWatcher:
             self.last_check_time = datetime.strptime(
                 "1970-01-01T00:00:00.000Z", "%Y-%m-%dT%H:%M:%S.%fZ"
             )
-            print("Using default configuration")
+            logger.info("Using default configuration")
 
     def save_last_check_time(self) -> None:
         """
@@ -127,9 +130,9 @@ class GoogleDriveWatcher:
             with open(self.config_path, "w") as f:
                 json.dump(self.config, f, indent=2)
 
-            print(f"Saved last check time: {self.last_check_time}")
+            logger.info(f"Saved last check time: {self.last_check_time}")
         except Exception as e:
-            print(f"Error saving last check time: {e}")
+            logger.error(f"Error saving last check time: {e}")
 
     def authenticate(self) -> None:
         """
@@ -139,9 +142,14 @@ class GoogleDriveWatcher:
 
         # Check if token.json exists
         if os.path.exists(self.token_path):
-            creds = Credentials.from_authorized_user_info(
-                json.loads(open(self.token_path).read()), SCOPES
-            )
+            try:
+                with open(self.token_path) as f:
+                    creds = Credentials.from_authorized_user_info(
+                        json.loads(f.read()), SCOPES
+                    )
+            except (json.JSONDecodeError, OSError) as e:
+                logger.error(f"Error reading token file: {e}")
+                creds = None
 
         # If there are no valid credentials, let the user log in
         if not creds or not creds.valid:
@@ -169,7 +177,7 @@ class GoogleDriveWatcher:
 
     def get_folder_contents(
         self, folder_id: str, time_str: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get all files and subfolders in a folder that have been modified or created after the specified time.
 
@@ -212,7 +220,7 @@ class GoogleDriveWatcher:
 
         return items
 
-    def get_changes(self) -> List[Dict[str, Any]]:
+    def get_changes(self) -> list[dict[str, Any]]:
         """
         Get changes in Google Drive since the last check.
 
@@ -253,7 +261,7 @@ class GoogleDriveWatcher:
 
         return files
 
-    def download_file(self, file_id: str, mime_type: str) -> Optional[bytes]:
+    def download_file(self, file_id: str, mime_type: str) -> bytes | None:
         """
         Download a file from Google Drive.
 
@@ -292,10 +300,10 @@ class GoogleDriveWatcher:
             return file_content.read()
 
         except Exception as e:
-            print(f"Error downloading file {file_id}: {e}")
+            logger.error(f"Error downloading file {file_id}: {e}")
             return None
 
-    def process_file(self, file: Dict[str, Any]) -> None:
+    def process_file(self, file: dict[str, Any]) -> None:
         """
         Process a file for the RAG pipeline.
 
@@ -310,7 +318,7 @@ class GoogleDriveWatcher:
 
         # Check if the file is in the trash
         if is_trashed:
-            print(
+            logger.info(
                 f"File '{file_name}' (ID: {file_id}) has been trashed. Removing from database..."
             )
             delete_document_by_file_id(file_id)
@@ -321,19 +329,19 @@ class GoogleDriveWatcher:
         # Skip unsupported file types
         supported_mime_types = self.config.get("supported_mime_types", [])
         if not any(mime_type.startswith(t) for t in supported_mime_types):
-            print(f"Skipping unsupported file type: {mime_type}")
+            logger.info(f"Skipping unsupported file type: {mime_type}")
             return
 
         # Download the file
         file_content = self.download_file(file_id, mime_type)
         if not file_content:
-            print(f"Failed to download file '{file_name}' (ID: {file_id})")
+            logger.warning(f"Failed to download file '{file_name}' (ID: {file_id})")
             return
 
         # Extract text from the file
         text = extract_text_from_file(file_content, mime_type, file_name, self.config)
         if not text:
-            print(f"No text could be extracted from file '{file_name}' (ID: {file_id})")
+            logger.warning(f"No text could be extracted from file '{file_name}' (ID: {file_id})")
             return
 
         # Process the file for RAG
@@ -351,11 +359,11 @@ class GoogleDriveWatcher:
         self.known_files[file_id] = file.get("modifiedTime")
 
         if success:
-            print(f"Successfully processed file '{file_name}' (ID: {file_id})")
+            logger.info(f"Successfully processed file '{file_name}' (ID: {file_id})")
         else:
-            print(f"Failed to process file '{file_name}' (ID: {file_id})")
+            logger.error(f"Failed to process file '{file_name}' (ID: {file_id})")
 
-    def check_for_deleted_files(self) -> List[str]:
+    def check_for_deleted_files(self) -> list[str]:
         """
         Check for files that have been deleted from Google Drive.
 
@@ -384,7 +392,7 @@ class GoogleDriveWatcher:
 
                 # If the file is in the trash, consider it deleted
                 if file.get("trashed", False):
-                    print(
+                    logger.info(
                         f"File '{file.get('name', 'Unknown')}' (ID: {file_id}) is in trash"
                     )
                     deleted_files.append(file_id)
@@ -393,7 +401,7 @@ class GoogleDriveWatcher:
                 if "File not found" in str(e) or "404" in str(e):
                     deleted_files.append(file_id)
                 else:
-                    print(f"Error checking file {file_id}: {e}")
+                    logger.error(f"Error checking file {file_id}: {e}")
 
         return deleted_files
 
@@ -405,7 +413,7 @@ class GoogleDriveWatcher:
             interval_seconds: The interval in seconds between checks
         """
         folder_msg = f" in folder ID: {self.folder_id}" if self.folder_id else ""
-        print(
+        logger.info(
             f"Starting Google Drive watcher{folder_msg}. Checking for changes every {interval_seconds} seconds..."
         )
 
@@ -416,7 +424,7 @@ class GoogleDriveWatcher:
 
             # Initial scan to build the known_files dictionary
             if not self.initialized:
-                print("Performing initial scan of files...")
+                logger.info("Performing initial scan of files...")
                 # Get all files in the watched folder
                 # Use the last check time from config or default to 1970-01-01
                 time_str = self.last_check_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -442,7 +450,7 @@ class GoogleDriveWatcher:
                         # Only store the modifiedTime to avoid processing all files
                         self.known_files[file["id"]] = file.get("modifiedTime")
 
-                print(f"Found {len(self.known_files)} files in initial scan.")
+                logger.info(f"Found {len(self.known_files)} files in initial scan.")
                 self.initialized = True
 
             while True:
@@ -460,18 +468,18 @@ class GoogleDriveWatcher:
 
                 # Process changed files
                 if changed_files:
-                    print(f"Found {len(changed_files)} changed files.")
+                    logger.info(f"Found {len(changed_files)} changed files.")
                     for file in changed_files:
-                        print(file)
+                        logger.info(file)
                         self.process_file(file)
                         # Update known_files with just the modifiedTime
                         self.known_files[file["id"]] = file.get("modifiedTime")
 
                 # Process deleted files
                 if deleted_file_ids:
-                    print(f"Found {len(deleted_file_ids)} deleted files.")
+                    logger.info(f"Found {len(deleted_file_ids)} deleted files.")
                     for file_id in deleted_file_ids:
-                        print(
+                        logger.info(
                             f"File with ID: {file_id} has been deleted. Removing from database..."
                         )
                         delete_document_by_file_id(file_id)
@@ -479,11 +487,11 @@ class GoogleDriveWatcher:
                         del self.known_files[file_id]
 
                 # Wait for the next check
-                print(f"Waiting {interval_seconds} seconds until next check...")
+                logger.info(f"Waiting {interval_seconds} seconds until next check...")
                 time.sleep(interval_seconds)
 
         except KeyboardInterrupt:
-            print("Watcher stopped by user.")
+            logger.info("Watcher stopped by user.")
         except Exception as e:
-            print(f"Error in watcher: {e}")
+            logger.error(f"Error in watcher: {e}")
             raise

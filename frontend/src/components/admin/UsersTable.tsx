@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Check, X, Copy, Loader2, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { logger } from '@/lib/logger';
+import { safeWriteClipboard } from '@/lib/clipboard';
 
 interface UserProfile {
   id: string;
@@ -58,6 +59,7 @@ export const UsersTable = () => {
 
   useEffect(() => {
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Filter users based on search query
@@ -91,12 +93,12 @@ export const UsersTable = () => {
     setEditValues({});
   };
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: keyof UserProfile, value: string | boolean) => {
     setEditValues((prev) => ({ ...prev, [field]: value }));
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text: string) => {
+    await safeWriteClipboard(text);
     toast({
       title: 'Copied',
       description: 'ID copied to clipboard',
@@ -130,21 +132,7 @@ export const UsersTable = () => {
         )
       );
 
-      // Update filtered users as well
-      setFilteredUsers((prev) =>
-        prev.map((user) =>
-          user.id === userId
-            ? {
-                ...user,
-                email: editValues.email || user.email,
-                full_name: editValues.full_name === undefined ? user.full_name : editValues.full_name,
-                is_admin: editValues.is_admin === undefined ? user.is_admin : editValues.is_admin,
-              }
-            : user
-        )
-      );
-
-      toast({
+        toast({
         title: 'Success',
         description: 'User updated successfully',
       });

@@ -23,7 +23,7 @@ def client():
 
     # Override JWT verification to return a fake authenticated user
     api_module.app.dependency_overrides[api_module.verify_token] = lambda: {
-        "id": "user1",
+        "id": "00000000-0000-0000-0000-000000000001",
         "email": "test@example.com",
     }
 
@@ -61,7 +61,7 @@ class TestConversationsEndpoint:
         api_module.supabase = MagicMock()
         api_module.supabase.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value = mock_response
 
-        response = client.get("/api/conversations?user_id=user1")
+        response = client.get("/api/conversations?user_id=00000000-0000-0000-0000-000000000001")
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 1
@@ -80,7 +80,7 @@ class TestAgentEndpoint:
                 "/api/agent",
                 json={
                     "query": "Hello",
-                    "user_id": "user1",
+                    "user_id": "00000000-0000-0000-0000-000000000001",
                     "request_id": "req1",
                     "session_id": "user1~existing",
                 },
@@ -120,7 +120,7 @@ class TestAgentEndpoint:
                 "/api/agent",
                 json={
                     "query": "Hello",
-                    "user_id": "user1",
+                    "user_id": "00000000-0000-0000-0000-000000000001",
                     "request_id": "req1",
                     "session_id": "user1~existing",
                 },
@@ -138,14 +138,14 @@ class TestAgentEndpoint:
 
         # Override verify_token to return a specific user
         api_module.app.dependency_overrides[api_module.verify_token] = lambda: {
-            "id": "real-user-uuid"
+            "id": "00000000-0000-0000-0000-000000000002"
         }
 
         response = client.post(
             "/api/agent",
             json={
                 "query": "Hello",
-                "user_id": "wrong-user-uuid",
+                "user_id": "00000000-0000-0000-0000-000000000099",
                 "request_id": "req1",
                 "session_id": "test~session",
             },

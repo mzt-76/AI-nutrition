@@ -25,6 +25,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pathlib import Path
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request as StarletteRequest
+from starlette.responses import Response as StarletteResponse
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, BinaryContent
 
@@ -61,6 +64,10 @@ from src.db_utils import (
 project_root = Path(__file__).resolve().parent.parent
 load_dotenv(project_root / ".env", override=True)
 
+logging.basicConfig(
+    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO),
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -132,11 +139,17 @@ app = FastAPI(
 
 # CORS — configurable via environment
 cors_origins = os.getenv("CORS_ORIGINS", "")
+_environment = os.getenv("ENVIRONMENT", "development")
 if not cors_origins:
+    if _environment == "production":
+        raise RuntimeError(
+            "CORS_ORIGINS must be set in production. "
+            "Example: CORS_ORIGINS=https://myapp.example.com"
+        )
     logger.warning(
         "CORS_ORIGINS not set — using localhost defaults. Set explicitly in production!"
     )
-    cors_origins = "http://localhost:5173,http://localhost:3000"
+    cors_origins = "http://localhost:5173,http://localhost:3000,http://localhost:8080"
 _parsed_origins = [o.strip() for o in cors_origins.split(",")]
 if "*" in _parsed_origins:
     raise RuntimeError(
@@ -150,6 +163,20 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: StarletteRequest, call_next):  # type: ignore[override]
+        response: StarletteResponse = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Content-Security-Policy"] = "default-src 'none'"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 security = HTTPBearer(auto_error=False)
@@ -226,7 +253,7 @@ class FileAttachment(BaseModel):
 
 class AgentRequest(BaseModel):
     query: str = Field(max_length=5000)
-    user_id: str
+    user_id: str = Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
     request_id: str
     session_id: str = ""
     files: list[FileAttachment] | None = None

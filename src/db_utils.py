@@ -8,8 +8,7 @@ Adapted from course db_utils.py with project conventions:
 """
 
 import logging
-import random
-import string
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -115,9 +114,7 @@ def generate_session_id(user_id: str) -> str:
     Returns:
         Generated session ID
     """
-    random_str = "".join(
-        random.choice(string.ascii_lowercase + string.digits) for _ in range(10)
-    )
+    random_str = secrets.token_urlsafe(8)
     return f"{user_id}~{random_str}"
 
 
@@ -202,7 +199,7 @@ def convert_history_to_pydantic_format(
                 messages.extend(
                     ModelMessagesTypeAdapter.validate_json(msg["message_data"])
                 )
-            except Exception as e:
+            except (ValueError, KeyError) as e:
                 logger.warning(f"Error parsing message_data: {e}")
                 continue
 
@@ -236,7 +233,7 @@ async def check_rate_limit(
         # Per-minute check
         minute_resp = (
             supabase.table("requests")
-            .select("*", count="exact")
+            .select("id", count="exact")
             .eq("user_id", user_id)
             .gte("timestamp", one_minute_ago)
             .execute()
@@ -251,7 +248,7 @@ async def check_rate_limit(
         # Daily check
         day_resp = (
             supabase.table("requests")
-            .select("*", count="exact")
+            .select("id", count="exact")
             .eq("user_id", user_id)
             .gte("timestamp", start_of_day)
             .execute()

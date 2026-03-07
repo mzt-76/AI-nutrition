@@ -10,6 +10,7 @@ import ReactMarkdown from 'react-markdown';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { cn } from '@/lib/utils';
+import { safeWriteClipboard } from '@/lib/clipboard';
 import { ComponentRenderer } from '@/components/generative-ui/ComponentRenderer';
 import type { MealDataFromPlan } from '@/components/recipes/RecipeDetailDrawer';
 import { UIComponentBlock } from '@/types/generative-ui.types';
@@ -52,8 +53,8 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
     });
   }, [onMealClick]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(message.message.content);
+  const handleCopy = async () => {
+    await safeWriteClipboard(message.message.content);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -68,7 +69,13 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
   const downloadFile = (file: FileAttachment) => {
     try {
       // Convert base64 to blob
-      const byteCharacters = atob(file.content);
+      let byteCharacters: string;
+      try {
+        byteCharacters = atob(file.content);
+      } catch {
+        logger.error('Invalid base64 in file attachment:', file.fileName);
+        return;
+      }
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -86,7 +93,7 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (e) {
-      logger.error('Failed to decode file attachment:', e);
+      logger.error('Failed to download file attachment:', e);
     }
   };
   
@@ -117,7 +124,7 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
           // Ensure proper line break handling
           br: () => <br className="mb-2" />,
           // Handle code blocks with syntax highlighting
-          code({node, inline, className, children, ...props}: CodeProps) {
+          code({node: _node, inline, className, children, ...props}: CodeProps) {
             const match = /language-(\w+)/.exec(className || '');
             return !inline && match ? (
               <SyntaxHighlighter
@@ -165,7 +172,7 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
           "max-w-[calc(100%-64px)]",
         )}>
           <div className="text-xs font-medium text-muted-foreground">
-            {isUser ? 'Vous' : 'Nutritionniste IA'}
+            {isUser ? 'Vous' : 'Assistant Nutrition IA'}
           </div>
           
           <div className={cn(
@@ -181,6 +188,8 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
                     key={`${file.fileName}-${index}`}
                     variant="outline" 
                     className="flex items-center gap-1 py-1 cursor-pointer hover:bg-secondary"
+                    role="button"
+                    aria-label={`Télécharger ${file.fileName}`}
                     onClick={() => downloadFile(file)}
                   >
                     <FileText className="h-3 w-3" />

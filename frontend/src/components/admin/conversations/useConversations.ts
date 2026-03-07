@@ -5,6 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Conversation, Message } from '@/types/database.types';
 import { fetchMessages } from '@/lib/api';
 import { logger } from '@/lib/logger';
+import { safeWriteClipboard } from '@/lib/clipboard';
 
 export interface ConversationDetails extends Conversation {
   messages?: Message[];
@@ -48,6 +49,7 @@ export const useConversations = () => {
 
   useEffect(() => {
     fetchConversations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortOrder]);
 
   // Filter conversations based on search query
@@ -71,8 +73,8 @@ export const useConversations = () => {
     setSortOrder(prevOrder => prevOrder === 'desc' ? 'asc' : 'desc');
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text: string) => {
+    await safeWriteClipboard(text);
     toast({
       title: 'Copied',
       description: 'ID copied to clipboard',

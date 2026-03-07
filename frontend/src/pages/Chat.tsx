@@ -3,15 +3,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
 import { Message } from '@/types/database.types';
 import { ChatLayout } from '@/components/chat/ChatLayout';
 import { useConversationManagement } from '@/components/chat/ConversationManagement';
 import { useMessageHandling } from '@/components/chat/MessageHandling';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-const SESSION_MESSAGES_KEY = 'active_messages';
-const SESSION_CONV_KEY = 'active_conversation';
+import { safeGetItem, safeSetItem, safeRemoveItem } from '@/lib/storage';
+import { SESSION_CONV_KEY, SESSION_MESSAGES_KEY } from '@/lib/constants';
 
 const messageSchema = z.array(z.object({
   id: z.string(),
@@ -26,13 +24,12 @@ const messageSchema = z.array(z.object({
 
 export const Chat = () => {
   const { user, session } = useAuth();
-  const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(isMobile);
   const [messages, setMessages] = useState<Message[]>(() => {
-    const savedConv = sessionStorage.getItem(SESSION_CONV_KEY);
-    const savedMsgs = sessionStorage.getItem(SESSION_MESSAGES_KEY);
+    const savedConv = safeGetItem(sessionStorage, SESSION_CONV_KEY);
+    const savedMsgs = safeGetItem(sessionStorage, SESSION_MESSAGES_KEY);
     if (savedConv && savedMsgs) {
       try {
         const conv = JSON.parse(savedConv);
@@ -67,7 +64,6 @@ export const Chat = () => {
     conversations,
     selectedConversation,
     setSelectedConversation,
-    setConversations,
     loadConversations,
     handleNewChat,
     handleSelectConversation,
@@ -77,13 +73,13 @@ export const Chat = () => {
   // Persist messages to sessionStorage when loading completes
   useEffect(() => {
     if (messages.length > 0 && !loading && selectedConversation) {
-      sessionStorage.setItem(SESSION_MESSAGES_KEY, JSON.stringify(messages));
+      safeSetItem(sessionStorage, SESSION_MESSAGES_KEY, JSON.stringify(messages));
     }
   }, [messages, loading, selectedConversation]);
 
   // Wrap handleNewChat to also clear cached messages
   const wrappedHandleNewChat = useCallback(() => {
-    sessionStorage.removeItem(SESSION_MESSAGES_KEY);
+    safeRemoveItem(sessionStorage, SESSION_MESSAGES_KEY);
     handleNewChat();
   }, [handleNewChat]);
 
@@ -102,7 +98,6 @@ export const Chat = () => {
     setError,
     isMounted,
     setSelectedConversation,
-    setConversations,
     loadConversations
   });
 

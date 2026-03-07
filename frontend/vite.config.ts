@@ -36,7 +36,7 @@ export default defineConfig(() => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          markdown: ['react-markdown', 'remark-gfm', 'remark-breaks', 'rehype-raw'],
+          markdown: ['react-markdown', 'remark-gfm', 'remark-breaks'],
           syntax: ['react-syntax-highlighter'],
         },
       },

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, memo } from 'react';
 import { Message } from '@/types/database.types';
 import { MessageItem } from './MessageItem';
 import type { MealDataFromPlan } from './MessageItem';
@@ -36,7 +36,7 @@ interface MessageListProps {
   onAction?: (value: string) => void;
 }
 
-export const MessageList = ({
+export const MessageList = memo(({
   messages,
   isLoading,
   isGeneratingResponse = false,
@@ -72,7 +72,7 @@ export const MessageList = ({
               <Salad className={`${isMobile ? 'h-6 w-6' : 'h-8 w-8'} text-white`} />
             </div>
           </div>
-          <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-1 md:mb-2`}>Nutritionniste IA</h3>
+          <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-1 md:mb-2`}>Assistant Nutrition IA</h3>
           <p className="text-muted-foreground mb-4 md:mb-6 text-sm">
             Posez votre question ou choisissez un sujet ci-dessous
           </p>
@@ -139,4 +139,6 @@ export const MessageList = ({
       />
     </div>
   );
-};
+});
+
+MessageList.displayName = 'MessageList';

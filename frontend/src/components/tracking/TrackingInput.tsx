@@ -5,10 +5,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { sendMessage } from '@/lib/api';
 import { logger } from '@/lib/logger';
+import { TRACKING_POLL_DELAYS } from '@/lib/constants';
 
 interface TrackingInputProps {
   dateStr: string;
-  onEntryCreated: () => void;
+  onEntryCreated: () => Promise<void>;
 }
 
 export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
@@ -62,7 +63,7 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
       toast({ title: 'Envoyé', description: "L'agent analyse vos aliments..." });
       // Poll with exponential backoff — agent may need 5-10s for OFF lookups.
       // Cancel previous poll chain on re-submit or unmount via pollTimerRef.
-      const delays = [1000, 2000, 3000, 4000, 5000];
+      const delays = TRACKING_POLL_DELAYS;
       let attempt = 0;
       const poll = () => {
         if (attempt >= delays.length) return;

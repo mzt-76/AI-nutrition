@@ -130,31 +130,20 @@ def get_http_client() -> AsyncClient:
     return AsyncClient(timeout=30.0)
 
 
-def get_memory_client() -> Memory:
-    """
-    Create and return a mem0 Memory client for long-term memory.
-
-    Returns:
-        Memory: Configured mem0 client
-
-    Raises:
-        ValueError: If required environment variables not set
-    """
-    # Get configuration
+def _build_mem0_config() -> dict:
+    """Build shared mem0 config dict and set required env vars."""
     llm_api_key = os.getenv("LLM_API_KEY")
-    # mem0 always uses OpenAI provider, so use a dedicated model env var
-    # (LLM_CHOICE may be an Anthropic model which doesn't work with OpenAI API)
     llm_model = os.getenv("MEM0_LLM_CHOICE", "gpt-4o-mini")
-
     embedding_model = os.getenv("EMBEDDING_MODEL_CHOICE", "text-embedding-3-small")
-
     database_url = os.getenv("DATABASE_URL")
 
     if not database_url:
         raise ValueError("DATABASE_URL required for mem0")
 
-    # Build config
-    config = {
+    if llm_api_key:
+        os.environ["OPENAI_API_KEY"] = llm_api_key
+
+    return {
         "llm": {
             "provider": "openai",
             "config": {
@@ -178,13 +167,19 @@ def get_memory_client() -> Memory:
         "custom_fact_extraction_prompt": CUSTOM_FACT_PROMPT,
     }
 
-    # Set API keys in environment for mem0
-    if llm_api_key:
-        os.environ["OPENAI_API_KEY"] = llm_api_key
 
+def get_memory_client() -> Memory:
+    """
+    Create and return a mem0 Memory client for long-term memory.
+
+    Returns:
+        Memory: Configured mem0 client
+
+    Raises:
+        ValueError: If required environment variables not set
+    """
     logger.info("Initializing mem0 Memory client")
-
-    return Memory.from_config(config)
+    return Memory.from_config(_build_mem0_config())
 
 
 async def get_async_memory_client() -> AsyncMemory:
@@ -196,49 +191,8 @@ async def get_async_memory_client() -> AsyncMemory:
     Returns:
         AsyncMemory: Configured async mem0 client
     """
-    # Reuse the sync factory to set env vars and build config, then discard it.
-    # We duplicate the config inline to avoid the side-effect of creating
-    # a full sync Memory instance just to read its config.
-    llm_api_key = os.getenv("LLM_API_KEY")
-    llm_model = os.getenv("MEM0_LLM_CHOICE", "gpt-4o-mini")
-
-    embedding_model = os.getenv("EMBEDDING_MODEL_CHOICE", "text-embedding-3-small")
-
-    database_url = os.getenv("DATABASE_URL")
-
-    if not database_url:
-        raise ValueError("DATABASE_URL required for mem0")
-
-    config = {
-        "llm": {
-            "provider": "openai",
-            "config": {
-                "model": llm_model,
-                "temperature": 0.2,
-                "max_tokens": 2000,
-            },
-        },
-        "embedder": {
-            "provider": "openai",
-            "config": {"model": embedding_model, "embedding_dims": 1536},
-        },
-        "vector_store": {
-            "provider": "supabase",
-            "config": {
-                "connection_string": database_url,
-                "collection_name": "mem0_memories",
-                "embedding_model_dims": 1536,
-            },
-        },
-        "custom_fact_extraction_prompt": CUSTOM_FACT_PROMPT,
-    }
-
-    if llm_api_key:
-        os.environ["OPENAI_API_KEY"] = llm_api_key
-
     logger.info("Initializing async mem0 AsyncMemory client")
-
-    return await AsyncMemory.from_config(config)
+    return await AsyncMemory.from_config(_build_mem0_config())
 
 
 def get_anthropic_client() -> AsyncAnthropic | None:
