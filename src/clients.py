@@ -18,6 +18,27 @@ from mem0 import AsyncMemory, Memory
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+
+# Shared prompt for mem0 fact extraction — used by both sync and async clients.
+CUSTOM_FACT_PROMPT = """You are a Personal Information Organizer for a nutrition coaching app.
+Your job is to extract ONLY long-term personal facts from the conversation.
+
+STORE these (personal preferences that persist across sessions):
+- Food preferences: likes, dislikes, allergies, dietary restrictions
+- Cooking habits: batch cooking preference, prep time, kitchen equipment
+- Daily routine: wake time, work schedule, meal times, gym schedule
+- Body/health: conditions, injuries, supplements
+- Lifestyle: cuisine preferences, budget, family size
+
+NEVER STORE these (session-specific, transient, or already in the user profile):
+- Commands or requests: "créer un plan", "go", "lance", "calcule mes besoins"
+- Plan parameters: "3 jours", "7 jours", "1 semaine", number of days/meals requested
+- Biometrics already in profile: age, weight, height, gender, activity level, goals
+- Greetings, confirmations, or generic statements
+- Calculated values: BMR, TDEE, calorie targets, macro targets
+
+Return a JSON list under the key "facts". If nothing qualifies, return {"facts": []}.
+"""
 import logging
 
 # Setup logging
@@ -128,28 +149,6 @@ def get_memory_client() -> Memory:
     if not database_url:
         raise ValueError("DATABASE_URL required for mem0")
 
-    # Custom fact extraction prompt — only store real user preferences,
-    # not commands, requests, or session-specific context.
-    custom_fact_prompt = """You are a Personal Information Organizer for a nutrition coaching app.
-Your job is to extract ONLY long-term personal facts from the conversation.
-
-STORE these (personal preferences that persist across sessions):
-- Food preferences: likes, dislikes, allergies, dietary restrictions
-- Cooking habits: batch cooking preference, prep time, kitchen equipment
-- Daily routine: wake time, work schedule, meal times, gym schedule
-- Body/health: conditions, injuries, supplements
-- Lifestyle: cuisine preferences, budget, family size
-
-NEVER STORE these (session-specific, transient, or already in the user profile):
-- Commands or requests: "créer un plan", "go", "lance", "calcule mes besoins"
-- Plan parameters: "3 jours", "7 jours", "1 semaine", number of days/meals requested
-- Biometrics already in profile: age, weight, height, gender, activity level, goals
-- Greetings, confirmations, or generic statements
-- Calculated values: BMR, TDEE, calorie targets, macro targets
-
-Return a JSON list under the key "facts". If nothing qualifies, return {"facts": []}.
-"""
-
     # Build config
     config = {
         "llm": {
@@ -172,7 +171,7 @@ Return a JSON list under the key "facts". If nothing qualifies, return {"facts":
                 "embedding_model_dims": 1536,
             },
         },
-        "custom_fact_extraction_prompt": custom_fact_prompt,
+        "custom_fact_extraction_prompt": CUSTOM_FACT_PROMPT,
     }
 
     # Set API keys in environment for mem0
@@ -207,26 +206,6 @@ async def get_async_memory_client() -> AsyncMemory:
     if not database_url:
         raise ValueError("DATABASE_URL required for mem0")
 
-    custom_fact_prompt = """You are a Personal Information Organizer for a nutrition coaching app.
-Your job is to extract ONLY long-term personal facts from the conversation.
-
-STORE these (personal preferences that persist across sessions):
-- Food preferences: likes, dislikes, allergies, dietary restrictions
-- Cooking habits: batch cooking preference, prep time, kitchen equipment
-- Daily routine: wake time, work schedule, meal times, gym schedule
-- Body/health: conditions, injuries, supplements
-- Lifestyle: cuisine preferences, budget, family size
-
-NEVER STORE these (session-specific, transient, or already in the user profile):
-- Commands or requests: "créer un plan", "go", "lance", "calcule mes besoins"
-- Plan parameters: "3 jours", "7 jours", "1 semaine", number of days/meals requested
-- Biometrics already in profile: age, weight, height, gender, activity level, goals
-- Greetings, confirmations, or generic statements
-- Calculated values: BMR, TDEE, calorie targets, macro targets
-
-Return a JSON list under the key "facts". If nothing qualifies, return {"facts": []}.
-"""
-
     config = {
         "llm": {
             "provider": "openai",
@@ -248,7 +227,7 @@ Return a JSON list under the key "facts". If nothing qualifies, return {"facts":
                 "embedding_model_dims": 1536,
             },
         },
-        "custom_fact_extraction_prompt": custom_fact_prompt,
+        "custom_fact_extraction_prompt": CUSTOM_FACT_PROMPT,
     }
 
     if llm_api_key:

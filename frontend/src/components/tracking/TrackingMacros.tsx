@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 interface MacroValues {
   protein_g: number;
   carbs_g: number;
@@ -18,7 +20,7 @@ interface MacroRowProps {
   bgColor: string;
 }
 
-function MacroRow({ label, consumed, target, color, glowColor, bgColor }: MacroRowProps) {
+const MacroRow = memo(function MacroRow({ label, consumed, target, color, glowColor, bgColor }: MacroRowProps) {
   const pct = target > 0 ? Math.min((consumed / target) * 100, 100) : 0;
 
   return (
@@ -40,9 +42,9 @@ function MacroRow({ label, consumed, target, color, glowColor, bgColor }: MacroR
       </div>
     </div>
   );
-}
+});
 
-export function TrackingMacros({ consumed, targets }: TrackingMacrosProps) {
+export const TrackingMacros = memo(function TrackingMacros({ consumed, targets }: TrackingMacrosProps) {
   return (
     <div className="mx-4 px-4 py-3 rounded-xl glass-effect border border-white/5 space-y-2.5">
       <MacroRow
@@ -71,4 +73,4 @@ export function TrackingMacros({ consumed, targets }: TrackingMacrosProps) {
       />
     </div>
   );
-}
+});

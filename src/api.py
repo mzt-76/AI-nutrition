@@ -13,7 +13,6 @@ import base64
 import json
 import logging
 import os
-import re
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from uuid import UUID as _UUID
@@ -30,6 +29,7 @@ from pydantic import BaseModel, Field
 from pydantic_ai import Agent, BinaryContent
 
 from src.nutrition.calculations import (
+    ACTIVITY_MULTIPLIERS,
     calculate_macros,
     calculate_protein_target,
     calculate_tdee,
@@ -213,7 +213,7 @@ class FileAttachment(BaseModel):
 
 
 class AgentRequest(BaseModel):
-    query: str
+    query: str = Field(max_length=5000)
     user_id: str
     request_id: str
     session_id: str = ""
@@ -315,7 +315,7 @@ async def list_conversations(
         raise HTTPException(status_code=403, detail="Accès non autorisé")
     response = (
         supabase.table("conversations")
-        .select("*")
+        .select("id, session_id, title, created_at, updated_at")
         .eq("user_id", user_id)
         .order("created_at", desc=True)
         .limit(50)
@@ -659,7 +659,9 @@ async def get_daily_log(
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+    try:
+        datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
         raise HTTPException(
             status_code=400, detail="Format de date invalide (AAAA-MM-JJ attendu)"
         )
@@ -702,10 +704,10 @@ async def update_daily_log(
     """Update a food log entry (partial update)."""
     _validate_uuid(entry_id)
 
-    # Verify ownership
+    # Verify ownership (fetch quantity/unit too for potential macro recalc)
     existing = (
         supabase.table("daily_food_log")
-        .select("user_id")
+        .select("user_id, quantity, unit")
         .eq("id", entry_id)
         .limit(1)
         .execute()
@@ -721,15 +723,8 @@ async def update_daily_log(
 
     # If food_name changed, recalculate macros via OpenFoodFacts
     if "food_name" in updates:
-        current = (
-            supabase.table("daily_food_log")
-            .select("quantity, unit")
-            .eq("id", entry_id)
-            .limit(1)
-            .execute()
-        )
-        qty = current.data[0]["quantity"] if current.data else 100
-        unit = current.data[0]["unit"] if current.data else "g"
+        qty = existing.data[0].get("quantity") or 100
+        unit = existing.data[0].get("unit") or "g"
         macros = await match_ingredient(updates["food_name"], qty, unit, supabase)
         if macros.get("confidence", 0) == 0:
             raise HTTPException(
@@ -835,7 +830,7 @@ async def add_favorite(
     result = supabase.table("favorite_recipes").insert(row).execute()
 
     if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to add favorite")
+        raise HTTPException(status_code=500, detail="Impossible d'ajouter le favori")
     return result.data[0]
 
 
@@ -855,7 +850,7 @@ async def remove_favorite(
         .execute()
     )
     if not existing.data:
-        raise HTTPException(status_code=404, detail="Favorite not found")
+        raise HTTPException(status_code=404, detail="Favori introuvable")
     if existing.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
@@ -935,7 +930,7 @@ async def upsert_recipe(
 
     result = supabase.table("recipes").insert(row).execute()
     if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to create recipe")
+        raise HTTPException(status_code=500, detail="Impossible de créer la recette")
     return result.data[0]
 
 
@@ -951,7 +946,7 @@ async def get_recipe(
         supabase.table("recipes").select("*").eq("id", recipe_id).limit(1).execute()
     )
     if not result.data:
-        raise HTTPException(status_code=404, detail="Recipe not found")
+        raise HTTPException(status_code=404, detail="Recette introuvable")
     return result.data[0]
 
 
@@ -1000,11 +995,26 @@ async def create_shopping_list(
         "items": [item.model_dump() for item in body.items],
     }
     if body.meal_plan_id:
+        _validate_uuid(body.meal_plan_id)
+        plan = (
+            supabase.table("meal_plans")
+            .select("user_id")
+            .eq("id", body.meal_plan_id)
+            .limit(1)
+            .execute()
+        )
+        if not plan.data or plan.data[0].get("user_id") != auth_user["id"]:
+            raise HTTPException(
+                status_code=403, detail="Accès non autorisé au plan repas"
+            )
         row["meal_plan_id"] = body.meal_plan_id
 
     result = supabase.table("shopping_lists").insert(row).execute()
     if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to create shopping list")
+        raise HTTPException(
+            status_code=500,
+            detail="Impossible de créer la liste de courses",
+        )
     return result.data[0]
 
 
@@ -1024,7 +1034,7 @@ async def get_shopping_list(
         .execute()
     )
     if not result.data:
-        raise HTTPException(status_code=404, detail="Shopping list not found")
+        raise HTTPException(status_code=404, detail="Liste de courses introuvable")
     if result.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
@@ -1048,7 +1058,7 @@ async def update_shopping_list(
         .execute()
     )
     if not existing.data:
-        raise HTTPException(status_code=404, detail="Shopping list not found")
+        raise HTTPException(status_code=404, detail="Liste de courses introuvable")
     if existing.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
@@ -1066,7 +1076,7 @@ async def update_shopping_list(
     )
 
     if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to update shopping list")
+        raise HTTPException(status_code=500, detail="Impossible de mettre à jour la liste de courses")
     return result.data[0]
 
 
@@ -1086,7 +1096,7 @@ async def delete_shopping_list(
         .execute()
     )
     if not existing.data:
-        raise HTTPException(status_code=404, detail="Shopping list not found")
+        raise HTTPException(status_code=404, detail="Liste de courses introuvable")
     if existing.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
@@ -1119,6 +1129,14 @@ async def recalculate_profile(
             status_code=422, detail="gender doit être 'male' ou 'female'"
         )
 
+    # Validate activity level
+    if body.activity_level not in ACTIVITY_MULTIPLIERS:
+        valid = ", ".join(ACTIVITY_MULTIPLIERS.keys())
+        raise HTTPException(
+            status_code=422,
+            detail=f"activity_level doit être l'un de : {valid}",
+        )
+
     # Calculate
     bmr = mifflin_st_jeor_bmr(body.age, body.gender, body.weight_kg, body.height_cm)
     tdee = calculate_tdee(bmr, body.activity_level)
@@ -1134,6 +1152,10 @@ async def recalculate_profile(
         "performance": 200,
     }
     target_calories = tdee + calorie_adjustments.get(primary_goal, 0)
+
+    # Safety: enforce minimum calorie thresholds
+    min_calories = 1200 if body.gender == "female" else 1500
+    target_calories = max(target_calories, min_calories)
 
     protein_g, _, _ = calculate_protein_target(body.weight_kg, primary_goal)
     macros = calculate_macros(
@@ -1205,9 +1227,7 @@ async def _stream_agent_response(
         for f in request.files:
             try:
                 binary_data = base64.b64decode(f.content)
-                media_type = (
-                    "application/pdf" if f.mime_type == "text/plain" else f.mime_type
-                )
+                media_type = f.mime_type
                 binary_contents.append(
                     BinaryContent(data=binary_data, media_type=media_type)
                 )

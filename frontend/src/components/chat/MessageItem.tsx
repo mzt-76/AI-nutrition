@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import remarkGfm from 'remark-gfm';
 import breaks from 'remark-breaks';
 import { Message, FileAttachment } from '@/types/database.types';
@@ -29,7 +29,7 @@ interface CodeProps {
   children: React.ReactNode;
 }
 
-export const MessageItem = ({ message, isLastMessage = false, onAction, onMealClick }: MessageItemProps) => {
+export const MessageItem = memo(({ message, isLastMessage = false, onAction, onMealClick }: MessageItemProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleMealClick = useCallback((comp: UIComponentBlock) => {
@@ -86,7 +86,6 @@ export const MessageItem = ({ message, isLastMessage = false, onAction, onMealCl
       URL.revokeObjectURL(url);
     } catch (e) {
       console.error('Failed to decode file attachment:', e);
-      alert(`Impossible de télécharger "${file.fileName}" — fichier corrompu.`);
     }
   };
   
@@ -227,4 +226,6 @@ export const MessageItem = ({ message, isLastMessage = false, onAction, onMealCl
       </div>
     </div>
   );
-};
+});
+
+MessageItem.displayName = 'MessageItem';

@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { MealCardProps } from '@/types/generative-ui.types';
 import { Clock, UtensilsCrossed } from 'lucide-react';
 
-export function MealCard({ meal_type, recipe_name, calories, macros, prep_time, ingredients, onClick }: MealCardProps) {
+export const MealCard = memo(function MealCard({ meal_type, recipe_name, calories, macros, prep_time, ingredients, onClick }: MealCardProps) {
   return (
     <div
       className={`glass-effect rounded-lg border border-emerald-500/20 p-4 ${onClick ? 'cursor-pointer hover:border-emerald-500/40 transition-colors' : ''}`}
@@ -42,4 +43,4 @@ export function MealCard({ meal_type, recipe_name, calories, macros, prep_time, 
       )}
     </div>
   );
-}
+});

@@ -608,11 +608,10 @@ class TestProfileRecalculate:
         resp = auth_client.post("/api/profile/recalculate", json=body)
         assert resp.status_code == 422
 
-    def test_invalid_activity_level_returns_500(self, auth_client):
+    def test_invalid_activity_level_returns_422(self, auth_client):
         body = {**self.VALID_BODY, "activity_level": "extreme"}
         resp = auth_client.post("/api/profile/recalculate", json=body)
-        # calculate_tdee raises ValueError -> 500
-        assert resp.status_code == 500
+        assert resp.status_code == 422
 
     def test_missing_required_field_returns_422(self, auth_client):
         resp = auth_client.post(

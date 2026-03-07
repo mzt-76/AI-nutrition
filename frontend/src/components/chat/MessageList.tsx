@@ -56,11 +56,11 @@ export const MessageList = ({
   }, []);
 
   useEffect(() => {
-    const scrollTimeout = setTimeout(() => {
+    const rafId = requestAnimationFrame(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 50);
+    });
 
-    return () => clearTimeout(scrollTimeout);
+    return () => cancelAnimationFrame(rafId);
   }, [messages, isGeneratingResponse]);
 
   if (messages.length === 0 && !isLoading && !hasActiveConversation) {

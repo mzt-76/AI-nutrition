@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { DayPlanCardProps } from '@/types/generative-ui.types';
 import { MealCard } from './MealCard';
 import { CalendarDays } from 'lucide-react';
 
-export function DayPlanCard({ day_name, meals, totals, onMealClick }: DayPlanCardProps) {
+export const DayPlanCard = memo(function DayPlanCard({ day_name, meals, totals, onMealClick }: DayPlanCardProps) {
   return (
     <div className="glass-effect rounded-lg border border-emerald-500/20 p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -31,4 +32,4 @@ export function DayPlanCard({ day_name, meals, totals, onMealClick }: DayPlanCar
       </div>
     </div>
   );
-}
+});

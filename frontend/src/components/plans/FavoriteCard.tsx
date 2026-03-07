@@ -1,39 +1,8 @@
-import { Heart, Coffee, Sun, Moon, Cookie } from 'lucide-react';
+import { Heart, Coffee } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { FavoriteWithRecipe } from '@/types/database.types';
-
-interface FavoriteCardProps {
-  favorite: FavoriteWithRecipe;
-  onRemove: (id: string) => void;
-  onClick?: () => void;
-}
-
-const MEAL_ICONS: Record<string, typeof Coffee> = {
-  'petit-dejeuner': Coffee,
-  dejeuner: Sun,
-  diner: Moon,
-  collation: Cookie,
-};
-
-const MEAL_LABELS: Record<string, string> = {
-  'petit-dejeuner': 'Petit-déjeuner',
-  dejeuner: 'Déjeuner',
-  diner: 'Dîner',
-  collation: 'Collation',
-};
-
-function normalizeMealType(raw: string): string {
-  return raw
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[_\s]+/g, '-');
-}
-
-function formatMealTypeFallback(raw: string): string {
-  return raw.replace(/_/g, ' ').toLowerCase().replace(/^./, c => c.toUpperCase());
-}
+import { MEAL_ICONS, MEAL_LABELS, normalizeMealType, formatMealTypeFallback } from '@/lib/meal-constants';
 
 export function FavoriteCard({ favorite, onRemove, onClick }: FavoriteCardProps) {
   const [removing, setRemoving] = useState(false);

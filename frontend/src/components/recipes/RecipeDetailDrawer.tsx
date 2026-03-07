@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Heart, Clock, UtensilsCrossed, Coffee, Sun, Moon, Cookie, Loader2 } from 'lucide-react';
+import { Heart, Clock, UtensilsCrossed, Coffee, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchRecipe, upsertRecipe, addFavorite, removeFavorite, checkFavorite } from '@/lib/api';
 import type { Recipe } from '@/types/database.types';
+import { MEAL_ICONS, MEAL_LABELS, normalizeMealType, formatMealTypeFallback } from '@/lib/meal-constants';
 
 // Meal data as stored in plan_data (denormalized)
 export interface MealDataFromPlan {
@@ -33,32 +34,6 @@ interface RecipeDetailDrawerProps {
   recipeId?: string;
   /** Called when favorite state changes so parent can refresh */
   onFavoriteChange?: (recipeId: string, isFavorite: boolean) => void;
-}
-
-const MEAL_ICONS: Record<string, typeof Coffee> = {
-  'petit-dejeuner': Coffee,
-  dejeuner: Sun,
-  diner: Moon,
-  collation: Cookie,
-};
-
-const MEAL_LABELS: Record<string, string> = {
-  'petit-dejeuner': 'Petit-déjeuner',
-  dejeuner: 'Déjeuner',
-  diner: 'Dîner',
-  collation: 'Collation',
-};
-
-function formatMealTypeFallback(raw: string): string {
-  return raw.replace(/_/g, ' ').toLowerCase().replace(/^./, c => c.toUpperCase());
-}
-
-function normalizeMealType(raw: string): string {
-  return raw
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '-');
 }
 
 export function RecipeDetailDrawer({

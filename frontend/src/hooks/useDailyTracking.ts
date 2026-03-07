@@ -14,6 +14,8 @@ import {
   apiFetch,
 } from '@/lib/api';
 import type { DailyFoodLog, DailyFoodLogInsert } from '@/types/database.types';
+import { normalizeMealType, MEAL_LABELS, MEAL_TYPE_ORDER } from '@/lib/meal-constants';
+import type { MealType } from '@/lib/meal-constants';
 
 // Meal plan detail shape from the backend
 interface PlanMeal {
@@ -50,24 +52,9 @@ export interface NutritionTotals {
   fat_g: number;
 }
 
-const MEAL_TYPE_ORDER = ['petit-dejeuner', 'dejeuner', 'diner', 'collation'] as const;
-export type MealType = (typeof MEAL_TYPE_ORDER)[number];
-
-export const MEAL_TYPE_LABELS: Record<MealType, string> = {
-  'petit-dejeuner': 'Petit-déjeuner',
-  dejeuner: 'Déjeuner',
-  diner: 'Dîner',
-  collation: 'Collation',
-};
-
-/** Normalize a display meal_type string (e.g. "Petit-déjeuner", "Collation AM") to a DB key. */
-function normalizeMealType(raw: string): MealType {
-  const s = raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  if (s.startsWith('petit')) return 'petit-dejeuner';
-  if (s.startsWith('dejeuner') || s.startsWith('déjeuner') || s === 'lunch') return 'dejeuner';
-  if (s.startsWith('din') || s.startsWith('dîn') || s === 'dinner') return 'diner';
-  return 'collation';
-}
+// Re-export for backward compatibility
+export type { MealType };
+export { MEAL_LABELS as MEAL_TYPE_LABELS };
 
 // Map French day names from plan_data to date-fns weekday format
 const FRENCH_DAYS: Record<string, string> = {

@@ -1,9 +1,9 @@
-import { useState, useRef } from 'react';
-import { Trash2, Coffee, Sun, Moon, Cookie, Plus, Loader2 } from 'lucide-react';
+import { useState, useRef, memo } from 'react';
+import { Trash2, Plus, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { DailyFoodLog } from '@/types/database.types';
-import type { MealType } from '@/hooks/useDailyTracking';
-import { MEAL_TYPE_LABELS } from '@/hooks/useDailyTracking';
+import { MEAL_ICONS, MEAL_ACCENT, MEAL_LABELS } from '@/lib/meal-constants';
+import type { MealType } from '@/lib/meal-constants';
 
 interface MealSectionProps {
   mealType: MealType;
@@ -14,21 +14,7 @@ interface MealSectionProps {
   onAddEntry: (mealType: MealType, foodName: string) => Promise<void>;
 }
 
-const MEAL_ICONS: Record<MealType, typeof Coffee> = {
-  'petit-dejeuner': Coffee,
-  dejeuner: Sun,
-  diner: Moon,
-  collation: Cookie,
-};
-
-const MEAL_ACCENT: Record<MealType, string> = {
-  'petit-dejeuner': 'text-amber-400/70',
-  dejeuner: 'text-orange-400/70',
-  diner: 'text-indigo-400/70',
-  collation: 'text-emerald-400/70',
-};
-
-export function MealSection({ mealType, entries, onDelete, onUpdateQuantity, onUpdateFood, onAddEntry }: MealSectionProps) {
+export const MealSection = memo(function MealSection({ mealType, entries, onDelete, onUpdateQuantity, onUpdateFood, onAddEntry }: MealSectionProps) {
   const { toast } = useToast();
   const totalKcal = entries.reduce((sum, e) => sum + (e.calories ?? 0), 0);
   const Icon = MEAL_ICONS[mealType];
@@ -71,7 +57,7 @@ export function MealSection({ mealType, entries, onDelete, onUpdateQuantity, onU
       <div className="flex items-center gap-2 mb-1.5">
         <Icon className={`h-3.5 w-3.5 ${MEAL_ACCENT[mealType]}`} />
         <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-          {MEAL_TYPE_LABELS[mealType]}
+          {MEAL_LABELS[mealType]}
         </span>
         <button
           type="button"
@@ -150,7 +136,7 @@ export function MealSection({ mealType, entries, onDelete, onUpdateQuantity, onU
       )}
     </div>
   );
-}
+});
 
 function EntryRow({
   entry,

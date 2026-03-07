@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { MacroGaugesProps } from '@/types/generative-ui.types';
 import { Flame } from 'lucide-react';
 
@@ -9,7 +10,7 @@ interface MacroRingProps {
   ringColor: string;
 }
 
-function MacroRing({ label, grams, percentage, color, ringColor }: MacroRingProps) {
+const MacroRing = memo(function MacroRing({ label, grams, percentage, color, ringColor }: MacroRingProps) {
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
@@ -34,9 +35,9 @@ function MacroRing({ label, grams, percentage, color, ringColor }: MacroRingProp
       <span className={`text-sm font-semibold ${color}`}>{Math.round(grams)}g</span>
     </div>
   );
-}
+});
 
-export function MacroGauges({ protein_g, carbs_g, fat_g, target_calories }: MacroGaugesProps) {
+export const MacroGauges = memo(function MacroGauges({ protein_g, carbs_g, fat_g, target_calories }: MacroGaugesProps) {
   const totalCal = protein_g * 4 + carbs_g * 4 + fat_g * 9;
   const pPct = totalCal > 0 ? Math.round((protein_g * 4 / totalCal) * 100) : 0;
   const cPct = totalCal > 0 ? Math.round((carbs_g * 4 / totalCal) * 100) : 0;
@@ -58,4 +59,4 @@ export function MacroGauges({ protein_g, carbs_g, fat_g, target_calories }: Macr
       </div>
     </div>
   );
-}
+});
