@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
+import { logger } from '@/lib/logger';
 
 export const useAdmin = () => {
   const { user } = useAuth();
@@ -24,13 +25,13 @@ export const useAdmin = () => {
           .single();
 
         if (error) {
-          console.error('Error checking admin status:', error);
+          logger.error('Error checking admin status:', error);
           setIsAdmin(false);
         } else {
           setIsAdmin(data?.is_admin || false);
         }
       } catch (error) {
-        console.error('Error checking admin status:', error);
+        logger.error('Error checking admin status:', error);
         setIsAdmin(false);
       } finally {
         setLoading(false);

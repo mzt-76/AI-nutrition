@@ -5,6 +5,7 @@ import { fetchConversations, deleteConversation } from '@/lib/api';
 import { Conversation } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 import type { User } from '@supabase/supabase-js';
+import { logger } from '@/lib/logger';
 
 interface ConversationManagementProps {
   user: User | null;
@@ -29,7 +30,7 @@ export const useConversationManagement = ({
 
   useEffect(() => {
     if (queryError) {
-      console.error('Error loading conversations:', queryError);
+      logger.error('Error loading conversations:', queryError);
       toast({
         title: 'Erreur de chargement',
         description: 'Impossible de charger vos conversations. Veuillez réessayer.',
@@ -75,7 +76,7 @@ export const useConversationManagement = ({
         staleTime: 0,
       });
     } catch (err) {
-      console.error('Error loading conversations:', err);
+      logger.error('Error loading conversations:', err);
       return [];
     }
   }, [user, queryClient]);
@@ -111,7 +112,7 @@ export const useConversationManagement = ({
         handleNewChat();
       }
     } catch (err) {
-      console.error('Error deleting conversation:', err);
+      logger.error('Error deleting conversation:', err);
       toast({
         title: 'Erreur',
         description: 'Impossible de supprimer la conversation.',

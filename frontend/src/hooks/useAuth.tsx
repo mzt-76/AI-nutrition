@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useMemo, createContext, useContext, R
 import { supabase } from '../lib/supabase';
 import { Session, User, AuthResponse } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -108,14 +109,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             if (updateError) throw updateError;
           }
         } catch (error) {
-          console.error('Error updating profile with Google info:', error);
+          logger.error('Error updating profile with Google info:', error);
         }
       }
     };
 
     if (user) {
       updateProfileWithGoogleInfo().catch(err =>
-        console.error('Failed to update Google profile:', err)
+        logger.error('Failed to update Google profile:', err)
       );
     }
   }, [user]);

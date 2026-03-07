@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { sendMessage } from '@/lib/api';
+import { logger } from '@/lib/logger';
 
 interface TrackingInputProps {
   dateStr: string;
@@ -66,14 +67,14 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
       const poll = () => {
         if (attempt >= delays.length) return;
         pollTimerRef.current = setTimeout(() => {
-          onEntryCreated().catch(err => console.error('Polling refresh failed:', err));
+          onEntryCreated().catch(err => logger.error('Polling refresh failed:', err));
           attempt++;
           poll();
         }, delays[attempt]);
       };
       poll();
     } catch (err) {
-      console.error('Tracking input error:', err);
+      logger.error('Tracking input error:', err);
       toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le repas." });
     } finally {
       setSending(false);

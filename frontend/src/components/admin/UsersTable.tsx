@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Check, X, Copy, Loader2, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { logger } from '@/lib/logger';
 
 interface UserProfile {
   id: string;
@@ -44,7 +45,7 @@ export const UsersTable = () => {
       setUsers(data || []);
       setFilteredUsers(data || []);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      logger.error('Error fetching users:', error);
       toast({
         title: 'Error',
         description: 'Failed to fetch users',
@@ -150,7 +151,7 @@ export const UsersTable = () => {
 
       cancelEditing();
     } catch (error) {
-      console.error('Error updating user:', error);
+      logger.error('Error updating user:', error);
       toast({
         title: 'Error',
         description: 'Failed to update user',

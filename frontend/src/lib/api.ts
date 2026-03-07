@@ -12,6 +12,7 @@ import {
   ShoppingList,
   ShoppingListItem,
 } from '@/types/database.types';
+import { logger } from '@/lib/logger';
 
 // Environment variable to determine if streaming is enabled
 const ENABLE_STREAMING = import.meta.env.VITE_ENABLE_STREAMING === 'true';
@@ -24,7 +25,7 @@ export const API_BASE_URL = (() => {
 })();
 
 if (!API_BASE_URL) {
-  console.error(
+  logger.error(
     '[api] VITE_AGENT_ENDPOINT is missing or invalid — all apiFetch calls will fail. ' +
     'Set it in frontend/.env (e.g. VITE_AGENT_ENDPOINT=http://localhost:8001/api/agent)',
   );
@@ -101,7 +102,7 @@ async function parseNDJSONStream(
         return 'complete';
       }
     } catch (e) {
-      console.warn('Skipped invalid NDJSON line:', e);
+      logger.warn('Skipped invalid NDJSON line:', e);
     }
   }
 
@@ -158,6 +159,16 @@ export const sendMessage = async (
       ephemeral: ephemeral ?? false,
     };
 
+    // Use caller's signal or create a timeout signal
+    const timeoutMs = onStreamChunk ? 120_000 : 30_000;
+    let signal = abortSignal;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    if (!signal) {
+      const controller = new AbortController();
+      signal = controller.signal;
+      timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    }
+
     const response = await fetch(AGENT_ENDPOINT, {
       method: 'POST',
       headers: {
@@ -165,8 +176,10 @@ export const sendMessage = async (
         ...(access_token ? { Authorization: `Bearer ${access_token}` } : {}),
       },
       body: JSON.stringify(payload),
-      signal: abortSignal,
+      signal,
     });
+
+    if (timeoutId) clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -206,12 +219,12 @@ export const sendMessage = async (
         // Otherwise return the object directly
         return parsedData;
       } catch (jsonError) {
-        console.error('Error parsing JSON response:', jsonError, 'Response text:', responseText);
+        logger.error('Error parsing JSON response:', jsonError, 'Response text:', responseText);
         throw new Error(`Invalid JSON response from API: ${jsonError instanceof Error ? jsonError.message : String(jsonError)}`);
       }
     }
   } catch (error) {
-    console.error('Error sending message to API:', error);
+    logger.error('Error sending message to API:', error);
     throw error;
   }
 };
@@ -233,7 +246,7 @@ export async function apiFetch<T>(
     const { data: { session } } = await supabase.auth.getSession();
     token = session?.access_token ?? '';
   } catch (e) {
-    console.warn('[apiFetch] getSession() failed, proceeding without token:', e);
+    logger.warn('[apiFetch] getSession() failed, proceeding without token:', e);
   }
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
@@ -394,16 +407,14 @@ export const deleteShoppingList = (listId: string): Promise<{ status: string }> 
 // Profile Recalculate
 // =============================================================================
 
-export interface RecalculateRequest {
+export const recalculateProfile = (data: {
   age: number;
   gender: string;
   weight_kg: number;
   height_cm: number;
   activity_level: string;
   goals?: Record<string, number>;
-}
-
-export interface RecalculateResponse {
+}): Promise<{
   bmr: number;
   tdee: number;
   target_calories: number;
@@ -411,9 +422,7 @@ export interface RecalculateResponse {
   target_carbs_g: number;
   target_fat_g: number;
   primary_goal: string;
-}
-
-export const recalculateProfile = (data: RecalculateRequest): Promise<RecalculateResponse> =>
+}> =>
   apiFetch('/api/profile/recalculate', { method: 'POST', body: JSON.stringify(data) });
 
 // =============================================================================
@@ -434,7 +443,7 @@ export const fetchConversations = async (user_id: string) => {
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error fetching conversations:', error);
+    logger.error('Error fetching conversations:', error);
     throw error;
   }
 };
@@ -452,7 +461,7 @@ export const fetchMessages = async (session_id: string, user_id: string) => {
     if (error) throw error;
     return data as Message[];
   } catch (error) {
-    console.error('Error fetching messages:', error);
+    logger.error('Error fetching messages:', error);
     throw error;
   }
 };

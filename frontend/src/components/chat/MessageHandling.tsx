@@ -7,6 +7,7 @@ import { sendMessage, fetchMessages } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Session, User } from '@supabase/supabase-js';
 import { Conversation } from '@/types/database.types';
+import { logger } from '@/lib/logger';
 
 interface MessageHandlingProps {
   user: User | null;
@@ -266,7 +267,7 @@ export const useMessageHandling = ({
         return;
       }
 
-      console.error('Error in chat flow:', err);
+      logger.error('Error in chat flow:', err);
       if (isMounted.current) {
         const errorMessage = err instanceof Error ? err.message : 'Impossible de traiter votre message. Veuillez réessayer.';
 
@@ -314,7 +315,7 @@ export const useMessageHandling = ({
         queryClient.setQueryData(['messages', conversation.session_id], data);
       }
     } catch (err) {
-      console.error('Error loading messages:', err);
+      logger.error('Error loading messages:', err);
       if (isMounted.current) {
         toast({
           title: 'Erreur de chargement',

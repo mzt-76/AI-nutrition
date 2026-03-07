@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { ComponentRenderer } from '@/components/generative-ui/ComponentRenderer';
 import type { MealDataFromPlan } from '@/components/recipes/RecipeDetailDrawer';
 import { UIComponentBlock } from '@/types/generative-ui.types';
+import { logger } from '@/lib/logger';
 
 export type { MealDataFromPlan };
 
@@ -85,7 +86,7 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (e) {
-      console.error('Failed to decode file attachment:', e);
+      logger.error('Failed to decode file attachment:', e);
     }
   };
   
@@ -100,7 +101,15 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
           p: ({children}) => <p className="mb-6 last:mb-0">{children}</p>,
           // Ensure proper link styling with a distinct color
           a: ({href, children}) => {
-            const isSafe = href && /^https?:\/\//i.test(href);
+            let isSafe = false;
+            if (href) {
+              try {
+                const url = new URL(href);
+                isSafe = url.protocol === 'http:' || url.protocol === 'https:';
+              } catch {
+                isSafe = false;
+              }
+            }
             return isSafe
               ? <a href={href} className="text-blue-400 hover:text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">{children}</a>
               : <span className="text-blue-400">{children}</span>;

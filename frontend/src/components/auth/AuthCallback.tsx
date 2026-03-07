@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Loader } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 export const AuthCallback = () => {
   const navigate = useNavigate();
@@ -15,7 +16,12 @@ export const AuthCallback = () => {
 
         const errorParam = hashParams.get('error') || queryParams.get('error');
         if (errorParam) {
-          setError(errorParam);
+          const KNOWN_ERRORS: Record<string, string> = {
+            'access_denied': "Accès refusé",
+            'server_error': "Erreur serveur",
+            'temporarily_unavailable': "Service temporairement indisponible",
+          };
+          setError(KNOWN_ERRORS[errorParam] ?? "Erreur d'authentification");
           return;
         }
 
@@ -31,7 +37,7 @@ export const AuthCallback = () => {
           navigate('/login');
         }
       } catch (err) {
-        console.error('Error during auth callback:', err);
+        logger.error('Error during auth callback:', err);
         setError("L'authentification a échoué. Veuillez réessayer.");
       }
     };

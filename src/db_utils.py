@@ -140,7 +140,7 @@ async def generate_conversation_title(title_agent: Agent, query: str) -> str:
         title: str = result.output.strip()
         return title
     except Exception as e:
-        logger.error(f"Error generating conversation title: {e}")
+        logger.warning(f"Error generating conversation title: {e}")
         return "Nouvelle conversation"
 
 
@@ -266,7 +266,7 @@ async def check_rate_limit(
         return True, None
     except Exception as e:
         logger.error(f"Error checking rate limit: {e}")
-        return True, None
+        return False, "Service temporairement indisponible, veuillez reessayer."
 
 
 async def store_request(

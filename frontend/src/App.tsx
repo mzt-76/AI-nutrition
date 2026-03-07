@@ -4,19 +4,21 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import Login from "./pages/Login";
-import Chat from "./pages/Chat";
-import Admin from "./pages/Admin";
-import MealPlanView from "./pages/MealPlanView";
-import DailyTracking from "./pages/DailyTracking";
-import MyPlans from "./pages/MyPlans";
-import NotFound from "./pages/NotFound";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { AuthCallback } from "./components/auth/AuthCallback";
 import { BottomTabs } from "./components/navigation/BottomTabs";
 import { ThemeProvider } from "@/components/theme-provider";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+
+const Chat = lazy(() => import("./pages/Chat"));
+const Admin = lazy(() => import("./pages/Admin"));
+const MealPlanView = lazy(() => import("./pages/MealPlanView"));
+const DailyTracking = lazy(() => import("./pages/DailyTracking"));
+const MyPlans = lazy(() => import("./pages/MyPlans"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000 } },
@@ -79,7 +81,7 @@ const AppRoutes = () => {
   const isMobile = useIsMobile();
 
   return (
-    <>
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-background"><div className="animate-pulse">Loading...</div></div>}>
       <Routes>
         <Route
           path="/login"
@@ -130,7 +132,7 @@ const AppRoutes = () => {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {isMobile && user && <BottomTabs />}
-    </>
+    </Suspense>
   );
 };
 
@@ -141,7 +143,9 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <AppRoutes />
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>

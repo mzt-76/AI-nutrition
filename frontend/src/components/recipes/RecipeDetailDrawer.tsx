@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchRecipe, upsertRecipe, addFavorite, removeFavorite, checkFavorite } from '@/lib/api';
 import type { Recipe } from '@/types/database.types';
+import { logger } from '@/lib/logger';
 import { MEAL_ICONS, MEAL_LABELS, normalizeMealType, formatMealTypeFallback } from '@/lib/meal-constants';
 
 // Meal data as stored in plan_data (denormalized)
@@ -60,6 +61,8 @@ export function RecipeDetailDrawer({
   useEffect(() => {
     if (!open) return;
 
+    let cancelled = false;
+
     setRecipeId(propRecipeId ?? null);
     setIsFavorite(false);
     setFavoriteId(null);
@@ -68,24 +71,28 @@ export function RecipeDetailDrawer({
       // Mode B: fetch from API
       setLoading(true);
       fetchRecipe(propRecipeId)
-        .then((data) => setRecipe(data))
-        .catch(() => setRecipe(null))
-        .finally(() => setLoading(false));
+        .then((data) => { if (!cancelled) setRecipe(data); })
+        .catch(() => { if (!cancelled) setRecipe(null); })
+        .finally(() => { if (!cancelled) setLoading(false); });
 
       // Check favorite status
       if (userId) {
         checkFavorite(userId, propRecipeId)
           .then((res) => {
-            setIsFavorite(res.is_favorite);
-            setFavoriteId(res.favorite_id);
+            if (!cancelled) {
+              setIsFavorite(res.is_favorite);
+              setFavoriteId(res.favorite_id);
+            }
           })
-          .catch(err => console.error('Failed to check favorite:', err));
+          .catch(() => {});
       }
     } else if (mealData) {
       // Mode A: use inline data, no fetch needed
       setRecipe(null);
       setLoading(false);
     }
+
+    return () => { cancelled = true; };
   }, [open, propRecipeId, mealData, userId]);
 
   // Derived display data (works for both modes)
@@ -145,7 +152,7 @@ export function RecipeDetailDrawer({
         }
       }
     } catch (err) {
-      console.error('Favorite toggle error:', err);
+      logger.error('Favorite toggle error:', err);
     } finally {
       setToggling(false);
     }

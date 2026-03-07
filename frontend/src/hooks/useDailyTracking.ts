@@ -16,6 +16,7 @@ import {
 import type { DailyFoodLog, DailyFoodLogInsert } from '@/types/database.types';
 import { normalizeMealType, MEAL_LABELS, MEAL_TYPE_ORDER } from '@/lib/meal-constants';
 import type { MealType } from '@/lib/meal-constants';
+import { logger } from '@/lib/logger';
 
 // Meal plan detail shape from the backend
 interface PlanMeal {
@@ -121,7 +122,7 @@ export function useDailyTracking() {
       const data = await fetchDailyLog(user.id, dateStr);
       setEntries(data);
     } catch (err) {
-      console.error('Failed to fetch daily log:', err);
+      logger.error('Failed to fetch daily log:', err);
       toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger le journal.' });
     } finally {
       if (!silent) setLoading(false);
@@ -158,7 +159,7 @@ export function useDailyTracking() {
         const detail = await apiFetch<MealPlanDetail>(`/api/meal-plans/${latest.id}`);
         if (!cancelled) setCachedPlanDetail(detail);
       } catch (err) {
-        console.error('Failed to fetch meal plan:', err);
+        logger.error('Failed to fetch meal plan:', err);
         if (!cancelled) {
           setPlanDayMeals([]);
           setActivePlanId(null);
@@ -221,7 +222,7 @@ export function useDailyTracking() {
         await refreshEntries(true);
         toast({ title: 'Supprimé', description: 'Entrée supprimée.' });
       } catch (err) {
-        console.error('Failed to delete entry:', err);
+        logger.error('Failed to delete entry:', err);
         toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer.' });
       }
     },
@@ -246,7 +247,7 @@ export function useDailyTracking() {
         await refreshEntries(true);
         toast({ title: 'Mis à jour', description: `Quantité modifiée à ${newQuantity}${entry.unit ?? 'g'}.` });
       } catch (err) {
-        console.error('Failed to update entry quantity:', err);
+        logger.error('Failed to update entry quantity:', err);
         toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de modifier la quantité.' });
       }
     },
@@ -294,7 +295,7 @@ export function useDailyTracking() {
         await refreshEntries(true);
         toast({ title: 'Ajouté', description: `${meal.name} enregistré.` });
       } catch (err) {
-        console.error('Failed to log plan meal:', err);
+        logger.error('Failed to log plan meal:', err);
         toast({ variant: 'destructive', title: 'Erreur', description: "Impossible d'enregistrer le repas." });
       }
     },

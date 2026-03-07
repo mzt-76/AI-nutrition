@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { UIComponentBlock, SemanticZone } from '@/types/generative-ui.types';
 import { validateComponentProps } from './validateProps';
+import { logger } from '@/lib/logger';
 import { NutritionSummaryCard } from './components/NutritionSummaryCard';
 import { MacroGauges } from './components/MacroGauges';
 import { MealCard } from './components/MealCard';
@@ -59,7 +60,7 @@ export function ComponentRenderer({ components, onAction, onMealClick }: Compone
         return zoneComponents.map(comp => {
           const Component = COMPONENT_CATALOG[comp.component];
           if (!Component) {
-            console.warn(`Unknown UI component: ${comp.component}`);
+            logger.warn(`Unknown UI component: ${comp.component}`);
             return null;
           }
           const validatedProps = validateComponentProps(comp.component, comp.props);

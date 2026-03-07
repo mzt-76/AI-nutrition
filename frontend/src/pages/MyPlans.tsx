@@ -14,6 +14,7 @@ import { PlanCard } from '@/components/plans/PlanCard';
 import { FavoriteCard } from '@/components/plans/FavoriteCard';
 import { RecipeDetailDrawer } from '@/components/recipes/RecipeDetailDrawer';
 import { ShoppingListCard } from '@/components/plans/ShoppingListCard';
+import { logger } from '@/lib/logger';
 
 type Tab = 'plans' | 'favoris' | 'courses';
 
@@ -60,7 +61,7 @@ const MyPlans = () => {
           if (!cancelled) setShoppingLists(data);
         }
       } catch (err) {
-        console.error(`Error loading ${tab}:`, err);
+        logger.error(`Error loading ${tab}:`, err);
         if (!cancelled) {
           setError(true);
           toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger les données.' });
@@ -75,16 +76,14 @@ const MyPlans = () => {
   }, [tab, userId]);
 
   const handleDeletePlan = async (planId: string) => {
-    setPlans((prev) => prev.filter((p) => p.id !== planId));
+    const previous = plans;
     try {
       await deleteMealPlan(planId);
+      setPlans((prev) => prev.filter((p) => p.id !== planId));
       toast({ title: 'Plan supprimé' });
     } catch {
       toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de supprimer le plan.' });
-      if (userId) {
-        const data = await fetchMealPlans(userId);
-        setPlans(data);
-      }
+      setPlans(previous);
     }
   };
 
@@ -213,7 +212,7 @@ const MyPlans = () => {
         onFavoriteChange={() => {
           // Refresh favorites list when toggled from drawer
           if (userId && tab === 'favoris') {
-            fetchFavorites(userId).then(setFavorites).catch(err => console.error('Failed to refresh favorites:', err));
+            fetchFavorites(userId).then(setFavorites).catch(err => logger.error('Failed to refresh favorites:', err));
           }
         }}
       />

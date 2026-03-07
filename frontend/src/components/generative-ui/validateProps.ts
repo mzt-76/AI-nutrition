@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 const NutritionSummaryCardSchema = z.object({
   bmr: z.number(),
@@ -80,13 +81,13 @@ export function validateComponentProps(
 ): Record<string, unknown> | null {
   const schema = PROP_SCHEMAS[componentName];
   if (!schema) {
-    console.warn(`No schema for component: ${componentName}`);
+    logger.warn(`No schema for component: ${componentName}`);
     return null;
   }
 
   const result = schema.safeParse(props);
   if (!result.success) {
-    console.warn(`Invalid props for ${componentName}:`, result.error.issues);
+    logger.warn(`Invalid props for ${componentName}:`, result.error.issues);
     return null;
   }
 

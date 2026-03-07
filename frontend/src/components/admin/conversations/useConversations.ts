@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
 import { Conversation, Message } from '@/types/database.types';
 import { fetchMessages } from '@/lib/api';
+import { logger } from '@/lib/logger';
 
 export interface ConversationDetails extends Conversation {
   messages?: Message[];
@@ -34,7 +35,7 @@ export const useConversations = () => {
       setConversations(data || []);
       setFilteredConversations(data || []);
     } catch (error) {
-      console.error('Error fetching conversations:', error);
+      logger.error('Error fetching conversations:', error);
       toast({
         title: 'Error',
         description: 'Failed to fetch conversations',
@@ -96,7 +97,7 @@ export const useConversations = () => {
         return { ...prev, messages };
       });
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      logger.error('Error fetching messages:', error);
       toast({
         title: 'Error',
         description: 'Failed to load conversation messages',

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Conversation } from '@/types/database.types';
 import { format, parseISO } from 'date-fns';
+import { logger } from '@/lib/logger';
 
 interface ConversationRowProps {
   conversation: Conversation;
@@ -24,7 +25,7 @@ export const ConversationRow = ({
         ? format(parseISO(conversation.created_at), 'MMM d, yyyy h:mm a')
         : '—';
     } catch (error) {
-      console.error('Error formatting date:', error);
+      logger.error('Error formatting date:', error);
       return conversation.created_at ?? '—';
     }
   }, [conversation.created_at]);

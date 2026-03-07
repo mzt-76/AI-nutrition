@@ -113,7 +113,10 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
     except Exception as e:
         logger.error(f"Agent model configuration error: {e}", exc_info=True)
 
-    _http_client = httpx.AsyncClient()
+    _http_client = httpx.AsyncClient(
+        timeout=30.0,
+        limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+    )
 
     logger.info("API startup complete")
     yield
@@ -128,7 +131,12 @@ app = FastAPI(
 )
 
 # CORS — configurable via environment
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")
+cors_origins = os.getenv("CORS_ORIGINS", "")
+if not cors_origins:
+    logger.warning(
+        "CORS_ORIGINS not set — using localhost defaults. Set explicitly in production!"
+    )
+    cors_origins = "http://localhost:5173,http://localhost:3000"
 _parsed_origins = [o.strip() for o in cors_origins.split(",")]
 if "*" in _parsed_origins:
     raise RuntimeError(
@@ -162,7 +170,8 @@ async def verify_token(
     supabase_url = os.getenv("SUPABASE_URL", "")
     service_key = os.getenv("SUPABASE_SERVICE_KEY", "")
 
-    assert _http_client is not None, "HTTP client not initialized"
+    if _http_client is None:
+        raise RuntimeError("HTTP client not initialized")
     response = await _http_client.get(
         f"{supabase_url}/auth/v1/user",
         headers={
@@ -174,7 +183,10 @@ async def verify_token(
     if response.status_code != 200:
         raise HTTPException(status_code=401, detail="Token invalide ou expiré")
 
-    return response.json()
+    data = response.json()
+    if "id" not in data:
+        raise HTTPException(status_code=401, detail="Token invalide")
+    return data
 
 
 async def require_auth(
@@ -638,7 +650,7 @@ async def food_search(
     auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Search for a food item and return its macros."""
-    q = q.strip()
+    q = q.strip()[:200]
     if not q:
         raise HTTPException(status_code=400, detail="Le paramètre 'q' est requis")
 
@@ -1076,7 +1088,9 @@ async def update_shopping_list(
     )
 
     if not result.data:
-        raise HTTPException(status_code=500, detail="Impossible de mettre à jour la liste de courses")
+        raise HTTPException(
+            status_code=500, detail="Impossible de mettre à jour la liste de courses"
+        )
     return result.data[0]
 
 

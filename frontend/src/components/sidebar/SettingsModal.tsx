@@ -32,6 +32,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/lib/supabase';
 import { recalculateProfile } from '@/lib/api';
 import type { UserProfile } from '@/types/database.types';
+import { logger } from '@/lib/logger';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -220,7 +221,7 @@ export const SettingsModal = ({ isOpen, onClose, currentFullName }: SettingsModa
       setTargetCarbs(p.target_carbs_g);
       setTargetFat(p.target_fat_g);
     } catch (err) {
-      console.error('Error fetching profile:', err);
+      logger.error('Error fetching profile:', err);
     } finally {
       setLoading(false);
     }

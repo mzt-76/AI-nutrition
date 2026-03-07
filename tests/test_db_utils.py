@@ -92,14 +92,14 @@ class TestCheckRateLimit:
         assert "demain" in msg
 
     @pytest.mark.asyncio
-    async def test_error_allows_request(self):
-        """On error, should allow request (fail open)."""
+    async def test_error_denies_request(self):
+        """On error, should deny request (fail closed)."""
         mock_supabase = MagicMock()
         mock_supabase.table.side_effect = Exception("DB down")
 
         allowed, msg = await check_rate_limit(mock_supabase, "user1")
-        assert allowed is True
-        assert msg is None
+        assert allowed is False
+        assert msg is not None
 
 
 class TestStoreMessage:
