@@ -11,6 +11,7 @@ import pytest
 
 from src.clients import get_supabase_client
 from src.nutrition.openfoodfacts_client import (
+    _unit_to_multiplier,
     calculate_similarity,
     match_ingredient,
     normalize_ingredient_name,
@@ -38,6 +39,51 @@ def test_calculate_similarity():
     # No match
     similarity = calculate_similarity("poulet", "xyz")
     assert similarity < 0.3
+
+
+class TestUnitToMultiplier:
+    """Tests for _unit_to_multiplier with discrete units (pièces)."""
+
+    def test_grams(self):
+        assert _unit_to_multiplier(150, "g", "poulet") == pytest.approx(1.5)
+
+    def test_kg(self):
+        assert _unit_to_multiplier(1, "kg", "poulet") == pytest.approx(10.0)
+
+    def test_ml_water(self):
+        assert _unit_to_multiplier(200, "ml", "eau") == pytest.approx(2.0)
+
+    def test_ml_oil(self):
+        # huile d'olive density = 0.92
+        assert _unit_to_multiplier(100, "ml", "huile d'olive") == pytest.approx(0.92)
+
+    def test_pieces_eggs(self):
+        # 3 oeufs = 3 × 60g = 180g → multiplier = 1.8
+        assert _unit_to_multiplier(3, "pièces", "oeufs") == pytest.approx(1.8)
+
+    def test_pieces_eggs_accent(self):
+        # œufs variant
+        assert _unit_to_multiplier(2, "pièces", "œufs") == pytest.approx(1.2)
+
+    def test_pieces_banane(self):
+        # 1 banane = 120g → multiplier = 1.2
+        assert _unit_to_multiplier(1, "pièces", "banane") == pytest.approx(1.2)
+
+    def test_pieces_avocat(self):
+        # 1 avocat = 150g → multiplier = 1.5
+        assert _unit_to_multiplier(1, "pièces", "avocat") == pytest.approx(1.5)
+
+    def test_pieces_filet_poulet(self):
+        # 2 filets de poulet = 2 × 150g = 300g → multiplier = 3.0
+        assert _unit_to_multiplier(2, "pièces", "filet de poulet") == pytest.approx(3.0)
+
+    def test_pieces_unknown_fallback(self):
+        # Unknown piece — falls back to quantity / 100
+        assert _unit_to_multiplier(50, "pièces", "ingrédient inconnu") == pytest.approx(0.5)
+
+    def test_pieces_muffin_anglais(self):
+        # 1 muffin anglais = 57g → multiplier = 0.57
+        assert _unit_to_multiplier(1, "pièces", "muffin anglais") == pytest.approx(0.57)
 
 
 @pytest.mark.asyncio

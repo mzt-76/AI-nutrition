@@ -8,6 +8,7 @@ to match codebase patterns and avoid client compatibility risk.
 """
 
 import logging
+import random
 from datetime import datetime, timezone
 
 from supabase import Client
@@ -46,11 +47,13 @@ async def search_recipes(
     max_prep_time: int | None = None,
     calorie_range: tuple[int, int] | None = None,
     limit: int = 10,
+    target_macro_ratios: dict[str, float] | None = None,
+    macro_ratio_tolerance: float = 0.25,
 ) -> list[dict]:
     """Search recipes with filtering constraints.
 
     Queries the recipes table with basic filters, then applies allergen,
-    disliked-food, and variety filtering in Python.
+    disliked-food, variety, and macro-profile filtering in Python.
 
     Args:
         supabase: Supabase client
@@ -64,6 +67,9 @@ async def search_recipes(
         max_prep_time: Maximum prep time in minutes (None = no filter)
         calorie_range: (min, max) calorie range for the meal slot (None = no filter)
         limit: Max results after Python filtering
+        target_macro_ratios: Target macro ratios {"fat_ratio": 0.25, "carb_ratio": 0.50}.
+            Ratios are caloric proportions (e.g. fat_ratio = fat_g * 9 / calories).
+        macro_ratio_tolerance: Max allowed deviation from target ratios (default 0.25)
 
     Returns:
         List of matching recipe dicts, ordered by created_at ASC (neutral;
@@ -158,6 +164,46 @@ async def search_recipes(
             excluded_set = set(exclude_recipe_ids)
             results = [r for r in results if r.get("id") not in excluded_set]
 
+        # Python-side filtering: macro-profile (exclude recipes with bad macro ratios)
+        if target_macro_ratios and results:
+            target_fat_ratio = target_macro_ratios.get("fat_ratio")
+            target_carb_ratio = target_macro_ratios.get("carb_ratio")
+            macro_filtered = []
+            for r in results:
+                cal = r.get("calories_per_serving", 0) or 0
+                if cal <= 0:
+                    macro_filtered.append(r)
+                    continue
+                fat_g = r.get("fat_g_per_serving", 0) or 0
+                carbs_g = r.get("carbs_g_per_serving", 0) or 0
+                recipe_fat_ratio = (fat_g * 9) / cal
+                recipe_carb_ratio = (carbs_g * 4) / cal
+                protein_g = r.get("protein_g_per_serving", 0) or 0
+                recipe_prot_ratio = (protein_g * 4) / cal
+                target_prot_ratio = target_macro_ratios.get("protein_ratio")
+                skip = False
+                if target_fat_ratio and target_fat_ratio > 0:
+                    if abs(recipe_fat_ratio - target_fat_ratio) / target_fat_ratio > macro_ratio_tolerance:
+                        skip = True
+                if target_carb_ratio and target_carb_ratio > 0:
+                    if abs(recipe_carb_ratio - target_carb_ratio) / target_carb_ratio > macro_ratio_tolerance:
+                        skip = True
+                if target_prot_ratio and target_prot_ratio > 0:
+                    if abs(recipe_prot_ratio - target_prot_ratio) / target_prot_ratio > macro_ratio_tolerance:
+                        skip = True
+                if not skip:
+                    macro_filtered.append(r)
+            if macro_filtered:
+                excluded_macro = len(results) - len(macro_filtered)
+                if excluded_macro > 0:
+                    logger.info(
+                        f"Excluded {excluded_macro} recipes with bad macro ratios "
+                        f"(tolerance={macro_ratio_tolerance})"
+                    )
+                results = macro_filtered
+            # else: keep unfiltered pool as fallback
+
+        random.shuffle(results)
         final = results[:limit]
         logger.info(f"Found {len(final)} recipes for meal_type={meal_type}")
         return final

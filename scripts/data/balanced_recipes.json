@@ -1,0 +1,984 @@
+[
+  {
+    "name": "Shaker whey native banane",
+    "calories": 320, "protein_g": 30,
+    "meal_type": "collation", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "whey protéine", "quantity": 30, "unit": "g"},
+      {"name": "banane", "quantity": 120, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 200, "unit": "ml"},
+      {"name": "beurre de cacahuète", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mixer la whey, la banane, le lait et le beurre de cacahuète.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["lait", "arachides"]
+  },
+  {
+    "name": "Mélange de graines tournesol courge lin",
+    "calories": 280, "protein_g": 12,
+    "meal_type": "collation", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 2,
+    "ingredients": [
+      {"name": "graines de tournesol", "quantity": 20, "unit": "g"},
+      {"name": "graines de courge", "quantity": 20, "unit": "g"},
+      {"name": "graines de lin", "quantity": 10, "unit": "g"},
+      {"name": "raisins secs", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Mélanger toutes les graines et les raisins secs dans un bol.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Oeufs brouillés toast avocat",
+    "calories": 480, "protein_g": 25,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 180, "unit": "g"},
+      {"name": "pain complet", "quantity": 60, "unit": "g"},
+      {"name": "avocat", "quantity": 50, "unit": "g"},
+      {"name": "beurre", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Faire fondre le beurre, brouiller les oeufs. Toaster le pain, écraser l'avocat dessus.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["oeufs", "gluten"]
+  },
+  {
+    "name": "Croque-monsieur jambon gruyère",
+    "calories": 520, "protein_g": 28,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "pain de mie", "quantity": 80, "unit": "g"},
+      {"name": "jambon blanc", "quantity": 60, "unit": "g"},
+      {"name": "gruyère râpé", "quantity": 40, "unit": "g"},
+      {"name": "beurre", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Beurrer le pain, garnir de jambon et gruyère. Griller au four ou à la poêle.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Omelette champignons fromage",
+    "calories": 450, "protein_g": 30,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 180, "unit": "g"},
+      {"name": "champignons de Paris", "quantity": 100, "unit": "g"},
+      {"name": "emmental râpé", "quantity": 30, "unit": "g"},
+      {"name": "beurre", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Faire revenir les champignons dans le beurre. Battre les oeufs, verser sur les champignons, ajouter le fromage. Cuire à feu doux.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["oeufs", "lait"]
+  },
+  {
+    "name": "Tartine beurre de cacahuète banane miel",
+    "calories": 460, "protein_g": 15,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "pain complet", "quantity": 80, "unit": "g"},
+      {"name": "beurre de cacahuète", "quantity": 30, "unit": "g"},
+      {"name": "banane", "quantity": 100, "unit": "g"},
+      {"name": "miel", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Toaster le pain, tartiner de beurre de cacahuète, ajouter les rondelles de banane et un filet de miel.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "arachides"]
+  },
+  {
+    "name": "Fromage blanc granola noix",
+    "calories": 420, "protein_g": 22,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "fromage blanc", "quantity": 200, "unit": "g"},
+      {"name": "granola", "quantity": 50, "unit": "g"},
+      {"name": "noix", "quantity": 20, "unit": "g"},
+      {"name": "miel", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Verser le fromage blanc dans un bol, ajouter le granola, les noix concassées et le miel.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["lait", "fruits à coque", "gluten"]
+  },
+  {
+    "name": "Pain complet saumon fumé cream cheese",
+    "calories": 440, "protein_g": 24,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "pain complet", "quantity": 80, "unit": "g"},
+      {"name": "saumon fumé", "quantity": 60, "unit": "g"},
+      {"name": "cream cheese", "quantity": 30, "unit": "g"},
+      {"name": "citron", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Tartiner le cream cheese sur le pain, disposer le saumon fumé et presser un filet de citron.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "poisson", "lait"]
+  },
+  {
+    "name": "Oeufs au plat bacon pain complet",
+    "calories": 520, "protein_g": 30,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 120, "unit": "g"},
+      {"name": "bacon", "quantity": 40, "unit": "g"},
+      {"name": "pain complet", "quantity": 80, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Griller le bacon, cuire les oeufs au plat dans la graisse. Servir avec le pain toasté.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["oeufs", "gluten"]
+  },
+  {
+    "name": "Porridge beurre de cacahuète chocolat",
+    "calories": 500, "protein_g": 18,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "flocons d'avoine", "quantity": 80, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 200, "unit": "ml"},
+      {"name": "beurre de cacahuète", "quantity": 20, "unit": "g"},
+      {"name": "chocolat noir", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Cuire les flocons dans le lait 5 min. Ajouter le beurre de cacahuète et les copeaux de chocolat.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "lait", "arachides"]
+  },
+  {
+    "name": "Tartine ricotta figues noix",
+    "calories": 400, "protein_g": 15,
+    "meal_type": "petit-dejeuner", "cuisine_type": "italienne", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "pain complet", "quantity": 80, "unit": "g"},
+      {"name": "ricotta", "quantity": 60, "unit": "g"},
+      {"name": "figues sèches", "quantity": 30, "unit": "g"},
+      {"name": "noix", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Tartiner la ricotta sur le pain, disposer les figues coupées et les noix.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "lait", "fruits à coque"]
+  },
+  {
+    "name": "Yaourt grec muesli amandes",
+    "calories": 420, "protein_g": 20,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "yaourt grec", "quantity": 200, "unit": "g"},
+      {"name": "muesli", "quantity": 50, "unit": "g"},
+      {"name": "amandes", "quantity": 20, "unit": "g"},
+      {"name": "miel", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Verser le yaourt grec, ajouter le muesli, les amandes effilées et le miel.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["lait", "fruits à coque", "gluten"]
+  },
+  {
+    "name": "Pancakes protéinés myrtilles",
+    "calories": 480, "protein_g": 28,
+    "meal_type": "petit-dejeuner", "cuisine_type": "américaine", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "farine complète", "quantity": 60, "unit": "g"},
+      {"name": "oeufs", "quantity": 120, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 100, "unit": "ml"},
+      {"name": "myrtilles", "quantity": 80, "unit": "g"},
+      {"name": "beurre", "quantity": 10, "unit": "g"},
+      {"name": "sirop d'érable", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Mélanger farine, oeufs et lait. Cuire les pancakes dans le beurre, garnir de myrtilles et sirop.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Bol açaí granola beurre d'amande",
+    "calories": 480, "protein_g": 14,
+    "meal_type": "petit-dejeuner", "cuisine_type": "brésilienne", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "purée d'açaí", "quantity": 150, "unit": "g"},
+      {"name": "banane", "quantity": 100, "unit": "g"},
+      {"name": "granola", "quantity": 40, "unit": "g"},
+      {"name": "beurre d'amande", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Mixer l'açaí et la banane. Verser dans un bol, ajouter le granola et le beurre d'amande.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["fruits à coque", "gluten"]
+  },
+  {
+    "name": "Overnight oats beurre de cacahuète banane",
+    "calories": 500, "protein_g": 18,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "flocons d'avoine", "quantity": 70, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 200, "unit": "ml"},
+      {"name": "beurre de cacahuète", "quantity": 25, "unit": "g"},
+      {"name": "banane", "quantity": 80, "unit": "g"},
+      {"name": "graines de chia", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mélanger avoine, lait, chia et beurre de cacahuète. Réfrigérer une nuit. Ajouter la banane le matin.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["gluten", "lait", "arachides"]
+  },
+  {
+    "name": "Gaufres avoine banane beurre noisette",
+    "calories": 480, "protein_g": 16,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "flocons d'avoine", "quantity": 80, "unit": "g"},
+      {"name": "oeufs", "quantity": 120, "unit": "g"},
+      {"name": "banane", "quantity": 100, "unit": "g"},
+      {"name": "beurre de noisette", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Mixer avoine, oeufs et banane. Cuire dans le gaufrier. Napper de beurre de noisette.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["oeufs", "gluten", "fruits à coque"]
+  },
+  {
+    "name": "Shakshuka oeufs tomate feta",
+    "calories": 450, "protein_g": 24,
+    "meal_type": "petit-dejeuner", "cuisine_type": "méditerranéenne", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 180, "unit": "g"},
+      {"name": "tomates concassées", "quantity": 200, "unit": "g"},
+      {"name": "feta", "quantity": 40, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"},
+      {"name": "pain complet", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Faire mijoter les tomates avec l'huile d'olive. Casser les oeufs dedans, couvrir et cuire. Émietter la feta.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["oeufs", "lait", "gluten"]
+  },
+  {
+    "name": "Crêpes complètes jambon fromage",
+    "calories": 520, "protein_g": 28,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "farine de sarrasin", "quantity": 60, "unit": "g"},
+      {"name": "oeufs", "quantity": 60, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 150, "unit": "ml"},
+      {"name": "jambon blanc", "quantity": 60, "unit": "g"},
+      {"name": "emmental râpé", "quantity": 40, "unit": "g"},
+      {"name": "beurre", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Préparer la pâte à galette, cuire. Garnir de jambon, fromage et oeuf.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["oeufs", "lait", "gluten"]
+  },
+  {
+    "name": "Bowl smoothie mangue coco granola",
+    "calories": 460, "protein_g": 12,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "mangue", "quantity": 150, "unit": "g"},
+      {"name": "lait de coco", "quantity": 100, "unit": "ml"},
+      {"name": "banane", "quantity": 80, "unit": "g"},
+      {"name": "granola", "quantity": 40, "unit": "g"},
+      {"name": "noix de coco râpée", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Mixer mangue, banane et lait de coco. Verser dans un bol, ajouter granola et coco râpée.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "French toast cannelle sirop érable",
+    "calories": 500, "protein_g": 18,
+    "meal_type": "petit-dejeuner", "cuisine_type": "américaine", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "pain brioché", "quantity": 100, "unit": "g"},
+      {"name": "oeufs", "quantity": 120, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 50, "unit": "ml"},
+      {"name": "beurre", "quantity": 15, "unit": "g"},
+      {"name": "sirop d'érable", "quantity": 20, "unit": "ml"},
+      {"name": "cannelle", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Tremper le pain dans le mélange oeufs-lait-cannelle. Cuire dans le beurre. Arroser de sirop.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Muffins anglais oeuf poché avocat",
+    "calories": 460, "protein_g": 22,
+    "meal_type": "petit-dejeuner", "cuisine_type": "américaine", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "muffin anglais", "quantity": 57, "unit": "g"},
+      {"name": "oeufs", "quantity": 120, "unit": "g"},
+      {"name": "avocat", "quantity": 60, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Toaster le muffin. Pocher les oeufs. Écraser l'avocat sur le muffin, poser l'oeuf dessus.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["oeufs", "gluten"]
+  },
+  {
+    "name": "Granola bowl yaourt fruits secs",
+    "calories": 450, "protein_g": 16,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "yaourt nature", "quantity": 200, "unit": "g"},
+      {"name": "granola", "quantity": 60, "unit": "g"},
+      {"name": "abricots secs", "quantity": 25, "unit": "g"},
+      {"name": "amandes", "quantity": 15, "unit": "g"},
+      {"name": "miel", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Verser le yaourt, ajouter le granola, les abricots coupés, les amandes et le miel.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["lait", "fruits à coque", "gluten"]
+  },
+  {
+    "name": "Saumon grillé quinoa légumes",
+    "calories": 620, "protein_g": 42,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "pavé de saumon", "quantity": 150, "unit": "g"},
+      {"name": "quinoa", "quantity": 70, "unit": "g"},
+      {"name": "courgettes", "quantity": 100, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Cuire le quinoa. Griller le saumon 4 min par face. Sauter les courgettes à l'huile d'olive.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Pâtes complètes thon tomates olives",
+    "calories": 580, "protein_g": 35,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "pâtes complètes", "quantity": 80, "unit": "g"},
+      {"name": "thon en conserve", "quantity": 100, "unit": "g"},
+      {"name": "tomates cerises", "quantity": 100, "unit": "g"},
+      {"name": "olives noires", "quantity": 20, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Cuire les pâtes. Mélanger avec le thon émietté, les tomates coupées, les olives et l'huile.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "poisson"]
+  },
+  {
+    "name": "Salade caesar poulet parmesan",
+    "calories": 560, "protein_g": 42,
+    "meal_type": "dejeuner", "cuisine_type": "américaine", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "blanc de poulet", "quantity": 150, "unit": "g"},
+      {"name": "salade romaine", "quantity": 100, "unit": "g"},
+      {"name": "parmesan", "quantity": 25, "unit": "g"},
+      {"name": "croûtons", "quantity": 30, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Griller le poulet, trancher. Assembler la salade avec romaine, croûtons, parmesan et sauce.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Wrap poulet avocat crudités",
+    "calories": 540, "protein_g": 35,
+    "meal_type": "dejeuner", "cuisine_type": "américaine", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "tortilla blé complet", "quantity": 60, "unit": "g"},
+      {"name": "blanc de poulet", "quantity": 120, "unit": "g"},
+      {"name": "avocat", "quantity": 60, "unit": "g"},
+      {"name": "tomate", "quantity": 80, "unit": "g"},
+      {"name": "salade", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Garnir la tortilla de poulet tranché, avocat écrasé, tomate et salade. Rouler.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Riz sauté crevettes légumes sauce soja",
+    "calories": 550, "protein_g": 32,
+    "meal_type": "dejeuner", "cuisine_type": "asiatique", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "riz basmati", "quantity": 80, "unit": "g"},
+      {"name": "crevettes décortiquées", "quantity": 120, "unit": "g"},
+      {"name": "poivron", "quantity": 80, "unit": "g"},
+      {"name": "huile de sésame", "quantity": 15, "unit": "ml"},
+      {"name": "sauce soja", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Cuire le riz. Sauter les crevettes et légumes dans l'huile de sésame. Assaisonner de sauce soja.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["crustacés", "soja"]
+  },
+  {
+    "name": "Tartare de saumon avocat riz vinaigré",
+    "calories": 580, "protein_g": 30,
+    "meal_type": "dejeuner", "cuisine_type": "japonaise", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "saumon frais", "quantity": 130, "unit": "g"},
+      {"name": "avocat", "quantity": 70, "unit": "g"},
+      {"name": "riz à sushi", "quantity": 80, "unit": "g"},
+      {"name": "huile de sésame", "quantity": 10, "unit": "ml"},
+      {"name": "sauce soja", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Couper le saumon en dés. Écraser l'avocat. Servir sur le riz vinaigré avec sauce soja et sésame.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["poisson", "soja"]
+  },
+  {
+    "name": "Salade niçoise thon oeuf olives",
+    "calories": 520, "protein_g": 35,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "thon en conserve", "quantity": 100, "unit": "g"},
+      {"name": "oeufs", "quantity": 120, "unit": "g"},
+      {"name": "olives noires", "quantity": 25, "unit": "g"},
+      {"name": "haricots verts", "quantity": 100, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"},
+      {"name": "tomate", "quantity": 100, "unit": "g"}
+    ],
+    "instructions": "Cuire les oeufs durs et les haricots verts. Assembler avec thon, olives, tomates et vinaigrette.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["poisson", "oeufs"]
+  },
+  {
+    "name": "Poke bowl saumon mangue edamame",
+    "calories": 600, "protein_g": 34,
+    "meal_type": "dejeuner", "cuisine_type": "japonaise", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "saumon frais", "quantity": 120, "unit": "g"},
+      {"name": "riz à sushi", "quantity": 80, "unit": "g"},
+      {"name": "mangue", "quantity": 60, "unit": "g"},
+      {"name": "edamame", "quantity": 50, "unit": "g"},
+      {"name": "avocat", "quantity": 40, "unit": "g"},
+      {"name": "huile de sésame", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Cuire le riz. Couper le saumon et la mangue en dés. Assembler le bowl avec tous les ingrédients.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["poisson", "soja"]
+  },
+  {
+    "name": "Sandwich complet dinde avocat mozzarella",
+    "calories": 540, "protein_g": 32,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "pain complet", "quantity": 100, "unit": "g"},
+      {"name": "escalope de dinde", "quantity": 80, "unit": "g"},
+      {"name": "avocat", "quantity": 50, "unit": "g"},
+      {"name": "mozzarella", "quantity": 40, "unit": "g"},
+      {"name": "salade", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Garnir le pain de dinde, mozzarella, avocat écrasé et salade.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Taboulé poulet feta olives",
+    "calories": 560, "protein_g": 38,
+    "meal_type": "dejeuner", "cuisine_type": "méditerranéenne", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "semoule", "quantity": 70, "unit": "g"},
+      {"name": "blanc de poulet", "quantity": 120, "unit": "g"},
+      {"name": "feta", "quantity": 40, "unit": "g"},
+      {"name": "olives vertes", "quantity": 20, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"},
+      {"name": "tomate", "quantity": 80, "unit": "g"}
+    ],
+    "instructions": "Cuire la semoule. Griller le poulet. Mélanger avec feta, olives, tomates et huile d'olive.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Poulet rôti patate douce brocoli huile olive",
+    "calories": 650, "protein_g": 45,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "cuisse de poulet", "quantity": 200, "unit": "g"},
+      {"name": "patate douce", "quantity": 150, "unit": "g"},
+      {"name": "brocoli", "quantity": 120, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Rôtir le poulet et la patate douce au four 30 min à 200°C. Cuire le brocoli vapeur. Arroser d'huile.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Wok boeuf légumes sésame",
+    "calories": 580, "protein_g": 40,
+    "meal_type": "dejeuner", "cuisine_type": "asiatique", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "boeuf (rumsteck)", "quantity": 150, "unit": "g"},
+      {"name": "poivron", "quantity": 80, "unit": "g"},
+      {"name": "brocoli", "quantity": 80, "unit": "g"},
+      {"name": "riz basmati", "quantity": 60, "unit": "g"},
+      {"name": "huile de sésame", "quantity": 15, "unit": "ml"},
+      {"name": "sauce soja", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Sauter le boeuf émincé à feu vif. Ajouter les légumes. Assaisonner soja et sésame. Servir avec riz.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Gratin dauphinois et poulet",
+    "calories": 680, "protein_g": 42,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 45,
+    "ingredients": [
+      {"name": "pommes de terre", "quantity": 200, "unit": "g"},
+      {"name": "crème fraîche", "quantity": 50, "unit": "g"},
+      {"name": "blanc de poulet", "quantity": 150, "unit": "g"},
+      {"name": "gruyère râpé", "quantity": 30, "unit": "g"},
+      {"name": "beurre", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Trancher les pommes de terre, disposer en couches avec crème et gruyère. Enfourner 40 min. Griller le poulet à part.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Tajine poulet olives citron confit",
+    "calories": 600, "protein_g": 40,
+    "meal_type": "dejeuner", "cuisine_type": "marocaine", "diet_type": "omnivore",
+    "prep_time_minutes": 40,
+    "ingredients": [
+      {"name": "cuisse de poulet", "quantity": 200, "unit": "g"},
+      {"name": "olives vertes", "quantity": 30, "unit": "g"},
+      {"name": "citron confit", "quantity": 20, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"},
+      {"name": "semoule", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Faire mijoter le poulet avec olives, citron confit et huile d'olive 35 min. Servir avec semoule.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Risotto crevettes courgettes parmesan",
+    "calories": 620, "protein_g": 32,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "riz arborio", "quantity": 80, "unit": "g"},
+      {"name": "crevettes décortiquées", "quantity": 100, "unit": "g"},
+      {"name": "courgettes", "quantity": 100, "unit": "g"},
+      {"name": "parmesan", "quantity": 25, "unit": "g"},
+      {"name": "beurre", "quantity": 15, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Faire le risotto classique. Sauter les crevettes et courgettes, incorporer en fin de cuisson avec le parmesan.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["crustacés", "lait"]
+  },
+  {
+    "name": "Curry vert poulet lait de coco riz",
+    "calories": 640, "protein_g": 38,
+    "meal_type": "dejeuner", "cuisine_type": "thaïlandaise", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "blanc de poulet", "quantity": 150, "unit": "g"},
+      {"name": "lait de coco", "quantity": 100, "unit": "ml"},
+      {"name": "riz basmati", "quantity": 70, "unit": "g"},
+      {"name": "pâte de curry vert", "quantity": 15, "unit": "g"},
+      {"name": "huile de coco", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Faire revenir le poulet dans l'huile. Ajouter la pâte de curry et le lait de coco. Mijoter 15 min. Servir avec riz.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Saumon en croûte d'herbes et riz pilaf",
+    "calories": 640, "protein_g": 40,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "pavé de saumon", "quantity": 150, "unit": "g"},
+      {"name": "riz basmati", "quantity": 70, "unit": "g"},
+      {"name": "chapelure", "quantity": 20, "unit": "g"},
+      {"name": "beurre", "quantity": 15, "unit": "g"},
+      {"name": "persil", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mélanger chapelure, beurre fondu et persil. En croûter le saumon. Enfourner 15 min. Cuire le riz pilaf.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["poisson", "gluten", "lait"]
+  },
+  {
+    "name": "Boeuf bourguignon et purée",
+    "calories": 700, "protein_g": 45,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 45,
+    "ingredients": [
+      {"name": "boeuf (paleron)", "quantity": 180, "unit": "g"},
+      {"name": "pommes de terre", "quantity": 150, "unit": "g"},
+      {"name": "carottes", "quantity": 80, "unit": "g"},
+      {"name": "beurre", "quantity": 15, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 30, "unit": "ml"}
+    ],
+    "instructions": "Faire braiser le boeuf avec carottes 40 min. Préparer la purée avec pommes de terre, beurre et lait.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Paella poulet chorizo crevettes",
+    "calories": 660, "protein_g": 40,
+    "meal_type": "dejeuner", "cuisine_type": "espagnole", "diet_type": "omnivore",
+    "prep_time_minutes": 40,
+    "ingredients": [
+      {"name": "riz rond", "quantity": 80, "unit": "g"},
+      {"name": "blanc de poulet", "quantity": 100, "unit": "g"},
+      {"name": "chorizo", "quantity": 30, "unit": "g"},
+      {"name": "crevettes décortiquées", "quantity": 60, "unit": "g"},
+      {"name": "poivron", "quantity": 80, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir poulet et chorizo. Ajouter riz, poivron et bouillon. Cuire 20 min. Ajouter les crevettes en fin.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["crustacés"]
+  },
+  {
+    "name": "Lasagne bolognaise maison",
+    "calories": 680, "protein_g": 38,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "omnivore",
+    "prep_time_minutes": 45,
+    "ingredients": [
+      {"name": "pâtes à lasagne", "quantity": 80, "unit": "g"},
+      {"name": "boeuf haché", "quantity": 120, "unit": "g"},
+      {"name": "tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "béchamel", "quantity": 80, "unit": "g"},
+      {"name": "emmental râpé", "quantity": 30, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Préparer la bolognaise. Monter les lasagnes en alternant pâtes, viande, béchamel. Gratiner 25 min.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Omelette tomate chèvre salade",
+    "calories": 450, "protein_g": 28,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 180, "unit": "g"},
+      {"name": "tomate", "quantity": 100, "unit": "g"},
+      {"name": "fromage de chèvre", "quantity": 30, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "salade verte", "quantity": 50, "unit": "g"}
+    ],
+    "instructions": "Battre les oeufs, ajouter tomate et chèvre. Cuire l'omelette. Servir avec salade assaisonnée.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["oeufs", "lait"]
+  },
+  {
+    "name": "Soupe butternut noisettes et tartine fromage",
+    "calories": 440, "protein_g": 15,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "butternut", "quantity": 250, "unit": "g"},
+      {"name": "noisettes", "quantity": 20, "unit": "g"},
+      {"name": "pain complet", "quantity": 60, "unit": "g"},
+      {"name": "comté", "quantity": 30, "unit": "g"},
+      {"name": "crème fraîche", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Cuire la butternut, mixer avec crème. Parsemer de noisettes. Gratiner pain et comté.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["fruits à coque", "gluten", "lait"]
+  },
+  {
+    "name": "Salade tiède lentilles saumon fumé",
+    "calories": 480, "protein_g": 32,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "lentilles vertes", "quantity": 80, "unit": "g"},
+      {"name": "saumon fumé", "quantity": 80, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"},
+      {"name": "échalote", "quantity": 20, "unit": "g"},
+      {"name": "salade verte", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Cuire les lentilles. Mélanger tièdes avec l'échalote, l'huile et le saumon fumé en lanières.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Toast avocat oeuf poché saumon",
+    "calories": 500, "protein_g": 30,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "pain complet", "quantity": 80, "unit": "g"},
+      {"name": "avocat", "quantity": 70, "unit": "g"},
+      {"name": "oeufs", "quantity": 60, "unit": "g"},
+      {"name": "saumon fumé", "quantity": 50, "unit": "g"}
+    ],
+    "instructions": "Toaster le pain. Écraser l'avocat. Pocher l'oeuf. Assembler avec le saumon.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "oeufs", "poisson"]
+  },
+  {
+    "name": "Assiette froide jambon fromage crudités noix",
+    "calories": 460, "protein_g": 28,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "jambon blanc", "quantity": 80, "unit": "g"},
+      {"name": "comté", "quantity": 40, "unit": "g"},
+      {"name": "tomate", "quantity": 100, "unit": "g"},
+      {"name": "concombre", "quantity": 80, "unit": "g"},
+      {"name": "noix", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Disposer joliment le jambon, fromage, crudités et noix dans une assiette.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["lait", "fruits à coque"]
+  },
+  {
+    "name": "Soupe miso tofu edamame riz",
+    "calories": 420, "protein_g": 22,
+    "meal_type": "diner", "cuisine_type": "japonaise", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "pâte miso", "quantity": 20, "unit": "g"},
+      {"name": "tofu ferme", "quantity": 100, "unit": "g"},
+      {"name": "edamame", "quantity": 50, "unit": "g"},
+      {"name": "riz basmati", "quantity": 60, "unit": "g"},
+      {"name": "huile de sésame", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Préparer le bouillon miso. Ajouter tofu en dés et edamame. Servir avec riz et huile de sésame.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Salade de pâtes pesto mozzarella tomates séchées",
+    "calories": 520, "protein_g": 22,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "omnivore",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {"name": "pâtes complètes", "quantity": 80, "unit": "g"},
+      {"name": "pesto", "quantity": 25, "unit": "g"},
+      {"name": "mozzarella", "quantity": 50, "unit": "g"},
+      {"name": "tomates séchées", "quantity": 25, "unit": "g"}
+    ],
+    "instructions": "Cuire les pâtes al dente. Mélanger avec pesto, mozzarella en dés et tomates séchées.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["gluten", "lait", "fruits à coque"]
+  },
+  {
+    "name": "Tartine de sardines avocat citron",
+    "calories": 440, "protein_g": 25,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "sardines en conserve", "quantity": 80, "unit": "g"},
+      {"name": "pain complet", "quantity": 80, "unit": "g"},
+      {"name": "avocat", "quantity": 60, "unit": "g"},
+      {"name": "citron", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Écraser l'avocat sur le pain. Disposer les sardines. Presser le citron.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["poisson", "gluten"]
+  },
+  {
+    "name": "Bol de riz saumon teriyaki avocat",
+    "calories": 560, "protein_g": 32,
+    "meal_type": "diner", "cuisine_type": "japonaise", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "pavé de saumon", "quantity": 120, "unit": "g"},
+      {"name": "riz à sushi", "quantity": 80, "unit": "g"},
+      {"name": "avocat", "quantity": 50, "unit": "g"},
+      {"name": "sauce teriyaki", "quantity": 20, "unit": "ml"},
+      {"name": "huile de sésame", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Cuire le riz. Griller le saumon, napper de teriyaki. Assembler avec avocat tranché.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["poisson", "soja"]
+  },
+  {
+    "name": "Velouté de brocoli fromage et croûtons",
+    "calories": 420, "protein_g": 18,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "brocoli", "quantity": 250, "unit": "g"},
+      {"name": "crème fraîche", "quantity": 30, "unit": "g"},
+      {"name": "emmental râpé", "quantity": 25, "unit": "g"},
+      {"name": "croûtons", "quantity": 30, "unit": "g"},
+      {"name": "beurre", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Cuire le brocoli, mixer avec crème et beurre. Servir avec fromage et croûtons.",
+    "tags": ["balanced", "quick"],
+    "allergen_tags": ["lait", "gluten"]
+  },
+  {
+    "name": "Filet de cabillaud purée maison beurre",
+    "calories": 480, "protein_g": 35,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "filet de cabillaud", "quantity": 150, "unit": "g"},
+      {"name": "pommes de terre", "quantity": 200, "unit": "g"},
+      {"name": "beurre", "quantity": 20, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 30, "unit": "ml"}
+    ],
+    "instructions": "Cuire le cabillaud vapeur. Préparer la purée avec pommes de terre, beurre et lait.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["poisson", "lait"]
+  },
+  {
+    "name": "Quiche lorraine et salade",
+    "calories": 540, "protein_g": 24,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "pâte brisée", "quantity": 60, "unit": "g"},
+      {"name": "lardons", "quantity": 60, "unit": "g"},
+      {"name": "oeufs", "quantity": 120, "unit": "g"},
+      {"name": "crème fraîche", "quantity": 50, "unit": "g"},
+      {"name": "gruyère râpé", "quantity": 30, "unit": "g"},
+      {"name": "salade verte", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Foncer la pâte, garnir de lardons. Verser l'appareil oeufs-crème-gruyère. Cuire 30 min à 180°C.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Curry de poulet lait de coco riz basmati",
+    "calories": 580, "protein_g": 38,
+    "meal_type": "diner", "cuisine_type": "indienne", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "blanc de poulet", "quantity": 150, "unit": "g"},
+      {"name": "lait de coco", "quantity": 100, "unit": "ml"},
+      {"name": "riz basmati", "quantity": 70, "unit": "g"},
+      {"name": "curry en poudre", "quantity": 5, "unit": "g"},
+      {"name": "huile de coco", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Faire revenir le poulet avec curry et huile. Ajouter le lait de coco, mijoter 15 min. Servir avec riz.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Pavé de saumon lentilles vertes",
+    "calories": 540, "protein_g": 40,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "pavé de saumon", "quantity": 150, "unit": "g"},
+      {"name": "lentilles vertes", "quantity": 80, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"},
+      {"name": "échalote", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Cuire les lentilles avec l'échalote. Griller le saumon 4 min par face. Arroser d'huile d'olive.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Gratin courgettes chèvre noix",
+    "calories": 460, "protein_g": 22,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "courgettes", "quantity": 300, "unit": "g"},
+      {"name": "fromage de chèvre", "quantity": 60, "unit": "g"},
+      {"name": "noix", "quantity": 20, "unit": "g"},
+      {"name": "crème fraîche", "quantity": 30, "unit": "g"},
+      {"name": "oeufs", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Trancher les courgettes. Mélanger crème et oeuf. Alterner couches de courgettes, chèvre et noix. Gratiner.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["lait", "oeufs", "fruits à coque"]
+  },
+  {
+    "name": "Papillote de truite amandes haricots verts",
+    "calories": 460, "protein_g": 38,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "filet de truite", "quantity": 150, "unit": "g"},
+      {"name": "haricots verts", "quantity": 150, "unit": "g"},
+      {"name": "amandes effilées", "quantity": 20, "unit": "g"},
+      {"name": "beurre", "quantity": 15, "unit": "g"},
+      {"name": "citron", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Mettre la truite en papillote avec beurre et citron. Cuire 15 min au four. Servir avec haricots verts et amandes.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["poisson", "fruits à coque", "lait"]
+  },
+  {
+    "name": "Poulet basquaise riz",
+    "calories": 580, "protein_g": 40,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "cuisse de poulet", "quantity": 200, "unit": "g"},
+      {"name": "poivron", "quantity": 100, "unit": "g"},
+      {"name": "tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "riz basmati", "quantity": 60, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir le poulet dans l'huile. Ajouter poivrons et tomates. Mijoter 30 min. Servir avec riz.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Brandade de morue gratinée",
+    "calories": 500, "protein_g": 30,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "morue dessalée", "quantity": 150, "unit": "g"},
+      {"name": "pommes de terre", "quantity": 150, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 20, "unit": "ml"},
+      {"name": "lait demi-écrémé", "quantity": 50, "unit": "ml"},
+      {"name": "chapelure", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Émietter la morue, mélanger à la purée, huile et lait. Gratiner avec chapelure.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["poisson", "lait", "gluten"]
+  },
+  {
+    "name": "Aubergines farcies boeuf et feta",
+    "calories": 520, "protein_g": 32,
+    "meal_type": "diner", "cuisine_type": "méditerranéenne", "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "aubergines", "quantity": 250, "unit": "g"},
+      {"name": "boeuf haché", "quantity": 100, "unit": "g"},
+      {"name": "feta", "quantity": 40, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 15, "unit": "ml"},
+      {"name": "tomates concassées", "quantity": 100, "unit": "g"}
+    ],
+    "instructions": "Creuser les aubergines, farcir de boeuf et tomates. Émietter la feta. Enfourner 30 min.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Cannelloni ricotta épinards sauce tomate",
+    "calories": 520, "protein_g": 26,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "pâtes à cannelloni", "quantity": 80, "unit": "g"},
+      {"name": "ricotta", "quantity": 100, "unit": "g"},
+      {"name": "épinards", "quantity": 100, "unit": "g"},
+      {"name": "tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "parmesan", "quantity": 20, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Mélanger ricotta et épinards. Farcir les cannelloni. Napper de sauce tomate, parsemer de parmesan. Gratiner 25 min.",
+    "tags": ["balanced", "creative"],
+    "allergen_tags": ["gluten", "lait"]
+  }
+]
