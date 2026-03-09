@@ -105,10 +105,24 @@ def get_model(model_name: str | None = None):
     )
 
 
+_VALID_SKILLS = frozenset(
+    {
+        "body-analyzing",
+        "food-tracking",
+        "knowledge-searching",
+        "meal-planning",
+        "nutrition-calculating",
+        "shopping-list",
+        "weekly-coaching",
+    }
+)
+
+
 def _import_skill_script(skill_name: str, script_name: str):
     """Import a script module from a skill directory.
 
     Uses importlib to load from hyphenated skill directory paths.
+    Only whitelisted skills are allowed to prevent arbitrary module loading.
 
     Args:
         skill_name: Skill directory name (e.g., "nutrition-calculating").
@@ -116,8 +130,22 @@ def _import_skill_script(skill_name: str, script_name: str):
 
     Returns:
         Loaded module with execute() function.
+
+    Raises:
+        ValueError: If skill_name is not in the whitelist or script_name contains
+            path traversal characters.
     """
+    if skill_name not in _VALID_SKILLS:
+        raise ValueError(
+            f"Unknown skill: {skill_name!r}. " f"Valid skills: {sorted(_VALID_SKILLS)}"
+        )
+    # Prevent path traversal in script name
+    if "/" in script_name or "\\" in script_name or ".." in script_name:
+        raise ValueError(f"Invalid script name: {script_name!r}")
+
     script_path = project_root / "skills" / skill_name / "scripts" / f"{script_name}.py"
+    if not script_path.is_file():
+        raise FileNotFoundError(f"Script not found: {script_path}")
     spec = importlib.util.spec_from_file_location(
         f"skill_script.{script_name}", script_path
     )

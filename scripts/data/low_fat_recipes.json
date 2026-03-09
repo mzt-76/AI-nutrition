@@ -1,0 +1,775 @@
+[
+  {
+    "name": "Blanc de poulet grillé légumes vapeur",
+    "calories": 450, "protein_g": 48,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 180, "unit": "g"},
+      {"name": "Brocoli", "quantity": 150, "unit": "g"},
+      {"name": "Carottes", "quantity": 100, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Griller le poulet 6 min par face. Cuire les légumes à la vapeur 10 min. Servir avec le riz.",
+    "tags": ["high-protein", "low-fat"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Cabillaud vapeur citron et haricots verts",
+    "calories": 380, "protein_g": 42,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Filet de cabillaud", "quantity": 200, "unit": "g"},
+      {"name": "Haricots verts", "quantity": 200, "unit": "g"},
+      {"name": "Citron", "quantity": 30, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Cuire le cabillaud à la vapeur 12 min. Blanchir les haricots verts. Arroser de citron.",
+    "tags": ["high-protein", "low-fat", "omega-3"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Dinde grillée quinoa et courgettes",
+    "calories": 460, "protein_g": 46,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Escalope de dinde", "quantity": 180, "unit": "g"},
+      {"name": "Quinoa", "quantity": 70, "unit": "g"},
+      {"name": "Courgettes", "quantity": 150, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 80, "unit": "g"}
+    ],
+    "instructions": "Griller la dinde. Cuire le quinoa. Poêler les courgettes et tomates cerises.",
+    "tags": ["high-protein", "low-fat"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Salade de lentilles vertes et légumes croquants",
+    "calories": 420, "protein_g": 24,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles vertes", "quantity": 120, "unit": "g"},
+      {"name": "Concombre", "quantity": 100, "unit": "g"},
+      {"name": "Tomates", "quantity": 100, "unit": "g"},
+      {"name": "Oignon rouge", "quantity": 40, "unit": "g"},
+      {"name": "Vinaigre balsamique", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Cuire les lentilles 25 min. Couper les légumes en dés. Mélanger et assaisonner.",
+    "tags": ["high-protein", "low-fat", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Buddha bowl tofu grillé et edamame",
+    "calories": 440, "protein_g": 28,
+    "meal_type": "dejeuner", "cuisine_type": "asiatique", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 150, "unit": "g"},
+      {"name": "Edamame", "quantity": 80, "unit": "g"},
+      {"name": "Riz complet", "quantity": 70, "unit": "g"},
+      {"name": "Carottes râpées", "quantity": 60, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Griller le tofu mariné à la sauce soja. Cuire le riz. Assembler le bowl avec les légumes.",
+    "tags": ["high-protein", "low-fat", "vegan"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Curry de pois chiches épinards",
+    "calories": 400, "protein_g": 20,
+    "meal_type": "dejeuner", "cuisine_type": "indienne", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Pois chiches", "quantity": 150, "unit": "g"},
+      {"name": "Épinards", "quantity": 100, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"},
+      {"name": "Curcuma", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Revenir les pois chiches avec les tomates et le curcuma. Ajouter les épinards. Servir sur riz.",
+    "tags": ["low-fat", "vegan", "fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Wrap de haricots noirs et maïs",
+    "calories": 410, "protein_g": 18,
+    "meal_type": "dejeuner", "cuisine_type": "mexicaine", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Tortilla de blé", "quantity": 1, "unit": "pièce"},
+      {"name": "Haricots noirs", "quantity": 120, "unit": "g"},
+      {"name": "Maïs", "quantity": 80, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 60, "unit": "g"},
+      {"name": "Coriandre", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Réchauffer les haricots et le maïs. Garnir la tortilla. Ajouter le poivron et la coriandre.",
+    "tags": ["low-fat", "vegan", "quick"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Taboulé de boulgour et pois chiches",
+    "calories": 380, "protein_g": 16,
+    "meal_type": "dejeuner", "cuisine_type": "méditerranéenne", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Boulgour", "quantity": 80, "unit": "g"},
+      {"name": "Pois chiches", "quantity": 100, "unit": "g"},
+      {"name": "Tomates", "quantity": 100, "unit": "g"},
+      {"name": "Persil", "quantity": 20, "unit": "g"},
+      {"name": "Jus de citron", "quantity": 20, "unit": "ml"}
+    ],
+    "instructions": "Hydrater le boulgour. Mélanger avec les pois chiches, tomates et persil. Assaisonner au citron.",
+    "tags": ["low-fat", "vegan", "fiber"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Soupe miso tofu et nouilles soba",
+    "calories": 360, "protein_g": 22,
+    "meal_type": "dejeuner", "cuisine_type": "japonaise", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Tofu soyeux", "quantity": 150, "unit": "g"},
+      {"name": "Nouilles soba", "quantity": 80, "unit": "g"},
+      {"name": "Miso", "quantity": 20, "unit": "g"},
+      {"name": "Algue wakame", "quantity": 5, "unit": "g"},
+      {"name": "Oignon vert", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Cuire les nouilles soba. Diluer le miso dans l'eau chaude. Ajouter le tofu et les algues.",
+    "tags": ["low-fat", "vegan", "quick"],
+    "allergen_tags": ["soja", "gluten"]
+  },
+  {
+    "name": "Salade de quinoa et haricots blancs",
+    "calories": 400, "protein_g": 20,
+    "meal_type": "dejeuner", "cuisine_type": "méditerranéenne", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Quinoa", "quantity": 80, "unit": "g"},
+      {"name": "Haricots blancs", "quantity": 100, "unit": "g"},
+      {"name": "Poivron jaune", "quantity": 80, "unit": "g"},
+      {"name": "Roquette", "quantity": 40, "unit": "g"},
+      {"name": "Vinaigre de cidre", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Cuire le quinoa. Mélanger avec les haricots, poivron et roquette. Assaisonner.",
+    "tags": ["low-fat", "vegan", "high-protein"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Risotto de champignons et petits pois végétarien",
+    "calories": 420, "protein_g": 14,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Riz arborio", "quantity": 80, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 150, "unit": "g"},
+      {"name": "Petits pois", "quantity": 80, "unit": "g"},
+      {"name": "Parmesan", "quantity": 15, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 300, "unit": "ml"}
+    ],
+    "instructions": "Risotter le riz en ajoutant le bouillon peu à peu. Ajouter champignons et petits pois. Finir au parmesan.",
+    "tags": ["low-fat", "vegetarian", "comfort"],
+    "allergen_tags": ["lactose"]
+  },
+  {
+    "name": "Salade de pâtes complètes aux légumes grillés",
+    "calories": 400, "protein_g": 16,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Pâtes complètes", "quantity": 80, "unit": "g"},
+      {"name": "Courgettes", "quantity": 100, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"},
+      {"name": "Mozzarella", "quantity": 30, "unit": "g"},
+      {"name": "Basilic", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire les pâtes. Griller les légumes. Mélanger avec la mozzarella émiettée et le basilic.",
+    "tags": ["low-fat", "vegetarian"],
+    "allergen_tags": ["gluten", "lactose"]
+  },
+  {
+    "name": "Frittata aux légumes et fromage de chèvre",
+    "calories": 380, "protein_g": 24,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Œuf", "quantity": 3, "unit": "pièces"},
+      {"name": "Épinards", "quantity": 80, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 60, "unit": "g"},
+      {"name": "Fromage de chèvre", "quantity": 30, "unit": "g"},
+      {"name": "Oignon", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Battre les œufs. Poêler les légumes. Verser les œufs, ajouter le fromage. Cuire au four 15 min.",
+    "tags": ["low-fat", "vegetarian", "high-protein"],
+    "allergen_tags": ["oeuf", "lactose"]
+  },
+  {
+    "name": "Quiche sans pâte brocoli et ricotta",
+    "calories": 360, "protein_g": 26,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Œuf", "quantity": 3, "unit": "pièces"},
+      {"name": "Brocoli", "quantity": 150, "unit": "g"},
+      {"name": "Ricotta", "quantity": 80, "unit": "g"},
+      {"name": "Lait demi-écrémé", "quantity": 50, "unit": "ml"}
+    ],
+    "instructions": "Mélanger œufs, ricotta et lait. Ajouter le brocoli blanchi. Cuire au four 25 min à 180°C.",
+    "tags": ["low-fat", "vegetarian", "high-protein", "gluten-free"],
+    "allergen_tags": ["oeuf", "lactose"]
+  },
+  {
+    "name": "Soupe de lentilles corail et carottes végétarienne",
+    "calories": 350, "protein_g": 20,
+    "meal_type": "dejeuner", "cuisine_type": "indienne", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles corail", "quantity": 100, "unit": "g"},
+      {"name": "Carottes", "quantity": 120, "unit": "g"},
+      {"name": "Oignon", "quantity": 60, "unit": "g"},
+      {"name": "Cumin", "quantity": 3, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 400, "unit": "ml"}
+    ],
+    "instructions": "Revenir l'oignon. Ajouter les lentilles, carottes et bouillon. Cuire 20 min. Mixer.",
+    "tags": ["low-fat", "vegetarian", "fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Wrap œuf et légumes croquants",
+    "calories": 380, "protein_g": 22,
+    "meal_type": "dejeuner", "cuisine_type": "internationale", "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Tortilla de blé", "quantity": 1, "unit": "pièce"},
+      {"name": "Œuf", "quantity": 2, "unit": "pièces"},
+      {"name": "Concombre", "quantity": 60, "unit": "g"},
+      {"name": "Tomates", "quantity": 60, "unit": "g"},
+      {"name": "Fromage blanc 0%", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Brouiller les œufs. Garnir la tortilla avec les œufs, le fromage blanc et les légumes.",
+    "tags": ["low-fat", "vegetarian", "quick"],
+    "allergen_tags": ["gluten", "oeuf", "lactose"]
+  },
+  {
+    "name": "Salade grecque au tofu et orge",
+    "calories": 390, "protein_g": 22,
+    "meal_type": "dejeuner", "cuisine_type": "méditerranéenne", "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 120, "unit": "g"},
+      {"name": "Orge perlé", "quantity": 60, "unit": "g"},
+      {"name": "Concombre", "quantity": 80, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 80, "unit": "g"},
+      {"name": "Olives noires", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Cuire l'orge. Griller le tofu. Assembler avec les légumes et les olives.",
+    "tags": ["low-fat", "vegetarian", "high-protein"],
+    "allergen_tags": ["soja", "gluten"]
+  },
+  {
+    "name": "Galettes de lentilles et salade verte végétarienne",
+    "calories": 370, "protein_g": 20,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles vertes cuites", "quantity": 150, "unit": "g"},
+      {"name": "Œuf", "quantity": 1, "unit": "pièce"},
+      {"name": "Oignon", "quantity": 40, "unit": "g"},
+      {"name": "Farine de blé", "quantity": 20, "unit": "g"},
+      {"name": "Salade verte", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Écraser les lentilles. Mélanger avec l'œuf, l'oignon et la farine. Former des galettes. Poêler 3 min par face.",
+    "tags": ["low-fat", "vegetarian", "high-protein"],
+    "allergen_tags": ["gluten", "oeuf"]
+  },
+  {
+    "name": "Bowl de riz complet légumes rôtis et œuf poché végétarien",
+    "calories": 430, "protein_g": 20,
+    "meal_type": "dejeuner", "cuisine_type": "internationale", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Riz complet", "quantity": 70, "unit": "g"},
+      {"name": "Patate douce", "quantity": 100, "unit": "g"},
+      {"name": "Brocoli", "quantity": 80, "unit": "g"},
+      {"name": "Œuf", "quantity": 1, "unit": "pièce"},
+      {"name": "Sauce soja", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Rôtir la patate douce et le brocoli 20 min. Cuire le riz. Pocher l'œuf. Assembler le bowl.",
+    "tags": ["low-fat", "vegetarian"],
+    "allergen_tags": ["oeuf", "soja"]
+  },
+  {
+    "name": "Pâtes complètes aux champignons et ricotta végétariennes",
+    "calories": 410, "protein_g": 18,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Pâtes complètes", "quantity": 80, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 150, "unit": "g"},
+      {"name": "Ricotta", "quantity": 50, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"},
+      {"name": "Persil", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire les pâtes. Poêler les champignons avec l'ail. Mélanger avec la ricotta et le persil.",
+    "tags": ["low-fat", "vegetarian"],
+    "allergen_tags": ["gluten", "lactose"]
+  },
+  {
+    "name": "Soupe de tomates et basilic avec croûtons de pain complet",
+    "calories": 320, "protein_g": 12,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Tomates", "quantity": 400, "unit": "g"},
+      {"name": "Oignon", "quantity": 60, "unit": "g"},
+      {"name": "Basilic", "quantity": 10, "unit": "g"},
+      {"name": "Pain complet", "quantity": 40, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Revenir l'oignon et l'ail. Ajouter les tomates, cuire 15 min. Mixer avec le basilic. Servir avec croûtons.",
+    "tags": ["low-fat", "vegetarian", "comfort"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Filet de poulet poché salade composée",
+    "calories": 400, "protein_g": 44,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 180, "unit": "g"},
+      {"name": "Salade verte", "quantity": 60, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 80, "unit": "g"},
+      {"name": "Concombre", "quantity": 60, "unit": "g"},
+      {"name": "Vinaigre balsamique", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Pocher le poulet 15 min dans l'eau frémissante. Préparer la salade. Trancher le poulet dessus.",
+    "tags": ["high-protein", "low-fat", "light"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Dos de colin vapeur et ratatouille",
+    "calories": 360, "protein_g": 38,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Filet de colin", "quantity": 180, "unit": "g"},
+      {"name": "Courgettes", "quantity": 100, "unit": "g"},
+      {"name": "Aubergine", "quantity": 80, "unit": "g"},
+      {"name": "Tomates", "quantity": 100, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Cuire le colin à la vapeur 12 min. Préparer la ratatouille en poêlant les légumes.",
+    "tags": ["high-protein", "low-fat", "omega-3"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Escalope de dinde grillée et purée de chou-fleur",
+    "calories": 380, "protein_g": 42,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Escalope de dinde", "quantity": 180, "unit": "g"},
+      {"name": "Chou-fleur", "quantity": 200, "unit": "g"},
+      {"name": "Lait demi-écrémé", "quantity": 30, "unit": "ml"},
+      {"name": "Muscade", "quantity": 1, "unit": "g"}
+    ],
+    "instructions": "Griller la dinde. Cuire le chou-fleur à la vapeur, mixer en purée avec le lait et la muscade.",
+    "tags": ["high-protein", "low-fat", "low-carb"],
+    "allergen_tags": ["lactose"]
+  },
+  {
+    "name": "Dahl de lentilles corail et épinards",
+    "calories": 380, "protein_g": 22,
+    "meal_type": "diner", "cuisine_type": "indienne", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles corail", "quantity": 100, "unit": "g"},
+      {"name": "Épinards", "quantity": 100, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 50, "unit": "ml"},
+      {"name": "Curcuma", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Cuire les lentilles avec les tomates et le curcuma. Ajouter les épinards et le lait de coco.",
+    "tags": ["low-fat", "vegan", "comfort"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Stir-fry de tofu et légumes sauce gingembre",
+    "calories": 370, "protein_g": 24,
+    "meal_type": "diner", "cuisine_type": "asiatique", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 150, "unit": "g"},
+      {"name": "Brocoli", "quantity": 100, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"},
+      {"name": "Gingembre frais", "quantity": 10, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Poêler le tofu à feu vif. Ajouter les légumes et le gingembre râpé. Déglacer à la sauce soja.",
+    "tags": ["low-fat", "vegan", "quick"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Ragoût de haricots blancs et légumes",
+    "calories": 380, "protein_g": 18,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Haricots blancs", "quantity": 150, "unit": "g"},
+      {"name": "Carottes", "quantity": 100, "unit": "g"},
+      {"name": "Céleri", "quantity": 60, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "Thym", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Revenir carottes et céleri. Ajouter les haricots et tomates. Mijoter 25 min avec le thym.",
+    "tags": ["low-fat", "vegan", "comfort", "fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Soupe de pois cassés et carottes",
+    "calories": 340, "protein_g": 20,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Pois cassés", "quantity": 120, "unit": "g"},
+      {"name": "Carottes", "quantity": 100, "unit": "g"},
+      {"name": "Oignon", "quantity": 60, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 500, "unit": "ml"},
+      {"name": "Cumin", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Revenir l'oignon. Ajouter pois cassés, carottes et bouillon. Cuire 25 min. Mixer partiellement.",
+    "tags": ["low-fat", "vegan", "fiber", "comfort"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Couscous de légumes et pois chiches vegan",
+    "calories": 420, "protein_g": 18,
+    "meal_type": "diner", "cuisine_type": "marocaine", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Semoule de couscous", "quantity": 80, "unit": "g"},
+      {"name": "Pois chiches", "quantity": 100, "unit": "g"},
+      {"name": "Courgettes", "quantity": 100, "unit": "g"},
+      {"name": "Carottes", "quantity": 80, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 200, "unit": "ml"}
+    ],
+    "instructions": "Cuire les légumes dans le bouillon. Hydrater la semoule. Servir les légumes sur la semoule.",
+    "tags": ["low-fat", "vegan"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Poêlée de champignons et lentilles vertes vegan",
+    "calories": 350, "protein_g": 22,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles vertes", "quantity": 120, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 150, "unit": "g"},
+      {"name": "Oignon", "quantity": 50, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"},
+      {"name": "Persil", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Cuire les lentilles. Poêler les champignons avec l'oignon et l'ail. Mélanger et parsemer de persil.",
+    "tags": ["low-fat", "vegan", "high-protein"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Omelette blanche aux légumes",
+    "calories": 300, "protein_g": 28,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Blancs d'œuf", "quantity": 5, "unit": "pièces"},
+      {"name": "Champignons de Paris", "quantity": 80, "unit": "g"},
+      {"name": "Tomates", "quantity": 60, "unit": "g"},
+      {"name": "Épinards", "quantity": 40, "unit": "g"},
+      {"name": "Herbes de Provence", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Battre les blancs. Poêler les légumes. Verser les blancs, cuire 3 min. Plier.",
+    "tags": ["low-fat", "vegetarian", "high-protein", "quick"],
+    "allergen_tags": ["oeuf"]
+  },
+  {
+    "name": "Soupe de légumes et haricots blancs végétarienne",
+    "calories": 320, "protein_g": 16,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Haricots blancs", "quantity": 100, "unit": "g"},
+      {"name": "Carottes", "quantity": 80, "unit": "g"},
+      {"name": "Courgettes", "quantity": 80, "unit": "g"},
+      {"name": "Tomates", "quantity": 100, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 400, "unit": "ml"}
+    ],
+    "instructions": "Cuire tous les légumes dans le bouillon 20 min. Ajouter les haricots. Mixer partiellement.",
+    "tags": ["low-fat", "vegetarian", "comfort", "fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Gratin de légumes léger au fromage blanc",
+    "calories": 340, "protein_g": 18,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Courgettes", "quantity": 150, "unit": "g"},
+      {"name": "Aubergine", "quantity": 100, "unit": "g"},
+      {"name": "Fromage blanc 0%", "quantity": 100, "unit": "g"},
+      {"name": "Œuf", "quantity": 1, "unit": "pièce"},
+      {"name": "Gruyère râpé", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Trancher les légumes, les disposer dans un plat. Mélanger fromage blanc et œuf, verser. Gratiner 20 min.",
+    "tags": ["low-fat", "vegetarian", "comfort"],
+    "allergen_tags": ["oeuf", "lactose"]
+  },
+  {
+    "name": "Salade tiède de quinoa et légumes rôtis végétarienne",
+    "calories": 380, "protein_g": 16,
+    "meal_type": "diner", "cuisine_type": "internationale", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Quinoa", "quantity": 70, "unit": "g"},
+      {"name": "Patate douce", "quantity": 100, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 60, "unit": "g"},
+      {"name": "Feta", "quantity": 20, "unit": "g"},
+      {"name": "Graines de tournesol", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Rôtir patate douce et poivron 20 min. Cuire le quinoa. Mélanger et émietter la feta.",
+    "tags": ["low-fat", "vegetarian"],
+    "allergen_tags": ["lactose"]
+  },
+  {
+    "name": "Crêpe de sarrasin aux champignons et fromage frais",
+    "calories": 350, "protein_g": 18,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Farine de sarrasin", "quantity": 50, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 120, "unit": "g"},
+      {"name": "Fromage frais", "quantity": 40, "unit": "g"},
+      {"name": "Épinards", "quantity": 40, "unit": "g"},
+      {"name": "Œuf", "quantity": 1, "unit": "pièce"}
+    ],
+    "instructions": "Préparer la pâte de sarrasin. Poêler les champignons et épinards. Garnir la crêpe avec fromage frais.",
+    "tags": ["low-fat", "vegetarian"],
+    "allergen_tags": ["oeuf", "lactose"]
+  },
+  {
+    "name": "Velouté de butternut et lentilles végétarien",
+    "calories": 340, "protein_g": 18,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Butternut", "quantity": 200, "unit": "g"},
+      {"name": "Lentilles corail", "quantity": 60, "unit": "g"},
+      {"name": "Oignon", "quantity": 50, "unit": "g"},
+      {"name": "Crème fraîche légère", "quantity": 20, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 300, "unit": "ml"}
+    ],
+    "instructions": "Cuire butternut, lentilles et oignon dans le bouillon 20 min. Mixer. Ajouter la crème.",
+    "tags": ["low-fat", "vegetarian", "comfort"],
+    "allergen_tags": ["lactose"]
+  },
+  {
+    "name": "Poêlée de tofu fumé et légumes de saison végétarienne",
+    "calories": 360, "protein_g": 24,
+    "meal_type": "diner", "cuisine_type": "asiatique", "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Tofu fumé", "quantity": 150, "unit": "g"},
+      {"name": "Brocoli", "quantity": 100, "unit": "g"},
+      {"name": "Carottes", "quantity": 80, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Sésame", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Poêler le tofu avec les légumes. Déglacer à la sauce soja. Parsemer de sésame.",
+    "tags": ["low-fat", "vegetarian", "high-protein", "quick"],
+    "allergen_tags": ["soja", "sésame"]
+  },
+  {
+    "name": "Salade de pois chiches et légumes grillés végétarienne",
+    "calories": 370, "protein_g": 16,
+    "meal_type": "diner", "cuisine_type": "méditerranéenne", "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Pois chiches", "quantity": 120, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"},
+      {"name": "Courgettes", "quantity": 80, "unit": "g"},
+      {"name": "Feta", "quantity": 20, "unit": "g"},
+      {"name": "Jus de citron", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Griller les légumes. Mélanger avec les pois chiches. Émietter la feta. Arroser de citron.",
+    "tags": ["low-fat", "vegetarian", "fiber"],
+    "allergen_tags": ["lactose"]
+  },
+  {
+    "name": "Smoothie bowl protéiné açaï et granola",
+    "calories": 350, "protein_g": 14,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Pulpe d'açaï", "quantity": 100, "unit": "g"},
+      {"name": "Banane", "quantity": 1, "unit": "pièce"},
+      {"name": "Granola sans miel", "quantity": 40, "unit": "g"},
+      {"name": "Lait d'amande", "quantity": 100, "unit": "ml"},
+      {"name": "Graines de chia", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mixer l'açaï avec la banane et le lait d'amande. Verser dans un bol. Garnir de granola et graines.",
+    "tags": ["low-fat", "vegan", "quick"],
+    "allergen_tags": ["noix", "gluten"]
+  },
+  {
+    "name": "Porridge avoine et compote de pommes vegan",
+    "calories": 380, "protein_g": 10,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Flocons d'avoine", "quantity": 80, "unit": "g"},
+      {"name": "Lait d'avoine", "quantity": 200, "unit": "ml"},
+      {"name": "Compote de pommes", "quantity": 80, "unit": "g"},
+      {"name": "Cannelle", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Chauffer le lait d'avoine. Verser sur les flocons. Laisser gonfler 3 min. Garnir de compote et cannelle.",
+    "tags": ["low-fat", "vegan", "quick"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Toast beurre de cacahuète et banane vegan",
+    "calories": 400, "protein_g": 14,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Pain complet", "quantity": 2, "unit": "tranches"},
+      {"name": "Beurre de cacahuète", "quantity": 30, "unit": "g"},
+      {"name": "Banane", "quantity": 1, "unit": "pièce"},
+      {"name": "Graines de lin", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Toaster le pain. Tartiner de beurre de cacahuète. Trancher la banane dessus. Parsemer de graines.",
+    "tags": ["low-fat", "vegan", "quick", "energy"],
+    "allergen_tags": ["gluten", "arachide"]
+  },
+  {
+    "name": "Bol de quinoa fruits et noix de coco vegan",
+    "calories": 360, "protein_g": 12,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Quinoa", "quantity": 60, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 100, "unit": "ml"},
+      {"name": "Mangue", "quantity": 80, "unit": "g"},
+      {"name": "Noix de coco râpée", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Cuire le quinoa dans le lait de coco. Laisser tiédir. Garnir de mangue et noix de coco.",
+    "tags": ["low-fat", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Pancakes vegan à la banane et myrtilles",
+    "calories": 380, "protein_g": 10,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Farine de blé complet", "quantity": 80, "unit": "g"},
+      {"name": "Banane", "quantity": 1, "unit": "pièce"},
+      {"name": "Lait de soja", "quantity": 100, "unit": "ml"},
+      {"name": "Myrtilles", "quantity": 60, "unit": "g"},
+      {"name": "Levure chimique", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Écraser la banane. Mélanger avec farine, lait et levure. Cuire en pancakes. Garnir de myrtilles.",
+    "tags": ["low-fat", "vegan"],
+    "allergen_tags": ["gluten", "soja"]
+  },
+  {
+    "name": "Overnight oats chocolat et banane vegan",
+    "calories": 400, "protein_g": 12,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Flocons d'avoine", "quantity": 70, "unit": "g"},
+      {"name": "Lait d'amande", "quantity": 200, "unit": "ml"},
+      {"name": "Cacao en poudre", "quantity": 10, "unit": "g"},
+      {"name": "Banane", "quantity": 1, "unit": "pièce"},
+      {"name": "Sirop d'agave", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Mélanger avoine, lait, cacao et sirop. Réfrigérer toute la nuit. Garnir de banane tranchée.",
+    "tags": ["low-fat", "vegan", "meal-prep"],
+    "allergen_tags": ["gluten", "noix"]
+  },
+  {
+    "name": "Tartines houmous et légumes croquants vegan",
+    "calories": 370, "protein_g": 14,
+    "meal_type": "petit-dejeuner", "cuisine_type": "méditerranéenne", "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Pain complet", "quantity": 2, "unit": "tranches"},
+      {"name": "Houmous", "quantity": 60, "unit": "g"},
+      {"name": "Concombre", "quantity": 40, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 40, "unit": "g"},
+      {"name": "Radis", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Toaster le pain. Tartiner d'houmous. Garnir de concombre, tomates et radis tranchés.",
+    "tags": ["low-fat", "vegan", "quick"],
+    "allergen_tags": ["gluten", "sésame"]
+  },
+  {
+    "name": "Smoothie vert épinards mangue et protéine vegan",
+    "calories": 340, "protein_g": 18,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Épinards frais", "quantity": 60, "unit": "g"},
+      {"name": "Mangue", "quantity": 100, "unit": "g"},
+      {"name": "Protéine de pois", "quantity": 25, "unit": "g"},
+      {"name": "Lait d'amande", "quantity": 200, "unit": "ml"}
+    ],
+    "instructions": "Mixer tous les ingrédients jusqu'à consistance lisse. Servir frais.",
+    "tags": ["low-fat", "vegan", "quick", "smoothie"],
+    "allergen_tags": ["noix"]
+  },
+  {
+    "name": "Bol de tofu brouillé aux légumes vegan",
+    "calories": 360, "protein_g": 24,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 150, "unit": "g"},
+      {"name": "Épinards", "quantity": 60, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 60, "unit": "g"},
+      {"name": "Curcuma", "quantity": 2, "unit": "g"},
+      {"name": "Pain complet", "quantity": 1, "unit": "tranche"}
+    ],
+    "instructions": "Émietter le tofu et le faire revenir avec le curcuma. Ajouter épinards et tomates. Servir avec pain.",
+    "tags": ["low-fat", "vegan", "high-protein"],
+    "allergen_tags": ["soja", "gluten"]
+  },
+  {
+    "name": "Granola bowl au yaourt de soja et fruits frais",
+    "calories": 380, "protein_g": 14,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Yaourt de soja", "quantity": 200, "unit": "g"},
+      {"name": "Granola sans miel", "quantity": 50, "unit": "g"},
+      {"name": "Fraises", "quantity": 80, "unit": "g"},
+      {"name": "Graines de tournesol", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Verser le yaourt dans un bol. Garnir de granola, fraises et graines.",
+    "tags": ["low-fat", "vegan", "quick"],
+    "allergen_tags": ["soja", "gluten"]
+  },
+  {
+    "name": "Crêpes de sarrasin vegan garniture champignons",
+    "calories": 350, "protein_g": 12,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Farine de sarrasin", "quantity": 60, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 100, "unit": "g"},
+      {"name": "Épinards", "quantity": 40, "unit": "g"},
+      {"name": "Lait de soja", "quantity": 100, "unit": "ml"}
+    ],
+    "instructions": "Préparer la pâte de sarrasin avec le lait de soja. Cuire la crêpe. Garnir de champignons poêlés et épinards.",
+    "tags": ["low-fat", "vegan"],
+    "allergen_tags": ["soja"]
+  }
+]

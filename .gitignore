@@ -93,5 +93,15 @@ frontend/node_modules/
 frontend/dist/
 frontend/.env
 
+# Test artifacts (screenshots, reference projects)
+e2e-screenshots/
+frontend/e2e-screenshots/
+generative_UI_project_example/
+
 # Test credentials (contains login info for agent-browser testing)
 .claude/reference/frontend-workflow.md
+
+# Claude internal files (reviews, plans, reports)
+.claude/code-reviews/
+.claude/plans/
+e2e-test-report*.md

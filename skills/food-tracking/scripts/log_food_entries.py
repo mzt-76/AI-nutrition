@@ -82,7 +82,9 @@ async def execute(**kwargs) -> str:
     # --- Modify existing entry by ID ---
     if entry_id:
         if not items:
-            return json.dumps({"error": "No items provided for rename", "code": "EMPTY_ITEMS"})
+            return json.dumps(
+                {"error": "No items provided for rename", "code": "EMPTY_ITEMS"}
+            )
 
         new_food_name = items[0].get("name", "")
         if not new_food_name:
@@ -108,7 +110,9 @@ async def execute(**kwargs) -> str:
             macros = await match_ingredient(new_food_name, qty, unit, supabase)
         except Exception as e:
             logger.error(f"match_ingredient failed for '{new_food_name}': {e}")
-            return json.dumps({"error": "Failed to match ingredient", "code": "MATCH_ERROR"})
+            return json.dumps(
+                {"error": "Failed to match ingredient", "code": "MATCH_ERROR"}
+            )
 
         if macros.get("confidence", 0) == 0:
             return json.dumps({"error": "Aliment non trouvé", "code": "NO_MATCH"})
@@ -120,7 +124,9 @@ async def execute(**kwargs) -> str:
             "carbs_g": round(macros.get("carbs_g", 0), 1),
             "fat_g": round(macros.get("fat_g", 0), 1),
         }
-        supabase.table("daily_food_log").update(update_fields).eq("id", entry_id).execute()
+        supabase.table("daily_food_log").update(update_fields).eq(
+            "id", entry_id
+        ).execute()
 
         logger.info(f"Updated entry {entry_id} to '{new_food_name}' for user {user_id}")
         return json.dumps(
@@ -194,7 +200,9 @@ async def execute(**kwargs) -> str:
                 # Update existing entry instead of creating a duplicate
                 entry_id = existing.data[0]["id"]
                 update_fields = {k: v for k, v in row.items() if k != "user_id"}
-                supabase.table("daily_food_log").update(update_fields).eq("id", entry_id).execute()
+                supabase.table("daily_food_log").update(update_fields).eq(
+                    "id", entry_id
+                ).execute()
             else:
                 supabase.table("daily_food_log").insert(row).execute()
 

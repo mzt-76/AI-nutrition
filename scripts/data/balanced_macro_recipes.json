@@ -1,0 +1,328 @@
+[
+  {
+    "name": "Poulet riz brocoli huile d'olive",
+    "calories": 620, "protein_g": 48,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 160, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 80, "unit": "g"},
+      {"name": "Brocoli", "quantity": 150, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Griller le poulet 6 min par face. Cuire le riz 12 min. Blanchir le brocoli 5 min. Arroser d'huile d'olive.",
+    "tags": ["balanced", "muscle-gain"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Saumon patate douce épinards",
+    "calories": 580, "protein_g": 42,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Pavé de saumon", "quantity": 150, "unit": "g"},
+      {"name": "Patate douce", "quantity": 200, "unit": "g"},
+      {"name": "Épinards frais", "quantity": 100, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Cuire le saumon au four 15 min à 200°C. Rôtir la patate douce en cubes 25 min. Poêler les épinards.",
+    "tags": ["balanced", "omega-3"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Bœuf haché 5% pâtes complètes sauce tomate",
+    "calories": 650, "protein_g": 50,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Bœuf haché 5%", "quantity": 150, "unit": "g"},
+      {"name": "Pâtes complètes", "quantity": 80, "unit": "g"},
+      {"name": "Sauce tomate", "quantity": 100, "unit": "g"},
+      {"name": "Oignon", "quantity": 50, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir l'oignon, ajouter le bœuf haché. Cuire les pâtes. Mélanger avec la sauce tomate.",
+    "tags": ["balanced", "muscle-gain"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Tofu sauté riz jasmin légumes",
+    "calories": 520, "protein_g": 32,
+    "meal_type": "dejeuner", "cuisine_type": "asiatique", "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 200, "unit": "g"},
+      {"name": "Riz jasmin", "quantity": 80, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 100, "unit": "g"},
+      {"name": "Courgette", "quantity": 100, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Huile de sésame", "quantity": 8, "unit": "ml"}
+    ],
+    "instructions": "Égoutter et couper le tofu. Poêler à feu vif avec l'huile de sésame. Ajouter les légumes. Cuire le riz à part. Assaisonner de sauce soja.",
+    "tags": ["balanced", "végétarien"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Poulet tikka riz complet raita",
+    "calories": 640, "protein_g": 50,
+    "meal_type": "diner", "cuisine_type": "indienne", "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 170, "unit": "g"},
+      {"name": "Yaourt nature", "quantity": 50, "unit": "g"},
+      {"name": "Riz complet", "quantity": 80, "unit": "g"},
+      {"name": "Épices tikka", "quantity": 5, "unit": "g"},
+      {"name": "Concombre", "quantity": 60, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"}
+    ],
+    "instructions": "Mariner le poulet dans le yaourt et les épices 30 min. Griller au four 20 min. Cuire le riz. Préparer la raita (yaourt + concombre).",
+    "tags": ["balanced", "muscle-gain"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Omelette jambon fromage tartine complète",
+    "calories": 480, "protein_g": 35,
+    "meal_type": "petit-dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Œufs", "quantity": 120, "unit": "g"},
+      {"name": "Jambon blanc", "quantity": 40, "unit": "g"},
+      {"name": "Emmental râpé", "quantity": 20, "unit": "g"},
+      {"name": "Pain complet", "quantity": 50, "unit": "g"},
+      {"name": "Beurre", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Battre les œufs, cuire en omelette avec jambon et fromage. Servir avec le pain complet beurré.",
+    "tags": ["balanced", "petit-dejeuner"],
+    "allergen_tags": ["œuf", "lait", "gluten"]
+  },
+  {
+    "name": "Dinde rôtie quinoa poivrons grillés",
+    "calories": 560, "protein_g": 46,
+    "meal_type": "diner", "cuisine_type": "méditerranéenne", "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Escalope de dinde", "quantity": 170, "unit": "g"},
+      {"name": "Quinoa", "quantity": 70, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 100, "unit": "g"},
+      {"name": "Poivron jaune", "quantity": 100, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Griller la dinde et les poivrons au four 20 min à 200°C. Cuire le quinoa 15 min. Assembler.",
+    "tags": ["balanced", "muscle-gain"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Porridge protéiné banane amandes",
+    "calories": 450, "protein_g": 28,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Flocons d'avoine", "quantity": 60, "unit": "g"},
+      {"name": "Lait demi-écrémé", "quantity": 200, "unit": "ml"},
+      {"name": "Whey protéine vanille", "quantity": 25, "unit": "g"},
+      {"name": "Banane", "quantity": 80, "unit": "g"},
+      {"name": "Amandes", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Cuire les flocons dans le lait 5 min. Mélanger la whey. Garnir de rondelles de banane et amandes.",
+    "tags": ["balanced", "muscle-gain", "petit-dejeuner"],
+    "allergen_tags": ["gluten", "lait", "fruits à coque"]
+  },
+  {
+    "name": "Lentilles corail dahl riz basmati",
+    "calories": 550, "protein_g": 28,
+    "meal_type": "dejeuner", "cuisine_type": "indienne", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles corail", "quantity": 100, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 80, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 80, "unit": "ml"},
+      {"name": "Tomates concassées", "quantity": 100, "unit": "g"},
+      {"name": "Oignon", "quantity": 50, "unit": "g"},
+      {"name": "Curry", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Faire revenir l'oignon, ajouter lentilles, tomates et lait de coco. Cuire 20 min. Servir avec le riz.",
+    "tags": ["balanced", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Thon grillé salade de pois chiches",
+    "calories": 520, "protein_g": 48,
+    "meal_type": "dejeuner", "cuisine_type": "méditerranéenne", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Steak de thon", "quantity": 150, "unit": "g"},
+      {"name": "Pois chiches cuits", "quantity": 120, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 80, "unit": "g"},
+      {"name": "Concombre", "quantity": 80, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Citron", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Griller le thon 2 min par face. Mélanger pois chiches, tomates, concombre. Assaisonner huile et citron.",
+    "tags": ["balanced", "high-protein"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Smoothie protéiné beurre de cacahuète",
+    "calories": 380, "protein_g": 30,
+    "meal_type": "collation", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Lait de soja", "quantity": 250, "unit": "ml"},
+      {"name": "Beurre de cacahuète", "quantity": 20, "unit": "g"},
+      {"name": "Banane", "quantity": 100, "unit": "g"},
+      {"name": "Protéine de pois", "quantity": 25, "unit": "g"},
+      {"name": "Flocons d'avoine", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Mixer tous les ingrédients jusqu'à obtenir une texture lisse.",
+    "tags": ["balanced", "vegan", "high-protein"],
+    "allergen_tags": ["arachide", "soja", "gluten"]
+  },
+  {
+    "name": "Energy balls protéinées vegan",
+    "calories": 280, "protein_g": 18,
+    "meal_type": "collation", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Flocons d'avoine", "quantity": 40, "unit": "g"},
+      {"name": "Beurre d'amande", "quantity": 25, "unit": "g"},
+      {"name": "Protéine de pois", "quantity": 20, "unit": "g"},
+      {"name": "Dattes", "quantity": 30, "unit": "g"},
+      {"name": "Cacao en poudre", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mixer les dattes. Mélanger tous les ingrédients. Former des boules. Réfrigérer 30 min.",
+    "tags": ["balanced", "vegan", "high-protein"],
+    "allergen_tags": ["fruits à coque", "gluten"]
+  },
+  {
+    "name": "Houmous protéiné crudités",
+    "calories": 320, "protein_g": 20,
+    "meal_type": "collation", "cuisine_type": "méditerranéenne", "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Pois chiches cuits", "quantity": 150, "unit": "g"},
+      {"name": "Tahini", "quantity": 20, "unit": "g"},
+      {"name": "Citron", "quantity": 20, "unit": "g"},
+      {"name": "Carottes", "quantity": 100, "unit": "g"},
+      {"name": "Concombre", "quantity": 80, "unit": "g"}
+    ],
+    "instructions": "Mixer pois chiches, tahini et citron. Servir avec bâtonnets de carottes et concombre.",
+    "tags": ["balanced", "vegan", "high-protein"],
+    "allergen_tags": ["sésame"]
+  },
+  {
+    "name": "Galette de pois chiches aux légumes",
+    "calories": 350, "protein_g": 22,
+    "meal_type": "collation", "cuisine_type": "méditerranéenne", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Farine de pois chiches", "quantity": 60, "unit": "g"},
+      {"name": "Courgette", "quantity": 80, "unit": "g"},
+      {"name": "Oignon", "quantity": 30, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"},
+      {"name": "Levure nutritionnelle", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mélanger la farine de pois chiches avec l'eau. Ajouter légumes râpés et levure. Cuire en galettes à la poêle.",
+    "tags": ["balanced", "vegan", "high-protein"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Poêlée de tempeh teriyaki et riz",
+    "calories": 540, "protein_g": 34,
+    "meal_type": "diner", "cuisine_type": "asiatique", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Tempeh", "quantity": 150, "unit": "g"},
+      {"name": "Riz jasmin", "quantity": 80, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Brocoli", "quantity": 100, "unit": "g"},
+      {"name": "Huile de sésame", "quantity": 8, "unit": "ml"},
+      {"name": "Sirop d'érable", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Couper le tempeh, mariner dans sauce soja et sirop d'érable. Poêler à feu vif. Cuire le riz et blanchir le brocoli.",
+    "tags": ["balanced", "vegan"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Bowl burrito poulet haricots noirs",
+    "calories": 630, "protein_g": 48,
+    "meal_type": "dejeuner", "cuisine_type": "mexicaine", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 150, "unit": "g"},
+      {"name": "Haricots noirs cuits", "quantity": 100, "unit": "g"},
+      {"name": "Riz complet", "quantity": 70, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"},
+      {"name": "Avocat", "quantity": 40, "unit": "g"},
+      {"name": "Crème fraîche légère", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Griller le poulet épicé. Cuire riz et haricots. Assembler en bowl avec poivron, avocat et crème.",
+    "tags": ["balanced", "muscle-gain"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Porridge vegan protéiné aux graines de chia",
+    "calories": 420, "protein_g": 25,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Flocons d'avoine", "quantity": 60, "unit": "g"},
+      {"name": "Lait de soja", "quantity": 200, "unit": "ml"},
+      {"name": "Protéine de pois", "quantity": 20, "unit": "g"},
+      {"name": "Graines de chia", "quantity": 10, "unit": "g"},
+      {"name": "Myrtilles", "quantity": 50, "unit": "g"}
+    ],
+    "instructions": "Cuire les flocons dans le lait de soja. Ajouter la protéine et les graines de chia. Garnir de myrtilles.",
+    "tags": ["balanced", "vegan", "petit-dejeuner"],
+    "allergen_tags": ["soja", "gluten"]
+  },
+  {
+    "name": "Wrap dinde crudités sauce yaourt",
+    "calories": 480, "protein_g": 38,
+    "meal_type": "dejeuner", "cuisine_type": "internationale", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Tortilla blé complet", "quantity": 60, "unit": "g"},
+      {"name": "Blanc de dinde", "quantity": 120, "unit": "g"},
+      {"name": "Salade verte", "quantity": 40, "unit": "g"},
+      {"name": "Tomates", "quantity": 60, "unit": "g"},
+      {"name": "Yaourt grec", "quantity": 30, "unit": "g"},
+      {"name": "Concombre", "quantity": 50, "unit": "g"}
+    ],
+    "instructions": "Griller la dinde émincée. Garnir la tortilla avec dinde, crudités et sauce yaourt.",
+    "tags": ["balanced", "rapide"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Curry de pois chiches et tofu",
+    "calories": 520, "protein_g": 30,
+    "meal_type": "diner", "cuisine_type": "indienne", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 150, "unit": "g"},
+      {"name": "Pois chiches cuits", "quantity": 100, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 80, "unit": "ml"},
+      {"name": "Tomates concassées", "quantity": 100, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 70, "unit": "g"},
+      {"name": "Curry", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Poêler le tofu en cubes. Ajouter pois chiches, tomates, lait de coco et curry. Mijoter 15 min. Servir avec le riz.",
+    "tags": ["balanced", "vegan"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Steak haché patates sautées salade",
+    "calories": 600, "protein_g": 44,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Steak haché 5%", "quantity": 150, "unit": "g"},
+      {"name": "Pommes de terre", "quantity": 200, "unit": "g"},
+      {"name": "Salade verte", "quantity": 60, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Moutarde", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire le steak à la poêle. Sauter les pommes de terre en cubes. Assaisonner la salade avec huile et moutarde.",
+    "tags": ["balanced", "muscle-gain"],
+    "allergen_tags": ["moutarde"]
+  }
+]

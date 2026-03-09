@@ -62,7 +62,9 @@ async def execute(**kwargs) -> str:
             latest = query.order("created_at", desc=True).limit(1).execute()
             if latest.data:
                 week_start = latest.data[0]["week_start"]
-                logger.info(f"No week_start provided, using most recent plan: {week_start}")
+                logger.info(
+                    f"No week_start provided, using most recent plan: {week_start}"
+                )
             else:
                 return json.dumps(
                     {
@@ -178,12 +180,14 @@ async def execute(**kwargs) -> str:
             try:
                 insert_result = (
                     supabase.table("shopping_lists")
-                    .insert({
-                        "user_id": user_id,
-                        "meal_plan_id": meal_plan_id,
-                        "title": title,
-                        "items": flat_items,
-                    })
+                    .insert(
+                        {
+                            "user_id": user_id,
+                            "meal_plan_id": meal_plan_id,
+                            "title": title,
+                            "items": flat_items,
+                        }
+                    )
                     .execute()
                 )
                 if insert_result.data:

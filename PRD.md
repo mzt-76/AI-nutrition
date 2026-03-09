@@ -584,4 +584,34 @@ DISLIKED_FOODS_FILTERED = True
 
 ---
 
-**Version:** 3.0 | **Updated:** 2026-03-04
+## 14. Future Features — Post-MVP
+
+### 14.1 RAG Personnelle par Utilisateur (Documents Drive)
+
+**Problème :** Aujourd'hui la base de connaissances RAG est globale — seul l'admin alimente un Drive partagé, tous les utilisateurs y accèdent. Les utilisateurs ne peuvent pas personnaliser l'agent avec leurs propres documents (ordonnances, bilans sanguins, régimes spécifiques).
+
+**Vision :** Chaque utilisateur connecte son Google Drive. Les documents déposés dans un dossier dédié sont automatiquement indexés et utilisés par **son** agent uniquement, en complément de la base de connaissances globale.
+
+**Architecture cible :**
+```
+Base globale (admin)          →  Tous les agents (articles scientifiques, guides)
+Drive personnel (utilisateur) →  Son agent uniquement (ordonnances, bilans, régimes)
+                                       ↓
+                              Résultats combinés : global + personnel
+```
+
+**Changements requis :**
+
+1. **DB : ajouter `user_id` à `documents`** + mettre à jour RLS pour filtrer par utilisateur
+2. **OAuth Google Drive par utilisateur** — chaque user autorise l'accès à son propre Drive (pas seulement l'admin)
+3. **Modifier `match_documents` RPC** — combiner résultats globaux (`user_id IS NULL`) + personnels (`user_id = auth.uid()`)
+4. **Drive watcher multi-utilisateur** — un watcher par utilisateur connecté, ou un watcher central qui route par `user_id`
+5. **UI : onglet "Documents" dans Bibliothèque** — lien vers le Drive, statut de synchronisation, liste des documents indexés
+
+**Priorité :** Phase 2 (post-déploiement MVP)
+
+**Effort estimé :** Migration DB + OAuth multi-user + UI = feature complète
+
+---
+
+**Version:** 3.1 | **Updated:** 2026-03-07

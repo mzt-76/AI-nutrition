@@ -51,11 +51,13 @@ async def execute(**kwargs) -> str:
 
         # If no targets have been calculated yet, tell the agent to redirect
         if all(v == 0 for v in targets.values()):
-            return json.dumps({
-                "error": "Aucune cible nutritionnelle configuree. "
-                "Calcule d'abord les besoins avec nutrition-calculating.",
-                "code": "NO_TARGETS",
-            })
+            return json.dumps(
+                {
+                    "error": "Aucune cible nutritionnelle configuree. "
+                    "Calcule d'abord les besoins avec nutrition-calculating.",
+                    "code": "NO_TARGETS",
+                }
+            )
 
         # 2. Fetch all log entries for the date
         log_resp = (

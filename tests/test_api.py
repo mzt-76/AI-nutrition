@@ -61,7 +61,9 @@ class TestConversationsEndpoint:
         api_module.supabase = MagicMock()
         api_module.supabase.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value = mock_response
 
-        response = client.get("/api/conversations?user_id=00000000-0000-0000-0000-000000000001")
+        response = client.get(
+            "/api/conversations?user_id=00000000-0000-0000-0000-000000000001"
+        )
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 1

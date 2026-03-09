@@ -1,0 +1,422 @@
+[
+  {
+    "name": "Filet de merlu panure légère et purée de céleri",
+    "calories": 520, "protein_g": 39,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Filet de merlu", "quantity": 180, "unit": "g"},
+      {"name": "Céleri-rave", "quantity": 200, "unit": "g"},
+      {"name": "Chapelure", "quantity": 15, "unit": "g"},
+      {"name": "Beurre", "quantity": 10, "unit": "g"},
+      {"name": "Lait demi-écrémé", "quantity": 30, "unit": "ml"}
+    ],
+    "instructions": "Enrober le merlu de chapelure et cuire au four 15 min à 200°C. Cuire le céleri-rave à l'eau, mixer en purée avec beurre et lait.",
+    "tags": ["high-protein", "30-25-45"],
+    "allergen_tags": ["poisson", "gluten", "lait"]
+  },
+  {
+    "name": "Wok de crevettes nouilles de riz et pak choï",
+    "calories": 480, "protein_g": 36,
+    "meal_type": "diner", "cuisine_type": "asiatique", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Crevettes décortiquées", "quantity": 160, "unit": "g"},
+      {"name": "Nouilles de riz", "quantity": 70, "unit": "g"},
+      {"name": "Pak choï", "quantity": 120, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Huile de sésame", "quantity": 8, "unit": "ml"},
+      {"name": "Gingembre frais", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire les nouilles. Sauter les crevettes au wok avec gingembre et huile de sésame. Ajouter le pak choï, les nouilles et la sauce soja.",
+    "tags": ["high-protein", "30-25-45", "rapide"],
+    "allergen_tags": ["crustacés", "soja", "sésame"]
+  },
+  {
+    "name": "Gratin d'aubergines au chèvre et lentilles",
+    "calories": 490, "protein_g": 32,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "Aubergines", "quantity": 200, "unit": "g"},
+      {"name": "Lentilles vertes cuites", "quantity": 100, "unit": "g"},
+      {"name": "Fromage de chèvre", "quantity": 50, "unit": "g"},
+      {"name": "Sauce tomate", "quantity": 80, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"}
+    ],
+    "instructions": "Trancher et griller les aubergines. Superposer aubergines, lentilles, sauce tomate. Émietter le chèvre. Gratiner 15 min à 200°C.",
+    "tags": ["high-protein", "30-25-45", "végétarien"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Curry thaï de tofu et légumes croquants",
+    "calories": 510, "protein_g": 30,
+    "meal_type": "diner", "cuisine_type": "asiatique", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 180, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 80, "unit": "ml"},
+      {"name": "Riz basmati", "quantity": 70, "unit": "g"},
+      {"name": "Haricots verts", "quantity": 100, "unit": "g"},
+      {"name": "Pâte de curry vert", "quantity": 10, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"}
+    ],
+    "instructions": "Couper le tofu, poêler. Chauffer le lait de coco avec la pâte de curry. Ajouter les légumes et le tofu, mijoter 10 min. Servir avec riz.",
+    "tags": ["high-protein", "30-25-45", "végétarien"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Galettes de lentilles corail et tzatziki",
+    "calories": 460, "protein_g": 28,
+    "meal_type": "diner", "cuisine_type": "méditerranéenne", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles corail", "quantity": 100, "unit": "g"},
+      {"name": "Farine de blé", "quantity": 20, "unit": "g"},
+      {"name": "Oignon", "quantity": 40, "unit": "g"},
+      {"name": "Yaourt grec", "quantity": 60, "unit": "g"},
+      {"name": "Concombre", "quantity": 60, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Cuire les lentilles, mixer grossièrement avec oignon et farine. Former des galettes, poêler 3 min par face. Préparer le tzatziki (yaourt + concombre).",
+    "tags": ["high-protein", "30-25-45", "végétarien"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Risotto aux champignons et parmesan",
+    "calories": 530, "protein_g": 24,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Riz arborio", "quantity": 80, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 150, "unit": "g"},
+      {"name": "Parmesan", "quantity": 30, "unit": "g"},
+      {"name": "Oignon", "quantity": 40, "unit": "g"},
+      {"name": "Beurre", "quantity": 10, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 200, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir l'oignon, ajouter le riz. Verser le bouillon en plusieurs fois. Ajouter les champignons. Finir avec parmesan et beurre.",
+    "tags": ["30-25-45", "végétarien"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Escalope de veau milanaise et roquette",
+    "calories": 560, "protein_g": 42,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Escalope de veau", "quantity": 150, "unit": "g"},
+      {"name": "Chapelure", "quantity": 20, "unit": "g"},
+      {"name": "Œuf", "quantity": 50, "unit": "g"},
+      {"name": "Roquette", "quantity": 50, "unit": "g"},
+      {"name": "Spaghetti", "quantity": 60, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Citron", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Paner l'escalope (farine, œuf, chapelure), poêler 3 min par face. Cuire les spaghetti. Servir avec roquette et citron.",
+    "tags": ["high-protein", "30-25-45"],
+    "allergen_tags": ["gluten", "œuf"]
+  },
+  {
+    "name": "Tartine complète avocat œuf poché",
+    "calories": 420, "protein_g": 22,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Pain complet", "quantity": 60, "unit": "g"},
+      {"name": "Avocat", "quantity": 50, "unit": "g"},
+      {"name": "Œuf", "quantity": 100, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 50, "unit": "g"},
+      {"name": "Graines de sésame", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Toaster le pain. Écraser l'avocat, tartiner. Pocher les œufs 3 min. Déposer sur la tartine avec tomates et graines.",
+    "tags": ["30-25-45", "petit-dejeuner"],
+    "allergen_tags": ["gluten", "œuf", "sésame"]
+  },
+  {
+    "name": "Pancakes protéinés myrtilles et sirop d'érable",
+    "calories": 450, "protein_g": 32,
+    "meal_type": "petit-dejeuner", "cuisine_type": "américaine", "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Flocons d'avoine", "quantity": 50, "unit": "g"},
+      {"name": "Blanc d'œuf", "quantity": 120, "unit": "g"},
+      {"name": "Fromage blanc 0%", "quantity": 80, "unit": "g"},
+      {"name": "Myrtilles", "quantity": 60, "unit": "g"},
+      {"name": "Sirop d'érable", "quantity": 15, "unit": "ml"},
+      {"name": "Banane", "quantity": 50, "unit": "g"}
+    ],
+    "instructions": "Mixer avoine, blancs d'œuf, fromage blanc et banane. Cuire en pancakes. Garnir de myrtilles et sirop d'érable.",
+    "tags": ["high-protein", "30-25-45", "petit-dejeuner"],
+    "allergen_tags": ["œuf", "lait", "gluten"]
+  },
+  {
+    "name": "Smoothie bowl açaï granola protéiné",
+    "calories": 400, "protein_g": 24,
+    "meal_type": "petit-dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Poudre d'açaï", "quantity": 15, "unit": "g"},
+      {"name": "Banane", "quantity": 100, "unit": "g"},
+      {"name": "Lait de soja", "quantity": 150, "unit": "ml"},
+      {"name": "Protéine de pois", "quantity": 20, "unit": "g"},
+      {"name": "Granola", "quantity": 30, "unit": "g"},
+      {"name": "Graines de chia", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mixer açaï, banane congelée, lait de soja et protéine. Verser dans un bol. Garnir de granola et graines de chia.",
+    "tags": ["30-25-45", "vegan", "petit-dejeuner"],
+    "allergen_tags": ["soja", "gluten"]
+  },
+  {
+    "name": "Skyr aux noix et miel pain de seigle",
+    "calories": 430, "protein_g": 32,
+    "meal_type": "petit-dejeuner", "cuisine_type": "nordique", "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Skyr nature", "quantity": 200, "unit": "g"},
+      {"name": "Noix", "quantity": 20, "unit": "g"},
+      {"name": "Miel", "quantity": 15, "unit": "g"},
+      {"name": "Pain de seigle", "quantity": 50, "unit": "g"},
+      {"name": "Banane", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Servir le skyr dans un bol, garnir de noix concassées, miel et rondelles de banane. Accompagner de pain de seigle.",
+    "tags": ["high-protein", "30-25-45", "rapide"],
+    "allergen_tags": ["lait", "fruits à coque", "gluten"]
+  },
+  {
+    "name": "Poke bowl saumon avocat edamame",
+    "calories": 580, "protein_g": 40,
+    "meal_type": "dejeuner", "cuisine_type": "japonaise", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Saumon frais", "quantity": 120, "unit": "g"},
+      {"name": "Riz vinaigré", "quantity": 80, "unit": "g"},
+      {"name": "Avocat", "quantity": 40, "unit": "g"},
+      {"name": "Edamame", "quantity": 60, "unit": "g"},
+      {"name": "Concombre", "quantity": 60, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "Huile de sésame", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Cuire le riz, assaisonner de vinaigre de riz. Couper le saumon en cubes. Assembler en bowl avec avocat, edamame, concombre. Assaisonner.",
+    "tags": ["high-protein", "30-25-45", "omega-3"],
+    "allergen_tags": ["poisson", "soja", "sésame"]
+  },
+  {
+    "name": "Salade César au poulet grillé et croûtons",
+    "calories": 540, "protein_g": 42,
+    "meal_type": "dejeuner", "cuisine_type": "américaine", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 150, "unit": "g"},
+      {"name": "Romaine", "quantity": 100, "unit": "g"},
+      {"name": "Parmesan", "quantity": 20, "unit": "g"},
+      {"name": "Croûtons", "quantity": 25, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Citron", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Griller le poulet, émincer. Mélanger romaine, croûtons et parmesan. Assaisonner d'huile et citron.",
+    "tags": ["high-protein", "30-25-45"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Buddha bowl quinoa pois chiches patate douce",
+    "calories": 550, "protein_g": 26,
+    "meal_type": "dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Quinoa", "quantity": 70, "unit": "g"},
+      {"name": "Pois chiches cuits", "quantity": 100, "unit": "g"},
+      {"name": "Patate douce", "quantity": 120, "unit": "g"},
+      {"name": "Épinards frais", "quantity": 50, "unit": "g"},
+      {"name": "Avocat", "quantity": 40, "unit": "g"},
+      {"name": "Tahini", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Cuire quinoa et rôtir patate douce en cubes (25 min, 200°C). Assembler en bowl avec pois chiches, épinards et avocat. Arroser de tahini.",
+    "tags": ["30-25-45", "vegan"],
+    "allergen_tags": ["sésame"]
+  },
+  {
+    "name": "Pad thaï au poulet et cacahuètes",
+    "calories": 590, "protein_g": 40,
+    "meal_type": "dejeuner", "cuisine_type": "thaïlandaise", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 140, "unit": "g"},
+      {"name": "Nouilles de riz", "quantity": 80, "unit": "g"},
+      {"name": "Cacahuètes", "quantity": 15, "unit": "g"},
+      {"name": "Germes de soja", "quantity": 60, "unit": "g"},
+      {"name": "Œuf", "quantity": 50, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Huile d'arachide", "quantity": 8, "unit": "ml"},
+      {"name": "Citron vert", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Cuire les nouilles. Poêler le poulet émincé, ajouter l'œuf brouillé, les germes de soja. Mélanger les nouilles, sauce soja, cacahuètes. Servir avec citron vert.",
+    "tags": ["high-protein", "30-25-45"],
+    "allergen_tags": ["arachide", "soja", "œuf"]
+  },
+  {
+    "name": "Tartare de bœuf et frites de patate douce",
+    "calories": 570, "protein_g": 38,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Filet de bœuf", "quantity": 150, "unit": "g"},
+      {"name": "Patate douce", "quantity": 180, "unit": "g"},
+      {"name": "Câpres", "quantity": 10, "unit": "g"},
+      {"name": "Cornichons", "quantity": 15, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Jaune d'œuf", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Hacher le bœuf au couteau, assaisonner avec câpres, cornichons et jaune d'œuf. Couper la patate douce en frites, cuire au four 25 min à 220°C.",
+    "tags": ["high-protein", "30-25-45"],
+    "allergen_tags": ["œuf"]
+  },
+  {
+    "name": "Barres protéinées dattes et amandes",
+    "calories": 260, "protein_g": 18,
+    "meal_type": "collation", "cuisine_type": "internationale", "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Amandes", "quantity": 25, "unit": "g"},
+      {"name": "Dattes", "quantity": 30, "unit": "g"},
+      {"name": "Whey protéine vanille", "quantity": 20, "unit": "g"},
+      {"name": "Flocons d'avoine", "quantity": 20, "unit": "g"},
+      {"name": "Miel", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mixer dattes et amandes. Ajouter whey, avoine et miel. Presser dans un moule. Réfrigérer 1h, couper en barres.",
+    "tags": ["high-protein", "30-25-45", "collation"],
+    "allergen_tags": ["fruits à coque", "lait", "gluten"]
+  },
+  {
+    "name": "Cottage cheese bowl fruits et granola",
+    "calories": 320, "protein_g": 28,
+    "meal_type": "collation", "cuisine_type": "internationale", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Cottage cheese", "quantity": 150, "unit": "g"},
+      {"name": "Myrtilles", "quantity": 50, "unit": "g"},
+      {"name": "Granola", "quantity": 25, "unit": "g"},
+      {"name": "Miel", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Servir le cottage cheese dans un bol, garnir de myrtilles, granola et un filet de miel.",
+    "tags": ["high-protein", "30-25-45", "rapide"],
+    "allergen_tags": ["lait", "gluten"]
+  },
+  {
+    "name": "Wrap thon concombre fromage frais",
+    "calories": 340, "protein_g": 30,
+    "meal_type": "collation", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Tortilla blé complet", "quantity": 40, "unit": "g"},
+      {"name": "Thon en conserve", "quantity": 80, "unit": "g"},
+      {"name": "Fromage frais", "quantity": 30, "unit": "g"},
+      {"name": "Concombre", "quantity": 50, "unit": "g"}
+    ],
+    "instructions": "Égoutter le thon, mélanger avec le fromage frais. Tartiner sur la tortilla, ajouter le concombre émincé. Rouler.",
+    "tags": ["high-protein", "30-25-45", "rapide"],
+    "allergen_tags": ["poisson", "gluten", "lait"]
+  },
+  {
+    "name": "Œufs durs houmous et bâtonnets de légumes",
+    "calories": 300, "protein_g": 22,
+    "meal_type": "collation", "cuisine_type": "méditerranéenne", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Œuf", "quantity": 100, "unit": "g"},
+      {"name": "Houmous", "quantity": 40, "unit": "g"},
+      {"name": "Carottes", "quantity": 80, "unit": "g"},
+      {"name": "Céleri branche", "quantity": 50, "unit": "g"}
+    ],
+    "instructions": "Cuire les œufs 10 min à l'eau bouillante. Servir avec houmous et bâtonnets de carottes et céleri.",
+    "tags": ["high-protein", "30-25-45"],
+    "allergen_tags": ["œuf", "sésame"]
+  },
+  {
+    "name": "Falafels maison et salade taboulé",
+    "calories": 520, "protein_g": 24,
+    "meal_type": "dejeuner", "cuisine_type": "libanaise", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Pois chiches cuits", "quantity": 150, "unit": "g"},
+      {"name": "Persil frais", "quantity": 20, "unit": "g"},
+      {"name": "Boulgour", "quantity": 60, "unit": "g"},
+      {"name": "Tomates", "quantity": 80, "unit": "g"},
+      {"name": "Oignon", "quantity": 30, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 12, "unit": "ml"},
+      {"name": "Citron", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Mixer pois chiches, persil, oignon. Former des boulettes, cuire au four 20 min à 200°C. Préparer le taboulé avec boulgour, tomates, persil et citron.",
+    "tags": ["30-25-45", "vegan"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Chili sin carne aux haricots rouges",
+    "calories": 480, "protein_g": 28,
+    "meal_type": "diner", "cuisine_type": "mexicaine", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Haricots rouges cuits", "quantity": 150, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 120, "unit": "g"},
+      {"name": "Maïs", "quantity": 60, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"},
+      {"name": "Oignon", "quantity": 50, "unit": "g"},
+      {"name": "Riz complet", "quantity": 60, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir oignon et poivron. Ajouter haricots, tomates, maïs et épices. Mijoter 20 min. Servir avec riz complet.",
+    "tags": ["30-25-45", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Poulet grillé couscous merguez et harissa",
+    "calories": 620, "protein_g": 48,
+    "meal_type": "dejeuner", "cuisine_type": "maghrébine", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 160, "unit": "g"},
+      {"name": "Semoule de couscous", "quantity": 70, "unit": "g"},
+      {"name": "Courgette", "quantity": 100, "unit": "g"},
+      {"name": "Pois chiches cuits", "quantity": 60, "unit": "g"},
+      {"name": "Harissa", "quantity": 5, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"}
+    ],
+    "instructions": "Griller le poulet épicé de harissa. Cuire le couscous. Poêler les courgettes. Assembler avec pois chiches.",
+    "tags": ["high-protein", "30-25-45"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Tortilla espagnole aux légumes",
+    "calories": 440, "protein_g": 26,
+    "meal_type": "diner", "cuisine_type": "espagnole", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Œuf", "quantity": 150, "unit": "g"},
+      {"name": "Pommes de terre", "quantity": 150, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"},
+      {"name": "Oignon", "quantity": 50, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Couper pommes de terre en rondelles, cuire avec oignon et poivron. Ajouter les œufs battus. Cuire à feu doux 10 min, retourner, 5 min.",
+    "tags": ["30-25-45", "végétarien"],
+    "allergen_tags": ["œuf"]
+  },
+  {
+    "name": "Bowl mexicain haricots noirs et guacamole",
+    "calories": 530, "protein_g": 24,
+    "meal_type": "dejeuner", "cuisine_type": "mexicaine", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Haricots noirs cuits", "quantity": 120, "unit": "g"},
+      {"name": "Riz complet", "quantity": 70, "unit": "g"},
+      {"name": "Avocat", "quantity": 60, "unit": "g"},
+      {"name": "Maïs", "quantity": 50, "unit": "g"},
+      {"name": "Tomates", "quantity": 80, "unit": "g"},
+      {"name": "Citron vert", "quantity": 15, "unit": "g"},
+      {"name": "Oignon rouge", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Cuire le riz. Écraser l'avocat avec citron et oignon pour le guacamole. Assembler en bowl avec haricots, maïs et tomates.",
+    "tags": ["30-25-45", "vegan"],
+    "allergen_tags": []
+  }
+]

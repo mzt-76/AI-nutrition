@@ -64,6 +64,19 @@
 - [x] Pre-deploy cleanup (console.log removal, requirements.txt sync, CRLF fix, linting)
 - [x] 490 tests passing, frontend build OK
 
+### Step 5b: Pre-deploy audit + PWA readiness ✅
+- [x] Audit complet (sécurité, linting, tests, qualité code) — 0 issues critiques
+- [x] ESLint: 6 erreurs → 0 (empty interfaces, unused vars, regex escapes, missing deps)
+- [x] Favicon remplacé par logo Salad vert (SVG + PNG 192/512)
+- [x] Renommage "Nutritionniste IA" → "Assistant Nutrition IA" (5 fichiers)
+- [x] Sidebar mobile : liens Suivi/Bibliothèque masqués (déjà dans BottomTabs)
+- [x] PWA manifest.json (nom, icônes, orientation, couleurs, langue FR)
+- [x] Meta tags mobile : theme-color, apple-mobile-web-app-capable, apple-touch-icon, Open Graph
+- [x] Service Worker via vite-plugin-pwa (cache app shell, autoUpdate, API en NetworkOnly)
+- [x] Page 404 refaite (thème dark glass-morphism, logo, texte FR)
+- [x] Mot de passe oublié : lien dans AuthForm + PasswordRecoveryModal (intercepte PASSWORD_RECOVERY)
+- [x] PRD v3.1 : ajout section 14 — RAG personnelle par utilisateur (feature Phase 2)
+
 ### Step 6: Deployment infrastructure
 - [ ] Préparer la base de données production (Supabase séparé, 14 migrations SQL, seed OpenFoodFacts + recettes)
 - [ ] Créer la config de déploiement (Dockerfile/Procfile selon plateforme)
@@ -72,6 +85,29 @@
 - [ ] Deploy backend (Railway/Fly.io) + frontend (Vercel)
 - [ ] Smoke test end-to-end
 - [ ] TWA → APK generation + distribution
+
+---
+
+## Deferred Issues (from pre-deploy review 2026-03-07)
+
+Issues identified but intentionally deferred — not blockers, require dedicated refactors:
+
+- [ ] **M4. Sync Supabase client dans endpoints async** — `src/api.py` utilise le client sync partout, bloque l'event loop. Migrer vers client async ou `asyncio.to_thread()`. Impact: performance sous charge.
+- [ ] **L5. Ruff E402 — 10 imports pas en haut de fichier** — intentionnel (après `sys.path` setup). Ajouter `# noqa: E402` ou configurer ruff pour ignorer ces fichiers.
+- [ ] **L6. Mypy — 140 erreurs pre-existantes** — surtout implicit Optional et types Pydantic AI v2. Nécessite un pass dédié mypy cleanup.
+
+Rapport complet : `.claude/code-reviews/pre-deploy-review-20260307.md`
+
+---
+
+## Fix: Fat trop bas dans les meal plans ✅ (2026-03-08)
+
+Le meal planner produisait des plans avec fat à -30/-55% du target (50g au lieu de 82g).
+
+**3 corrections appliquées :**
+1. **Filtre macro ratio relatif** (`recipe_db.py`): tolérance passée d'absolue à relative. Avec target fat=25%, accepte désormais [18.7%–31.1%] au lieu de [0%–50%]. Appliqué aux 3 macros.
+2. **62 recettes balanced seedées** (`scripts/data/balanced_recipes.json`): toutes avec ~25% fat via sources lipides réelles (avocat, huile olive, beurre, fromage, saumon, noix, oeufs). 2 collation + 20 petit-dej + 20 déjeuner + 20 dîner. 60/62 OFF-validated. DB: 362 recettes total.
+3. **Conversion "pièces" → grammes** (`openfoodfacts_client.py`): `_PIECE_WEIGHTS` dict pour 20 ingrédients courants. Avant: 3 oeufs = 100g. Après: 3×60g = 180g. +11 tests unitaires.
 
 ---
 

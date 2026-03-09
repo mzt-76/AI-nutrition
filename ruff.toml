@@ -1,0 +1,11 @@
+[lint]
+select = ["E", "F", "W"]
+ignore = ["E501"]  # Line length handled by ruff format
+
+[lint.per-file-ignores]
+# These files need imports after sys.path manipulation
+"src/cli.py" = ["E402"]
+"src/clients.py" = ["E402"]
+"src/verify_setup.py" = ["E402"]
+"src/RAG_Pipeline/**/*.py" = ["E402"]
+"scripts/seed_recipes_manual.py" = ["E402"]

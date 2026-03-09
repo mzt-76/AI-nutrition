@@ -27,7 +27,6 @@ async def execute(**kwargs) -> str:
     http_client = kwargs["http_client"]
     brave_api_key = kwargs.get("brave_api_key")
     # searxng_base_url accepted but not yet implemented
-    kwargs.get("searxng_base_url")
 
     try:
         logger.info(f"Web search: {query}")

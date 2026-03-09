@@ -83,7 +83,9 @@ class GoogleDriveWatcher:
                 self.last_check_time = datetime.strptime(
                     "1970-01-01T00:00:00.000Z", "%Y-%m-%dT%H:%M:%S.%fZ"
                 )
-                logger.warning("Invalid last check time format in config, using default")
+                logger.warning(
+                    "Invalid last check time format in config, using default"
+                )
 
             if not self.folder_id:
                 self.folder_id = self.config.get("watch_folder_id", None)
@@ -341,7 +343,9 @@ class GoogleDriveWatcher:
         # Extract text from the file
         text = extract_text_from_file(file_content, mime_type, file_name, self.config)
         if not text:
-            logger.warning(f"No text could be extracted from file '{file_name}' (ID: {file_id})")
+            logger.warning(
+                f"No text could be extracted from file '{file_name}' (ID: {file_id})"
+            )
             return
 
         # Process the file for RAG
