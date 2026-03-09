@@ -38,7 +38,7 @@ export const MealCard = memo(function MealCard({ meal_type, recipe_name, calorie
       {ingredients && ingredients.length > 0 && (
         <div className="border-t border-emerald-500/10 pt-2">
           <p className="text-xs text-gray-500 mb-1">Ingrédients :</p>
-          <p className="text-xs text-gray-400">{ingredients.join(', ')}</p>
+          <p className="text-xs text-gray-400 break-words">{ingredients.join(', ')}</p>
         </div>
       )}
     </div>

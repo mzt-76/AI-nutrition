@@ -13,6 +13,9 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
+  isRecovery: boolean;
+  clearRecovery: () => void;
+  updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null, data: AuthResponse['data'] | null }>;
@@ -26,6 +29,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRecovery, setIsRecovery] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -38,10 +42,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     setAuthData();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecovery(true);
+      }
     });
 
     return () => subscription?.unsubscribe();
@@ -148,6 +155,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
   }, [toast]);
 
+  const clearRecovery = useCallback(() => setIsRecovery(false), []);
+
+  const updatePassword = useCallback(async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setIsRecovery(false);
+      toast({
+        title: "Mot de passe modifié",
+        description: "Votre nouveau mot de passe a été enregistré.",
+      });
+      return { error: null };
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: (error as Error)?.message || "Échec de la modification du mot de passe",
+        variant: "destructive",
+      });
+      return { error: error as Error };
+    }
+  }, [toast]);
+
   const resetPassword = useCallback(async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email);
@@ -171,12 +200,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     session,
     user,
     loading,
+    isRecovery,
+    clearRecovery,
+    updatePassword,
     signIn,
     signInWithGoogle,
     signUp,
     signOut,
     resetPassword,
-  }), [session, user, loading, signIn, signInWithGoogle, signUp, signOut, resetPassword]);
+  }), [session, user, loading, isRecovery, clearRecovery, updatePassword, signIn, signInWithGoogle, signUp, signOut, resetPassword]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

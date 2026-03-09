@@ -21,9 +21,9 @@ export const DayPlanCard = memo(function DayPlanCard({ day_name, meals, totals, 
         ))}
       </div>
 
-      <div className="border-t border-emerald-500/10 pt-3 flex items-center justify-between">
+      <div className="border-t border-emerald-500/10 pt-3 flex items-center justify-between flex-wrap gap-y-1">
         <span className="text-sm font-medium text-gray-400">Total journée</span>
-        <div className="flex gap-3 text-sm">
+        <div className="flex gap-2 sm:gap-3 text-xs sm:text-sm">
           <span className="text-emerald-400 font-bold">{totals.calories} kcal</span>
           <span className="text-blue-400">P {totals.protein_g}g</span>
           <span className="text-amber-400">G {totals.carbs_g}g</span>

@@ -4,6 +4,12 @@ import { Button } from '@/components/ui/button';
 import type { FavoriteWithRecipe } from '@/types/database.types';
 import { MEAL_ICONS, MEAL_LABELS, normalizeMealType, formatMealTypeFallback } from '@/lib/meal-constants';
 
+interface FavoriteCardProps {
+  favorite: FavoriteWithRecipe;
+  onRemove: (id: string) => void;
+  onClick?: () => void;
+}
+
 export function FavoriteCard({ favorite, onRemove, onClick }: FavoriteCardProps) {
   const [removing, setRemoving] = useState(false);
   const recipe = favorite.recipes;

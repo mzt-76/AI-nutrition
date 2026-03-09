@@ -162,7 +162,7 @@ export default function MealPlanView() {
 
         {/* Days */}
         <div className="space-y-6">
-          {plan_data.days.map((day) => {
+          {plan_data?.days?.map((day) => {
             const meals: MealCardProps[] = day.meals.map(m => ({
               meal_type: m.meal_type,
               recipe_name: m.name,

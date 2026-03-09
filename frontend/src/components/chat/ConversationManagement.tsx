@@ -6,13 +6,12 @@ import { Conversation } from '@/types/database.types';
 import { useToast } from '@/hooks/use-toast';
 import type { User } from '@supabase/supabase-js';
 import { logger } from '@/lib/logger';
+import { safeGetItem, safeSetItem, safeRemoveItem } from '@/lib/storage';
+import { SESSION_KEY, SESSION_CONV_KEY } from '@/lib/constants';
 
 interface ConversationManagementProps {
   user: User | null;
 }
-
-const SESSION_KEY = 'active_conversation_id';
-const SESSION_CONV_KEY = 'active_conversation';
 
 export const useConversationManagement = ({
   user,
@@ -41,7 +40,7 @@ export const useConversationManagement = ({
 
   // Synchronous restore: read full conversation object from sessionStorage (no cache dependency)
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(() => {
-    const savedJson = sessionStorage.getItem(SESSION_CONV_KEY);
+    const savedJson = safeGetItem(sessionStorage, SESSION_CONV_KEY);
     if (savedJson) {
       try { return JSON.parse(savedJson); } catch { /* fall through */ }
     }
@@ -51,7 +50,7 @@ export const useConversationManagement = ({
   // Fallback: if cache was empty on init but conversations arrive from network, restore
   useEffect(() => {
     if (selectedConversation || conversations.length === 0) return;
-    const savedId = sessionStorage.getItem(SESSION_KEY);
+    const savedId = safeGetItem(sessionStorage, SESSION_KEY);
     if (savedId) {
       const match = conversations.find(c => c.session_id === savedId);
       if (match) setSelectedConversation(match);
@@ -61,8 +60,8 @@ export const useConversationManagement = ({
   // Persist session_id + full object to sessionStorage
   useEffect(() => {
     if (selectedConversation) {
-      sessionStorage.setItem(SESSION_KEY, selectedConversation.session_id);
-      sessionStorage.setItem(SESSION_CONV_KEY, JSON.stringify(selectedConversation));
+      safeSetItem(sessionStorage, SESSION_KEY, selectedConversation.session_id);
+      safeSetItem(sessionStorage, SESSION_CONV_KEY, JSON.stringify(selectedConversation));
     }
   }, [selectedConversation]);
 
@@ -92,15 +91,15 @@ export const useConversationManagement = ({
     [user?.id, queryClient],
   );
 
-  const handleNewChat = () => {
-    sessionStorage.removeItem(SESSION_KEY);
-    sessionStorage.removeItem(SESSION_CONV_KEY);
+  const handleNewChat = useCallback(() => {
+    safeRemoveItem(sessionStorage, SESSION_KEY);
+    safeRemoveItem(sessionStorage, SESSION_CONV_KEY);
     setSelectedConversation(null);
-  };
+  }, [setSelectedConversation]);
 
   const handleSelectConversation = (conversation: Conversation) => {
-    sessionStorage.setItem(SESSION_KEY, conversation.session_id);
-    sessionStorage.setItem(SESSION_CONV_KEY, JSON.stringify(conversation));
+    safeSetItem(sessionStorage, SESSION_KEY, conversation.session_id);
+    safeSetItem(sessionStorage, SESSION_CONV_KEY, JSON.stringify(conversation));
     setSelectedConversation(conversation);
   };
 

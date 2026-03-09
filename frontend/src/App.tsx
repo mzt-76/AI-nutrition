@@ -44,30 +44,39 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Admin-only route — checks user_profiles.is_admin
-const adminCache = new Map<string, boolean>();
+// Admin-only route — checks user_profiles.is_admin (TTL: 5 min)
+const ADMIN_CACHE_TTL_MS = 5 * 60 * 1000;
+const adminCache = new Map<string, { value: boolean; expiresAt: number }>();
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(() => {
-    if (user && adminCache.has(user.id)) return adminCache.get(user.id)!;
+    if (user) {
+      const cached = adminCache.get(user.id);
+      if (cached && Date.now() < cached.expiresAt) return cached.value;
+      // Expired — clear it
+      if (cached) adminCache.delete(user.id);
+    }
     return null;
   });
 
   useEffect(() => {
     if (!user) return;
-    if (adminCache.has(user.id)) {
-      setIsAdmin(adminCache.get(user.id)!);
+    const cached = adminCache.get(user.id);
+    if (cached && Date.now() < cached.expiresAt) {
+      setIsAdmin(cached.value);
       return;
     }
+    // Expired or missing — re-fetch
+    adminCache.delete(user.id);
     supabase
       .from('user_profiles')
       .select('is_admin')
       .eq('id', user.id)
-      .single()
+      .limit(1)
       .then(({ data }) => {
-        const val = data?.is_admin === true;
-        adminCache.set(user.id, val);
+        const val = data?.[0]?.is_admin === true;
+        adminCache.set(user.id, { value: val, expiresAt: Date.now() + ADMIN_CACHE_TTL_MS });
         setIsAdmin(val);
       })
       .catch(() => setIsAdmin(false));

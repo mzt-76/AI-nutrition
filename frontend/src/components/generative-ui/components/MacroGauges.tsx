@@ -17,7 +17,7 @@ const MacroRing = memo(function MacroRing({ label, grams, percentage, color, rin
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="relative w-16 h-16">
+      <div className="relative w-14 h-14 sm:w-16 sm:h-16">
         <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
           <circle cx="32" cy="32" r={radius} fill="none" stroke="currentColor" strokeWidth="4" className="text-white/[0.04]" />
           <circle
@@ -28,7 +28,7 @@ const MacroRing = memo(function MacroRing({ label, grams, percentage, color, rin
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-sm font-bold ${color}`}>{percentage}%</span>
+          <span className={`text-xs sm:text-sm font-bold ${color}`}>{percentage}%</span>
         </div>
       </div>
       <span className="text-xs font-medium text-gray-400">{label}</span>

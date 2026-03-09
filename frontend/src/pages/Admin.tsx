@@ -53,7 +53,7 @@ export const Admin = () => {
             className="w-full max-w-[95%] lg:max-w-[1200px]"
           >
             <div className="flex justify-center mb-6">
-              <TabsList className="grid w-[400px] grid-cols-2">
+              <TabsList className="grid w-full max-w-[400px] grid-cols-2">
                 <TabsTrigger
                   value="users"
                   className="transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"

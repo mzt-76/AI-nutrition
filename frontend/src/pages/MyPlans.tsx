@@ -73,7 +73,7 @@ const MyPlans = () => {
 
     load();
     return () => { cancelled = true; };
-  }, [tab, userId]);
+  }, [tab, userId, toast]);
 
   const handleDeletePlan = async (planId: string) => {
     const previous = plans;

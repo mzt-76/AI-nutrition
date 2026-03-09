@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Heart, Clock, UtensilsCrossed, Coffee, Loader2 } from 'lucide-react';
+import { Heart, Clock, UtensilsCrossed, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { fetchRecipe, upsertRecipe, addFavorite, removeFavorite, checkFavorite } from '@/lib/api';
 import type { Recipe } from '@/types/database.types';
 import { logger } from '@/lib/logger';
+import { useToast } from '@/hooks/use-toast';
 import { MEAL_ICONS, MEAL_LABELS, normalizeMealType, formatMealTypeFallback } from '@/lib/meal-constants';
 
 // Meal data as stored in plan_data (denormalized)
@@ -45,6 +46,7 @@ export function RecipeDetailDrawer({
   onFavoriteChange,
 }: RecipeDetailDrawerProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const userId = user?.id ?? '';
 
   // Recipe data (resolved from either mode)
@@ -72,7 +74,13 @@ export function RecipeDetailDrawer({
       setLoading(true);
       fetchRecipe(propRecipeId)
         .then((data) => { if (!cancelled) setRecipe(data); })
-        .catch(() => { if (!cancelled) setRecipe(null); })
+        .catch((err) => {
+          if (!cancelled) {
+            setRecipe(null);
+            logger.error('Failed to fetch recipe:', err);
+            toast({ variant: 'destructive', title: 'Erreur', description: 'Impossible de charger la recette.' });
+          }
+        })
         .finally(() => { if (!cancelled) setLoading(false); });
 
       // Check favorite status
@@ -93,7 +101,7 @@ export function RecipeDetailDrawer({
     }
 
     return () => { cancelled = true; };
-  }, [open, propRecipeId, mealData, userId]);
+  }, [open, propRecipeId, mealData, userId, toast]);
 
   // Derived display data (works for both modes)
   const displayName = recipe?.name ?? mealData?.name ?? '';
@@ -153,6 +161,11 @@ export function RecipeDetailDrawer({
       }
     } catch (err) {
       logger.error('Favorite toggle error:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Erreur',
+        description: 'Impossible de modifier le favori. Réessayez.',
+      });
     } finally {
       setToggling(false);
     }
@@ -230,8 +243,8 @@ export function RecipeDetailDrawer({
                   </h4>
                   <ol className="space-y-2">
                     {instructions
-                      .split(/\n|(?=\d+[\.\)]\s)/)
-                      .map((s) => s.trim().replace(/^\d+[\.\)]\s*/, ''))
+                      .split(/\n|(?=\d+[.)]\s)/)
+                      .map((s) => s.trim().replace(/^\d+[.)]\s*/, ''))
                       .filter(Boolean)
                       .map((step, i) => (
                         <li key={i} className="text-sm text-gray-300 flex gap-2">

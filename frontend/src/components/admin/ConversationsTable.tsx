@@ -14,7 +14,6 @@ import { ConversationDialog } from './conversations/ConversationDialog';
 import { SearchBar } from './conversations/SearchBar';
 import { useConversations } from './conversations/useConversations';
 import { Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 export const ConversationsTable = () => {
   const {

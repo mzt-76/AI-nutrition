@@ -27,7 +27,7 @@ export const API_BASE_URL = (() => {
 if (!API_BASE_URL) {
   logger.error(
     '[api] VITE_AGENT_ENDPOINT is missing or invalid — all apiFetch calls will fail. ' +
-    'Set it in frontend/.env (e.g. VITE_AGENT_ENDPOINT=http://localhost:8001/api/agent)',
+    'Set VITE_AGENT_ENDPOINT in frontend/.env',
   );
 }
 
@@ -448,7 +448,7 @@ export const fetchConversations = async (user_id: string) => {
   }
 };
 
-export const fetchMessages = async (session_id: string, user_id: string) => {
+export const fetchMessages = async (session_id: string, _user_id: string) => {
   try {
     // Updated query approach - instead of using computed_session_user_id, query directly by session_id
     // This avoids the UUID format issue

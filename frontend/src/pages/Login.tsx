@@ -11,7 +11,7 @@ const Login = () => {
             <Salad className="h-7 w-7 text-white" />
           </div>
         </div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Nutritionniste IA</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Assistant Nutrition IA</h1>
         <p className="text-muted-foreground">Connectez-vous pour commencer</p>
       </div>
       <AuthForm />
