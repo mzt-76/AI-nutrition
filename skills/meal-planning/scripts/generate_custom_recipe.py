@@ -1,4 +1,4 @@
-"""Generate a custom recipe via Claude Sonnet 4.5 when not found in recipe DB.
+"""Generate a custom recipe when not found in recipe DB.
 
 Used when user requests a specific dish or ingredient.
 Generates recipe → calculates macros via OpenFoodFacts → optionally saves to DB.
@@ -10,13 +10,61 @@ import asyncio
 import json
 import logging
 
+from pydantic import BaseModel, Field, field_validator
+
 from src.nutrition.openfoodfacts_client import match_ingredient
 from src.nutrition.recipe_db import save_recipe
 
 logger = logging.getLogger(__name__)
 
+
+class _RecipeIngredient(BaseModel):
+    name: str = Field(min_length=1)
+    quantity: float = Field(gt=0)
+    unit: str = Field(min_length=1)
+
+
+class _LLMRecipe(BaseModel):
+    """Validates the JSON structure returned by the LLM."""
+
+    name: str = Field(min_length=1)
+    description: str = ""
+    meal_type: str = Field(min_length=1)
+    cuisine_type: str = "française"
+    diet_type: str = "omnivore"
+    prep_time_minutes: int = Field(default=30, ge=1, le=180)
+    ingredients: list[_RecipeIngredient] = Field(min_length=1)
+    instructions: str = Field(min_length=1)
+    tags: list[str] = Field(default_factory=list)
+
+    @field_validator("ingredients")
+    @classmethod
+    def check_ingredients_not_empty(
+        cls, v: list[_RecipeIngredient]
+    ) -> list[_RecipeIngredient]:
+        if not v:
+            raise ValueError("Recipe must have at least one ingredient")
+        return v
+
+
 RECIPE_MODEL = "claude-haiku-4-5-20251001"
 MAX_RECIPE_REQUEST_LENGTH = 200
+
+# Patterns that indicate prompt injection attempts in recipe requests
+_INJECTION_PATTERNS = (
+    "ignore previous",
+    "ignore above",
+    "disregard",
+    "new instructions",
+    "system prompt",
+    "you are now",
+    "forget everything",
+    "override",
+    "```",
+    "<script",
+    "{{",
+    "{%",
+)
 
 _RECIPE_PROMPT_TEMPLATE = """Tu es un nutritionniste expert. Génère une recette complète en JSON.
 
@@ -24,9 +72,15 @@ Demande: {recipe_request}
 Type de repas: {meal_type}
 Cible calorique approximative: {target_calories} kcal
 Cible protéines approximative: {target_protein_g}g
+Cible lipides MAXIMUM: {target_fat_g}g — LIMITER les sources de gras (huile, beurre, noix, fromage)
+Cible glucides approximative: {target_carbs_g}g — privilégier riz, pâtes, pain, fruits pour les glucides
 Allergènes à exclure: {allergens}
 Type de régime: {diet_type}
 Temps de préparation max: {max_prep_time} minutes
+
+IMPORTANT: Ce repas a un budget lipides strict de {target_fat_g}g.
+Si tu utilises des noix ou du chocolat, limiter à 15g max total.
+Préférer les protéines maigres (poulet, dinde, poisson blanc, skyr, fromage blanc).
 
 Génère un objet JSON avec exactement cette structure:
 {{
@@ -79,10 +133,22 @@ async def execute(**kwargs) -> str:
     """
     anthropic_client = kwargs["anthropic_client"]
     supabase = kwargs["supabase"]
-    recipe_request = kwargs["recipe_request"][:MAX_RECIPE_REQUEST_LENGTH]
+    raw_request = kwargs["recipe_request"][:MAX_RECIPE_REQUEST_LENGTH]
+    # Sanitize against prompt injection
+    request_lower = raw_request.lower()
+    for pattern in _INJECTION_PATTERNS:
+        if pattern in request_lower:
+            logger.warning(
+                "Prompt injection attempt blocked in recipe_request: %r",
+                raw_request[:80],
+            )
+            return json.dumps({"error": "Requête invalide", "code": "INVALID_REQUEST"})
+    recipe_request = raw_request
     meal_type = kwargs.get("meal_type", "dejeuner")
     target_calories = kwargs.get("target_calories", 600)
     target_protein_g = kwargs.get("target_protein_g", 40)
+    target_fat_g = kwargs.get("target_fat_g", 24)
+    target_carbs_g = kwargs.get("target_carbs_g", 80)
     user_allergens = kwargs.get("user_allergens", [])
     diet_type = kwargs.get("diet_type", "omnivore")
     max_prep_time = kwargs.get("max_prep_time", 45)
@@ -90,7 +156,7 @@ async def execute(**kwargs) -> str:
 
     try:
         logger.info(
-            f"Generating custom recipe via Claude Sonnet 4.5: '{recipe_request}' "
+            f"Generating custom recipe : '{recipe_request}' "
             f"(meal_type={meal_type}, target={target_calories} kcal)"
         )
 
@@ -102,12 +168,14 @@ async def execute(**kwargs) -> str:
             meal_type_key=meal_type,
             target_calories=target_calories,
             target_protein_g=target_protein_g,
+            target_fat_g=target_fat_g,
+            target_carbs_g=target_carbs_g,
             allergens=allergens_str,
             diet_type=diet_type,
             max_prep_time=max_prep_time,
         )
 
-        # Call Claude Sonnet 4.5
+        # Call Claude model
         message = await anthropic_client.messages.create(
             model=RECIPE_MODEL,
             max_tokens=2000,
@@ -122,7 +190,11 @@ async def execute(**kwargs) -> str:
             lines = raw_content.split("\n")
             raw_content = "\n".join(lines[1:-1])
 
-        recipe_dict = json.loads(raw_content)
+        recipe_raw = json.loads(raw_content)
+
+        # Validate required fields via Pydantic
+        validated_recipe = _LLMRecipe.model_validate(recipe_raw)
+        recipe_dict = validated_recipe.model_dump()
 
         # Validate allergens in generated recipe
         if user_allergens:
@@ -176,6 +248,9 @@ async def execute(**kwargs) -> str:
         for ingredient, macros in zip(ingredients, macro_results):
             if macros:
                 ingredient["macros_calculated"] = macros
+                # Store per-100g nutrition for per-macro scaling
+                if macros.get("nutrition_per_100g"):
+                    ingredient["nutrition_per_100g"] = macros["nutrition_per_100g"]
                 total_calories += macros.get("calories", 0)
                 total_protein += macros.get("protein_g", 0)
                 total_carbs += macros.get("carbs_g", 0)

@@ -151,11 +151,13 @@ def calculate_meal_macros_distribution(
         # 1 snack → 10% snack / 90% main (snack ≈ 296 kcal for 2964 target)
         # 2 snacks → 20% snack / 80% main (each snack ≈ 296 kcal)
         snack_pct = min(0.10 * num_snacks, 0.25)
+        snack_prot_pct = snack_pct  # protein proportional to calories (not boosted)
         main_pct = 1.0 - snack_pct
+        main_prot_pct = 1.0 - snack_prot_pct
 
         calories_main_total = int(daily_calories * main_pct)
         calories_snack_total = daily_calories - calories_main_total
-        protein_main_total = int(daily_protein_g * main_pct)
+        protein_main_total = int(daily_protein_g * main_prot_pct)
         protein_snack_total = daily_protein_g - protein_main_total
         carbs_main_total = int(daily_carbs_g * main_pct)
         carbs_snack_total = daily_carbs_g - carbs_main_total

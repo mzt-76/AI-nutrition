@@ -41,15 +41,32 @@ def _ml_to_g(quantity_ml: float, ingredient_name: str) -> float:
 
 # Average weights per piece (grams) for common discrete-unit ingredients
 _PIECE_WEIGHTS: dict[str, float] = {
-    "oeuf": 60, "oeufs": 60, "œuf": 60, "œufs": 60,
-    "oeuf fermier": 60, "oeufs fermiers": 60, "œufs fermiers": 60,
-    "banane": 120, "pomme": 180, "orange": 200, "kiwi": 75,
-    "tomate": 150, "avocat": 150, "oignon": 150, "gousse d'ail": 5,
-    "carotte": 120, "courgette": 200, "poivron": 150,
-    "tranche de pain": 30, "tranche de pain complet": 35,
-    "tortilla": 60, "muffin anglais": 57,
-    "filet de poulet": 150, "escalope de dinde": 130,
-    "pavé de saumon": 150, "filet de cabillaud": 130,
+    "oeuf": 60,
+    "oeufs": 60,
+    "œuf": 60,
+    "œufs": 60,
+    "oeuf fermier": 60,
+    "oeufs fermiers": 60,
+    "œufs fermiers": 60,
+    "banane": 120,
+    "pomme": 180,
+    "orange": 200,
+    "kiwi": 75,
+    "tomate": 150,
+    "avocat": 150,
+    "oignon": 150,
+    "gousse d'ail": 5,
+    "carotte": 120,
+    "courgette": 200,
+    "poivron": 150,
+    "tranche de pain": 30,
+    "tranche de pain complet": 35,
+    "tortilla": 60,
+    "muffin anglais": 57,
+    "filet de poulet": 150,
+    "escalope de dinde": 130,
+    "pavé de saumon": 150,
+    "filet de cabillaud": 130,
 }
 
 
@@ -333,8 +350,7 @@ async def off_validate_recipe(recipe: dict, supabase: Client) -> dict:
         return recipe
 
     valid_ingredients = [
-        ing for ing in ingredients
-        if ing.get("name") and ing.get("quantity")
+        ing for ing in ingredients if ing.get("name") and ing.get("quantity")
     ]
 
     if not valid_ingredients:
@@ -372,9 +388,15 @@ async def off_validate_recipe(recipe: dict, supabase: Client) -> dict:
         if multiplier > 0:
             # Back-calculate per-100g from the matched result
             ing["nutrition_per_100g"] = {
-                "calories": round(result["calories"] / multiplier, 1) if multiplier else 0,
-                "protein_g": round(result["protein_g"] / multiplier, 1) if multiplier else 0,
-                "carbs_g": round(result["carbs_g"] / multiplier, 1) if multiplier else 0,
+                "calories": round(result["calories"] / multiplier, 1)
+                if multiplier
+                else 0,
+                "protein_g": round(result["protein_g"] / multiplier, 1)
+                if multiplier
+                else 0,
+                "carbs_g": round(result["carbs_g"] / multiplier, 1)
+                if multiplier
+                else 0,
                 "fat_g": round(result["fat_g"] / multiplier, 1) if multiplier else 0,
             }
         ing["off_code"] = result.get("openfoodfacts_code")

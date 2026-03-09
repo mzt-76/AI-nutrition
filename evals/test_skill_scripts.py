@@ -9,9 +9,6 @@ Scripts tested:
     - knowledge-searching/web_search.py (mocked HTTP)
     - body-analyzing/image_analysis.py (mocked OpenAI Vision)
     - weekly-coaching/calculate_weekly_adjustments.py (mocked DB)
-    - meal-planning/select_recipes.py (mocked DB)
-    - meal-planning/scale_portions.py (pure math)
-    - meal-planning/validate_day.py (pure validation)
     - meal-planning/generate_day_plan.py (mocked DB)
     - meal-planning/generate_custom_recipe.py (mocked LLM + OFF)
     - meal-planning/fetch_stored_meal_plan.py (mocked DB)
@@ -56,18 +53,10 @@ SCRIPTS = {
         / "retrieve_relevant_documents.py"
     ),
     "web_search": (
-        PROJECT_ROOT
-        / "skills"
-        / "knowledge-searching"
-        / "scripts"
-        / "web_search.py"
+        PROJECT_ROOT / "skills" / "knowledge-searching" / "scripts" / "web_search.py"
     ),
     "image_analysis": (
-        PROJECT_ROOT
-        / "skills"
-        / "body-analyzing"
-        / "scripts"
-        / "image_analysis.py"
+        PROJECT_ROOT / "skills" / "body-analyzing" / "scripts" / "image_analysis.py"
     ),
     "weekly_adjustments": (
         PROJECT_ROOT
@@ -198,9 +187,7 @@ class JSONFieldEquals(Evaluator):
             return EvaluationReason(value=False, reason="JSON is not an object")
         actual = data.get(self.key)
         if str(actual) == str(self.expected):
-            return EvaluationReason(
-                value=True, reason=f"{self.key}='{actual}' matches"
-            )
+            return EvaluationReason(value=True, reason=f"{self.key}='{actual}' matches")
         return EvaluationReason(
             value=False,
             reason=f"{self.key}='{actual}', expected '{self.expected}'",
@@ -358,9 +345,7 @@ def _mock_embedding_client(embedding=None, raise_error=False):
     """Build a mock AsyncOpenAI client returning a fixed embedding vector."""
     mock = AsyncMock()
     if raise_error:
-        mock.embeddings.create = AsyncMock(
-            side_effect=Exception("Embedding API error")
-        )
+        mock.embeddings.create = AsyncMock(side_effect=Exception("Embedding API error"))
     else:
         if embedding is None:
             embedding = [0.1] * 1536
@@ -428,9 +413,7 @@ async def _web_search_task(inputs: dict) -> str:
     http_error = inputs.get("_http_error", False)
 
     if http_error:
-        http_client = _mock_http_client(
-            raise_error=Exception("Connection timeout")
-        )
+        http_client = _mock_http_client(raise_error=Exception("Connection timeout"))
     else:
         http_client = _mock_http_client(json_response=response_json)
 
@@ -445,9 +428,7 @@ async def _image_analysis_task(inputs: dict) -> str:
     openai_error = inputs.get("_openai_error", False)
 
     if openai_error:
-        openai_client = _mock_openai_client(
-            raise_error=Exception("Vision API error")
-        )
+        openai_client = _mock_openai_client(raise_error=Exception("Vision API error"))
     else:
         openai_client = _mock_openai_client(content=response_content)
 
@@ -792,9 +773,7 @@ def web_search_dataset() -> Dataset:
                     "_response_json": {},
                 },
                 evaluators=(
-                    ContainsSubstring(
-                        substring="unavailable", case_sensitive=False
-                    ),
+                    ContainsSubstring(substring="unavailable", case_sensitive=False),
                 ),
             ),
             Case(
@@ -1010,9 +989,7 @@ def weekly_adjustments_dataset() -> Dataset:
                 evaluators=(
                     IsValidJSON(),
                     JSONFieldEquals(key="status", expected="success"),
-                    JSONNumericFieldInRange(
-                        key="week_number", min_val=1, max_val=1
-                    ),
+                    JSONNumericFieldInRange(key="week_number", min_val=1, max_val=1),
                     JSONNumericFieldInRange(
                         key="confidence_level", min_val=0.2, max_val=0.5
                     ),
@@ -1090,332 +1067,8 @@ async def test_weekly_adjustments_eval():
 
 
 # ---------------------------------------------------------------------------
-# Dataset 6: select_recipes (3 cases, mocked DB)
-# ---------------------------------------------------------------------------
-
-_SELECT_RECIPES_SCRIPT = (
-    PROJECT_ROOT / "skills" / "meal-planning" / "scripts" / "select_recipes.py"
-)
-
-_SAMPLE_RECIPE = {
-    "id": "recipe-uuid-test",
-    "name": "Omelette protéinée",
-    "meal_type": "petit-dejeuner",
-    "calories_per_serving": 450.0,
-    "protein_g_per_serving": 30.0,
-    "carbs_g_per_serving": 10.0,
-    "fat_g_per_serving": 32.0,
-    "ingredients": [{"name": "oeufs", "quantity": 3, "unit": "pièces"}],
-    "instructions": "Cuire.",
-    "allergen_tags": ["oeuf"],
-    "usage_count": 5,
-    "off_validated": True,
-    "cuisine_type": "française",
-    "diet_type": "omnivore",
-    "tags": [],
-}
-
-_SAMPLE_MEAL_TARGETS = [
-    {
-        "meal_type": "Petit-déjeuner",
-        "time": "08:00",
-        "target_calories": 700,
-        "target_protein_g": 45,
-        "target_carbs_g": 80,
-        "target_fat_g": 25,
-    }
-]
-
-
-async def _select_recipes_task(inputs: dict) -> str:
-    """Task wrapper for select_recipes.execute()."""
-    from unittest.mock import patch, AsyncMock
-
-    module = _load_script(_SELECT_RECIPES_SCRIPT)
-    mock_recipes = inputs.get("_mock_recipes", [])
-
-    supabase = MagicMock()
-
-    with patch(
-        "src.nutrition.recipe_db.search_recipes",
-        new=AsyncMock(return_value=mock_recipes),
-    ):
-        return await module.execute(
-            supabase=supabase,
-            meal_targets=inputs.get("meal_targets", _SAMPLE_MEAL_TARGETS),
-            user_allergens=inputs.get("user_allergens", []),
-            diet_type=inputs.get("diet_type", "omnivore"),
-            exclude_recipe_ids=inputs.get("exclude_recipe_ids", []),
-        )
-
-
-def select_recipes_dataset() -> Dataset:
-    """Dataset: 3 cases for select_recipes script."""
-    return Dataset(
-        name="select_recipes",
-        cases=[
-            Case(
-                name="happy_path_db_match",
-                inputs={
-                    "meal_targets": _SAMPLE_MEAL_TARGETS,
-                    "user_allergens": [],
-                    "_mock_recipes": [_SAMPLE_RECIPE],
-                },
-                evaluators=(
-                    IsValidJSON(),
-                    JSONHasKey(key="day_recipes"),
-                    JSONHasKey(key="unmatched_slots"),
-                    JSONFieldEquals(key="unmatched_slots", expected="0"),
-                ),
-            ),
-            Case(
-                name="no_db_match",
-                inputs={
-                    "meal_targets": _SAMPLE_MEAL_TARGETS,
-                    "user_allergens": [],
-                    "_mock_recipes": [],
-                },
-                evaluators=(
-                    IsValidJSON(),
-                    JSONHasKey(key="unmatched_slots"),
-                    JSONFieldEquals(key="unmatched_slots", expected="1"),
-                ),
-            ),
-            Case(
-                name="allergen_exclusion",
-                inputs={
-                    "meal_targets": _SAMPLE_MEAL_TARGETS,
-                    "user_allergens": ["oeuf"],
-                    "_mock_recipes": [_SAMPLE_RECIPE],  # Has "oeuf" allergen tag
-                },
-                evaluators=(
-                    IsValidJSON(),
-                    # Recipe with "oeuf" tag should be excluded → unmatched
-                    JSONFieldEquals(key="unmatched_slots", expected="1"),
-                ),
-            ),
-        ],
-        evaluators=[MaxDuration(seconds=2.0)],
-    )
-
-
-# ---------------------------------------------------------------------------
-# Dataset 7: scale_portions (3 cases, pure math)
-# ---------------------------------------------------------------------------
-
-_SCALE_PORTIONS_SCRIPT = (
-    PROJECT_ROOT / "skills" / "meal-planning" / "scripts" / "scale_portions.py"
-)
-
-
-async def _scale_portions_task(inputs: dict) -> str:
-    """Task wrapper for scale_portions.execute()."""
-    module = _load_script(_SCALE_PORTIONS_SCRIPT)
-    return await module.execute(
-        recipe=inputs.get("recipe", _SAMPLE_RECIPE),
-        target_calories=inputs.get("target_calories", 675),
-        target_protein_g=inputs.get("target_protein_g", 45),
-        target_carbs_g=inputs.get("target_carbs_g"),
-        target_fat_g=inputs.get("target_fat_g"),
-    )
-
-
-def scale_portions_dataset() -> Dataset:
-    """Dataset: 3 cases for scale_portions script."""
-    return Dataset(
-        name="scale_portions",
-        cases=[
-            Case(
-                name="scale_up_1_5x",
-                inputs={
-                    "recipe": _SAMPLE_RECIPE,
-                    "target_calories": 675,  # 450 * 1.5
-                    "target_protein_g": 45,
-                },
-                evaluators=(
-                    IsValidJSON(),
-                    JSONHasKey(key="scaled_recipe"),
-                    JSONHasKey(key="scale_factor"),
-                    JSONHasKey(key="nutrition_after"),
-                    # scale factor should be close to 1.5
-                    JSONNumericFieldInRange(key="scale_factor", min_val=1.4, max_val=1.6),
-                ),
-            ),
-            Case(
-                name="scale_down_0_5x",
-                inputs={
-                    "recipe": _SAMPLE_RECIPE,
-                    "target_calories": 225,  # 450 * 0.5 → clamped at MIN (0.5)
-                    "target_protein_g": 15,
-                },
-                evaluators=(
-                    IsValidJSON(),
-                    JSONNumericFieldInRange(key="scale_factor", min_val=0.49, max_val=0.51),
-                ),
-            ),
-            Case(
-                name="empty_recipe_error",
-                inputs={
-                    "recipe": {},
-                    "target_calories": 600,
-                    "target_protein_g": 40,
-                },
-                evaluators=(
-                    IsValidJSON(),
-                    JSONHasKey(key="error"),
-                    JSONErrorCode(code="VALIDATION_ERROR"),
-                ),
-            ),
-        ],
-        evaluators=[MaxDuration(seconds=2.0)],
-    )
-
-
-# ---------------------------------------------------------------------------
-# Dataset 8: validate_day (3 cases)
-# ---------------------------------------------------------------------------
-
-_VALIDATE_DAY_SCRIPT = (
-    PROJECT_ROOT / "skills" / "meal-planning" / "scripts" / "validate_day.py"
-)
-
-_VALID_DAY_PLAN = {
-    "day": "Lundi",
-    "date": "2026-02-18",
-    "meals": [
-        {
-            "meal_type": "Déjeuner",
-            "name": "Poulet grillé",
-            "ingredients": [{"name": "poulet", "quantity": 150, "unit": "g"}],
-            "nutrition": {"calories": 2800, "protein_g": 175, "carbs_g": 350, "fat_g": 80},
-        }
-    ],
-    "daily_totals": {"calories": 2800.0, "protein_g": 175.0, "carbs_g": 350.0, "fat_g": 80.0},
-}
-
-
-async def _validate_day_task(inputs: dict) -> str:
-    """Task wrapper for validate_day.execute()."""
-    module = _load_script(_VALIDATE_DAY_SCRIPT)
-    return await module.execute(
-        day_plan=inputs.get("day_plan", _VALID_DAY_PLAN),
-        user_allergens=inputs.get("user_allergens", []),
-        target_macros=inputs.get("target_macros", {}),
-        protein_tolerance=inputs.get("protein_tolerance", 0.05),
-        other_tolerance=inputs.get("other_tolerance", 0.10),
-    )
-
-
-def validate_day_dataset() -> Dataset:
-    """Dataset: 3 cases for validate_day script."""
-    return Dataset(
-        name="validate_day",
-        cases=[
-            Case(
-                name="valid_day_no_allergens",
-                inputs={
-                    "day_plan": _VALID_DAY_PLAN,
-                    "user_allergens": [],
-                    "target_macros": {
-                        "calories": 2800,
-                        "protein_g": 175,
-                        "carbs_g": 350,
-                        "fat_g": 80,
-                    },
-                },
-                evaluators=(
-                    IsValidJSON(),
-                    JSONHasKey(key="valid"),
-                    JSONHasKey(key="violations"),
-                    JSONFieldEquals(key="valid", expected="True"),
-                    JSONFieldEquals(key="day", expected="Lundi"),
-                ),
-            ),
-            Case(
-                name="allergen_violation",
-                inputs={
-                    "day_plan": {
-                        "day": "Mardi",
-                        "date": "2026-02-19",
-                        "meals": [
-                            {
-                                "meal_type": "Déjeuner",
-                                "name": "Pâtes au beurre",
-                                "ingredients": [
-                                    {"name": "beurre", "quantity": 30, "unit": "g"}
-                                ],
-                                "nutrition": {"calories": 500, "protein_g": 5, "carbs_g": 60, "fat_g": 25},
-                            }
-                        ],
-                        "daily_totals": {"calories": 500, "protein_g": 5, "carbs_g": 60, "fat_g": 25},
-                    },
-                    "user_allergens": ["lactose"],
-                    "target_macros": {},
-                },
-                evaluators=(
-                    IsValidJSON(),
-                    JSONFieldEquals(key="valid", expected="False"),
-                    JSONHasKey(key="allergen_violations"),
-                ),
-            ),
-            Case(
-                name="macro_violation",
-                inputs={
-                    "day_plan": {
-                        "day": "Mercredi",
-                        "date": "2026-02-20",
-                        "meals": [],
-                        "daily_totals": {"calories": 500, "protein_g": 30, "carbs_g": 50, "fat_g": 15},
-                    },
-                    "user_allergens": [],
-                    # Target 2800 kcal — 500 is way outside 10% tolerance
-                    "target_macros": {"calories": 2800, "protein_g": 175, "carbs_g": 350, "fat_g": 80},
-                },
-                evaluators=(
-                    IsValidJSON(),
-                    JSONFieldEquals(key="valid", expected="False"),
-                    JSONHasKey(key="macro_violations"),
-                ),
-            ),
-        ],
-        evaluators=[MaxDuration(seconds=2.0)],
-    )
-
-
-# ---------------------------------------------------------------------------
-# Eval runner tests for new datasets
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.asyncio
-async def test_select_recipes_eval():
-    """Eval: select_recipes script with mocked recipe DB."""
-    dataset = select_recipes_dataset()
-    report = await dataset.evaluate(task=_select_recipes_task)
-    report.print()
-    assert len(report.failures) == 0, f"Failures: {[f.name for f in report.failures]}"
-
-
-@pytest.mark.asyncio
-async def test_scale_portions_eval():
-    """Eval: scale_portions script — pure mathematical scaling."""
-    dataset = scale_portions_dataset()
-    report = await dataset.evaluate(task=_scale_portions_task)
-    report.print()
-    assert len(report.failures) == 0, f"Failures: {[f.name for f in report.failures]}"
-
-
-@pytest.mark.asyncio
-async def test_validate_day_eval():
-    """Eval: validate_day script — allergen and macro validation."""
-    dataset = validate_day_dataset()
-    report = await dataset.evaluate(task=_validate_day_task)
-    report.print()
-    assert len(report.failures) == 0, f"Failures: {[f.name for f in report.failures]}"
-
-
-# ---------------------------------------------------------------------------
-# Dataset 9: generate_day_plan (2 cases — happy path + empty targets)
+# Dataset 6: generate_day_plan (5 cases — happy path, empty targets, multi-meal,
+#             allergen filtering, structured logging)
 # ---------------------------------------------------------------------------
 
 _GENERATE_DAY_PLAN_SCRIPT = (
@@ -1483,8 +1136,139 @@ async def _generate_day_plan_task(inputs: dict) -> str:
         )
 
 
+@dataclass
+class JSONMealsCount(Evaluator):
+    """Assert that the day plan has at least N meals."""
+
+    min_meals: int
+    evaluation_name: str | None = field(default=None)
+
+    def evaluate(self, ctx: EvaluatorContext) -> EvaluationReason:
+        try:
+            data = json.loads(str(ctx.output))
+        except (json.JSONDecodeError, TypeError):
+            return EvaluationReason(value=False, reason="Output is not valid JSON")
+        day = data.get("day", {}) if isinstance(data, dict) else {}
+        meals = day.get("meals", []) if isinstance(day, dict) else []
+        count = len(meals)
+        if count >= self.min_meals:
+            return EvaluationReason(
+                value=True, reason=f"{count} meals >= {self.min_meals}"
+            )
+        return EvaluationReason(
+            value=False,
+            reason=f"Only {count} meals, expected >= {self.min_meals}",
+        )
+
+
+@dataclass
+class JSONNoAllergen(Evaluator):
+    """Assert that no recipe in the day plan contains a specific allergen tag."""
+
+    allergen: str
+    evaluation_name: str | None = field(default=None)
+
+    def evaluate(self, ctx: EvaluatorContext) -> EvaluationReason:
+        try:
+            data = json.loads(str(ctx.output))
+        except (json.JSONDecodeError, TypeError):
+            return EvaluationReason(value=False, reason="Output is not valid JSON")
+        day = data.get("day", {}) if isinstance(data, dict) else {}
+        meals = day.get("meals", []) if isinstance(day, dict) else []
+        for meal in meals:
+            recipe = meal.get("recipe", {}) if isinstance(meal, dict) else {}
+            tags = recipe.get("allergen_tags", []) if isinstance(recipe, dict) else []
+            if self.allergen in tags:
+                name = recipe.get("name", "?")
+                return EvaluationReason(
+                    value=False,
+                    reason=f"Allergen '{self.allergen}' found in '{name}'",
+                )
+        return EvaluationReason(
+            value=True, reason=f"No '{self.allergen}' allergen found"
+        )
+
+
+# Multi-meal mock recipes (3 slots: breakfast + lunch + dinner)
+_DAY_RECIPE_BREAKFAST = {
+    "id": "breakfast-uuid",
+    "name": "Porridge avoine fruits rouges",
+    "meal_type": "petit-dejeuner",
+    "calories_per_serving": 380.0,
+    "protein_g_per_serving": 14.0,
+    "carbs_g_per_serving": 60.0,
+    "fat_g_per_serving": 10.0,
+    "ingredients": [{"name": "Flocons d'avoine", "quantity": 80, "unit": "g"}],
+    "instructions": "Cuire les flocons dans le lait.",
+    "prep_time_minutes": 5,
+    "allergen_tags": ["gluten"],
+    "usage_count": 1,
+    "off_validated": True,
+}
+
+_DAY_RECIPE_DINNER = {
+    "id": "dinner-uuid",
+    "name": "Colin vapeur haricots verts",
+    "meal_type": "diner",
+    "calories_per_serving": 400.0,
+    "protein_g_per_serving": 40.0,
+    "carbs_g_per_serving": 30.0,
+    "fat_g_per_serving": 12.0,
+    "ingredients": [{"name": "Filet de colin", "quantity": 180, "unit": "g"}],
+    "instructions": "Cuire le colin à la vapeur 12 min.",
+    "prep_time_minutes": 20,
+    "allergen_tags": ["poisson"],
+    "usage_count": 2,
+    "off_validated": True,
+}
+
+# Gluten-free recipe for allergen filtering test
+_DAY_RECIPE_GF = {
+    "id": "gf-recipe-uuid",
+    "name": "Salade de quinoa légumes",
+    "meal_type": "dejeuner",
+    "calories_per_serving": 420.0,
+    "protein_g_per_serving": 18.0,
+    "carbs_g_per_serving": 55.0,
+    "fat_g_per_serving": 14.0,
+    "ingredients": [{"name": "Quinoa", "quantity": 80, "unit": "g"}],
+    "instructions": "Cuire le quinoa. Mélanger avec les légumes.",
+    "prep_time_minutes": 20,
+    "allergen_tags": [],
+    "usage_count": 0,
+    "off_validated": True,
+}
+
+_MULTI_MEAL_TARGETS = [
+    {
+        "meal_type": "Petit-déjeuner",
+        "time": "07:30",
+        "target_calories": 380,
+        "target_protein_g": 14,
+        "target_carbs_g": 60,
+        "target_fat_g": 10,
+    },
+    {
+        "meal_type": "Déjeuner",
+        "time": "12:30",
+        "target_calories": 600,
+        "target_protein_g": 50,
+        "target_carbs_g": 40,
+        "target_fat_g": 20,
+    },
+    {
+        "meal_type": "Dîner",
+        "time": "19:30",
+        "target_calories": 400,
+        "target_protein_g": 40,
+        "target_carbs_g": 30,
+        "target_fat_g": 12,
+    },
+]
+
+
 def generate_day_plan_dataset() -> Dataset:
-    """Dataset: 2 cases for generate_day_plan script."""
+    """Dataset: 5 cases for generate_day_plan script."""
     return Dataset(
         name="generate_day_plan",
         cases=[
@@ -1514,6 +1298,53 @@ def generate_day_plan_dataset() -> Dataset:
                 evaluators=(
                     IsValidJSON(),
                     JSONFieldEquals(key="success", expected="False"),
+                ),
+            ),
+            Case(
+                name="multi_meal_3_slots",
+                inputs={
+                    "meal_targets": _MULTI_MEAL_TARGETS,
+                    "day_name": "Mercredi",
+                    "day_date": "2026-02-25",
+                    "_mock_recipes": [
+                        _DAY_RECIPE_BREAKFAST,
+                        _DAY_RECIPE,
+                        _DAY_RECIPE_DINNER,
+                    ],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONFieldEquals(key="success", expected="True"),
+                    JSONHasKey(key="day"),
+                    JSONMealsCount(min_meals=3),
+                ),
+            ),
+            Case(
+                name="allergen_filtering_gluten",
+                inputs={
+                    "meal_targets": _DAY_MEAL_TARGETS,
+                    "day_name": "Jeudi",
+                    "day_date": "2026-02-26",
+                    "user_profile": {"allergies": ["gluten"]},
+                    "_mock_recipes": [_DAY_RECIPE_GF],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONFieldEquals(key="success", expected="True"),
+                    JSONNoAllergen(allergen="gluten"),
+                ),
+            ),
+            Case(
+                name="structured_logging_emitted",
+                inputs={
+                    "meal_targets": _DAY_MEAL_TARGETS,
+                    "day_name": "Vendredi",
+                    "day_date": "2026-02-27",
+                    "_mock_recipes": [_DAY_RECIPE],
+                },
+                evaluators=(
+                    IsValidJSON(),
+                    JSONFieldEquals(key="success", expected="True"),
                 ),
             ),
         ],
@@ -1561,7 +1392,9 @@ async def _generate_custom_recipe_task(inputs: dict) -> str:
     module = _load_script(_GENERATE_CUSTOM_RECIPE_SCRIPT)
 
     llm_text = inputs.get("_llm_response_text", json.dumps(_CUSTOM_RECIPE_DICT))
-    off_macros = inputs.get("_off_macros", {"calories": 200, "protein_g": 10, "carbs_g": 30, "fat_g": 5})
+    off_macros = inputs.get(
+        "_off_macros", {"calories": 200, "protein_g": 10, "carbs_g": 30, "fat_g": 5}
+    )
 
     mock_message = MagicMock()
     mock_message.content = [MagicMock(text=llm_text)]
@@ -1569,8 +1402,11 @@ async def _generate_custom_recipe_task(inputs: dict) -> str:
     anthropic_client = MagicMock()
     anthropic_client.messages.create = AsyncMock(return_value=mock_message)
 
-    with patch.object(module, "match_ingredient", new=AsyncMock(return_value=off_macros)), \
-         patch.object(module, "save_recipe", new=AsyncMock(return_value={"id": "eval-saved-id"})):
+    with patch.object(
+        module, "match_ingredient", new=AsyncMock(return_value=off_macros)
+    ), patch.object(
+        module, "save_recipe", new=AsyncMock(return_value={"id": "eval-saved-id"})
+    ):
         return await module.execute(
             anthropic_client=anthropic_client,
             supabase=MagicMock(),
@@ -1593,7 +1429,12 @@ def generate_custom_recipe_dataset() -> Dataset:
                 inputs={
                     "recipe_request": "risotto aux champignons",
                     "_llm_response_text": json.dumps(_CUSTOM_RECIPE_DICT),
-                    "_off_macros": {"calories": 200, "protein_g": 10, "carbs_g": 30, "fat_g": 5},
+                    "_off_macros": {
+                        "calories": 200,
+                        "protein_g": 10,
+                        "carbs_g": 30,
+                        "fat_g": 5,
+                    },
                 },
                 evaluators=(
                     IsValidJSON(),
@@ -1638,18 +1479,39 @@ if __name__ == "__main__":
         """Run all 5 eval suites and print reports."""
         suites = [
             ("Nutritional Needs", nutritional_needs_dataset(), _nutritional_needs_task),
-            ("Retrieve Documents", retrieve_documents_dataset(), _retrieve_documents_task),
+            (
+                "Retrieve Documents",
+                retrieve_documents_dataset(),
+                _retrieve_documents_task,
+            ),
             ("Web Search", web_search_dataset(), _web_search_task),
             ("Image Analysis", image_analysis_dataset(), _image_analysis_task),
-            ("Weekly Adjustments", weekly_adjustments_dataset(), _weekly_adjustments_task),
-            ("Select Recipes", select_recipes_dataset(), _select_recipes_task),
-            ("Scale Portions", scale_portions_dataset(), _scale_portions_task),
-            ("Validate Day", validate_day_dataset(), _validate_day_task),
+            (
+                "Weekly Adjustments",
+                weekly_adjustments_dataset(),
+                _weekly_adjustments_task,
+            ),
             ("Generate Day Plan", generate_day_plan_dataset(), _generate_day_plan_task),
-            ("Generate Custom Recipe", generate_custom_recipe_dataset(), _generate_custom_recipe_task),
-            ("Fetch Stored Meal Plan", fetch_stored_meal_plan_dataset(), _fetch_stored_meal_plan_task),
-            ("Generate Shopping List", generate_shopping_list_dataset(), _generate_shopping_list_task),
-            ("Generate Week Plan", generate_week_plan_dataset(), _generate_week_plan_task),
+            (
+                "Generate Custom Recipe",
+                generate_custom_recipe_dataset(),
+                _generate_custom_recipe_task,
+            ),
+            (
+                "Fetch Stored Meal Plan",
+                fetch_stored_meal_plan_dataset(),
+                _fetch_stored_meal_plan_task,
+            ),
+            (
+                "Generate Shopping List",
+                generate_shopping_list_dataset(),
+                _generate_shopping_list_task,
+            ),
+            (
+                "Generate Week Plan",
+                generate_week_plan_dataset(),
+                _generate_week_plan_task,
+            ),
         ]
 
         total_failures = 0
@@ -1690,13 +1552,23 @@ _STORED_MEAL_PLAN_RECORD = {
                 "day": "Lundi",
                 "date": "2026-02-23",
                 "meals": [{"meal_type": "Déjeuner", "name": "Poulet grillé"}],
-                "daily_totals": {"calories": 2800, "protein_g": 175, "carbs_g": 350, "fat_g": 80},
+                "daily_totals": {
+                    "calories": 2800,
+                    "protein_g": 175,
+                    "carbs_g": 350,
+                    "fat_g": 80,
+                },
             },
             {
                 "day": "Mardi",
                 "date": "2026-02-24",
                 "meals": [{"meal_type": "Déjeuner", "name": "Saumon rôti"}],
-                "daily_totals": {"calories": 2750, "protein_g": 170, "carbs_g": 340, "fat_g": 82},
+                "daily_totals": {
+                    "calories": 2750,
+                    "protein_g": 170,
+                    "carbs_g": 340,
+                    "fat_g": 82,
+                },
             },
         ],
         "weekly_summary": {"average_calories": 2775},
@@ -1928,23 +1800,35 @@ _WEEK_PLAN_PROFILE = {
     "preferred_cuisines": ["française"],
 }
 
-_WEEK_PLAN_DAY_RESULT = json.dumps({
-    "success": True,
-    "day": {
-        "day": "Lundi",
-        "date": "2026-02-23",
-        "meals": [
-            {
-                "meal_type": "Déjeuner",
-                "name": "Poulet grillé",
-                "ingredients": [{"name": "poulet", "quantity": 200, "unit": "g"}],
-                "nutrition": {"calories": 2800, "protein_g": 175, "carbs_g": 350, "fat_g": 80},
-            }
-        ],
-        "daily_totals": {"calories": 2800.0, "protein_g": 175.0, "carbs_g": 350.0, "fat_g": 80.0},
-    },
-    "recipes_used": ["recipe-uuid-1"],
-})
+_WEEK_PLAN_DAY_RESULT = json.dumps(
+    {
+        "success": True,
+        "day": {
+            "day": "Lundi",
+            "date": "2026-02-23",
+            "meals": [
+                {
+                    "meal_type": "Déjeuner",
+                    "name": "Poulet grillé",
+                    "ingredients": [{"name": "poulet", "quantity": 200, "unit": "g"}],
+                    "nutrition": {
+                        "calories": 2800,
+                        "protein_g": 175,
+                        "carbs_g": 350,
+                        "fat_g": 80,
+                    },
+                }
+            ],
+            "daily_totals": {
+                "calories": 2800.0,
+                "protein_g": 175.0,
+                "carbs_g": 350.0,
+                "fat_g": 80.0,
+            },
+        },
+        "recipes_used": ["recipe-uuid-1"],
+    }
+)
 
 
 async def _generate_week_plan_task(inputs: dict) -> str:

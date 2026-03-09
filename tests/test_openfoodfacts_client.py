@@ -79,7 +79,9 @@ class TestUnitToMultiplier:
 
     def test_pieces_unknown_fallback(self):
         # Unknown piece — falls back to quantity / 100
-        assert _unit_to_multiplier(50, "pièces", "ingrédient inconnu") == pytest.approx(0.5)
+        assert _unit_to_multiplier(50, "pièces", "ingrédient inconnu") == pytest.approx(
+            0.5
+        )
 
     def test_pieces_muffin_anglais(self):
         # 1 muffin anglais = 57g → multiplier = 0.57

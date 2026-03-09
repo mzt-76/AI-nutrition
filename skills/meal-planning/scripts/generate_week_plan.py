@@ -155,7 +155,7 @@ async def execute(**kwargs) -> str:
     supabase = kwargs["supabase"]
     anthropic_client = kwargs["anthropic_client"]
     user_id = kwargs.get("user_id")
-    num_days = int(kwargs.get("num_days", 1))
+    num_days = int(kwargs.get("num_days", 3))
     start_date = kwargs.get("start_date")
     if not start_date:
         if num_days >= 7:
@@ -329,7 +329,18 @@ async def execute(**kwargs) -> str:
                     }
                 )
 
-            all_days.append(day_result["day"])
+            day_data = day_result.get("day")
+            if not day_data:
+                logger.error(
+                    f"Day {day_name} result missing 'day' key: {list(day_result.keys())}"
+                )
+                return json.dumps(
+                    {
+                        "error": f"Day {day_name} returned no plan data",
+                        "code": "DAY_DATA_MISSING",
+                    }
+                )
+            all_days.append(day_data)
             used_recipe_ids.extend(day_result.get("recipes_used", []))
 
             # Capture recipe IDs for batch tracking
@@ -345,7 +356,7 @@ async def execute(**kwargs) -> str:
                 batch_dinner_recipe_id = ids_by_mt.get("diner")
 
             logger.info(
-                f"  {day_name} ✅ ({day_result['day']['daily_totals']['calories']:.0f} kcal)"
+                f"  {day_name} ✅ ({day_data['daily_totals']['calories']:.0f} kcal)"
             )
 
         # Step 9: Compute weekly summary from daily_totals
@@ -396,6 +407,8 @@ async def execute(**kwargs) -> str:
         )
         response_data["markdown_document"] = markdown_path
         response_data["meal_plan_id"] = meal_plan_id
+        # Pre-built markdown link for the agent to include verbatim
+        response_data["plan_link"] = f"[Voir le plan complet](/plans/{meal_plan_id})"
 
         return json.dumps(response_data, indent=2, ensure_ascii=False)
 

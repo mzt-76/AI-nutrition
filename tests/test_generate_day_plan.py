@@ -1,6 +1,7 @@
 """Integration tests for the generate_day_plan skill script pipeline.
 
-Tests use mocked Supabase and Anthropic clients — no real API calls.
+Tests the 5-step pipeline: select_recipes → scale_portions → validate_day → repair.
+Uses mocked Supabase and Anthropic clients — no real API calls.
 """
 
 import json
@@ -109,246 +110,6 @@ def sample_db_recipe():
     }
 
 
-def _make_supabase_mock_with_recipes(recipes_by_meal_type: dict):
-    """Create a Supabase mock that returns recipes based on meal_type."""
-    mock = MagicMock()
-
-    def make_chain(recipes):
-        chain = MagicMock()
-        execute_result = MagicMock()
-        execute_result.data = recipes
-        execute_result.count = len(recipes)
-
-        # Build full chain
-        chain.select.return_value = chain
-        chain.eq.return_value = chain
-        chain.lte.return_value = chain
-        chain.gte.return_value = chain
-        chain.order.return_value = chain
-        chain.limit.return_value = chain
-        chain.execute.return_value = execute_result
-        chain.insert.return_value = chain
-        chain.update.return_value = chain
-        return chain
-
-    # Default chain with no data
-    default_chain = make_chain([])
-    mock.table.return_value = default_chain
-
-    return mock
-
-
-# ---------------------------------------------------------------------------
-# Test: select_recipes script
-# ---------------------------------------------------------------------------
-
-
-class TestSelectRecipes:
-    @pytest.mark.asyncio
-    async def test_select_recipes_happy_path(self, meal_targets, sample_db_recipe):
-        """select_recipes returns recipes for each meal slot."""
-        select_recipes = _load_script("select_recipes")
-
-        # patch.object targets the module's local binding directly
-        with patch.object(
-            select_recipes,
-            "search_recipes",
-            new=AsyncMock(return_value=[sample_db_recipe]),
-        ):
-            result_str = await select_recipes.execute(
-                supabase=MagicMock(),
-                meal_targets=meal_targets,
-                user_allergens=[],
-                diet_type="omnivore",
-            )
-
-        result = json.loads(result_str)
-        assert "day_recipes" in result
-        assert result["unmatched_slots"] == 0
-        assert len(result["day_recipes"]) == 3
-
-    @pytest.mark.asyncio
-    async def test_select_recipes_no_db_match(self, meal_targets):
-        """select_recipes marks slots as no_match when DB is empty."""
-        select_recipes = _load_script("select_recipes")
-
-        with patch.object(
-            select_recipes, "search_recipes", new=AsyncMock(return_value=[])
-        ):
-            result_str = await select_recipes.execute(
-                supabase=MagicMock(),
-                meal_targets=meal_targets,
-                user_allergens=[],
-            )
-
-        result = json.loads(result_str)
-        assert result["unmatched_slots"] == 3  # All slots unmatched
-
-
-# ---------------------------------------------------------------------------
-# Test: scale_portions script
-# ---------------------------------------------------------------------------
-
-
-class TestScalePortions:
-    @pytest.mark.asyncio
-    async def test_scale_portions_happy_path(self, sample_db_recipe):
-        """scale_portions returns scaled recipe with correct nutrition."""
-        scale_portions = _load_script("scale_portions")
-
-        result_str = await scale_portions.execute(
-            recipe=sample_db_recipe,
-            target_calories=675,
-            target_protein_g=45,
-        )
-        result = json.loads(result_str)
-
-        assert "scaled_recipe" in result
-        assert "scale_factor" in result
-        assert "nutrition_before" in result
-        assert "nutrition_after" in result
-
-        # 675 / 450 = 1.5
-        assert abs(result["scale_factor"] - 1.5) < 0.01
-        assert abs(result["nutrition_after"]["calories"] - 675.0) < 1.0
-
-    @pytest.mark.asyncio
-    async def test_scale_portions_missing_recipe(self):
-        """scale_portions returns error when recipe is missing."""
-        scale_portions = _load_script("scale_portions")
-
-        result_str = await scale_portions.execute(
-            recipe={},
-            target_calories=600,
-            target_protein_g=40,
-        )
-        result = json.loads(result_str)
-        assert "error" in result
-        assert result["code"] == "VALIDATION_ERROR"
-
-
-# ---------------------------------------------------------------------------
-# Test: validate_day script
-# ---------------------------------------------------------------------------
-
-
-class TestValidateDay:
-    @pytest.mark.asyncio
-    async def test_validate_day_valid(self):
-        """validate_day passes for allergen-free day within macro tolerance."""
-        validate_day = _load_script("validate_day")
-
-        day_plan = {
-            "day": "Lundi",
-            "date": "2026-02-18",
-            "meals": [
-                {
-                    "meal_type": "Déjeuner",
-                    "name": "Poulet grillé",
-                    "ingredients": [{"name": "poulet", "quantity": 150, "unit": "g"}],
-                    "nutrition": {
-                        "calories": 1100,
-                        "protein_g": 75,
-                        "carbs_g": 140,
-                        "fat_g": 30,
-                    },
-                }
-            ],
-            "daily_totals": {
-                "calories": 2800,
-                "protein_g": 175,
-                "carbs_g": 350,
-                "fat_g": 80,
-            },
-        }
-
-        result_str = await validate_day.execute(
-            day_plan=day_plan,
-            user_allergens=[],
-            target_macros={
-                "calories": 2800,
-                "protein_g": 175,
-                "carbs_g": 350,
-                "fat_g": 80,
-            },
-        )
-        result = json.loads(result_str)
-        assert result["valid"] is True
-        assert result["violations"] == []
-
-    @pytest.mark.asyncio
-    async def test_validate_day_allergen_violation(self):
-        """validate_day catches allergen violations."""
-        validate_day = _load_script("validate_day")
-
-        day_plan = {
-            "day": "Mardi",
-            "date": "2026-02-19",
-            "meals": [
-                {
-                    "meal_type": "Déjeuner",
-                    "name": "Salade au fromage",
-                    "ingredients": [
-                        {"name": "fromage camembert", "quantity": 50, "unit": "g"}
-                    ],
-                    "nutrition": {
-                        "calories": 200,
-                        "protein_g": 12,
-                        "carbs_g": 1,
-                        "fat_g": 16,
-                    },
-                }
-            ],
-            "daily_totals": {
-                "calories": 200,
-                "protein_g": 12,
-                "carbs_g": 1,
-                "fat_g": 16,
-            },
-        }
-
-        result_str = await validate_day.execute(
-            day_plan=day_plan,
-            user_allergens=["lactose"],
-            target_macros={},
-        )
-        result = json.loads(result_str)
-        assert result["valid"] is False
-        assert len(result["allergen_violations"]) > 0
-
-    @pytest.mark.asyncio
-    async def test_validate_day_macro_violation(self):
-        """validate_day catches macro violations outside tolerance."""
-        validate_day = _load_script("validate_day")
-
-        day_plan = {
-            "day": "Mercredi",
-            "date": "2026-02-20",
-            "meals": [],
-            "daily_totals": {
-                "calories": 1000,
-                "protein_g": 50,
-                "carbs_g": 100,
-                "fat_g": 30,
-            },
-        }
-
-        # Target 2800 kcal but got 1000 — way outside 10% tolerance
-        result_str = await validate_day.execute(
-            day_plan=day_plan,
-            user_allergens=[],
-            target_macros={
-                "calories": 2800,
-                "protein_g": 175,
-                "carbs_g": 350,
-                "fat_g": 80,
-            },
-        )
-        result = json.loads(result_str)
-        assert result["valid"] is False
-        assert len(result["macro_violations"]) > 0
-
-
 # ---------------------------------------------------------------------------
 # Test: generate_day_plan script (full pipeline with mocks)
 # ---------------------------------------------------------------------------
@@ -362,7 +123,6 @@ class TestGenerateDayPlan:
         """generate_day_plan generates day using only DB recipes."""
         generate_day_plan = _load_script("generate_day_plan")
 
-        # patch.object patches the module-local binding directly
         with patch.object(
             generate_day_plan,
             "search_recipes",
@@ -725,12 +485,12 @@ class TestFindCustomRequest:
         result = self.find(custom_requests, slot)
         assert result == "risotto"
 
-    def test_substring_match(self):
-        """Key that is a literal substring of lowercased meal_type returns the request."""
-        custom_requests = {"jeuner": "pizza"}
-        slot = {"meal_type": "Déjeuner"}
+    def test_accent_mismatch_still_matches(self):
+        """Key without accent matches display name with accent (the actual bug)."""
+        custom_requests = {"petit-dejeuner": "chocolat chaud et baguette"}
+        slot = {"meal_type": "Petit-déjeuner"}
         result = self.find(custom_requests, slot)
-        assert result == "pizza"
+        assert result == "chocolat chaud et baguette"
 
     def test_no_match_returns_none(self):
         """Unrelated keys return None."""
@@ -741,87 +501,243 @@ class TestFindCustomRequest:
 
 
 # ---------------------------------------------------------------------------
-# Test: optimize_meal_plan_portions integration
+# Test: Pipeline step functions
 # ---------------------------------------------------------------------------
 
 
-class TestOptimizeMealPlanIntegration:
+class TestEdgeCases:
+    """Edge case tests for generate_day_plan pipeline."""
+
     @pytest.mark.asyncio
-    async def test_optimizer_called_in_pipeline(
-        self, meal_targets, user_profile, sample_db_recipe
-    ):
-        """generate_day_plan calls optimize_meal_plan_portions after OFF recalc."""
+    async def test_empty_meal_targets_returns_error(self, user_profile):
+        """meal_targets=[] returns an error JSON without crashing."""
         generate_day_plan = _load_script("generate_day_plan")
 
-        optimize_called = False
-        original_optimize = generate_day_plan.optimize_meal_plan_portions
+        result_str = await generate_day_plan.execute(
+            supabase=MagicMock(),
+            anthropic_client=MagicMock(),
+            day_index=0,
+            day_name="Lundi",
+            day_date="2026-02-18",
+            meal_targets=[],
+            user_profile=user_profile,
+            exclude_recipe_ids=[],
+            custom_requests={},
+        )
 
-        async def mock_optimize(meal_plan, target_totals, user_allergens):
-            nonlocal optimize_called
-            optimize_called = True
-            return await original_optimize(meal_plan, target_totals, user_allergens)
+        result = json.loads(result_str)
+        assert "error" in result
+        assert "empty" in result["error"].lower()
 
+    @pytest.mark.asyncio
+    async def test_repair_rollback_on_scaling_failure(
+        self, meal_targets, user_profile, sample_db_recipe
+    ):
+        """When scale_portions fails during repair, original assignment is preserved."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        # Build assignments with runner_ups so repair will try swap
+        runner_up = {**sample_db_recipe, "id": "runner-up-1", "name": "Runner Up"}
+        assignments = [
+            {
+                "meal_slot": meal_targets[0],
+                "recipe": sample_db_recipe,
+                "is_llm": False,
+                "runner_ups": [runner_up],
+            },
+        ]
+        original_recipe_name = sample_db_recipe["name"]
+
+        meals = [
+            {
+                "meal_type": "Petit-déjeuner",
+                "name": sample_db_recipe["name"],
+                "ingredients": [],
+                "nutrition": {
+                    "calories": 500,
+                    "protein_g": 20,
+                    "carbs_g": 50,
+                    "fat_g": 60,
+                },
+            },
+        ]
+        daily_totals = {"calories": 500, "protein_g": 20, "carbs_g": 50, "fat_g": 60}
+        target_macros = {"calories": 700, "protein_g": 45, "carbs_g": 80, "fat_g": 25}
+
+        # Mock scale_portions to raise on the repair attempt
         with patch.object(
             generate_day_plan,
-            "search_recipes",
-            new=AsyncMock(return_value=[sample_db_recipe]),
+            "scale_portions",
+            side_effect=Exception("LP solver exploded"),
         ), patch.object(
-            generate_day_plan, "increment_usage", new=AsyncMock()
-        ), patch.object(
-            generate_day_plan, "optimize_meal_plan_portions", new=mock_optimize
-        ):
-            result_str = await generate_day_plan.execute(
+            generate_day_plan, "search_recipes", new=AsyncMock(return_value=[])
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+            repaired_meals, repaired_assignments = await generate_day_plan.repair(
+                meals=meals,
+                assignments=assignments,
+                target_macros=target_macros,
+                daily_totals=daily_totals,
                 supabase=MagicMock(),
                 anthropic_client=MagicMock(),
-                day_index=0,
-                day_name="Lundi",
-                day_date="2026-02-18",
-                meal_targets=meal_targets,
                 user_profile=user_profile,
                 exclude_recipe_ids=[],
                 custom_requests={},
             )
 
-        result = json.loads(result_str)
-        assert result["success"] is True
-        assert (
-            optimize_called
-        ), "optimize_meal_plan_portions should be called in pipeline"
+        # After rollback, original recipe name should be preserved
+        assert repaired_assignments[0]["recipe"]["name"] == original_recipe_name
 
-    @pytest.mark.asyncio
-    async def test_optimizer_failure_does_not_crash_pipeline(
-        self, meal_targets, user_profile, sample_db_recipe
-    ):
-        """If optimizer raises, pipeline still produces a valid day plan."""
+
+class TestPipelineSteps:
+    """Test individual pipeline step functions."""
+
+    def test_scale_portions(self, sample_db_recipe, meal_targets):
+        """scale_portions scales recipes to meal slot targets."""
         generate_day_plan = _load_script("generate_day_plan")
 
-        async def failing_optimize(*args, **kwargs):
-            raise RuntimeError("Optimizer test failure")
+        assignments = [
+            {
+                "meal_slot": meal_targets[0],
+                "recipe": sample_db_recipe,
+                "is_llm": False,
+                "runner_ups": [],
+            }
+        ]
+        meals = generate_day_plan.scale_portions(assignments)
+        assert len(meals) == 1
+        assert meals[0]["nutrition"]["calories"] > 0
+        assert meals[0]["meal_type"] == "Petit-déjeuner"
 
-        with patch.object(
-            generate_day_plan,
-            "search_recipes",
-            new=AsyncMock(return_value=[sample_db_recipe]),
-        ), patch.object(
-            generate_day_plan, "increment_usage", new=AsyncMock()
-        ), patch.object(
-            generate_day_plan, "optimize_meal_plan_portions", new=failing_optimize
-        ):
-            result_str = await generate_day_plan.execute(
-                supabase=MagicMock(),
-                anthropic_client=MagicMock(),
-                day_index=0,
-                day_name="Lundi",
-                day_date="2026-02-18",
-                meal_targets=meal_targets,
-                user_profile=user_profile,
-                exclude_recipe_ids=[],
-                custom_requests={},
-            )
+    def test_validate_day_passes_within_tolerance(self, meal_targets, sample_db_recipe):
+        """validate_day passes when macros are within tolerance."""
+        generate_day_plan = _load_script("generate_day_plan")
 
-        result = json.loads(result_str)
-        assert result["success"] is True
-        assert len(result["day"]["meals"]) == 3
+        target_macros = {
+            "calories": 2800,
+            "protein_g": 180,
+            "carbs_g": 350,
+            "fat_g": 80,
+        }
+        # Build meals that match targets closely
+        meals = [
+            {
+                "meal_type": "Petit-déjeuner",
+                "name": "Test",
+                "ingredients": [],
+                "nutrition": {
+                    "calories": 900,
+                    "protein_g": 60,
+                    "carbs_g": 115,
+                    "fat_g": 26,
+                },
+            },
+            {
+                "meal_type": "Déjeuner",
+                "name": "Test",
+                "ingredients": [],
+                "nutrition": {
+                    "calories": 1000,
+                    "protein_g": 65,
+                    "carbs_g": 125,
+                    "fat_g": 28,
+                },
+            },
+            {
+                "meal_type": "Dîner",
+                "name": "Test",
+                "ingredients": [],
+                "nutrition": {
+                    "calories": 900,
+                    "protein_g": 55,
+                    "carbs_g": 110,
+                    "fat_g": 26,
+                },
+            },
+        ]
+        daily_totals = generate_day_plan._compute_daily_totals(meals)
+        validation = generate_day_plan.validate_day(
+            meals, daily_totals, target_macros, []
+        )
+        assert validation["valid"] is True
+        assert len(validation["violations"]) == 0
+
+    def test_validate_day_detects_violations(self):
+        """validate_day detects macro violations."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        target_macros = {
+            "calories": 2800,
+            "protein_g": 180,
+            "carbs_g": 350,
+            "fat_g": 80,
+        }
+        # Build meals that are way off target
+        meals = [
+            {
+                "meal_type": "Déjeuner",
+                "name": "Test",
+                "ingredients": [],
+                "nutrition": {
+                    "calories": 500,
+                    "protein_g": 30,
+                    "carbs_g": 50,
+                    "fat_g": 20,
+                },
+            },
+        ]
+        daily_totals = generate_day_plan._compute_daily_totals(meals)
+        validation = generate_day_plan.validate_day(
+            meals, daily_totals, target_macros, []
+        )
+        assert validation["valid"] is False
+        assert len(validation["violations"]) > 0
+
+    def test_find_worst_meal(self, meal_targets):
+        """_find_worst_meal identifies the meal contributing most to violations."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        meals = [
+            {
+                "nutrition": {
+                    "calories": 700,
+                    "protein_g": 45,
+                    "carbs_g": 80,
+                    "fat_g": 25,
+                }
+            },
+            {
+                "nutrition": {
+                    "calories": 500,
+                    "protein_g": 20,
+                    "carbs_g": 50,
+                    "fat_g": 60,
+                }
+            },
+            {
+                "nutrition": {
+                    "calories": 1000,
+                    "protein_g": 60,
+                    "carbs_g": 130,
+                    "fat_g": 25,
+                }
+            },
+        ]
+        daily_totals = {
+            "calories": 2200,
+            "protein_g": 125,
+            "carbs_g": 260,
+            "fat_g": 110,
+        }
+        target_macros = {
+            "calories": 2800,
+            "protein_g": 180,
+            "carbs_g": 350,
+            "fat_g": 80,
+        }
+
+        worst = generate_day_plan._find_worst_meal(meals, daily_totals, target_macros)
+        # Meal 1 (idx=1) has high fat and low protein — worst contributor
+        assert worst == 1
 
 
 # ---------------------------------------------------------------------------
@@ -906,3 +822,87 @@ class TestBatchRecipeIds:
         assert "recipe_ids_by_meal_type" in result
         ids_by_mt = result["recipe_ids_by_meal_type"]
         assert isinstance(ids_by_mt, dict)
+
+
+# ---------------------------------------------------------------------------
+# Test: Progressive fallback in recipe search
+# ---------------------------------------------------------------------------
+
+
+class TestProgressiveFallback:
+    @pytest.mark.asyncio
+    async def test_progressive_search_widens_on_empty(
+        self, meal_targets, user_profile, sample_db_recipe
+    ):
+        """When first search returns empty, pipeline widens filters and retries."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        call_count = 0
+
+        async def mock_search(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            # First call returns nothing, second (widened) returns a recipe
+            if call_count <= 1:
+                return []
+            return [sample_db_recipe]
+
+        with patch.object(
+            generate_day_plan, "search_recipes", new=mock_search
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+            result_str = await generate_day_plan.execute(
+                supabase=MagicMock(),
+                anthropic_client=MagicMock(),
+                day_index=0,
+                day_name="Lundi",
+                day_date="2026-02-18",
+                meal_targets=[meal_targets[0]],  # Single slot
+                user_profile=user_profile,
+                exclude_recipe_ids=[],
+                custom_requests={},
+            )
+
+        result = json.loads(result_str)
+        assert result["success"] is True
+        # search_recipes was called multiple times (progressive fallback)
+        assert call_count >= 2
+
+
+# ---------------------------------------------------------------------------
+# Test: Structured logging
+# ---------------------------------------------------------------------------
+
+
+class TestStructuredLogging:
+    @pytest.mark.asyncio
+    async def test_pipeline_emits_structured_logs(
+        self, meal_targets, user_profile, sample_db_recipe, caplog
+    ):
+        """Pipeline emits structured log messages with step names."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        with patch.object(
+            generate_day_plan,
+            "search_recipes",
+            new=AsyncMock(return_value=[sample_db_recipe]),
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+            import logging
+
+            with caplog.at_level(logging.INFO):
+                await generate_day_plan.execute(
+                    supabase=MagicMock(),
+                    anthropic_client=MagicMock(),
+                    day_index=0,
+                    day_name="Lundi",
+                    day_date="2026-02-18",
+                    meal_targets=meal_targets,
+                    user_profile=user_profile,
+                    exclude_recipe_ids=[],
+                    custom_requests={},
+                )
+
+        log_text = caplog.text
+        assert "pipeline_step" in log_text
+        assert "select_recipes" in log_text
+        assert "scale_portions" in log_text
+        assert "validate_day" in log_text

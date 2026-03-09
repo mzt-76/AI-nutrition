@@ -177,7 +177,7 @@ def test_all_meal_structures_have_correct_format():
 
 
 def test_protein_distribution_with_snacks():
-    """Test that protein follows adaptive ratio (80% main / 20% snack for 2 snacks)."""
+    """Test that protein follows proportional ratio (80% main / 20% snack for 2 snacks)."""
     result = calculate_meal_macros_distribution(
         daily_calories=3300,
         daily_protein_g=200,  # Easy to calculate
@@ -191,7 +191,7 @@ def test_protein_distribution_with_snacks():
     ]
     snacks = [m for m in result["meals"] if "collation" in m["meal_type"].lower()]
 
-    # 2 snacks × 10% = 20% to snacks, 80% to main
+    # Protein proportional to calories: 2 snacks × 10% = 20% to snacks, 80% to main
     # Main meals: 200 * 0.80 = 160g protein total / 3 = 53g each
     total_main_protein = sum(m["target_protein_g"] for m in main_meals)
     assert 155 <= total_main_protein <= 165  # Allow rounding tolerance
@@ -199,6 +199,26 @@ def test_protein_distribution_with_snacks():
     # Snacks: 200 - 160 = 40g protein total / 2 = 20g each
     total_snack_protein = sum(m["target_protein_g"] for m in snacks)
     assert 35 <= total_snack_protein <= 45  # Allow rounding tolerance
+
+
+def test_snack_protein_proportional():
+    """Snack protein is proportional to calories (10% each), not boosted."""
+    result = calculate_meal_macros_distribution(
+        2964, 172, 384, 82, "3_meals_1_preworkout"
+    )
+    snack = [
+        m
+        for m in result["meals"]
+        if "collation" in m["meal_type"].lower()
+        or "pré-entraînement" in m["meal_type"].lower()
+    ][0]
+    # 10% of 172 = 17.2 → 17g (proportional to calories)
+    assert (
+        snack["target_protein_g"] >= 15
+    ), f"Snack protein too low: {snack['target_protein_g']}"
+    assert (
+        snack["target_protein_g"] <= 20
+    ), f"Snack protein too high: {snack['target_protein_g']}"
 
 
 def test_zero_macros_edge_case():

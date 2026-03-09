@@ -183,13 +183,22 @@ async def search_recipes(
                 target_prot_ratio = target_macro_ratios.get("protein_ratio")
                 skip = False
                 if target_fat_ratio and target_fat_ratio > 0:
-                    if abs(recipe_fat_ratio - target_fat_ratio) / target_fat_ratio > macro_ratio_tolerance:
+                    if (
+                        abs(recipe_fat_ratio - target_fat_ratio) / target_fat_ratio
+                        > macro_ratio_tolerance
+                    ):
                         skip = True
                 if target_carb_ratio and target_carb_ratio > 0:
-                    if abs(recipe_carb_ratio - target_carb_ratio) / target_carb_ratio > macro_ratio_tolerance:
+                    if (
+                        abs(recipe_carb_ratio - target_carb_ratio) / target_carb_ratio
+                        > macro_ratio_tolerance
+                    ):
                         skip = True
                 if target_prot_ratio and target_prot_ratio > 0:
-                    if abs(recipe_prot_ratio - target_prot_ratio) / target_prot_ratio > macro_ratio_tolerance:
+                    if (
+                        abs(recipe_prot_ratio - target_prot_ratio) / target_prot_ratio
+                        > macro_ratio_tolerance
+                    ):
                         skip = True
                 if not skip:
                     macro_filtered.append(r)
