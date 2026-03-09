@@ -11,7 +11,10 @@ import pytest
 
 from src.clients import get_supabase_client
 from src.nutrition.openfoodfacts_client import (
+    _calorie_density_plausible,
+    _get_ingredient_category,
     _passes_atwater_check,
+    _pick_best_candidate,
     _unit_to_multiplier,
     calculate_similarity,
     match_ingredient,
@@ -106,6 +109,117 @@ class TestAtwaterCheck:
             "fat_g_per_100g": 8,
         }
         assert _passes_atwater_check(product) is True
+
+
+class TestCalorieDensityGuard:
+    """Tests for calorie density plausibility checks."""
+
+    def test_fresh_vegetable_plausible(self):
+        assert _calorie_density_plausible("poivron", 30) is True
+
+    def test_fresh_vegetable_implausible(self):
+        """Dried pepper mapped as fresh — should be rejected."""
+        assert _calorie_density_plausible("poivron", 275) is False
+
+    def test_fresh_fruit_plausible(self):
+        assert _calorie_density_plausible("pomme", 52) is True
+
+    def test_fresh_fruit_implausible(self):
+        """Dried apple chips mapped as fresh — should be rejected."""
+        assert _calorie_density_plausible("pomme", 352) is False
+
+    def test_meat_plausible(self):
+        assert _calorie_density_plausible("poulet", 165) is True
+
+    def test_unknown_ingredient_always_passes(self):
+        """Unknown categories should not be rejected."""
+        assert _calorie_density_plausible("quinoa", 368) is True
+        assert _calorie_density_plausible("huile d'olive", 884) is True
+
+    def test_category_lookup(self):
+        assert _get_ingredient_category("poivron rouge") == "légume"
+        assert _get_ingredient_category("épinards frais") == "légume"
+        assert _get_ingredient_category("pomme verte") == "fruit"
+        assert _get_ingredient_category("blanc de poulet") == "viande_crue"
+        assert _get_ingredient_category("quinoa") is None
+
+
+class TestPickBestCandidate:
+    """Tests for _pick_best_candidate preferring fresh products."""
+
+    def test_prefers_fresh_over_dried(self):
+        """When confidence is similar, should pick lower calorie density."""
+        candidates = [
+            {
+                "name": "Poivron séché",
+                "confidence": 0.95,
+                "calories_per_100g": 275,
+                "protein_g_per_100g": 11,
+                "carbs_g_per_100g": 35,
+                "fat_g_per_100g": 3.3,
+                "code": "111",
+            },
+            {
+                "name": "Poivrons frais",
+                "confidence": 0.90,
+                "calories_per_100g": 35,
+                "protein_g_per_100g": 0.8,
+                "carbs_g_per_100g": 3.2,
+                "fat_g_per_100g": 1.5,
+                "code": "222",
+            },
+        ]
+        best = _pick_best_candidate(candidates, "poivron")
+        assert best["name"] == "Poivrons frais"
+
+    def test_rejects_all_implausible(self):
+        """If all candidates fail density check, returns None."""
+        candidates = [
+            {
+                "name": "Poivron séché",
+                "confidence": 0.95,
+                "calories_per_100g": 275,
+                "protein_g_per_100g": 11,
+                "carbs_g_per_100g": 35,
+                "fat_g_per_100g": 3.3,
+                "code": "111",
+            },
+        ]
+        best = _pick_best_candidate(candidates, "poivron")
+        assert best is None
+
+    def test_unknown_category_keeps_first(self):
+        """For unknown categories, just picks the first valid candidate."""
+        candidates = [
+            {
+                "name": "Quinoa",
+                "confidence": 0.95,
+                "calories_per_100g": 368,
+                "protein_g_per_100g": 14,
+                "carbs_g_per_100g": 64,
+                "fat_g_per_100g": 6,
+                "code": "111",
+            },
+        ]
+        best = _pick_best_candidate(candidates, "quinoa")
+        assert best["name"] == "Quinoa"
+
+    def test_empty_candidates(self):
+        assert _pick_best_candidate([], "poulet") is None
+
+    def test_low_confidence_rejected(self):
+        candidates = [
+            {
+                "name": "Something",
+                "confidence": 0.3,
+                "calories_per_100g": 50,
+                "protein_g_per_100g": 2,
+                "carbs_g_per_100g": 8,
+                "fat_g_per_100g": 1,
+                "code": "111",
+            },
+        ]
+        assert _pick_best_candidate(candidates, "tomate") is None
 
 
 class TestUnitToMultiplier:

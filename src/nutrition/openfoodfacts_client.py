@@ -19,6 +19,96 @@ logger = logging.getLogger(__name__)
 MIN_CONFIDENCE_THRESHOLD = 0.5
 # Max acceptable discrepancy between OFF calories and Atwater equation (P*4+G*4+L*9)
 MAX_ATWATER_DISCREPANCY = 0.30
+# Confidence margin: candidates within this delta are considered equally good
+_CONFIDENCE_MARGIN = 0.15
+
+# Expected calorie density ceilings per food category (kcal/100g).
+# If an OFF product exceeds this for its category, it's likely dried/processed.
+_CALORIE_CEILINGS: dict[str, int] = {
+    "légume": 80,
+    "fruit": 130,
+    "poisson_cru": 250,
+    "viande_crue": 300,
+}
+
+# Ingredient keywords → category for calorie density check
+_INGREDIENT_CATEGORIES: dict[str, str] = {
+    # Légumes
+    "poivron": "légume",
+    "poivrons": "légume",
+    "tomate": "légume",
+    "tomates": "légume",
+    "courgette": "légume",
+    "courgettes": "légume",
+    "aubergine": "légume",
+    "aubergines": "légume",
+    "brocoli": "légume",
+    "broccoli": "légume",
+    "épinard": "légume",
+    "epinard": "légume",
+    "épinards": "légume",
+    "epinards": "légume",
+    "chou": "légume",
+    "chou-fleur": "légume",
+    "concombre": "légume",
+    "céleri": "légume",
+    "celeri": "légume",
+    "carotte": "légume",
+    "carottes": "légume",
+    "oignon": "légume",
+    "échalote": "légume",
+    "echalote": "légume",
+    "fenouil": "légume",
+    "navet": "légume",
+    "radis": "légume",
+    "haricot vert": "légume",
+    "haricots verts": "légume",
+    "petit pois": "légume",
+    "petits pois": "légume",
+    "champignon": "légume",
+    "champignons": "légume",
+    "poireau": "légume",
+    "poireaux": "légume",
+    "asperge": "légume",
+    "asperges": "légume",
+    "pak choi": "légume",
+    "pak choï": "légume",
+    "betterave": "légume",
+    # Fruits
+    "pomme": "fruit",
+    "poire": "fruit",
+    "orange": "fruit",
+    "banane": "fruit",
+    "fraise": "fruit",
+    "fraises": "fruit",
+    "framboise": "fruit",
+    "framboises": "fruit",
+    "myrtille": "fruit",
+    "myrtilles": "fruit",
+    "mangue": "fruit",
+    "ananas": "fruit",
+    "kiwi": "fruit",
+    "citron": "fruit",
+    "citron vert": "fruit",
+    "pêche": "fruit",
+    "abricot": "fruit",
+    "melon": "fruit",
+    "pastèque": "fruit",
+    # Poisson cru
+    "saumon": "poisson_cru",
+    "cabillaud": "poisson_cru",
+    "thon frais": "poisson_cru",
+    "daurade": "poisson_cru",
+    "crevette": "poisson_cru",
+    "crevettes": "poisson_cru",
+    # Viande crue
+    "poulet": "viande_crue",
+    "dinde": "viande_crue",
+    "boeuf": "viande_crue",
+    "veau": "viande_crue",
+    "porc": "viande_crue",
+    "agneau": "viande_crue",
+}
 
 # Densities for ml → g conversion
 _ML_TO_G_DENSITY: dict[str, float] = {
@@ -130,6 +220,110 @@ def calculate_similarity(text1: str, text2: str) -> float:
         0.75
     """
     return SequenceMatcher(None, text1.lower(), text2.lower()).ratio()
+
+
+def _get_ingredient_category(ingredient_name: str) -> str | None:
+    """Return the food category for an ingredient, or None if unknown."""
+    name_lower = normalize_ingredient_name(ingredient_name)
+    # Check longest keys first (e.g. "haricot vert" before "haricot")
+    for keyword in sorted(_INGREDIENT_CATEGORIES, key=len, reverse=True):
+        if normalize_ingredient_name(keyword) in name_lower:
+            return _INGREDIENT_CATEGORIES[keyword]
+    return None
+
+
+def _calorie_density_plausible(ingredient_name: str, calories_per_100g: float) -> bool:
+    """Check if calorie density is plausible for the ingredient type.
+
+    Rejects matches where a fresh ingredient is mapped to a dried/processed product.
+    E.g., "poivron" at 275 kcal/100g → False (fresh pepper should be <80 kcal).
+
+    Returns True if plausible or category unknown (no false negatives).
+    """
+    category = _get_ingredient_category(ingredient_name)
+    if category is None:
+        return True
+    ceiling = _CALORIE_CEILINGS.get(category)
+    if ceiling is None:
+        return True
+    if calories_per_100g > ceiling:
+        logger.warning(
+            "Calorie density implausible for '%s' (category=%s): "
+            "%.0f kcal/100g > ceiling %d — likely dried/processed product",
+            ingredient_name,
+            category,
+            calories_per_100g,
+            ceiling,
+        )
+        return False
+    return True
+
+
+def _pick_best_candidate(candidates: list[dict], ingredient_name: str) -> dict | None:
+    """Pick the best candidate from a list, preferring fresh/raw products.
+
+    When multiple candidates have similar confidence (within _CONFIDENCE_MARGIN),
+    prefers the one with lower calorie density (fresh > dried/processed).
+    Also rejects candidates that fail calorie density plausibility.
+
+    Args:
+        candidates: List of product dicts with 'confidence' and 'calories_per_100g'
+        ingredient_name: Original ingredient name for category lookup
+
+    Returns:
+        Best candidate dict or None if no valid candidate found
+    """
+    if not candidates:
+        return None
+
+    # Filter: Atwater + calorie density plausibility
+    valid = []
+    for c in candidates:
+        if c["confidence"] < MIN_CONFIDENCE_THRESHOLD:
+            break  # sorted desc by confidence
+        if not _passes_atwater_check(c):
+            logger.info(
+                "Skipping candidate '%s' for '%s' (Atwater check failed)",
+                c["name"],
+                ingredient_name,
+            )
+            continue
+        if not _calorie_density_plausible(ingredient_name, c["calories_per_100g"]):
+            logger.info(
+                "Skipping candidate '%s' for '%s' (calorie density implausible: %.0f kcal)",
+                c["name"],
+                ingredient_name,
+                c["calories_per_100g"],
+            )
+            continue
+        valid.append(c)
+
+    if not valid:
+        return None
+
+    # Among candidates with similar confidence, prefer lower calorie density
+    best = valid[0]
+    top_confidence = best["confidence"]
+    similar = [
+        c for c in valid if top_confidence - c["confidence"] <= _CONFIDENCE_MARGIN
+    ]
+
+    if len(similar) > 1:
+        # Pick lowest calorie density (most likely fresh/raw)
+        similar.sort(key=lambda c: c["calories_per_100g"])
+        if similar[0] is not best:
+            logger.info(
+                "Preferring '%s' (%.0f kcal) over '%s' (%.0f kcal) for '%s' — "
+                "lower calorie density suggests fresh product",
+                similar[0]["name"],
+                similar[0]["calories_per_100g"],
+                best["name"],
+                best["calories_per_100g"],
+                ingredient_name,
+            )
+        best = similar[0]
+
+    return best
 
 
 async def search_food_local(
@@ -419,23 +613,9 @@ async def match_ingredient(
     except Exception as e:
         logger.warning(f"Cache check failed for '{ingredient_name}': {e}")
 
-    # Step 2: Search database
+    # Step 2: Search database — pick best candidate (Atwater + density check)
     results = await search_food_local(ingredient_name, supabase)
-
-    # Pick the first local candidate that passes Atwater sanity check
-    best = None
-    if results:
-        for candidate in results:
-            if candidate["confidence"] < MIN_CONFIDENCE_THRESHOLD:
-                break
-            if _passes_atwater_check(candidate):
-                best = candidate
-                break
-            logger.info(
-                "Skipping local candidate '%s' for '%s' (Atwater check failed)",
-                candidate["name"],
-                ingredient_name,
-            )
+    best = _pick_best_candidate(results, ingredient_name)
 
     # Step 3: If no local match, try the online OFF API
     if best is None:
@@ -444,19 +624,10 @@ async def match_ingredient(
             ingredient_name,
         )
         online_results = await search_food_online(ingredient_name)
-        for candidate in online_results:
-            if candidate["confidence"] < MIN_CONFIDENCE_THRESHOLD:
-                break
-            if _passes_atwater_check(candidate):
-                best = candidate
-                # Insert into local DB so we don't call API again
-                await _insert_online_product(candidate, supabase)
-                break
-            logger.info(
-                "Skipping online candidate '%s' for '%s' (Atwater check failed)",
-                candidate["name"],
-                ingredient_name,
-            )
+        best = _pick_best_candidate(online_results, ingredient_name)
+        if best is not None:
+            # Insert into local DB so we don't call API again
+            await _insert_online_product(best, supabase)
 
     # Step 4: No match anywhere
     if best is None:
