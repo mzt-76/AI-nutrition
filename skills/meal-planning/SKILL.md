@@ -22,7 +22,7 @@ category: planning
   3. **Préférences repas** : un plat ou ingrédient spécifique ? (petit-déj, déjeuner, dîner)
   4. **Variété petit-déj** : même petit-déj chaque jour ou varier ?
 - Si "go", "lance", "génère" sans contexte → défauts automatiques, exécution immédiate
-- Défaut : **3 jours**, même petit-déj, repas variés
+- Défaut : **3 jours**, même petit-déj, repas variés, **PAS de batch cooking** (chaque repas est différent sauf le petit-déj). Ne PAS passer `batch_days` sauf si l'utilisateur le demande explicitement.
 - JAMAIS annoncer des recettes avant la génération
 - JAMAIS improviser une recette en texte — toujours via script
 - Toute recette générée a un `recipe.id` — le conserver pour la liste de courses

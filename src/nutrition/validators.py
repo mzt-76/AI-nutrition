@@ -5,6 +5,8 @@ Enforces zero-tolerance allergen policy and validates meal plan structure.
 """
 
 import logging
+import re
+import unicodedata
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +111,69 @@ ALLERGEN_FALSE_POSITIVES = {
     "lait d'avoine": "lactose",  # Oat milk is plant-based (no lactose)
     "lait de coco": "lactose",  # Coconut milk is plant-based (no lactose)
 }
+
+
+# ---------------------------------------------------------------------------
+# Macro tolerance constants (used by validate_day in generate_day_plan)
+# ---------------------------------------------------------------------------
+MACRO_TOLERANCE_PROTEIN = 0.05  # tight — protein must hit target
+MACRO_TOLERANCE_FAT = 0.10  # tight — fat must hit target
+MACRO_TOLERANCE_CALORIES = 0.10  # calories must be close
+MACRO_TOLERANCE_CARBS = 0.20  # flexible — carbs are adjustment variable
+
+
+# ---------------------------------------------------------------------------
+# Prompt injection sanitisation
+# ---------------------------------------------------------------------------
+_INJECTION_PATTERNS = re.compile(
+    r"(?:ignore previous|ignore above|disregard|new instructions|system prompt"
+    r"|you are now|forget everything|override|```|<script|<\|"
+    r"|\{\{|\{%|role:|assistant:|human:|\n\n)",
+    re.IGNORECASE,
+)
+
+
+def sanitize_user_text(text: str, max_length: int, context: str = "user_input") -> str:
+    """Sanitize free-form user text before injection into LLM prompts.
+
+    Steps:
+        1. NFKC-normalize (collapse homoglyphs)
+        2. Collapse whitespace (newlines, tabs → single space)
+        3. Truncate to *max_length*
+        4. Reject if any _INJECTION_PATTERNS match
+
+    Args:
+        text: Raw user text.
+        max_length: Maximum allowed length after normalisation.
+        context: Label for log messages (e.g. "recipe_request").
+
+    Returns:
+        Sanitized text (safe to embed in prompts).
+
+    Raises:
+        ValueError: If an injection pattern is detected.
+    """
+    # NFKC normalisation (e.g. fullwidth chars → ASCII, homoglyphs collapsed)
+    text = unicodedata.normalize("NFKC", text)
+    # Collapse whitespace
+    text = re.sub(r"[\n\r\t]+", " ", text).strip()
+    # Truncate
+    text = text[:max_length]
+
+    if _INJECTION_PATTERNS.search(text):
+        logger.warning(
+            "Prompt injection attempt blocked in %s: %r",
+            context,
+            text[:80],
+        )
+        raise ValueError("Requête invalide")
+
+    return text
+
+
+# ---------------------------------------------------------------------------
+# Allergen helpers
+# ---------------------------------------------------------------------------
 
 
 def matches_allergen(ingredient_name: str, user_allergens: list[str]) -> list[str]:
@@ -242,6 +307,90 @@ def validate_allergens(meal_plan: dict, user_allergens: list[str]) -> list[str]:
         logger.info("✅ Allergen validation passed (zero violations)")
 
     return violations
+
+
+def validate_recipe_allergens(recipe: dict, user_allergens: list[str]) -> list[str]:
+    """Check a single recipe for allergen violations.
+
+    Convenience wrapper around validate_allergens() that avoids the
+    boilerplate of wrapping a recipe in {days:[{meals:[...]}]}.
+
+    Args:
+        recipe: Recipe dict with an ``ingredients`` list of dicts containing ``name``.
+        user_allergens: List of allergen names (e.g. ``["arachides", "lactose"]``).
+
+    Returns:
+        List of violation strings (empty if safe).
+    """
+    if not user_allergens:
+        return []
+    wrapped = {
+        "days": [
+            {
+                "day": "generated",
+                "meals": [
+                    {
+                        "recipe_name": recipe.get("name", ""),
+                        "ingredients": recipe.get("ingredients", []),
+                    }
+                ],
+            }
+        ]
+    }
+    return validate_allergens(wrapped, user_allergens)
+
+
+def find_worst_meal(
+    meals: list[dict],
+    daily_totals: dict,
+    target_macros: dict,
+) -> int:
+    """Identify the meal index contributing most to the worst macro violation.
+
+    Pure scoring function — no I/O.  Higher score = more responsible for
+    the total deviation from targets.
+
+    Args:
+        meals: List of meal dicts, each with a ``nutrition`` sub-dict.
+        daily_totals: Aggregated daily nutrition (calories, protein_g, …).
+        target_macros: Target daily nutrition values.
+
+    Returns:
+        Index of the worst-offending meal (0 if *meals* is empty).
+    """
+    if not meals:
+        return 0
+
+    worst_idx = 0
+    worst_score = -1.0
+
+    for i, meal in enumerate(meals):
+        nutrition = meal.get("nutrition", {})
+        score = 0.0
+        for macro in ("calories", "protein_g", "carbs_g", "fat_g"):
+            try:
+                target = float(target_macros.get(macro, 0) or 0)
+                if target <= 0:
+                    continue
+                actual = float(daily_totals.get(macro, 0) or 0)
+                deviation = actual - target
+                meal_contribution = float(nutrition.get(macro, 0) or 0)
+                if deviation > 0:
+                    score += (meal_contribution / target) * abs(deviation / target)
+                else:
+                    expected_share = target / max(len(meals), 1)
+                    if expected_share > 0 and meal_contribution < expected_share:
+                        score += abs(deviation / target) * (
+                            1 - meal_contribution / expected_share
+                        )
+            except (TypeError, ValueError):
+                continue
+
+        if score > worst_score:
+            worst_score = score
+            worst_idx = i
+
+    return worst_idx
 
 
 def validate_daily_macros(

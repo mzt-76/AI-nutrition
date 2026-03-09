@@ -1,0 +1,157 @@
+[
+  {
+    "name": "Skyr nature et myrtilles",
+    "calories": 160, "protein_g": 18,
+    "meal_type": "collation", "cuisine_type": "nordique", "diet_type": "omnivore",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "Skyr nature", "quantity": 200, "unit": "g"},
+      {"name": "Myrtilles", "quantity": 80, "unit": "g"}
+    ],
+    "instructions": "Verser le skyr dans un bol, ajouter les myrtilles fraîches.",
+    "tags": ["high-protein", "low-fat"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Tartine fromage frais et saumon fumé",
+    "calories": 220, "protein_g": 16,
+    "meal_type": "collation", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Pain complet", "quantity": 40, "unit": "g"},
+      {"name": "Fromage frais", "quantity": 30, "unit": "g"},
+      {"name": "Saumon fumé", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Tartiner le pain de fromage frais, déposer les tranches de saumon fumé.",
+    "tags": ["omega-3"],
+    "allergen_tags": ["gluten", "lait", "poisson"]
+  },
+  {
+    "name": "Bol de fromage blanc et graines de chia",
+    "calories": 190, "protein_g": 15,
+    "meal_type": "collation", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Fromage blanc 0%", "quantity": 200, "unit": "g"},
+      {"name": "Graines de chia", "quantity": 15, "unit": "g"},
+      {"name": "Miel", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mélanger le fromage blanc avec les graines de chia. Laisser gonfler 5 min. Ajouter le miel.",
+    "tags": ["high-protein", "low-fat"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Mini wraps de dinde et avocat",
+    "calories": 280, "protein_g": 20,
+    "meal_type": "collation", "cuisine_type": "mexicaine", "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Tortilla de blé", "quantity": 40, "unit": "g"},
+      {"name": "Blanc de dinde", "quantity": 60, "unit": "g"},
+      {"name": "Avocat", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Garnir la tortilla de tranches de dinde et d'avocat. Rouler et couper en deux.",
+    "tags": ["high-protein"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Pudding de chia protéiné au cacao",
+    "calories": 250, "protein_g": 14,
+    "meal_type": "collation", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Lait de soja", "quantity": 200, "unit": "ml"},
+      {"name": "Graines de chia", "quantity": 25, "unit": "g"},
+      {"name": "Cacao en poudre", "quantity": 10, "unit": "g"},
+      {"name": "Beurre de cacahuète", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Mélanger tous les ingrédients. Réfrigérer au moins 2h. Mélanger avant de servir.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": ["soja", "arachides"]
+  },
+  {
+    "name": "Roulades de jambon et cornichons",
+    "calories": 140, "protein_g": 16,
+    "meal_type": "collation", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "Jambon blanc", "quantity": 80, "unit": "g"},
+      {"name": "Cornichons", "quantity": 40, "unit": "g"},
+      {"name": "Moutarde", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Tartiner les tranches de jambon de moutarde, placer un cornichon et rouler.",
+    "tags": ["high-protein", "low-carb", "low-fat"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Toasts de ricotta tomates séchées et basilic",
+    "calories": 230, "protein_g": 12,
+    "meal_type": "collation", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Pain complet", "quantity": 40, "unit": "g"},
+      {"name": "Ricotta", "quantity": 60, "unit": "g"},
+      {"name": "Tomates séchées", "quantity": 20, "unit": "g"},
+      {"name": "Basilic frais", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Toaster le pain. Tartiner de ricotta, garnir de tomates séchées et de basilic.",
+    "tags": ["végétarien"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Yaourt soja protéiné et noix de cajou",
+    "calories": 220, "protein_g": 12,
+    "meal_type": "collation", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "Yaourt soja nature", "quantity": 150, "unit": "g"},
+      {"name": "Noix de cajou", "quantity": 20, "unit": "g"},
+      {"name": "Banane", "quantity": 50, "unit": "g"}
+    ],
+    "instructions": "Verser le yaourt dans un bol. Ajouter les noix de cajou concassées et les rondelles de banane.",
+    "tags": ["vegan", "high-protein"],
+    "allergen_tags": ["soja", "fruits à coque"]
+  },
+  {
+    "name": "Bâtonnets de céleri au beurre de cacahuète",
+    "calories": 200, "protein_g": 10,
+    "meal_type": "collation", "cuisine_type": "américaine", "diet_type": "vegan",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "Céleri", "quantity": 150, "unit": "g"},
+      {"name": "Beurre de cacahuète", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Couper le céleri en bâtonnets. Servir avec le beurre de cacahuète pour tremper.",
+    "tags": ["low-carb", "vegan"],
+    "allergen_tags": ["arachides"]
+  },
+  {
+    "name": "Tartare de thon sur galette de riz",
+    "calories": 180, "protein_g": 22,
+    "meal_type": "collation", "cuisine_type": "japonaise", "diet_type": "omnivore",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Thon en conserve", "quantity": 80, "unit": "g"},
+      {"name": "Galettes de riz", "quantity": 20, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 5, "unit": "ml"},
+      {"name": "Avocat", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Émietter le thon, mélanger avec la sauce soja et l'avocat écrasé. Déposer sur les galettes de riz.",
+    "tags": ["high-protein", "omega-3"],
+    "allergen_tags": ["poisson", "soja"]
+  },
+  {
+    "name": "Verrines de cottage cheese et framboises",
+    "calories": 170, "protein_g": 14,
+    "meal_type": "collation", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "Cottage cheese", "quantity": 150, "unit": "g"},
+      {"name": "Framboises", "quantity": 80, "unit": "g"},
+      {"name": "Miel", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Alterner couches de cottage cheese et framboises dans une verrine. Finir par un filet de miel.",
+    "tags": ["high-protein", "low-fat"],
+    "allergen_tags": ["lait"]
+  }
+]

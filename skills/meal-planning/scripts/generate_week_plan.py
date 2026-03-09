@@ -9,10 +9,13 @@ repetition across the week.
 Source: Refactored from src/tools.py generate_weekly_meal_plan_tool
 """
 
+import dataclasses
 import importlib.util
 import json
 import logging
+import re
 import tempfile
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -22,9 +25,51 @@ from src.nutrition.meal_distribution import calculate_meal_macros_distribution
 from src.nutrition.meal_plan_formatter import format_meal_plan_as_markdown
 from src.tools import fetch_my_profile_tool
 
+from src.nutrition.validators import sanitize_user_text
+
 logger = logging.getLogger(__name__)
 
 _DAY_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+
+# Auto-select snack structure when calories exceed this threshold
+SNACK_STRUCTURE_CALORIE_THRESHOLD = 2500
+
+
+@dataclasses.dataclass
+class _BatchState:
+    """Tracks batch cooking state across days in a week plan."""
+
+    breakfast_id: str | None = None
+    lunch_id: str | None = None
+    dinner_id: str | None = None
+    counter: int = 0
+
+    def should_reuse(self, batch_days: int) -> bool:
+        """Return True if we're within a batch block and should reuse recipes."""
+        return self.counter > 0 and self.counter < batch_days
+
+    def build_reuse_ids(self, vary_breakfast: bool) -> dict[str, str]:
+        """Build batch_recipe_ids dict for the current day."""
+        ids: dict[str, str] = {}
+        if not vary_breakfast and self.breakfast_id:
+            ids["petit-dejeuner"] = self.breakfast_id
+        if self.lunch_id:
+            ids["dejeuner"] = self.lunch_id
+        if self.dinner_id:
+            ids["diner"] = self.dinner_id
+        return ids
+
+    def start_new_block(self, day_result: dict) -> None:
+        """Start a new batch block from the given day result."""
+        ids_by_mt = day_result.get("recipe_ids_by_meal_type", {})
+        self.lunch_id = ids_by_mt.get("dejeuner")
+        self.dinner_id = ids_by_mt.get("diner")
+        self.counter = 1
+
+    def capture_breakfast(self, day_result: dict) -> None:
+        """Capture breakfast recipe ID from first day (for same-breakfast default)."""
+        ids_by_mt = day_result.get("recipe_ids_by_meal_type", {})
+        self.breakfast_id = ids_by_mt.get("petit-dejeuner")
 
 
 def _get_current_monday() -> str:
@@ -55,7 +100,7 @@ def _import_sibling_script(script_name: str):
 def _parse_custom_requests(notes: str) -> dict:
     """Parse notes string into custom_requests dict keyed by day name.
 
-    Simple parser: looks for French day name mentions followed by recipe descriptions.
+    Uses regex splitting on French day names to extract per-day recipe requests.
 
     Args:
         notes: Free-text notes (e.g., "risotto champignons mardi, pizza vendredi")
@@ -67,7 +112,6 @@ def _parse_custom_requests(notes: str) -> dict:
         return {}
 
     custom_requests: dict = {}
-    notes_lower = notes.lower()
 
     day_map = {
         "lundi": "Lundi",
@@ -79,18 +123,25 @@ def _parse_custom_requests(notes: str) -> dict:
         "dimanche": "Dimanche",
     }
 
-    for day_fr, day_canonical in day_map.items():
-        if day_fr in notes_lower:
-            idx = notes_lower.index(day_fr)
-            rest = notes[idx + len(day_fr) :].strip().lstrip(",:").strip()
-            for other_day in day_map:
-                if other_day in rest.lower():
-                    cutoff = rest.lower().index(other_day)
-                    rest = rest[:cutoff]
-                    break
-            rest = rest[:100].strip()
-            if rest:
-                custom_requests[day_canonical] = {"dejeuner": rest}
+    day_pattern = re.compile(r"(" + "|".join(day_map.keys()) + r")", re.IGNORECASE)
+
+    # Split on day names, keeping the delimiters
+    parts = day_pattern.split(notes)
+
+    # parts = [before_first_day, day1, text1, day2, text2, ...]
+    i = 1  # skip text before first day name
+    while i < len(parts) - 1:
+        day_key = parts[i].lower().strip()
+        text = parts[i + 1].strip().strip(",;. ")
+        if day_key in day_map and text:
+            try:
+                sanitized = sanitize_user_text(text, 100, context="custom_request")
+                custom_requests[day_map[day_key]] = {"dejeuner": sanitized}
+            except ValueError:
+                logger.warning(
+                    "Skipping custom request for %s: sanitization failed", day_key
+                )
+        i += 2
 
     return custom_requests
 
@@ -155,6 +206,14 @@ async def execute(**kwargs) -> str:
     supabase = kwargs["supabase"]
     anthropic_client = kwargs["anthropic_client"]
     user_id = kwargs.get("user_id")
+    # Validate user_id is a valid UUID if present
+    if user_id is not None:
+        try:
+            uuid.UUID(str(user_id))
+        except ValueError:
+            return json.dumps(
+                {"error": "Invalid user_id format", "code": "VALIDATION_ERROR"}
+            )
     num_days = int(kwargs.get("num_days", 3))
     start_date = kwargs.get("start_date")
     if not start_date:
@@ -222,17 +281,17 @@ async def execute(**kwargs) -> str:
 
         # Step 4b: Auto-detect meal structure if not explicitly set
         if not meal_structure:
-            if calories >= 2500:
+            if calories >= SNACK_STRUCTURE_CALORIE_THRESHOLD:
                 meal_structure = "3_meals_1_preworkout"
                 logger.info(
                     f"Auto-selected meal_structure={meal_structure} "
-                    f"(calories={calories} >= 2500)"
+                    f"(calories={calories} >= {SNACK_STRUCTURE_CALORIE_THRESHOLD})"
                 )
             else:
                 meal_structure = "3_consequent_meals"
                 logger.info(
                     f"Auto-selected meal_structure={meal_structure} "
-                    f"(calories={calories} < 2500)"
+                    f"(calories={calories} < {SNACK_STRUCTURE_CALORIE_THRESHOLD})"
                 )
 
         logger.info(
@@ -263,12 +322,8 @@ async def execute(**kwargs) -> str:
         # Step 8: Generate days one at a time (variety tracked via used_recipe_ids)
         all_days = []
         used_recipe_ids: list[str] = []
-
-        # Batch cooking state
-        batch_breakfast_recipe_id: str | None = None
-        batch_lunch_recipe_id: str | None = None
-        batch_dinner_recipe_id: str | None = None
-        batch_counter = 0
+        week_warnings: list[str] = []
+        batch = _BatchState()
 
         for day_idx in range(num_days):
             day_name = _DAY_NAMES[day_idx % 7]
@@ -277,24 +332,18 @@ async def execute(**kwargs) -> str:
             logger.info(f"Generating {day_name} ({day_date})...")
 
             # Build batch_recipe_ids for this day
-            batch_recipe_ids: dict[str, str] = {}
-
-            # Breakfast: same every day unless vary_breakfast=True
-            if not vary_breakfast and batch_breakfast_recipe_id:
-                batch_recipe_ids["petit-dejeuner"] = batch_breakfast_recipe_id
-
-            # Lunch & dinner: batch blocks of N days
-            if batch_days and batch_counter < batch_days:
-                if batch_lunch_recipe_id:
-                    batch_recipe_ids["dejeuner"] = batch_lunch_recipe_id
-                if batch_dinner_recipe_id:
-                    batch_recipe_ids["diner"] = batch_dinner_recipe_id
-                batch_counter += 1
+            if batch_days and batch.should_reuse(batch_days):
+                batch_recipe_ids = batch.build_reuse_ids(vary_breakfast)
+                batch.counter += 1
+            elif batch_days:
+                # Start of a new batch block — will capture IDs after day generation
+                batch_recipe_ids = {}
+                if not vary_breakfast and batch.breakfast_id:
+                    batch_recipe_ids["petit-dejeuner"] = batch.breakfast_id
             else:
-                # Reset batch block — new recipes will be selected
-                batch_lunch_recipe_id = None
-                batch_dinner_recipe_id = None
-                batch_counter = 1 if batch_days else 0
+                batch_recipe_ids = {}
+                if not vary_breakfast and batch.breakfast_id:
+                    batch_recipe_ids["petit-dejeuner"] = batch.breakfast_id
 
             # Merge meal_preferences (global) + day-specific custom requests
             # Day-specific overrides take priority over global preferences
@@ -343,17 +392,18 @@ async def execute(**kwargs) -> str:
             all_days.append(day_data)
             used_recipe_ids.extend(day_result.get("recipes_used", []))
 
-            # Capture recipe IDs for batch tracking
-            ids_by_mt = day_result.get("recipe_ids_by_meal_type", {})
+            # Accumulate per-day warnings (surfaced from failed repairs)
+            day_warnings = day_result.get("warnings", [])
+            if day_warnings:
+                week_warnings.extend(f"{day_name}: {w}" for w in day_warnings)
 
             # Capture breakfast ID from first day (for default same-breakfast behavior)
             if day_idx == 0 and not vary_breakfast:
-                batch_breakfast_recipe_id = ids_by_mt.get("petit-dejeuner")
+                batch.capture_breakfast(day_result)
 
             # Capture lunch/dinner IDs at start of each new batch block
-            if batch_days and batch_counter == 1:
-                batch_lunch_recipe_id = ids_by_mt.get("dejeuner")
-                batch_dinner_recipe_id = ids_by_mt.get("diner")
+            if batch_days and batch.counter == 0:
+                batch.start_new_block(day_result)
 
             logger.info(
                 f"  {day_name} ✅ ({day_data['daily_totals']['calories']:.0f} kcal)"
@@ -409,6 +459,8 @@ async def execute(**kwargs) -> str:
         response_data["meal_plan_id"] = meal_plan_id
         # Pre-built markdown link for the agent to include verbatim
         response_data["plan_link"] = f"[Voir le plan complet](/plans/{meal_plan_id})"
+        if week_warnings:
+            response_data["warnings"] = week_warnings
 
         return json.dumps(response_data, indent=2, ensure_ascii=False)
 

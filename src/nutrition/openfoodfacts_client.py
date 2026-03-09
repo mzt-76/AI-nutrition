@@ -2,7 +2,7 @@
 OpenFoodFacts client for local database ingredient matching.
 
 Replaces FatSecret API with PostgreSQL full-text search on local OFF data.
-Uses cache-first strategy for performance.
+Uses cache-first strategy: cache → local DB → online OFF API → no-match.
 """
 
 import asyncio
@@ -10,12 +10,15 @@ import logging
 import unicodedata
 from difflib import SequenceMatcher
 
+import httpx
 from supabase import Client
 
 logger = logging.getLogger(__name__)
 
 # Configuration
 MIN_CONFIDENCE_THRESHOLD = 0.5
+# Max acceptable discrepancy between OFF calories and Atwater equation (P*4+G*4+L*9)
+MAX_ATWATER_DISCREPANCY = 0.30
 
 # Densities for ml → g conversion
 _ML_TO_G_DENSITY: dict[str, float] = {
@@ -186,6 +189,158 @@ async def search_food_local(
         return []
 
 
+_OFF_API_BASE = "https://world.openfoodfacts.org/cgi/search.pl"
+_OFF_API_TIMEOUT = 8.0  # seconds
+
+
+async def search_food_online(
+    query: str, max_results: int = 5
+) -> list[dict]:
+    """Search the OpenFoodFacts API online when local DB has no match.
+
+    Only called as fallback when search_food_local returns no confident result.
+    Results that pass Atwater check are inserted into the local DB for future use.
+
+    Args:
+        query: Ingredient name to search
+        max_results: Maximum results to return
+
+    Returns:
+        List of products in the same format as search_food_local
+    """
+    params = {
+        "search_terms": query,
+        "search_simple": 1,
+        "action": "process",
+        "json": 1,
+        "page_size": max_results,
+        "fields": "code,product_name,product_name_fr,"
+        "nutriments",
+    }
+    try:
+        async with httpx.AsyncClient(timeout=_OFF_API_TIMEOUT) as client:
+            resp = await client.get(_OFF_API_BASE, params=params)
+            resp.raise_for_status()
+            data = resp.json()
+    except Exception as e:
+        logger.warning("OFF online search failed for '%s': %s", query, e)
+        return []
+
+    products: list[dict] = []
+    for item in data.get("products", []):
+        nut = item.get("nutriments", {})
+        cal = float(nut.get("energy-kcal_100g", 0) or 0)
+        prot = float(nut.get("proteins_100g", 0) or 0)
+        carbs = float(nut.get("carbohydrates_100g", 0) or 0)
+        fat = float(nut.get("fat_100g", 0) or 0)
+
+        name = item.get("product_name_fr") or item.get("product_name") or ""
+        if not name:
+            continue
+
+        similarity = calculate_similarity(
+            normalize_ingredient_name(query), normalize_ingredient_name(name)
+        )
+        products.append(
+            {
+                "code": item.get("code", ""),
+                "name": name,
+                "calories_per_100g": cal,
+                "protein_g_per_100g": prot,
+                "carbs_g_per_100g": carbs,
+                "fat_g_per_100g": fat,
+                "confidence": similarity,
+            }
+        )
+
+    # Sort by confidence descending
+    products.sort(key=lambda p: p["confidence"], reverse=True)
+    logger.info(
+        "OFF online: %d results for '%s' (best: %.2f)",
+        len(products),
+        query,
+        products[0]["confidence"] if products else 0,
+    )
+    return products
+
+
+async def _insert_online_product(product: dict, supabase: Client) -> None:
+    """Insert an online OFF product into the local openfoodfacts_products table."""
+    try:
+        supabase.table("openfoodfacts_products").upsert(
+            {
+                "code": product["code"],
+                "product_name": product["name"],
+                "product_name_fr": product["name"],
+                "calories_per_100g": product["calories_per_100g"],
+                "protein_g_per_100g": product["protein_g_per_100g"],
+                "carbs_g_per_100g": product["carbs_g_per_100g"],
+                "fat_g_per_100g": product["fat_g_per_100g"],
+            },
+            on_conflict="code",
+        ).execute()
+        logger.info("Inserted online OFF product '%s' into local DB", product["name"])
+    except Exception as e:
+        logger.warning("Failed to insert online product '%s': %s", product["name"], e)
+
+
+def _passes_atwater_check(product: dict) -> bool:
+    """Check if a product's calories are consistent with its macros.
+
+    Uses the Atwater equation: cal ≈ protein*4 + carbs*4 + fat*9.
+    OFF label data can legitimately differ (fiber, polyols, rounding),
+    but discrepancies >30% indicate corrupted or mismatched data.
+
+    Args:
+        product: Dict with calories_per_100g, protein_g_per_100g,
+                 carbs_g_per_100g, fat_g_per_100g fields.
+
+    Returns:
+        True if the data passes the sanity check.
+    """
+    cal = float(product.get("calories_per_100g", 0) or 0)
+    prot = float(product.get("protein_g_per_100g", 0) or 0)
+    carbs = float(product.get("carbs_g_per_100g", 0) or 0)
+    fat = float(product.get("fat_g_per_100g", 0) or 0)
+
+    # Skip check for negligible-calorie items (spices, herbs, etc.)
+    if cal < 5:
+        return True
+
+    atwater = prot * 4 + carbs * 4 + fat * 9
+
+    # All macros zero but calories present → partial OFF data
+    if atwater == 0 and cal > 10:
+        logger.warning(
+            "Atwater check FAIL for '%s': %s cal but all macros zero",
+            product.get("name", "?"),
+            cal,
+        )
+        return False
+
+    if atwater == 0:
+        return True
+
+    discrepancy = abs(cal - atwater) / max(cal, atwater)
+    if discrepancy > MAX_ATWATER_DISCREPANCY:
+        logger.warning(
+            "Atwater check FAIL for '%s' (code=%s): "
+            "OFF=%s cal, Atwater=%.0f (P=%.1f G=%.1f L=%.1f), "
+            "discrepancy=%.0f%%",
+            product.get("name", "?"),
+            product.get("code", "?"),
+            cal,
+            atwater,
+            prot,
+            carbs,
+            fat,
+            discrepancy * 100,
+        )
+        return False
+
+    return True
+
+
 async def match_ingredient(
     ingredient_name: str, quantity: float, unit: str, supabase: Client
 ) -> dict:
@@ -224,30 +379,45 @@ async def match_ingredient(
 
         if cached.data:
             match = cached.data[0]
-            logger.info(f"Cache hit for: {ingredient_name}")
 
-            # Calculate nutrition based on quantity
-            multiplier = _unit_to_multiplier(quantity, unit, ingredient_name)
+            # Validate cached entry against Atwater sanity check
+            if not _passes_atwater_check(match):
+                logger.warning(
+                    "Cache hit for '%s' FAILED Atwater check → invalidating cache, re-searching",
+                    ingredient_name,
+                )
+                try:
+                    supabase.table("ingredient_mapping").delete().eq(
+                        "ingredient_name_normalized", normalized
+                    ).execute()
+                except Exception as del_err:
+                    logger.warning("Failed to delete bad cache entry: %s", del_err)
+                # Fall through to Step 2 (fresh search)
+            else:
+                logger.info(f"Cache hit for: {ingredient_name}")
 
-            return {
-                "ingredient_name": ingredient_name,
-                "matched_name": match["openfoodfacts_name"],
-                "openfoodfacts_code": match["openfoodfacts_code"],
-                "quantity": quantity,
-                "unit": unit,
-                "calories": round(match["calories_per_100g"] * multiplier, 1),
-                "protein_g": round(match["protein_g_per_100g"] * multiplier, 1),
-                "carbs_g": round(match["carbs_g_per_100g"] * multiplier, 1),
-                "fat_g": round(match["fat_g_per_100g"] * multiplier, 1),
-                "nutrition_per_100g": {
-                    "calories": match["calories_per_100g"],
-                    "protein_g": match["protein_g_per_100g"],
-                    "carbs_g": match["carbs_g_per_100g"],
-                    "fat_g": match["fat_g_per_100g"],
-                },
-                "confidence": match["confidence_score"],
-                "cache_hit": True,
-            }
+                # Calculate nutrition based on quantity
+                multiplier = _unit_to_multiplier(quantity, unit, ingredient_name)
+
+                return {
+                    "ingredient_name": ingredient_name,
+                    "matched_name": match["openfoodfacts_name"],
+                    "openfoodfacts_code": match["openfoodfacts_code"],
+                    "quantity": quantity,
+                    "unit": unit,
+                    "calories": round(match["calories_per_100g"] * multiplier, 1),
+                    "protein_g": round(match["protein_g_per_100g"] * multiplier, 1),
+                    "carbs_g": round(match["carbs_g_per_100g"] * multiplier, 1),
+                    "fat_g": round(match["fat_g_per_100g"] * multiplier, 1),
+                    "nutrition_per_100g": {
+                        "calories": match["calories_per_100g"],
+                        "protein_g": match["protein_g_per_100g"],
+                        "carbs_g": match["carbs_g_per_100g"],
+                        "fat_g": match["fat_g_per_100g"],
+                    },
+                    "confidence": match["confidence_score"],
+                    "cache_hit": True,
+                }
 
     except Exception as e:
         logger.warning(f"Cache check failed for '{ingredient_name}': {e}")
@@ -255,10 +425,47 @@ async def match_ingredient(
     # Step 2: Search database
     results = await search_food_local(ingredient_name, supabase)
 
-    if not results or results[0]["confidence"] < MIN_CONFIDENCE_THRESHOLD:
+    # Pick the first local candidate that passes Atwater sanity check
+    best = None
+    if results:
+        for candidate in results:
+            if candidate["confidence"] < MIN_CONFIDENCE_THRESHOLD:
+                break
+            if _passes_atwater_check(candidate):
+                best = candidate
+                break
+            logger.info(
+                "Skipping local candidate '%s' for '%s' (Atwater check failed)",
+                candidate["name"],
+                ingredient_name,
+            )
+
+    # Step 3: If no local match, try the online OFF API
+    if best is None:
+        logger.info(
+            "No confident local match for '%s', trying online OFF API",
+            ingredient_name,
+        )
+        online_results = await search_food_online(ingredient_name)
+        for candidate in online_results:
+            if candidate["confidence"] < MIN_CONFIDENCE_THRESHOLD:
+                break
+            if _passes_atwater_check(candidate):
+                best = candidate
+                # Insert into local DB so we don't call API again
+                await _insert_online_product(candidate, supabase)
+                break
+            logger.info(
+                "Skipping online candidate '%s' for '%s' (Atwater check failed)",
+                candidate["name"],
+                ingredient_name,
+            )
+
+    # Step 4: No match anywhere
+    if best is None:
         logger.warning(
-            f"No confident match for '{ingredient_name}' "
-            f"(best score: {results[0]['confidence'] if results else 0:.2f})"
+            "No match for '%s' in local DB or online OFF API",
+            ingredient_name,
         )
         return {
             "ingredient_name": ingredient_name,
@@ -272,15 +479,14 @@ async def match_ingredient(
             "fat_g": 0,
             "confidence": 0,
             "cache_hit": False,
-            "error": "No confident match found",
+            "error": "No confident match found (local + online)",
         }
 
-    best = results[0]
     logger.info(
         f"Matched '{ingredient_name}' -> '{best['name']}' (confidence: {best['confidence']:.2f})"
     )
 
-    # Step 3: Cache the result
+    # Step 5: Cache the result
     try:
         supabase.table("ingredient_mapping").insert(
             {

@@ -21,7 +21,15 @@ from src.nutrition.recipe_db import (
     search_recipes,
 )
 from src.nutrition.meal_type_utils import normalize_meal_type
-from src.nutrition.validators import validate_allergens, validate_daily_macros
+from src.nutrition.validators import (
+    MACRO_TOLERANCE_CALORIES,
+    MACRO_TOLERANCE_CARBS,
+    MACRO_TOLERANCE_FAT,
+    MACRO_TOLERANCE_PROTEIN,
+    find_worst_meal,
+    validate_allergens,
+    validate_daily_macros,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +42,14 @@ MAX_RETRIES = 2
 
 # Warn when more than half the slots use LLM fallback
 LLM_FALLBACK_WARN_THRESHOLD = 0.5
+
+# Recipe selection calorie range: target/DIVISOR to target*MULTIPLIER
+CALORIE_RANGE_MIN_DIVISOR = 3
+CALORIE_RANGE_MAX_MULTIPLIER = 2
+
+# Macro ratio tolerance for recipe search (attempt 1 = strict, attempt 2 = wide)
+MACRO_RATIO_TOLERANCE_STRICT = 0.30
+MACRO_RATIO_TOLERANCE_WIDE = 0.50
 
 # Project root for sibling script imports
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -115,47 +131,6 @@ def _compute_daily_totals(meals: list[dict]) -> dict:
         for key in totals:
             totals[key] = round(totals[key] + nutrition.get(key, 0.0), 2)
     return totals
-
-
-def _find_worst_meal(
-    meals: list[dict],
-    daily_totals: dict,
-    target_macros: dict,
-) -> int:
-    """Identify the meal index contributing most to the worst macro violation."""
-    if not meals:
-        return 0
-
-    worst_idx = 0
-    worst_score = -1.0
-
-    for i, meal in enumerate(meals):
-        nutrition = meal.get("nutrition", {})
-        score = 0.0
-        for macro in ("calories", "protein_g", "carbs_g", "fat_g"):
-            try:
-                target = float(target_macros.get(macro, 0) or 0)
-                if target <= 0:
-                    continue
-                actual = float(daily_totals.get(macro, 0) or 0)
-                deviation = actual - target
-                meal_contribution = float(nutrition.get(macro, 0) or 0)
-                if deviation > 0:
-                    score += (meal_contribution / target) * abs(deviation / target)
-                else:
-                    expected_share = target / max(len(meals), 1)
-                    if expected_share > 0 and meal_contribution < expected_share:
-                        score += abs(deviation / target) * (
-                            1 - meal_contribution / expected_share
-                        )
-            except (TypeError, ValueError):
-                continue
-
-        if score > worst_score:
-            worst_score = score
-            worst_idx = i
-
-    return worst_idx
 
 
 def _find_custom_request(custom_requests: dict, meal_slot: dict) -> str | None:
@@ -251,10 +226,12 @@ async def _select_recipe_for_slot(
             }
 
     # Calorie range: select recipes in the right ballpark so LP solver
-    # doesn't need extreme scale factors. Range = target/3 to target*2
-    # (scale factor 0.5–3.0 can then hit the exact target).
+    # doesn't need extreme scale factors.
     calorie_range = (
-        (max(50, int(target_calories / 3)), int(target_calories * 2))
+        (
+            max(50, int(target_calories / CALORIE_RANGE_MIN_DIVISOR)),
+            int(target_calories * CALORIE_RANGE_MAX_MULTIPLIER),
+        )
         if target_calories > 0
         else None
     )
@@ -272,13 +249,14 @@ async def _select_recipe_for_slot(
         calorie_range=calorie_range,
         limit=5,
         target_macro_ratios=target_macro_ratios,
-        macro_ratio_tolerance=0.30,
+        macro_ratio_tolerance=MACRO_RATIO_TOLERANCE_STRICT,
     )
 
     # Attempt 2: Drop cuisine filter, widen macro tolerance + calorie range
     if not candidates:
         logger.info(
-            f"  {meal_type_display}: widening search (no cuisine filter, tolerance 0.50)"
+            f"  {meal_type_display}: widening search (no cuisine filter, "
+            f"tolerance {MACRO_RATIO_TOLERANCE_WIDE})"
         )
         candidates = await search_recipes(
             supabase=supabase,
@@ -292,7 +270,7 @@ async def _select_recipe_for_slot(
             calorie_range=None,  # Drop calorie range too
             limit=5,
             target_macro_ratios=target_macro_ratios,
-            macro_ratio_tolerance=0.50,
+            macro_ratio_tolerance=MACRO_RATIO_TOLERANCE_WIDE,
         )
 
     # Attempt 3: Drop macro ratio filter entirely
@@ -317,16 +295,26 @@ async def _select_recipe_for_slot(
         )
         recipe = candidates[0]
         runner_ups = candidates[1:] if len(candidates) > 1 else []
+        # fallback_level: 1=full filters, 2=no cuisine, 3=no macro filter
+        fallback_level = 1  # will be overridden below if we got here via attempt 2/3
+        # Determine which attempt succeeded (check if we relaxed filters above)
+        if calorie_range is None and target_macro_ratios is not None:
+            fallback_level = 2
+        elif target_macro_ratios is None or (
+            calorie_range is None and target_macro_ratios is None
+        ):
+            fallback_level = 3
         logger.info(
             f"  {meal_type_display}: DB recipe '{recipe['name']}' "
             f"({recipe['calories_per_serving']:.0f} kcal, "
-            f"variety_score={score_recipe_variety(recipe, meal_slot, preferred_cuisines):.3f})"
+            f"variety_score={score_recipe_variety(recipe, meal_slot, preferred_cuisines):.3f}, "
+            f"fallback_level={fallback_level})"
         )
         return recipe, False, runner_ups
 
-    # No DB match → LLM fallback
+    # No DB match → LLM fallback (fallback_level=4)
     logger.warning(
-        f"  {meal_type_display}: no DB match after 3 attempts → LLM fallback"
+        f"  {meal_type_display}: no DB match after 3 attempts → LLM fallback (fallback_level=4)"
     )
     result_str = await generate_custom_recipe_module.execute(
         anthropic_client=anthropic_client,
@@ -463,12 +451,18 @@ def scale_portions(assignments: list[dict]) -> list[dict]:
         try:
             scaled = _scale_one_recipe_fallback(recipe, meal_slot)
             fallback_scaled[idx] = scaled
-            # Subtract fallback nutrition from LP targets
+            # Subtract fallback nutrition from LP targets (clamp to 0)
             sn = scaled.get("scaled_nutrition", {})
-            daily_targets["calories"] -= sn.get("calories", 0)
-            daily_targets["protein_g"] -= sn.get("protein_g", 0)
-            daily_targets["fat_g"] -= sn.get("fat_g", 0)
-            daily_targets["carbs_g"] -= sn.get("carbs_g", 0)
+            daily_targets["calories"] = max(
+                0, daily_targets["calories"] - sn.get("calories", 0)
+            )
+            daily_targets["protein_g"] = max(
+                0, daily_targets["protein_g"] - sn.get("protein_g", 0)
+            )
+            daily_targets["fat_g"] = max(0, daily_targets["fat_g"] - sn.get("fat_g", 0))
+            daily_targets["carbs_g"] = max(
+                0, daily_targets["carbs_g"] - sn.get("carbs_g", 0)
+            )
         except Exception as e:
             logger.error(f"Fallback scaling failed for idx {idx}: {e}", exc_info=True)
 
@@ -557,22 +551,22 @@ def validate_day(
     protein_check = validate_daily_macros(
         {"protein_g": daily_totals.get("protein_g", 0)},
         {"protein_g": target_macros.get("protein_g", 0)},
-        tolerance=0.05,  # tight — protein must hit target
+        tolerance=MACRO_TOLERANCE_PROTEIN,
     )
     fat_check = validate_daily_macros(
         {"fat_g": daily_totals.get("fat_g", 0)},
         {"fat_g": target_macros.get("fat_g", 0)},
-        tolerance=0.10,  # tight — fat must hit target
+        tolerance=MACRO_TOLERANCE_FAT,
     )
     calorie_check = validate_daily_macros(
         {"calories": daily_totals.get("calories", 0)},
         {"calories": target_macros.get("calories", 0)},
-        tolerance=0.10,  # calories must be close to target
+        tolerance=MACRO_TOLERANCE_CALORIES,
     )
     carb_check = validate_daily_macros(
         {"carbs_g": daily_totals.get("carbs_g", 0)},
         {"carbs_g": target_macros.get("carbs_g", 0)},
-        tolerance=0.20,  # flexible — carbs are adjustment variable
+        tolerance=MACRO_TOLERANCE_CARBS,
     )
 
     all_violations = (
@@ -612,7 +606,7 @@ async def repair(
     Returns:
         (repaired_meals, repaired_assignments)
     """
-    worst_idx = _find_worst_meal(meals, daily_totals, target_macros)
+    worst_idx = find_worst_meal(meals, daily_totals, target_macros)
     worst_type = meals[worst_idx].get("meal_type", "?")
     logger.info(f"  Repair: swapping meal #{worst_idx} ({worst_type})")
 
@@ -921,6 +915,15 @@ async def execute(**kwargs) -> str:
                 },
             )
 
+        # Surface remaining violations as warnings (4C)
+        warnings: list[str] = []
+        if not validation["valid"]:
+            warnings = list(validation["violations"])
+            logger.warning(
+                f"Day {day_name} still has {len(warnings)} violations after "
+                f"{MAX_RETRIES} repair attempts: {warnings}"
+            )
+
         # ------------------------------------------------------------------
         # Build result
         # ------------------------------------------------------------------
@@ -948,15 +951,19 @@ async def execute(**kwargs) -> str:
             f"validation={'PASS' if validation['valid'] else 'WARN'}"
         )
 
+        result_data: dict = {
+            "success": True,
+            "day": day_plan,
+            "recipes_used": recipe_ids_used,
+            "recipe_ids_by_meal_type": recipe_ids_by_mt,
+            "llm_fallback_count": llm_fallback_count,
+            "validation": validation,
+        }
+        if warnings:
+            result_data["warnings"] = warnings
+
         return json.dumps(
-            {
-                "success": True,
-                "day": day_plan,
-                "recipes_used": recipe_ids_used,
-                "recipe_ids_by_meal_type": recipe_ids_by_mt,
-                "llm_fallback_count": llm_fallback_count,
-                "validation": validation,
-            },
+            result_data,
             indent=2,
             ensure_ascii=False,
         )

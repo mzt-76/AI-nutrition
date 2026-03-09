@@ -11,6 +11,7 @@ import pytest
 
 from src.clients import get_supabase_client
 from src.nutrition.openfoodfacts_client import (
+    _passes_atwater_check,
     _unit_to_multiplier,
     calculate_similarity,
     match_ingredient,
@@ -39,6 +40,72 @@ def test_calculate_similarity():
     # No match
     similarity = calculate_similarity("poulet", "xyz")
     assert similarity < 0.3
+
+
+class TestAtwaterCheck:
+    """Tests for _passes_atwater_check Atwater sanity check."""
+
+    def test_correct_egg_passes(self):
+        product = {
+            "name": "Oeuf",
+            "calories_per_100g": 145,
+            "protein_g_per_100g": 12.3,
+            "carbs_g_per_100g": 0.7,
+            "fat_g_per_100g": 10.3,
+        }
+        assert _passes_atwater_check(product) is True
+
+    def test_corrupted_egg_fails(self):
+        product = {
+            "name": "Oeufs",
+            "code": "3273020001242",
+            "calories_per_100g": 142,
+            "protein_g_per_100g": 12.6,
+            "carbs_g_per_100g": 0.8,
+            "fat_g_per_100g": 36.0,  # corrupted — should be ~10
+        }
+        assert _passes_atwater_check(product) is False
+
+    def test_zero_macros_with_calories_fails(self):
+        product = {
+            "name": "Almond flour",
+            "calories_per_100g": 629,
+            "protein_g_per_100g": 0,
+            "carbs_g_per_100g": 0,
+            "fat_g_per_100g": 0,
+        }
+        assert _passes_atwater_check(product) is False
+
+    def test_spice_low_cal_passes(self):
+        product = {
+            "name": "Sel",
+            "calories_per_100g": 0,
+            "protein_g_per_100g": 0,
+            "carbs_g_per_100g": 0,
+            "fat_g_per_100g": 0,
+        }
+        assert _passes_atwater_check(product) is True
+
+    def test_normal_chicken_passes(self):
+        product = {
+            "name": "Poulet",
+            "calories_per_100g": 165,
+            "protein_g_per_100g": 31,
+            "carbs_g_per_100g": 0,
+            "fat_g_per_100g": 3.6,
+        }
+        assert _passes_atwater_check(product) is True
+
+    def test_oats_passes_with_fiber_tolerance(self):
+        # Oats: cal=375, P=11, G=60, L=8 → Atwater=356. Diff=5% (fiber)
+        product = {
+            "name": "Flocons d'avoine",
+            "calories_per_100g": 375,
+            "protein_g_per_100g": 11,
+            "carbs_g_per_100g": 60,
+            "fat_g_per_100g": 8,
+        }
+        assert _passes_atwater_check(product) is True
 
 
 class TestUnitToMultiplier:

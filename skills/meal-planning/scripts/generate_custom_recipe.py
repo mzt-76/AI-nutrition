@@ -14,8 +14,12 @@ from pydantic import BaseModel, Field, field_validator
 
 from src.nutrition.openfoodfacts_client import match_ingredient
 from src.nutrition.recipe_db import save_recipe
+from src.nutrition.validators import sanitize_user_text, validate_recipe_allergens
 
 logger = logging.getLogger(__name__)
+
+# Max concurrent OpenFoodFacts API calls
+_OFF_CONCURRENCY = 5
 
 
 class _RecipeIngredient(BaseModel):
@@ -50,25 +54,13 @@ class _LLMRecipe(BaseModel):
 RECIPE_MODEL = "claude-haiku-4-5-20251001"
 MAX_RECIPE_REQUEST_LENGTH = 200
 
-# Patterns that indicate prompt injection attempts in recipe requests
-_INJECTION_PATTERNS = (
-    "ignore previous",
-    "ignore above",
-    "disregard",
-    "new instructions",
-    "system prompt",
-    "you are now",
-    "forget everything",
-    "override",
-    "```",
-    "<script",
-    "{{",
-    "{%",
-)
-
 _RECIPE_PROMPT_TEMPLATE = """Tu es un nutritionniste expert. Génère une recette complète en JSON.
 
-Demande: {recipe_request}
+Demande de l'utilisateur :
+<user_request>
+{recipe_request}
+</user_request>
+
 Type de repas: {meal_type}
 Cible calorique approximative: {target_calories} kcal
 Cible protéines approximative: {target_protein_g}g
@@ -133,17 +125,14 @@ async def execute(**kwargs) -> str:
     """
     anthropic_client = kwargs["anthropic_client"]
     supabase = kwargs["supabase"]
-    raw_request = kwargs["recipe_request"][:MAX_RECIPE_REQUEST_LENGTH]
-    # Sanitize against prompt injection
-    request_lower = raw_request.lower()
-    for pattern in _INJECTION_PATTERNS:
-        if pattern in request_lower:
-            logger.warning(
-                "Prompt injection attempt blocked in recipe_request: %r",
-                raw_request[:80],
-            )
-            return json.dumps({"error": "Requête invalide", "code": "INVALID_REQUEST"})
-    recipe_request = raw_request
+    raw_request = str(kwargs["recipe_request"])
+    # Sanitize against prompt injection (NFKC + collapse whitespace + pattern check)
+    try:
+        recipe_request = sanitize_user_text(
+            raw_request, MAX_RECIPE_REQUEST_LENGTH, context="recipe_request"
+        )
+    except ValueError:
+        return json.dumps({"error": "Requête invalide", "code": "INVALID_REQUEST"})
     meal_type = kwargs.get("meal_type", "dejeuner")
     target_calories = kwargs.get("target_calories", 600)
     target_protein_g = kwargs.get("target_protein_g", 40)
@@ -198,24 +187,7 @@ async def execute(**kwargs) -> str:
 
         # Validate allergens in generated recipe
         if user_allergens:
-            from src.nutrition.validators import validate_allergens
-
-            violations = validate_allergens(
-                {
-                    "days": [
-                        {
-                            "day": "generated",
-                            "meals": [
-                                {
-                                    "name": recipe_dict.get("name", ""),
-                                    "ingredients": recipe_dict.get("ingredients", []),
-                                }
-                            ],
-                        }
-                    ]
-                },
-                user_allergens,
-            )
+            violations = validate_recipe_allergens(recipe_dict, user_allergens)
             if violations:
                 logger.error(f"LLM generated recipe with allergens: {violations}")
                 return json.dumps(
@@ -225,7 +197,7 @@ async def execute(**kwargs) -> str:
                     }
                 )
 
-        # Calculate macros via OpenFoodFacts — all ingredients in parallel
+        # Calculate macros via OpenFoodFacts — rate-limited parallel calls
         total_calories = 0.0
         total_protein = 0.0
         total_carbs = 0.0
@@ -233,16 +205,19 @@ async def execute(**kwargs) -> str:
         matched_count = 0
         ingredients = recipe_dict.get("ingredients", [])
 
-        macro_results = await asyncio.gather(
-            *[
-                match_ingredient(
+        sem = asyncio.Semaphore(_OFF_CONCURRENCY)
+
+        async def _match_with_limit(ing: dict) -> dict | None:
+            async with sem:
+                return await match_ingredient(
                     ingredient_name=ing.get("name", ""),
                     quantity=ing.get("quantity", 0),
                     unit=ing.get("unit", "g"),
                     supabase=supabase,
                 )
-                for ing in ingredients
-            ]
+
+        macro_results = await asyncio.gather(
+            *[_match_with_limit(ing) for ing in ingredients]
         )
 
         for ingredient, macros in zip(ingredients, macro_results):

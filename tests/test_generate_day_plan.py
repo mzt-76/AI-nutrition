@@ -693,8 +693,8 @@ class TestPipelineSteps:
         assert len(validation["violations"]) > 0
 
     def test_find_worst_meal(self, meal_targets):
-        """_find_worst_meal identifies the meal contributing most to violations."""
-        generate_day_plan = _load_script("generate_day_plan")
+        """find_worst_meal identifies the meal contributing most to violations."""
+        from src.nutrition.validators import find_worst_meal
 
         meals = [
             {
@@ -735,7 +735,7 @@ class TestPipelineSteps:
             "fat_g": 80,
         }
 
-        worst = generate_day_plan._find_worst_meal(meals, daily_totals, target_macros)
+        worst = find_worst_meal(meals, daily_totals, target_macros)
         # Meal 1 (idx=1) has high fat and low protein — worst contributor
         assert worst == 1
 
