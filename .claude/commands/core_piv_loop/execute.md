@@ -76,13 +76,33 @@ If any command fails:
 - Re-run the command
 - Continue only when it passes
 
-### 5. Final Verification
+### 5. Seam Review (mandatory before declaring "ready")
+
+Tests passing proves the NEW code works in isolation. This step checks the SEAMS — where new code touches existing code.
+
+For each modified function, answer:
+
+1. **State assumptions**: Does the new code change any variable's possible values (e.g., something that was `None` before is now always set)? If yes → find every place that checks that variable's state.
+2. **Callers without the new param**: Which callers of the modified function do NOT pass the new parameter? Do they still get correct behavior, or do they silently get worse behavior? (e.g., `repair()` calling a function without the new override)
+3. **Plan says "unchanged"**: For each thing the plan says is unchanged — verify it actually still works correctly with the new state, not just that it still compiles.
+
+If any issue is found → fix it before proceeding. If the fix is out of scope, document it explicitly in the output report as a known limitation.
+
+### 5b. Run Evals (mandatory if feature touches a skill)
+
+If the feature modifies a skill's behavior (script logic, recipe selection, agent routing, etc.):
+- Use `/run-eval` to create and run an eval that verifies the agent behaves as expected with a real LLM
+- This catches issues that unit tests cannot: routing failures, parameter extraction errors, degraded response quality
+- Do NOT skip this step because unit tests pass — unit tests verify logic in isolation, evals verify behavior at the seams
+
+### 6. Final Verification
 
 Before completing:
 
 - ✅ All tasks from plan completed
 - ✅ All tests created and passing
 - ✅ All validation commands pass
+- ✅ Seam review completed (step 5)
 - ✅ Code follows project conventions
 - ✅ Documentation added/updated as needed
 

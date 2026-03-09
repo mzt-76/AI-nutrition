@@ -234,9 +234,9 @@ class HasPlanLink(Evaluator):
 
     def evaluate(self, ctx: EvaluatorContext) -> EvaluationReason:
         result: AgentResult = ctx.output
-        # Match markdown link [text](/plans/123) or bare /plans/123
-        md_links = re.findall(r"\[.*?\]\(/plans/\d+\)", result.text)
-        bare_links = re.findall(r"/plans/\d+", result.text)
+        # Match markdown link [text](/plans/uuid-or-id) or bare /plans/uuid-or-id
+        md_links = re.findall(r"\[.*?\]\(/plans/[a-f0-9-]+\)", result.text)
+        bare_links = re.findall(r"/plans/[a-f0-9-]+", result.text)
         if md_links:
             return EvaluationReason(
                 value=True,
@@ -255,42 +255,65 @@ class HasPlanLink(Evaluator):
 
 @dataclass
 class NoRecipeDuplicates(Evaluator):
-    """Check that recipe names within a single day are unique (variety)."""
+    """Check that recipe names within a single day are unique (variety).
+
+    Splits text by day headings (French day names) and checks duplicates
+    per day block — cross-day reuse (batch cooking) is allowed.
+    """
 
     evaluation_name: str | None = field(default=None)
 
+    _MEAL_PATTERN = re.compile(
+        r"[-•]\s*\*{0,2}(?:Petit-déjeuner|Déjeuner|Dîner|Collation)[^:]*:\s*\*{0,2}\s*(.+)",
+        re.IGNORECASE,
+    )
+    _MEAL_FALLBACK = re.compile(
+        r"(?:petit.d[ée]jeuner|d[ée]jeuner|d[îi]ner|collation)\s*:?\s*(.+?)(?:\n|$)",
+        re.IGNORECASE,
+    )
+    _DAY_SPLIT = re.compile(
+        r"\*{0,2}(?:Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi|Dimanche)\*{0,2}",
+        re.IGNORECASE,
+    )
+
+    def _extract_recipes(self, text: str) -> list[str]:
+        lines = self._MEAL_PATTERN.findall(text)
+        if not lines:
+            lines = self._MEAL_FALLBACK.findall(text)
+        return [r.strip().lower() for r in lines]
+
     def evaluate(self, ctx: EvaluatorContext) -> EvaluationReason:
         result: AgentResult = ctx.output
-        # Extract recipe names from text lines matching "- Meal_type : Recipe_name"
-        recipe_lines = re.findall(
-            r"[-•]\s*(?:Petit-déjeuner|Déjeuner|Dîner|Collation)\s*:\s*(.+)",
-            result.text,
-            re.IGNORECASE,
-        )
-        if not recipe_lines:
-            # Fallback: try to find recipe names after meal type keywords
-            recipe_lines = re.findall(
-                r"(?:petit.d[ée]jeuner|d[ée]jeuner|d[îi]ner|collation)\s*:?\s*(.+?)(?:\n|$)",
-                result.text,
-                re.IGNORECASE,
-            )
-        if len(recipe_lines) < 2:
+        # Split text into per-day blocks
+        day_blocks = self._DAY_SPLIT.split(result.text)
+        # Filter out empty blocks (before first day heading)
+        day_blocks = [b for b in day_blocks if b.strip()]
+
+        all_dupes: list[str] = []
+        total_recipes = 0
+
+        for block in day_blocks:
+            recipes = self._extract_recipes(block)
+            total_recipes += len(recipes)
+            seen = set()
+            for r in recipes:
+                if r in seen:
+                    all_dupes.append(r)
+                seen.add(r)
+
+        if total_recipes < 2:
             return EvaluationReason(
                 value=True,
-                reason=f"Only {len(recipe_lines)} recipes found — can't check duplicates",
+                reason=f"Only {total_recipes} recipes found — can't check duplicates",
             )
-        # Normalize and check for duplicates
-        normalized = [r.strip().lower() for r in recipe_lines]
-        unique = set(normalized)
-        if len(unique) == len(normalized):
+        if not all_dupes:
             return EvaluationReason(
                 value=True,
-                reason=f"All {len(normalized)} recipes are unique",
+                reason=f"All {total_recipes} recipes unique within each day ({len(day_blocks)} days)",
             )
-        dupes = [r for r in normalized if normalized.count(r) > 1]
         return EvaluationReason(
             value=False,
-            reason=f"Duplicate recipes found: {set(dupes)}",
+            reason=f"Intra-day duplicate recipes: {set(all_dupes)}",
         )
 
 
@@ -582,7 +605,8 @@ def scenario_4_vegetarian_plan() -> Dataset:
                         tool_name="run_skill_script",
                         evaluation_name="skill_script_called",
                     ),
-                    # Should not mention meat in recipe names
+                    # Should mention plant/vegetarian protein sources
+                    # (includes vegan terms since vegan ⊂ végétarien)
                     ContainsAnyOf(
                         options=[
                             "légume",
@@ -596,6 +620,10 @@ def scenario_4_vegetarian_plan() -> Dataset:
                             "champignon",
                             "haricot",
                             "végétarien",
+                            "vegan",
+                            "végétal",
+                            "tempeh",
+                            "soja",
                         ],
                         evaluation_name="vegetarian_keywords_present",
                     ),

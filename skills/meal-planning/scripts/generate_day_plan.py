@@ -143,6 +143,76 @@ def _find_custom_request(custom_requests: dict, meal_slot: dict) -> str | None:
     return None
 
 
+def _recipe_macro_ratios(recipe: dict) -> dict[str, float]:
+    """Extract caloric macro ratios from a recipe's per-serving values.
+
+    Ratios are invariant to LP scaling (proportional scaling preserves ratios).
+    """
+    cal = recipe.get("calories_per_serving", 0) or 1
+    return {
+        "protein_ratio": (recipe.get("protein_g_per_serving", 0) * 4) / cal,
+        "fat_ratio": (recipe.get("fat_g_per_serving", 0) * 9) / cal,
+        "carb_ratio": (recipe.get("carbs_g_per_serving", 0) * 4) / cal,
+    }
+
+
+def _compute_required_ratios(
+    daily_target_ratios: dict[str, float],
+    consumed_slots: list[dict],
+    remaining_cal_shares: list[float],
+) -> dict[str, float] | None:
+    """Compute required macro ratios for remaining slots via calorie-weighted compensation.
+
+    Args:
+        daily_target_ratios: {protein_ratio, fat_ratio, carb_ratio} (kcal/kcal)
+        consumed_slots: [{"cal_share": float, "recipe_ratios": {protein_ratio, ...}}]
+        remaining_cal_shares: [0.25, 0.30, 0.10] — calorie shares of unprocessed slots
+
+    Returns:
+        {protein_ratio, fat_ratio, carb_ratio} for remaining slots, or None if empty.
+    """
+    if not remaining_cal_shares:
+        return None
+
+    remaining_share = sum(remaining_cal_shares)
+    if remaining_share <= 0:
+        return None
+
+    required = {}
+    for macro in ("protein_ratio", "fat_ratio", "carb_ratio"):
+        consumed_weighted = sum(
+            s["recipe_ratios"].get(macro, 0) * s["cal_share"] for s in consumed_slots
+        )
+        raw = (daily_target_ratios.get(macro, 0) - consumed_weighted) / remaining_share
+        required[macro] = max(0.0, raw)
+
+    return required
+
+
+def _determine_selection_order(
+    meal_targets: list[dict],
+    custom_requests: dict,
+    batch_recipe_ids: dict[str, str] | None,
+) -> list[int]:
+    """Fixed-macro slots first, then by target_calories descending."""
+    fixed = []
+    flexible = []
+
+    for i, slot in enumerate(meal_targets):
+        meal_type = normalize_meal_type(slot.get("meal_type", ""))
+        is_batch = batch_recipe_ids and meal_type in batch_recipe_ids
+        is_custom = any(
+            normalize_meal_type(k) == meal_type for k in (custom_requests or {})
+        )
+        if is_batch or is_custom:
+            fixed.append(i)
+        else:
+            flexible.append(i)
+
+    flexible.sort(key=lambda i: meal_targets[i].get("target_calories", 0), reverse=True)
+    return fixed + flexible
+
+
 # ---------------------------------------------------------------------------
 # Step 2: select_recipes — find one recipe per meal slot
 # ---------------------------------------------------------------------------
@@ -157,6 +227,7 @@ async def _select_recipe_for_slot(
     custom_request: str | None,
     generate_custom_recipe_module,
     batch_recipe_id: str | None = None,
+    target_macro_ratios_override: dict[str, float] | None = None,
 ) -> tuple[dict | None, bool, list[dict]]:
     """Resolve a single recipe for a meal slot — from DB or LLM fallback.
 
@@ -213,8 +284,8 @@ async def _select_recipe_for_slot(
     db_meal_type = normalize_meal_type(meal_type_display)
 
     # Compute target macro ratios for filtering
-    target_macro_ratios = None
-    if target_calories > 0:
+    target_macro_ratios = target_macro_ratios_override
+    if target_macro_ratios is None and target_calories > 0:
         target_fat_g = meal_slot.get("target_fat_g", 0)
         target_carbs_g = meal_slot.get("target_carbs_g", 0)
         target_protein_g = meal_slot.get("target_protein_g", 0)
@@ -236,7 +307,8 @@ async def _select_recipe_for_slot(
         else None
     )
 
-    # Attempt 1: Full filters (cuisine + macro ratio tolerance 0.30)
+    # Attempt 1: Full filters (cuisine + macro ratio tolerance 0.20)
+    fallback_level = 1
     candidates = await search_recipes(
         supabase=supabase,
         meal_type=db_meal_type,
@@ -254,6 +326,7 @@ async def _select_recipe_for_slot(
 
     # Attempt 2: Drop cuisine filter, widen macro tolerance + calorie range
     if not candidates:
+        fallback_level = 2
         logger.info(
             f"  {meal_type_display}: widening search (no cuisine filter, "
             f"tolerance {MACRO_RATIO_TOLERANCE_WIDE})"
@@ -275,6 +348,7 @@ async def _select_recipe_for_slot(
 
     # Attempt 3: Drop macro ratio filter entirely
     if not candidates:
+        fallback_level = 3
         logger.info(f"  {meal_type_display}: widening search (no macro filter)")
         candidates = await search_recipes(
             supabase=supabase,
@@ -295,15 +369,6 @@ async def _select_recipe_for_slot(
         )
         recipe = candidates[0]
         runner_ups = candidates[1:] if len(candidates) > 1 else []
-        # fallback_level: 1=full filters, 2=no cuisine, 3=no macro filter
-        fallback_level = 1  # will be overridden below if we got here via attempt 2/3
-        # Determine which attempt succeeded (check if we relaxed filters above)
-        if calorie_range is None and target_macro_ratios is not None:
-            fallback_level = 2
-        elif target_macro_ratios is None or (
-            calorie_range is None and target_macro_ratios is None
-        ):
-            fallback_level = 3
         logger.info(
             f"  {meal_type_display}: DB recipe '{recipe['name']}' "
             f"({recipe['calories_per_serving']:.0f} kcal, "
@@ -347,47 +412,91 @@ async def select_recipes(
     custom_requests: dict,
     batch_recipe_ids: dict[str, str] | None = None,
 ) -> list[dict]:
-    """Step 2: Select one recipe per meal slot.
-
-    Returns list of assignment dicts:
-    [{"meal_slot": dict, "recipe": dict, "is_llm": bool, "runner_ups": list}]
-    """
+    """Step 2: Select one recipe per meal slot with inter-meal macro compensation."""
     generate_custom_recipe_module = _import_sibling_script("generate_custom_recipe")
-    assignments: list[dict] = []
     used_ids = list(exclude_recipe_ids)
 
-    for meal_slot in meal_targets:
-        meal_type_display = meal_slot.get("meal_type", "Déjeuner")
-        custom_request = _find_custom_request(custom_requests, meal_slot)
-        db_meal_type = normalize_meal_type(meal_type_display)
-        batch_id = (batch_recipe_ids or {}).get(db_meal_type)
+    # Compute daily target ratios from all slots
+    daily_calories = sum(m.get("target_calories", 0) for m in meal_targets)
+    daily_target_ratios = {
+        "protein_ratio": sum(m.get("target_protein_g", 0) for m in meal_targets)
+        * 4
+        / max(daily_calories, 1),
+        "fat_ratio": sum(m.get("target_fat_g", 0) for m in meal_targets)
+        * 9
+        / max(daily_calories, 1),
+        "carb_ratio": sum(m.get("target_carbs_g", 0) for m in meal_targets)
+        * 4
+        / max(daily_calories, 1),
+    }
 
+    # Calorie share per slot (fixed by meal_distribution)
+    cal_shares = [
+        m.get("target_calories", 0) / max(daily_calories, 1) for m in meal_targets
+    ]
+
+    # Process fixed-macro slots first, then flexible by calories desc
+    ordered_indices = _determine_selection_order(
+        meal_targets, custom_requests, batch_recipe_ids
+    )
+
+    consumed_slots: list[dict] = []
+    assignments: list[dict | None] = [None] * len(meal_targets)
+
+    for position, idx in enumerate(ordered_indices):
+        meal_slot = meal_targets[idx]
+
+        # Compute adjusted ratios from what's been consumed
+        remaining_shares = [cal_shares[j] for j in ordered_indices[position:]]
+        required_ratios = _compute_required_ratios(
+            daily_target_ratios, consumed_slots, remaining_shares
+        )
+        adjusted_ratios = required_ratios or daily_target_ratios
+
+        logger.info(
+            f"  Slot {position + 1}/{len(ordered_indices)} "
+            f"({meal_slot.get('meal_type', '?')}): "
+            f"target ratios P={adjusted_ratios['protein_ratio']:.2f} "
+            f"F={adjusted_ratios['fat_ratio']:.2f} "
+            f"C={adjusted_ratios['carb_ratio']:.2f}"
+        )
+
+        # Select recipe with adjusted macro ratios
         recipe, is_llm, runner_ups = await _select_recipe_for_slot(
             supabase=supabase,
             anthropic_client=anthropic_client,
             meal_slot=meal_slot,
             user_profile=user_profile,
             used_ids=used_ids,
-            custom_request=custom_request,
+            custom_request=_find_custom_request(custom_requests, meal_slot),
             generate_custom_recipe_module=generate_custom_recipe_module,
-            batch_recipe_id=batch_id,
+            batch_recipe_id=(batch_recipe_ids or {}).get(
+                normalize_meal_type(meal_slot.get("meal_type", ""))
+            ),
+            target_macro_ratios_override=adjusted_ratios,
         )
 
         if recipe:
             if "id" in recipe:
                 used_ids.append(recipe["id"])
-            assignments.append(
+            assignments[idx] = {
+                "meal_slot": meal_slot,
+                "recipe": recipe,
+                "is_llm": is_llm,
+                "runner_ups": runner_ups,
+            }
+            consumed_slots.append(
                 {
-                    "meal_slot": meal_slot,
-                    "recipe": recipe,
-                    "is_llm": is_llm,
-                    "runner_ups": runner_ups,
+                    "cal_share": cal_shares[idx],
+                    "recipe_ratios": _recipe_macro_ratios(recipe),
                 }
             )
         else:
-            logger.error(f"Could not get any recipe for {meal_type_display}")
+            logger.error(
+                f"Could not get any recipe for {meal_slot.get('meal_type', '?')}"
+            )
 
-    return assignments
+    return [a for a in assignments if a is not None]
 
 
 # ---------------------------------------------------------------------------
@@ -661,6 +770,38 @@ async def repair(
     meal_slot = assignments[worst_idx]["meal_slot"]
     generate_custom_recipe_module = _import_sibling_script("generate_custom_recipe")
 
+    # Compute compensated ratios from the other (non-swapped) assignments
+    daily_calories = sum(a["meal_slot"].get("target_calories", 0) for a in assignments)
+    daily_target_ratios = {
+        "protein_ratio": sum(
+            a["meal_slot"].get("target_protein_g", 0) for a in assignments
+        )
+        * 4
+        / max(daily_calories, 1),
+        "fat_ratio": sum(a["meal_slot"].get("target_fat_g", 0) for a in assignments)
+        * 9
+        / max(daily_calories, 1),
+        "carb_ratio": sum(a["meal_slot"].get("target_carbs_g", 0) for a in assignments)
+        * 4
+        / max(daily_calories, 1),
+    }
+    other_consumed = []
+    for i, a in enumerate(assignments):
+        if i != worst_idx:
+            cal_share = a["meal_slot"].get("target_calories", 0) / max(
+                daily_calories, 1
+            )
+            other_consumed.append(
+                {
+                    "cal_share": cal_share,
+                    "recipe_ratios": _recipe_macro_ratios(a["recipe"]),
+                }
+            )
+    worst_cal_share = meal_slot.get("target_calories", 0) / max(daily_calories, 1)
+    repair_ratios = _compute_required_ratios(
+        daily_target_ratios, other_consumed, [worst_cal_share]
+    )
+
     recipe, is_llm, _ = await _select_recipe_for_slot(
         supabase=supabase,
         anthropic_client=anthropic_client,
@@ -672,6 +813,7 @@ async def repair(
         batch_recipe_id=(batch_recipe_ids or {}).get(
             normalize_meal_type(meal_slot.get("meal_type", ""))
         ),
+        target_macro_ratios_override=repair_ratios,
     )
 
     if recipe:

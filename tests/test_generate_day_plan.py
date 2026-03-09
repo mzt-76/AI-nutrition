@@ -825,6 +825,77 @@ class TestBatchRecipeIds:
 
 
 # ---------------------------------------------------------------------------
+# Test: Batch/custom recipes tracked in consumed_slots (sliding budget)
+# ---------------------------------------------------------------------------
+
+
+class TestSlidingBudgetIntegration:
+    @pytest.mark.asyncio
+    async def test_batch_recipe_shifts_ratios_for_next_slot(
+        self, meal_targets, user_profile, sample_db_recipe
+    ):
+        """A high-fat batch recipe should lower fat_ratio targets for the next slot."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        # High-fat batch recipe: 50g fat → fat_ratio ~ 0.56
+        high_fat_batch = {
+            **sample_db_recipe,
+            "id": "batch-fat-1",
+            "name": "High Fat Batch",
+            "meal_type": "dejeuner",
+            "calories_per_serving": 800.0,
+            "protein_g_per_serving": 30.0,
+            "fat_g_per_serving": 50.0,  # 450 kcal from fat → 56%
+            "carbs_g_per_serving": 60.0,
+        }
+
+        async def mock_get_recipe_by_id(supabase, recipe_id):
+            if recipe_id == "batch-fat-1":
+                return high_fat_batch
+            return None
+
+        captured_overrides = []
+
+        async def mock_search(*args, **kwargs):
+            captured_overrides.append(kwargs.get("target_macro_ratios"))
+            return [sample_db_recipe]
+
+        # 2 slots: Déjeuner (batch, fixed) + Petit-déjeuner (flexible)
+        two_slots = [meal_targets[0], meal_targets[1]]  # petit-déj + déjeuner
+
+        with patch.object(
+            generate_day_plan, "search_recipes", new=mock_search
+        ), patch.object(
+            generate_day_plan, "get_recipe_by_id", new=mock_get_recipe_by_id
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+            result_str = await generate_day_plan.execute(
+                supabase=MagicMock(),
+                anthropic_client=MagicMock(),
+                day_index=0,
+                day_name="Lundi",
+                day_date="2026-02-18",
+                meal_targets=two_slots,
+                user_profile=user_profile,
+                exclude_recipe_ids=[],
+                custom_requests={},
+                batch_recipe_ids={"dejeuner": "batch-fat-1"},
+            )
+
+        result = json.loads(result_str)
+        assert result["success"] is True
+        # The flexible slot (petit-déjeuner) should have been searched with
+        # compensated ratios — fat_ratio should be LOWER than the daily target
+        # because the batch recipe consumed a disproportionate share of fat.
+        assert len(captured_overrides) >= 1
+        flexible_ratios = captured_overrides[0]
+        assert flexible_ratios is not None
+        # Daily fat target from these 2 slots: (25+30)*9 / (700+1100) = 0.275
+        # Batch consumed: fat_ratio=0.5625 at cal_share=1100/1800=0.611
+        # Required: (0.275 - 0.5625*0.611) / 0.389 → negative → clamped to 0
+        assert flexible_ratios["fat_ratio"] < 0.275
+
+
+# ---------------------------------------------------------------------------
 # Test: Progressive fallback in recipe search
 # ---------------------------------------------------------------------------
 
@@ -906,3 +977,149 @@ class TestStructuredLogging:
         assert "select_recipes" in log_text
         assert "scale_portions" in log_text
         assert "validate_day" in log_text
+
+
+# ---------------------------------------------------------------------------
+# Test: fallback_level logging accuracy
+# ---------------------------------------------------------------------------
+
+
+class TestFallbackLevelLogging:
+    @pytest.mark.asyncio
+    async def test_fallback_level_3_logged_when_macro_filter_dropped(
+        self, meal_targets, user_profile, sample_db_recipe, caplog
+    ):
+        """fallback_level=3 is logged when only attempt 3 (no macro filter) succeeds."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        call_count = 0
+
+        async def mock_search(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            # Attempts 1 and 2 return nothing, attempt 3 succeeds
+            if call_count <= 2:
+                return []
+            return [sample_db_recipe]
+
+        import logging
+
+        with patch.object(
+            generate_day_plan, "search_recipes", new=mock_search
+        ), patch.object(
+            generate_day_plan, "increment_usage", new=AsyncMock()
+        ), caplog.at_level(logging.INFO):
+            await generate_day_plan.execute(
+                supabase=MagicMock(),
+                anthropic_client=MagicMock(),
+                day_index=0,
+                day_name="Lundi",
+                day_date="2026-02-18",
+                meal_targets=[meal_targets[0]],
+                user_profile=user_profile,
+                exclude_recipe_ids=[],
+                custom_requests={},
+            )
+
+        assert "fallback_level=3" in caplog.text
+
+
+# ---------------------------------------------------------------------------
+# Test: repair uses compensated ratios
+# ---------------------------------------------------------------------------
+
+
+class TestRepairCompensation:
+    @pytest.mark.asyncio
+    async def test_repair_passes_compensated_ratios(
+        self, meal_targets, user_profile, sample_db_recipe
+    ):
+        """repair() passes target_macro_ratios_override to _select_recipe_for_slot."""
+        generate_day_plan = _load_script("generate_day_plan")
+
+        # Two assignments: slot 0 (worst) will be swapped, slot 1 stays
+        high_fat_recipe = {
+            **sample_db_recipe,
+            "id": "high-fat-1",
+            "name": "High Fat Recipe",
+            "fat_g_per_serving": 50.0,
+            "calories_per_serving": 600.0,
+        }
+        assignments = [
+            {
+                "meal_slot": meal_targets[0],
+                "recipe": sample_db_recipe,
+                "is_llm": False,
+                "runner_ups": [],  # No runner-ups → forces new search path
+            },
+            {
+                "meal_slot": meal_targets[1],
+                "recipe": high_fat_recipe,
+                "is_llm": False,
+                "runner_ups": [],
+            },
+        ]
+        meals = [
+            {
+                "meal_type": "Petit-déjeuner",
+                "name": sample_db_recipe["name"],
+                "ingredients": [],
+                "nutrition": {
+                    "calories": 500,
+                    "protein_g": 20,
+                    "carbs_g": 50,
+                    "fat_g": 60,
+                },
+            },
+            {
+                "meal_type": "Déjeuner",
+                "name": high_fat_recipe["name"],
+                "ingredients": [],
+                "nutrition": {
+                    "calories": 600,
+                    "protein_g": 30,
+                    "carbs_g": 40,
+                    "fat_g": 50,
+                },
+            },
+        ]
+        daily_totals = {"calories": 1100, "protein_g": 50, "carbs_g": 90, "fat_g": 110}
+        target_macros = {
+            "calories": 1800,
+            "protein_g": 120,
+            "carbs_g": 220,
+            "fat_g": 55,
+        }
+
+        captured_override = {}
+
+        async def spy_select(*args, **kwargs):
+            captured_override["value"] = kwargs.get("target_macro_ratios_override")
+            return sample_db_recipe, False, []
+
+        with patch.object(
+            generate_day_plan,
+            "_select_recipe_for_slot",
+            new=spy_select,
+        ), patch.object(
+            generate_day_plan,
+            "scale_portions",
+            return_value=meals,
+        ), patch.object(generate_day_plan, "increment_usage", new=AsyncMock()):
+            await generate_day_plan.repair(
+                meals=meals,
+                assignments=assignments,
+                target_macros=target_macros,
+                daily_totals=daily_totals,
+                supabase=MagicMock(),
+                anthropic_client=MagicMock(),
+                user_profile=user_profile,
+                exclude_recipe_ids=[],
+                custom_requests={},
+            )
+
+        # repair must pass compensated ratios, not None
+        assert captured_override["value"] is not None
+        assert "protein_ratio" in captured_override["value"]
+        assert "fat_ratio" in captured_override["value"]
+        assert "carb_ratio" in captured_override["value"]
