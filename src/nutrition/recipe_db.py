@@ -119,7 +119,13 @@ async def search_recipes(
     )
 
     try:
-        query = supabase.table("recipes").select("*").eq("meal_type", meal_type)
+        # Dejeuner and diner share the same recipe pool — query both
+        if meal_type in ("dejeuner", "diner"):
+            query = supabase.table("recipes").select("*").in_(
+                "meal_type", ["dejeuner", "diner"]
+            )
+        else:
+            query = supabase.table("recipes").select("*").eq("meal_type", meal_type)
 
         # Apply diet_type filter (omnivore is a superset — also returns other diet types)
         if diet_type != "omnivore":

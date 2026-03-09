@@ -1,0 +1,347 @@
+[
+  {
+    "name": "Saumon teriyaki et légumes rôtis",
+    "calories": 480, "protein_g": 38,
+    "meal_type": "dejeuner", "cuisine_type": "japonaise", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Pavé de saumon", "quantity": 150, "unit": "g"},
+      {"name": "Brocoli", "quantity": 150, "unit": "g"},
+      {"name": "Patate douce", "quantity": 120, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Miel", "quantity": 10, "unit": "g"},
+      {"name": "Huile de sésame", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Préchauffer le four à 200°C. Couper la patate douce en cubes, rôtir 15 min. Ajouter le brocoli et le saumon. Mélanger sauce soja, miel et huile de sésame. Napper le saumon et cuire 12 min.",
+    "tags": ["high-protein", "omega-3"],
+    "allergen_tags": ["poisson", "soja"]
+  },
+  {
+    "name": "Buddha bowl quinoa et pois chiches",
+    "calories": 520, "protein_g": 22,
+    "meal_type": "dejeuner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Quinoa", "quantity": 80, "unit": "g"},
+      {"name": "Pois chiches", "quantity": 120, "unit": "g"},
+      {"name": "Avocat", "quantity": 60, "unit": "g"},
+      {"name": "Épinards frais", "quantity": 80, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 80, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Citron", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Cuire le quinoa 15 min. Rincer les pois chiches. Assembler dans un bol : quinoa, pois chiches, avocat tranché, épinards, tomates. Assaisonner huile d'olive et citron.",
+    "tags": ["vegan", "high-fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Poulet mariné aux herbes et légumes grillés",
+    "calories": 450, "protein_g": 42,
+    "meal_type": "dejeuner", "cuisine_type": "méditerranéenne", "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 180, "unit": "g"},
+      {"name": "Courgettes", "quantity": 150, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 100, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Riz complet", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Mariner le poulet avec herbes et huile d'olive 15 min. Griller le poulet 6 min par face. Griller les légumes coupés en lamelles. Servir avec le riz complet.",
+    "tags": ["high-protein", "low-fat"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Dahl de lentilles corail au lait de coco",
+    "calories": 440, "protein_g": 20,
+    "meal_type": "dejeuner", "cuisine_type": "indienne", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles corail", "quantity": 100, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 100, "unit": "ml"},
+      {"name": "Tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "Oignon", "quantity": 80, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"},
+      {"name": "Curcuma", "quantity": 3, "unit": "g"},
+      {"name": "Cumin", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Faire revenir l'oignon émincé. Ajouter curcuma et cumin. Verser lentilles, tomates et lait de coco. Cuire 20 min à feu doux. Servir avec le riz basmati.",
+    "tags": ["vegan", "high-fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Filet de cabillaud en croûte de noisettes",
+    "calories": 420, "protein_g": 36,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Filet de cabillaud", "quantity": 180, "unit": "g"},
+      {"name": "Noisettes", "quantity": 20, "unit": "g"},
+      {"name": "Haricots verts", "quantity": 200, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"},
+      {"name": "Citron", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Concasser les noisettes. Enrober le cabillaud de noisettes concassées. Cuire au four 15 min à 180°C. Blanchir les haricots verts 8 min. Arroser de citron.",
+    "tags": ["high-protein", "omega-3"],
+    "allergen_tags": ["poisson", "fruits à coque"]
+  },
+  {
+    "name": "Wok de tofu et légumes croquants",
+    "calories": 380, "protein_g": 24,
+    "meal_type": "diner", "cuisine_type": "asiatique", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 200, "unit": "g"},
+      {"name": "Brocoli", "quantity": 120, "unit": "g"},
+      {"name": "Carottes", "quantity": 80, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Huile de sésame", "quantity": 8, "unit": "ml"},
+      {"name": "Gingembre frais", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Couper le tofu en cubes, faire dorer dans l'huile de sésame. Ajouter les légumes coupés en julienne. Sauter 5 min à feu vif. Assaisonner sauce soja et gingembre râpé.",
+    "tags": ["vegan", "low-carb"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Salade tiède de lentilles et chèvre",
+    "calories": 460, "protein_g": 28,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles vertes", "quantity": 100, "unit": "g"},
+      {"name": "Fromage de chèvre", "quantity": 60, "unit": "g"},
+      {"name": "Noix", "quantity": 20, "unit": "g"},
+      {"name": "Épinards frais", "quantity": 80, "unit": "g"},
+      {"name": "Vinaigre balsamique", "quantity": 10, "unit": "ml"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Cuire les lentilles 25 min. Égoutter et mélanger tièdes avec épinards, vinaigrette balsamique. Émietter le chèvre et parsemer de noix.",
+    "tags": ["végétarien", "high-fiber"],
+    "allergen_tags": ["lait", "fruits à coque"]
+  },
+  {
+    "name": "Curry vert thaï aux crevettes",
+    "calories": 470, "protein_g": 34,
+    "meal_type": "diner", "cuisine_type": "thaïlandaise", "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Crevettes", "quantity": 180, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 100, "unit": "ml"},
+      {"name": "Courgettes", "quantity": 120, "unit": "g"},
+      {"name": "Poivron vert", "quantity": 80, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"},
+      {"name": "Pâte de curry vert", "quantity": 15, "unit": "g"},
+      {"name": "Basilic thaï", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Chauffer la pâte de curry dans le lait de coco. Ajouter les légumes coupés, cuire 5 min. Ajouter les crevettes, cuire 3 min. Servir avec riz et basilic.",
+    "tags": ["high-protein"],
+    "allergen_tags": ["crustacés"]
+  },
+  {
+    "name": "Gratin d'aubergines à la mozzarella",
+    "calories": 400, "protein_g": 22,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "Aubergines", "quantity": 250, "unit": "g"},
+      {"name": "Mozzarella", "quantity": 80, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "Parmesan", "quantity": 15, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"},
+      {"name": "Basilic frais", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Trancher les aubergines, griller 5 min de chaque côté. Alterner couches d'aubergines, sauce tomate et mozzarella. Parsemer de parmesan. Gratiner 15 min à 200°C.",
+    "tags": ["végétarien"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Bol poke au thon frais",
+    "calories": 490, "protein_g": 36,
+    "meal_type": "dejeuner", "cuisine_type": "japonaise", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Thon frais", "quantity": 150, "unit": "g"},
+      {"name": "Riz à sushi", "quantity": 80, "unit": "g"},
+      {"name": "Avocat", "quantity": 50, "unit": "g"},
+      {"name": "Edamame", "quantity": 50, "unit": "g"},
+      {"name": "Concombre", "quantity": 60, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "Huile de sésame", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Cuire le riz et laisser tiédir. Couper le thon en cubes. Assembler : riz, thon, avocat tranché, edamame, concombre. Assaisonner sauce soja et sésame.",
+    "tags": ["high-protein", "omega-3"],
+    "allergen_tags": ["poisson", "soja"]
+  },
+  {
+    "name": "Escalope de dinde aux champignons et purée",
+    "calories": 440, "protein_g": 40,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Escalope de dinde", "quantity": 170, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 150, "unit": "g"},
+      {"name": "Pommes de terre", "quantity": 150, "unit": "g"},
+      {"name": "Lait", "quantity": 30, "unit": "ml"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"}
+    ],
+    "instructions": "Cuire les pommes de terre, écraser en purée avec le lait. Poêler la dinde 5 min par face. Sauter les champignons émincés. Servir ensemble.",
+    "tags": ["high-protein", "comfort-food"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Chili sin carne aux haricots noirs",
+    "calories": 450, "protein_g": 22,
+    "meal_type": "dejeuner", "cuisine_type": "mexicaine", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Haricots noirs", "quantity": 150, "unit": "g"},
+      {"name": "Maïs", "quantity": 80, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 200, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 100, "unit": "g"},
+      {"name": "Oignon", "quantity": 80, "unit": "g"},
+      {"name": "Riz complet", "quantity": 60, "unit": "g"},
+      {"name": "Cumin", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Faire revenir oignon et poivron. Ajouter tomates, haricots noirs, maïs et cumin. Mijoter 20 min. Servir avec riz complet.",
+    "tags": ["vegan", "high-fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Tartare de saumon à l'avocat",
+    "calories": 420, "protein_g": 32,
+    "meal_type": "dejeuner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Saumon frais", "quantity": 150, "unit": "g"},
+      {"name": "Avocat", "quantity": 80, "unit": "g"},
+      {"name": "Concombre", "quantity": 60, "unit": "g"},
+      {"name": "Citron vert", "quantity": 20, "unit": "g"},
+      {"name": "Ciboulette", "quantity": 5, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"}
+    ],
+    "instructions": "Couper le saumon en petits dés. Écraser l'avocat. Mélanger avec concombre coupé fin, jus de citron vert, ciboulette et huile d'olive. Dresser à l'emporte-pièce.",
+    "tags": ["high-protein", "omega-3", "low-carb"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Risotto aux champignons et parmesan",
+    "calories": 480, "protein_g": 18,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Riz arborio", "quantity": 80, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 150, "unit": "g"},
+      {"name": "Parmesan", "quantity": 30, "unit": "g"},
+      {"name": "Oignon", "quantity": 50, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Bouillon de légumes", "quantity": 300, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir l'oignon et les champignons. Ajouter le riz, mouiller progressivement de bouillon en remuant. Cuire 18 min. Finir avec le parmesan râpé.",
+    "tags": ["végétarien", "comfort-food"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Wrap complet poulet grillé et crudités",
+    "calories": 430, "protein_g": 35,
+    "meal_type": "dejeuner", "cuisine_type": "internationale", "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 130, "unit": "g"},
+      {"name": "Tortilla de blé", "quantity": 60, "unit": "g"},
+      {"name": "Laitue", "quantity": 40, "unit": "g"},
+      {"name": "Tomates", "quantity": 60, "unit": "g"},
+      {"name": "Avocat", "quantity": 40, "unit": "g"},
+      {"name": "Yaourt grec", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Griller le poulet et trancher. Tartiner la tortilla de yaourt grec. Garnir de laitue, tomates, avocat et poulet. Rouler serré.",
+    "tags": ["high-protein"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Soupe miso au tofu et nouilles soba",
+    "calories": 350, "protein_g": 20,
+    "meal_type": "diner", "cuisine_type": "japonaise", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Tofu soyeux", "quantity": 150, "unit": "g"},
+      {"name": "Nouilles soba", "quantity": 80, "unit": "g"},
+      {"name": "Miso", "quantity": 20, "unit": "g"},
+      {"name": "Épinards frais", "quantity": 60, "unit": "g"},
+      {"name": "Oignon vert", "quantity": 20, "unit": "g"},
+      {"name": "Algues wakame", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire les soba 5 min, égoutter. Porter 500ml d'eau à frémissement, dissoudre le miso. Ajouter tofu coupé en cubes, épinards et wakame. Servir avec les soba.",
+    "tags": ["vegan", "low-fat"],
+    "allergen_tags": ["soja", "gluten"]
+  },
+  {
+    "name": "Tajine de poulet aux olives et citron confit",
+    "calories": 460, "protein_g": 38,
+    "meal_type": "diner", "cuisine_type": "marocaine", "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "Cuisses de poulet", "quantity": 180, "unit": "g"},
+      {"name": "Olives vertes", "quantity": 30, "unit": "g"},
+      {"name": "Citron confit", "quantity": 15, "unit": "g"},
+      {"name": "Oignon", "quantity": 80, "unit": "g"},
+      {"name": "Carottes", "quantity": 100, "unit": "g"},
+      {"name": "Semoule", "quantity": 60, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Faire dorer le poulet. Ajouter oignon, carottes, olives et citron confit. Mouiller et mijoter 25 min couvert. Servir avec semoule.",
+    "tags": ["high-protein"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Bowl méditerranéen aux falafels",
+    "calories": 500, "protein_g": 20,
+    "meal_type": "dejeuner", "cuisine_type": "méditerranéenne", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Pois chiches", "quantity": 150, "unit": "g"},
+      {"name": "Boulgour", "quantity": 60, "unit": "g"},
+      {"name": "Concombre", "quantity": 80, "unit": "g"},
+      {"name": "Tomates", "quantity": 80, "unit": "g"},
+      {"name": "Tahini", "quantity": 20, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"},
+      {"name": "Persil frais", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Mixer les pois chiches avec persil et épices. Former des boulettes, cuire au four 20 min à 200°C. Cuire le boulgour. Assembler avec crudités et sauce tahini.",
+    "tags": ["vegan", "high-fiber"],
+    "allergen_tags": ["sésame"]
+  },
+  {
+    "name": "Pavé de thon grillé et ratatouille",
+    "calories": 400, "protein_g": 40,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Pavé de thon", "quantity": 160, "unit": "g"},
+      {"name": "Courgettes", "quantity": 100, "unit": "g"},
+      {"name": "Aubergines", "quantity": 100, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"},
+      {"name": "Tomates", "quantity": 100, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Couper les légumes en dés, mijoter 20 min avec huile d'olive. Griller le pavé de thon 2 min par face (rosé au centre). Servir sur la ratatouille.",
+    "tags": ["high-protein", "omega-3", "low-carb"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Pasta e fagioli protéinée",
+    "calories": 470, "protein_g": 26,
+    "meal_type": "dejeuner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Pâtes complètes", "quantity": 80, "unit": "g"},
+      {"name": "Haricots blancs", "quantity": 120, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "Parmesan", "quantity": 20, "unit": "g"},
+      {"name": "Oignon", "quantity": 50, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 8, "unit": "ml"}
+    ],
+    "instructions": "Cuire les pâtes al dente. Faire revenir l'oignon, ajouter tomates et haricots. Mijoter 10 min. Mélanger avec les pâtes égouttées. Parsemer de parmesan.",
+    "tags": ["végétarien", "high-fiber"],
+    "allergen_tags": ["gluten", "lait"]
+  }
+]

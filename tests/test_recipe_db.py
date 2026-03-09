@@ -35,6 +35,12 @@ def make_supabase_mock(data: list[dict], count: int | None = None):
     mock.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
     mock.table.return_value.select.return_value.eq.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
     mock.table.return_value.select.return_value.eq.return_value.limit.return_value.execute.return_value = execute_result
+    # Chain for .in_() (dejeuner/diner unified pool)
+    mock.table.return_value.select.return_value.in_.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
+    mock.table.return_value.select.return_value.in_.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
+    mock.table.return_value.select.return_value.in_.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
+    mock.table.return_value.select.return_value.in_.return_value.eq.return_value.lte.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
+    mock.table.return_value.select.return_value.in_.return_value.eq.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
     mock.table.return_value.insert.return_value.execute.return_value = execute_result
     mock.table.return_value.update.return_value.eq.return_value.execute.return_value = (
         execute_result
