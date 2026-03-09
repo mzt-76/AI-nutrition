@@ -193,6 +193,41 @@ Budget jour : 2500 kcal, 170g P, 80g F, 300g C
 
 **Complexité** : basse-moyenne. Pas de nouveau modèle, juste une boucle séquentielle au lieu de calls indépendants.
 
+## TODO v2c: Extraction des paramètres tunables (refactor)
+
+**Problème** : ~13 constantes sont hardcodées en inline dans le code (magic numbers). Pas de visibilité centralisée, impossible de les exposer à l'utilisateur ou de les ajuster sans modifier le code.
+
+**Objectif** : extraire TOUTES les variables tunables en constantes nommées, centralisées, pour pouvoir à terme les exposer en config utilisateur.
+
+### Paramètres identifiés par fichier :
+
+**`src/nutrition/recipe_db.py`** (6 inline) :
+- Scoring weights : macro_fit=0.40, freshness=0.30, cuisine=0.20, usage=0.10 (l.472-476)
+- Protein emphasis multiplier : 2× dans score_macro_fit (l.412)
+- Fetch limit : multiplier=3, buffer=10 (l.148)
+
+**`src/nutrition/calculations.py`** (2 inline) :
+- FAT_PCT_OF_TOTAL : 0.20-0.25 par goal_type (l.324-327)
+- Fat floor : 0.6g/kg (l.335)
+
+**`skills/meal-planning/scripts/generate_day_plan.py`** (2 inline) :
+- Default max_prep_time : 60 (l.203), 45 (l.330)
+
+**`skills/meal-planning/scripts/generate_custom_recipe.py`** (2 inline) :
+- LLM temperature : 0.7 (l.171)
+- LLM max_tokens : 2000 (l.170)
+
+### Déjà nommés (OK) :
+- `MACRO_TOLERANCE_*` (validators.py) : protein=0.05, fat=0.10, calories=0.10, carbs=0.20
+- `MACRO_RATIO_TOLERANCE_STRICT/WIDE` (generate_day_plan.py) : 0.20 / 0.50
+- `MIN/MAX_SCALE_FACTOR` (meal_plan_optimizer.py) : 0.50 / 3.00
+- `WEIGHT_*` (portion_optimizer.py) : protein=2.0, fat=2.0, calories=1.0, carbs=0.5, meal_balance=1.5
+- `FRESHNESS_CAP_DAYS` (recipe_db.py) : 30
+- `SNACK_STRUCTURE_CALORIE_THRESHOLD` (generate_week_plan.py) : 2500
+- `CALORIE_RANGE_MIN_DIVISOR/MAX_MULTIPLIER` (generate_day_plan.py) : 3 / 2
+
+**Phase future** : regrouper toutes ces constantes dans un fichier `src/nutrition/config.py` ou les stocker en DB (table `user_preferences`) pour les rendre modifiables par utilisateur.
+
 ---
 
 ## Feature: Recettes favorites + vue détail ← CURRENT
