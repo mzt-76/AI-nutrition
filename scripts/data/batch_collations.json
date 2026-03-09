@@ -1,0 +1,894 @@
+[
+  {
+    "name": "Chips de parmesan croustillantes",
+    "calories": 180,
+    "protein_g": 16,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Parmesan râpé", "quantity": 50, "unit": "g"},
+      {"name": "Origan séché", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Préchauffer le four à 200°C. Déposer des petits tas de parmesan râpé sur une plaque recouverte de papier cuisson. Saupoudrer d'origan. Cuire 5-6 minutes jusqu'à ce qu'ils soient dorés et croustillants. Laisser refroidir avant de servir.",
+    "tags": ["high-protein", "low-carb", "keto"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Dattes fourrées au tahini et pistaches",
+    "calories": 220,
+    "protein_g": 10,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Dattes Medjool", "quantity": 4, "unit": "pièces"},
+      {"name": "Tahini", "quantity": 20, "unit": "g"},
+      {"name": "Pistaches décortiquées", "quantity": 15, "unit": "g"},
+      {"name": "Protéine de pois en poudre", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Ouvrir les dattes et retirer les noyaux. Mélanger le tahini avec la protéine de pois. Farcir chaque datte avec le mélange de tahini protéiné. Garnir de pistaches concassées. Servir frais.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": ["sésame", "fruits à coque"]
+  },
+  {
+    "name": "Roulés de saumon fumé au cream cheese",
+    "calories": 190,
+    "protein_g": 18,
+    "meal_type": "collation",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Saumon fumé", "quantity": 60, "unit": "g"},
+      {"name": "Cream cheese", "quantity": 30, "unit": "g"},
+      {"name": "Aneth frais", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Étaler le cream cheese sur les tranches de saumon fumé. Parsemer d'aneth ciselé. Rouler chaque tranche en cylindre serré. Couper en tronçons et servir frais.",
+    "tags": ["high-protein", "low-carb", "omega-3"],
+    "allergen_tags": ["poisson", "lait"]
+  },
+  {
+    "name": "Pois chiches rôtis au paprika fumé",
+    "calories": 200,
+    "protein_g": 12,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Pois chiches en conserve égouttés", "quantity": 150, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "Paprika fumé", "quantity": 3, "unit": "g"},
+      {"name": "Sel", "quantity": 1, "unit": "g"}
+    ],
+    "instructions": "Préchauffer le four à 200°C. Bien sécher les pois chiches avec du papier absorbant. Mélanger avec l'huile d'olive et le paprika fumé. Étaler sur une plaque et cuire 8-10 minutes en remuant à mi-cuisson. Saler et laisser refroidir pour qu'ils deviennent croustillants.",
+    "tags": ["high-fiber", "vegan", "high-protein"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Mini frittata aux épinards et feta",
+    "calories": 210,
+    "protein_g": 16,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {"name": "Œufs", "quantity": 2, "unit": "pièces"},
+      {"name": "Épinards frais", "quantity": 40, "unit": "g"},
+      {"name": "Feta", "quantity": 25, "unit": "g"}
+    ],
+    "instructions": "Préchauffer le four à 180°C. Battre les œufs, ajouter les épinards hachés et la feta émiettée. Verser dans un moule à muffins huilé. Cuire 10-12 minutes. Servir tiède ou froid.",
+    "tags": ["high-protein", "low-carb"],
+    "allergen_tags": ["œufs", "lait"]
+  },
+  {
+    "name": "Bouchées de tofu caramélisé au sésame",
+    "calories": 185,
+    "protein_g": 14,
+    "meal_type": "collation",
+    "cuisine_type": "asiatique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 120, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "Graines de sésame", "quantity": 8, "unit": "g"},
+      {"name": "Sirop d'agave", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Couper le tofu en cubes de 2 cm. Mélanger la sauce soja et le sirop d'agave. Faire revenir le tofu dans une poêle chaude 5 minutes. Ajouter la sauce et cuire 2 minutes. Parsemer de graines de sésame grillées.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": ["soja", "sésame"]
+  },
+  {
+    "name": "Galettes de riz au beurre de cacahuète et banane",
+    "calories": 250,
+    "protein_g": 11,
+    "meal_type": "collation",
+    "cuisine_type": "américaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "Galettes de riz soufflé", "quantity": 2, "unit": "pièces"},
+      {"name": "Beurre de cacahuète", "quantity": 25, "unit": "g"},
+      {"name": "Banane", "quantity": 60, "unit": "g"},
+      {"name": "Protéine de pois en poudre", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Mélanger le beurre de cacahuète avec la protéine de pois. Tartiner les galettes de riz avec le mélange. Couper la banane en rondelles et disposer sur les galettes. Servir immédiatement.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": ["arachides"]
+  },
+  {
+    "name": "Jerky de poulet mariné au miel",
+    "calories": 160,
+    "protein_g": 25,
+    "meal_type": "collation",
+    "cuisine_type": "américaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 100, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "Miel", "quantity": 8, "unit": "g"},
+      {"name": "Gingembre en poudre", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Couper le poulet en fines lamelles. Mélanger la sauce soja, le miel et le gingembre. Mariner le poulet 5 minutes. Disposer sur une grille au four à 90°C. Déshydrater selon épaisseur ou poêler rapidement les lamelles 5 min de chaque côté.",
+    "tags": ["high-protein", "low-fat"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Mousse de ricotta au citron et miel",
+    "calories": 175,
+    "protein_g": 12,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Ricotta", "quantity": 100, "unit": "g"},
+      {"name": "Miel", "quantity": 10, "unit": "g"},
+      {"name": "Zeste de citron", "quantity": 3, "unit": "g"},
+      {"name": "Amandes effilées", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Fouetter la ricotta jusqu'à obtenir une texture mousseuse. Incorporer le miel et le zeste de citron. Verser dans un bol et garnir d'amandes effilées. Servir frais.",
+    "tags": ["high-protein", "végétarien"],
+    "allergen_tags": ["lait", "fruits à coque"]
+  },
+  {
+    "name": "Crackers de graines protéinés",
+    "calories": 210,
+    "protein_g": 12,
+    "meal_type": "collation",
+    "cuisine_type": "nordique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Graines de tournesol", "quantity": 30, "unit": "g"},
+      {"name": "Graines de lin", "quantity": 20, "unit": "g"},
+      {"name": "Graines de chanvre décortiquées", "quantity": 15, "unit": "g"},
+      {"name": "Eau", "quantity": 40, "unit": "ml"},
+      {"name": "Sel", "quantity": 1, "unit": "g"}
+    ],
+    "instructions": "Mélanger toutes les graines avec l'eau et le sel. Laisser reposer 5 minutes. Étaler finement sur une plaque couverte de papier cuisson. Cuire au four à 180°C pendant 10 minutes jusqu'à ce que les crackers soient dorés et croustillants.",
+    "tags": ["high-protein", "vegan", "high-fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Carpaccio de bœuf séché et roquette",
+    "calories": 170,
+    "protein_g": 22,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "Viande des Grisons", "quantity": 50, "unit": "g"},
+      {"name": "Roquette", "quantity": 30, "unit": "g"},
+      {"name": "Parmesan en copeaux", "quantity": 10, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 3, "unit": "ml"}
+    ],
+    "instructions": "Disposer les tranches de viande des Grisons sur une assiette. Ajouter la roquette par-dessus. Parsemer de copeaux de parmesan. Arroser d'un filet d'huile d'olive.",
+    "tags": ["high-protein", "low-carb"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Miso soup aux protéines de soja",
+    "calories": 120,
+    "protein_g": 12,
+    "meal_type": "collation",
+    "cuisine_type": "japonaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Pâte de miso", "quantity": 15, "unit": "g"},
+      {"name": "Tofu soyeux", "quantity": 80, "unit": "g"},
+      {"name": "Algue wakame séchée", "quantity": 3, "unit": "g"},
+      {"name": "Eau chaude", "quantity": 250, "unit": "ml"}
+    ],
+    "instructions": "Délayer la pâte de miso dans l'eau chaude (pas bouillante). Couper le tofu en petits dés et ajouter au bouillon. Ajouter l'algue wakame. Mélanger doucement et servir immédiatement.",
+    "tags": ["high-protein", "vegan", "low-calorie"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Bâtonnets de carottes et houmous de betterave",
+    "calories": 195,
+    "protein_g": 10,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Pois chiches en conserve", "quantity": 100, "unit": "g"},
+      {"name": "Betterave cuite", "quantity": 50, "unit": "g"},
+      {"name": "Tahini", "quantity": 10, "unit": "g"},
+      {"name": "Carottes", "quantity": 100, "unit": "g"}
+    ],
+    "instructions": "Mixer les pois chiches égouttés avec la betterave cuite et le tahini jusqu'à obtenir un houmous lisse. Éplucher et couper les carottes en bâtonnets. Servir les bâtonnets avec le houmous de betterave.",
+    "tags": ["high-fiber", "vegan", "high-protein"],
+    "allergen_tags": ["sésame"]
+  },
+  {
+    "name": "Brochettes de poulet yakitori",
+    "calories": 180,
+    "protein_g": 24,
+    "meal_type": "collation",
+    "cuisine_type": "japonaise",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {"name": "Blanc de poulet", "quantity": 100, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "Mirin", "quantity": 5, "unit": "ml"},
+      {"name": "Ciboule", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Couper le poulet en cubes de 2 cm. Enfiler sur des piques en bois. Mélanger la sauce soja et le mirin. Cuire les brochettes à la poêle 4-5 minutes en les badigeonnant de sauce. Garnir de ciboule ciselée.",
+    "tags": ["high-protein", "low-fat"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Boulettes de lentilles épicées",
+    "calories": 195,
+    "protein_g": 13,
+    "meal_type": "collation",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {"name": "Lentilles corail cuites", "quantity": 120, "unit": "g"},
+      {"name": "Farine de pois chiches", "quantity": 15, "unit": "g"},
+      {"name": "Cumin en poudre", "quantity": 2, "unit": "g"},
+      {"name": "Oignon", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Écraser les lentilles à la fourchette. Ajouter la farine de pois chiches, le cumin et l'oignon finement haché. Former des boulettes. Cuire au four à 190°C pendant 10 minutes en les retournant à mi-cuisson.",
+    "tags": ["high-protein", "vegan", "high-fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Tartare de truite sur concombre",
+    "calories": 155,
+    "protein_g": 18,
+    "meal_type": "collation",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Filet de truite fumée", "quantity": 70, "unit": "g"},
+      {"name": "Concombre", "quantity": 100, "unit": "g"},
+      {"name": "Crème fraîche légère", "quantity": 15, "unit": "g"},
+      {"name": "Ciboulette", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Couper le concombre en rondelles épaisses. Émietter la truite fumée et mélanger avec la crème fraîche et la ciboulette ciselée. Déposer une cuillère de tartare sur chaque rondelle de concombre.",
+    "tags": ["high-protein", "low-carb", "omega-3"],
+    "allergen_tags": ["poisson", "lait"]
+  },
+  {
+    "name": "Protein bark au chocolat noir et amandes",
+    "calories": 250,
+    "protein_g": 15,
+    "meal_type": "collation",
+    "cuisine_type": "américaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Chocolat noir 70%", "quantity": 40, "unit": "g"},
+      {"name": "Protéine de whey vanille", "quantity": 15, "unit": "g"},
+      {"name": "Amandes concassées", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Faire fondre le chocolat noir au bain-marie. Incorporer la protéine de whey en fouettant. Étaler sur une plaque couverte de papier cuisson. Parsemer d'amandes concassées. Réfrigérer 10 minutes puis casser en morceaux.",
+    "tags": ["high-protein", "indulgent"],
+    "allergen_tags": ["lait", "fruits à coque"]
+  },
+  {
+    "name": "Rouleaux de jambon aux cornichons et moutarde",
+    "calories": 140,
+    "protein_g": 16,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "Jambon blanc", "quantity": 80, "unit": "g"},
+      {"name": "Moutarde à l'ancienne", "quantity": 10, "unit": "g"},
+      {"name": "Cornichons", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Tartiner chaque tranche de jambon d'une fine couche de moutarde à l'ancienne. Placer un cornichon au centre. Rouler serré et couper en deux. Servir frais.",
+    "tags": ["high-protein", "low-carb", "low-calorie"],
+    "allergen_tags": ["moutarde"]
+  },
+  {
+    "name": "Pudding protéiné à la mangue et coco",
+    "calories": 230,
+    "protein_g": 14,
+    "meal_type": "collation",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Lait de coco", "quantity": 100, "unit": "ml"},
+      {"name": "Graines de chia", "quantity": 20, "unit": "g"},
+      {"name": "Mangue fraîche", "quantity": 60, "unit": "g"},
+      {"name": "Protéine de pois en poudre", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Mélanger le lait de coco avec les graines de chia et la protéine de pois. Bien remuer pour éviter les grumeaux. Réfrigérer au moins 30 minutes (ou préparer la veille). Garnir de dés de mangue avant de servir.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Mini quiches sans pâte au thon",
+    "calories": 195,
+    "protein_g": 20,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Œufs", "quantity": 2, "unit": "pièces"},
+      {"name": "Thon en conserve égoutté", "quantity": 50, "unit": "g"},
+      {"name": "Crème fraîche légère", "quantity": 20, "unit": "g"},
+      {"name": "Gruyère râpé", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Préchauffer le four à 180°C. Battre les œufs avec la crème fraîche. Incorporer le thon émietté et le gruyère. Répartir dans des moules à muffins. Cuire 12-14 minutes jusqu'à ce que les quiches soient bien dorées.",
+    "tags": ["high-protein", "low-carb"],
+    "allergen_tags": ["œufs", "poisson", "lait"]
+  },
+  {
+    "name": "Verrines de panacotta protéinée aux fruits rouges",
+    "calories": 180,
+    "protein_g": 18,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Fromage blanc 0%", "quantity": 120, "unit": "g"},
+      {"name": "Protéine de whey vanille", "quantity": 15, "unit": "g"},
+      {"name": "Fruits rouges mélangés", "quantity": 50, "unit": "g"},
+      {"name": "Gélatine en feuille", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Faire ramollir la gélatine dans l'eau froide. Tiédir 2 cuillères de fromage blanc, y dissoudre la gélatine. Mélanger avec le reste du fromage blanc et la protéine. Verser en verrines. Réfrigérer 30 minutes. Garnir de fruits rouges.",
+    "tags": ["high-protein", "low-fat"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Crevettes grillées au citron vert",
+    "calories": 130,
+    "protein_g": 22,
+    "meal_type": "collation",
+    "cuisine_type": "asiatique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Crevettes décortiquées", "quantity": 100, "unit": "g"},
+      {"name": "Jus de citron vert", "quantity": 10, "unit": "ml"},
+      {"name": "Ail haché", "quantity": 3, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 3, "unit": "ml"}
+    ],
+    "instructions": "Mélanger les crevettes avec l'ail, le jus de citron vert et l'huile d'olive. Cuire à la poêle bien chaude 2-3 minutes de chaque côté jusqu'à ce qu'elles soient roses. Servir immédiatement.",
+    "tags": ["high-protein", "low-calorie", "low-carb"],
+    "allergen_tags": ["crustacés"]
+  },
+  {
+    "name": "Cookies protéinés à l'avoine et beurre d'amande",
+    "calories": 230,
+    "protein_g": 14,
+    "meal_type": "collation",
+    "cuisine_type": "américaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {"name": "Flocons d'avoine", "quantity": 30, "unit": "g"},
+      {"name": "Beurre d'amande", "quantity": 20, "unit": "g"},
+      {"name": "Protéine de whey chocolat", "quantity": 15, "unit": "g"},
+      {"name": "Œuf", "quantity": 1, "unit": "pièce"}
+    ],
+    "instructions": "Préchauffer le four à 175°C. Mélanger tous les ingrédients dans un bol. Former 4 cookies et les aplatir sur une plaque. Cuire 10 minutes. Laisser refroidir 5 minutes avant de servir.",
+    "tags": ["high-protein", "meal-prep"],
+    "allergen_tags": ["gluten", "œufs", "fruits à coque", "lait"]
+  },
+  {
+    "name": "Tzatziki protéiné et crudités",
+    "calories": 160,
+    "protein_g": 14,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 7,
+    "ingredients": [
+      {"name": "Yaourt grec 0%", "quantity": 120, "unit": "g"},
+      {"name": "Concombre", "quantity": 60, "unit": "g"},
+      {"name": "Ail", "quantity": 2, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"}
+    ],
+    "instructions": "Râper le concombre et bien l'essorer. Mélanger avec le yaourt grec et l'ail pressé. Couper le poivron en bâtonnets. Servir les bâtonnets de poivron avec le tzatziki.",
+    "tags": ["high-protein", "low-calorie"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Tempeh grillé aux herbes de Provence",
+    "calories": 200,
+    "protein_g": 18,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "vegan",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Tempeh", "quantity": 100, "unit": "g"},
+      {"name": "Herbes de Provence", "quantity": 3, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "Jus de citron", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Couper le tempeh en tranches fines. Mélanger l'huile d'olive, les herbes et le jus de citron. Badigeonner le tempeh. Griller à la poêle 3-4 minutes de chaque côté jusqu'à ce qu'il soit doré.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Bouchées de blanc de dinde et mozzarella",
+    "calories": 185,
+    "protein_g": 24,
+    "meal_type": "collation",
+    "cuisine_type": "internationale",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Blanc de dinde en tranches", "quantity": 60, "unit": "g"},
+      {"name": "Mozzarella", "quantity": 40, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 50, "unit": "g"},
+      {"name": "Basilic frais", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Couper la mozzarella en cubes. Couper les tomates cerises en deux. Enrouler chaque cube de mozzarella et demi-tomate dans une tranche de dinde avec une feuille de basilic. Fixer avec un cure-dent.",
+    "tags": ["high-protein", "low-carb"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Fèves d'edamame au sel de mer et wasabi",
+    "calories": 170,
+    "protein_g": 15,
+    "meal_type": "collation",
+    "cuisine_type": "japonaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Edamame surgelés en cosse", "quantity": 150, "unit": "g"},
+      {"name": "Sel de mer", "quantity": 2, "unit": "g"},
+      {"name": "Wasabi en poudre", "quantity": 1, "unit": "g"}
+    ],
+    "instructions": "Cuire les edamame dans l'eau bouillante salée pendant 4 minutes. Égoutter. Mélanger le sel et le wasabi en poudre. Saupoudrer sur les edamame chauds. Servir tiède.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Barquettes d'endives au roquefort et noix",
+    "calories": 195,
+    "protein_g": 11,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Endives", "quantity": 100, "unit": "g"},
+      {"name": "Roquefort", "quantity": 35, "unit": "g"},
+      {"name": "Noix", "quantity": 15, "unit": "g"},
+      {"name": "Fromage frais", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Détacher les feuilles d'endives pour former des barquettes. Écraser le roquefort avec le fromage frais. Garnir chaque feuille du mélange. Parsemer de cerneaux de noix concassés.",
+    "tags": ["high-protein", "low-carb"],
+    "allergen_tags": ["lait", "fruits à coque"]
+  },
+  {
+    "name": "Falafels cuits au four",
+    "calories": 220,
+    "protein_g": 12,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Pois chiches en conserve", "quantity": 150, "unit": "g"},
+      {"name": "Persil frais", "quantity": 10, "unit": "g"},
+      {"name": "Cumin en poudre", "quantity": 2, "unit": "g"},
+      {"name": "Ail", "quantity": 3, "unit": "g"},
+      {"name": "Farine de pois chiches", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Préchauffer le four à 200°C. Mixer les pois chiches égouttés avec le persil, le cumin, l'ail et la farine. Former de petites boulettes et les disposer sur une plaque huilée. Cuire 12-15 minutes en retournant à mi-cuisson.",
+    "tags": ["high-protein", "vegan", "high-fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Mini brochettes de thon mi-cuit au sésame",
+    "calories": 175,
+    "protein_g": 22,
+    "meal_type": "collation",
+    "cuisine_type": "japonaise",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Thon frais", "quantity": 80, "unit": "g"},
+      {"name": "Graines de sésame", "quantity": 10, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Couper le thon en cubes. Enrober de graines de sésame. Saisir rapidement à la poêle très chaude 30 secondes de chaque côté. Arroser de sauce soja. Piquer sur des brochettes et servir.",
+    "tags": ["high-protein", "omega-3"],
+    "allergen_tags": ["poisson", "sésame", "soja"]
+  },
+  {
+    "name": "Boules de coco protéinées au matcha",
+    "calories": 200,
+    "protein_g": 12,
+    "meal_type": "collation",
+    "cuisine_type": "japonaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Noix de coco râpée", "quantity": 25, "unit": "g"},
+      {"name": "Protéine de pois en poudre", "quantity": 20, "unit": "g"},
+      {"name": "Poudre de matcha", "quantity": 3, "unit": "g"},
+      {"name": "Sirop d'érable", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Mélanger la noix de coco râpée, la protéine de pois et le matcha. Ajouter le sirop d'érable et pétrir jusqu'à obtenir une pâte homogène. Former des petites boules. Rouler dans la noix de coco râpée restante. Réfrigérer 15 minutes.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Salade de thon blanc aux haricots blancs",
+    "calories": 240,
+    "protein_g": 22,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Thon en conserve au naturel", "quantity": 60, "unit": "g"},
+      {"name": "Haricots blancs en conserve", "quantity": 80, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "Persil frais", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Égoutter le thon et les haricots blancs. Mélanger dans un bol. Assaisonner d'huile d'olive et de persil ciselé. Servir frais.",
+    "tags": ["high-protein", "high-fiber"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Pancakes protéinés salés aux courgettes",
+    "calories": 210,
+    "protein_g": 16,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {"name": "Courgette râpée", "quantity": 80, "unit": "g"},
+      {"name": "Œufs", "quantity": 2, "unit": "pièces"},
+      {"name": "Farine de sarrasin", "quantity": 20, "unit": "g"},
+      {"name": "Fromage râpé", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Presser la courgette râpée pour retirer l'excédent d'eau. Battre les œufs et mélanger avec la farine, la courgette et le fromage. Cuire des petits pancakes à la poêle 2-3 minutes de chaque côté.",
+    "tags": ["high-protein", "végétarien"],
+    "allergen_tags": ["œufs", "lait"]
+  },
+  {
+    "name": "Concombres farcis au thon et câpres",
+    "calories": 135,
+    "protein_g": 17,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 7,
+    "ingredients": [
+      {"name": "Concombre", "quantity": 150, "unit": "g"},
+      {"name": "Thon en conserve au naturel", "quantity": 60, "unit": "g"},
+      {"name": "Câpres", "quantity": 5, "unit": "g"},
+      {"name": "Jus de citron", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Couper le concombre en tronçons de 4 cm. Évider légèrement le centre avec une cuillère. Mélanger le thon égoutté avec les câpres et le jus de citron. Farcir les tronçons de concombre. Servir frais.",
+    "tags": ["high-protein", "low-calorie", "low-carb"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Tartine nordique au maquereau fumé",
+    "calories": 260,
+    "protein_g": 18,
+    "meal_type": "collation",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Pain de seigle complet", "quantity": 40, "unit": "g"},
+      {"name": "Maquereau fumé", "quantity": 50, "unit": "g"},
+      {"name": "Fromage frais", "quantity": 20, "unit": "g"},
+      {"name": "Radis", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Tartiner le pain de seigle de fromage frais. Émietter le maquereau fumé par-dessus. Garnir de rondelles de radis finement tranchées. Servir immédiatement.",
+    "tags": ["high-protein", "omega-3"],
+    "allergen_tags": ["gluten", "poisson", "lait"]
+  },
+  {
+    "name": "Dip de haricots noirs au cumin",
+    "calories": 185,
+    "protein_g": 12,
+    "meal_type": "collation",
+    "cuisine_type": "américaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Haricots noirs en conserve", "quantity": 120, "unit": "g"},
+      {"name": "Cumin en poudre", "quantity": 2, "unit": "g"},
+      {"name": "Jus de citron vert", "quantity": 10, "unit": "ml"},
+      {"name": "Galettes de maïs", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Égoutter et rincer les haricots noirs. Les mixer grossièrement avec le cumin et le jus de citron vert. Servir avec les galettes de maïs en accompagnement.",
+    "tags": ["high-protein", "vegan", "high-fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Mini muffins salés aux olives et féta",
+    "calories": 215,
+    "protein_g": 11,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Farine complète", "quantity": 30, "unit": "g"},
+      {"name": "Œuf", "quantity": 1, "unit": "pièce"},
+      {"name": "Feta", "quantity": 30, "unit": "g"},
+      {"name": "Olives noires dénoyautées", "quantity": 20, "unit": "g"},
+      {"name": "Lait", "quantity": 30, "unit": "ml"}
+    ],
+    "instructions": "Préchauffer le four à 180°C. Mélanger la farine avec l'œuf battu et le lait. Incorporer la feta émiettée et les olives coupées. Verser dans un moule à mini muffins. Cuire 12-14 minutes.",
+    "tags": ["végétarien", "high-protein"],
+    "allergen_tags": ["gluten", "œufs", "lait"]
+  },
+  {
+    "name": "Bâtonnets de céleri au beurre de cajou",
+    "calories": 175,
+    "protein_g": 10,
+    "meal_type": "collation",
+    "cuisine_type": "américaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 3,
+    "ingredients": [
+      {"name": "Céleri branche", "quantity": 120, "unit": "g"},
+      {"name": "Beurre de cajou", "quantity": 25, "unit": "g"},
+      {"name": "Raisins secs", "quantity": 10, "unit": "g"},
+      {"name": "Graines de chanvre décortiquées", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Laver et couper le céleri en bâtonnets. Garnir le creux de chaque bâtonnet avec le beurre de cajou. Parsemer de raisins secs et de graines de chanvre.",
+    "tags": ["vegan", "high-protein"],
+    "allergen_tags": ["fruits à coque"]
+  },
+  {
+    "name": "Galettes de quinoa et parmesan",
+    "calories": 215,
+    "protein_g": 13,
+    "meal_type": "collation",
+    "cuisine_type": "internationale",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {"name": "Quinoa cuit", "quantity": 100, "unit": "g"},
+      {"name": "Parmesan râpé", "quantity": 20, "unit": "g"},
+      {"name": "Œuf", "quantity": 1, "unit": "pièce"},
+      {"name": "Persil frais", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Mélanger le quinoa cuit avec le parmesan, l'œuf battu et le persil ciselé. Former des galettes et les aplatir. Cuire à la poêle avec un filet d'huile 3-4 minutes de chaque côté.",
+    "tags": ["high-protein", "végétarien"],
+    "allergen_tags": ["œufs", "lait"]
+  },
+  {
+    "name": "Onigiri au saumon",
+    "calories": 220,
+    "protein_g": 14,
+    "meal_type": "collation",
+    "cuisine_type": "japonaise",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Riz à sushi cuit", "quantity": 100, "unit": "g"},
+      {"name": "Saumon en conserve", "quantity": 40, "unit": "g"},
+      {"name": "Algue nori", "quantity": 3, "unit": "g"},
+      {"name": "Sel", "quantity": 1, "unit": "g"}
+    ],
+    "instructions": "Émietter le saumon. Mouiller les mains et prendre une portion de riz. Creuser un puits, y placer le saumon. Refermer et former un triangle. Envelopper la base avec une bande de nori. Répéter.",
+    "tags": ["high-protein", "omega-3"],
+    "allergen_tags": ["poisson"]
+  },
+  {
+    "name": "Velouté de petits pois protéiné",
+    "calories": 165,
+    "protein_g": 14,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "vegan",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {"name": "Petits pois surgelés", "quantity": 150, "unit": "g"},
+      {"name": "Protéine de pois en poudre", "quantity": 10, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 150, "unit": "ml"},
+      {"name": "Menthe fraîche", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Cuire les petits pois dans le bouillon pendant 5 minutes. Ajouter la protéine de pois. Mixer le tout finement. Servir dans un mug, garnir de feuilles de menthe.",
+    "tags": ["high-protein", "vegan", "low-calorie"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Rösti de patate douce à la truite fumée",
+    "calories": 235,
+    "protein_g": 16,
+    "meal_type": "collation",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {"name": "Patate douce", "quantity": 100, "unit": "g"},
+      {"name": "Truite fumée", "quantity": 50, "unit": "g"},
+      {"name": "Œuf", "quantity": 1, "unit": "pièce"}
+    ],
+    "instructions": "Râper la patate douce crue. Mélanger avec l'œuf battu. Former des galettes et cuire à la poêle 4-5 minutes de chaque côté. Garnir de truite fumée émiettée.",
+    "tags": ["high-protein", "omega-3"],
+    "allergen_tags": ["œufs", "poisson"]
+  },
+  {
+    "name": "Beurre de cacahuète protéiné sur pain complet",
+    "calories": 280,
+    "protein_g": 16,
+    "meal_type": "collation",
+    "cuisine_type": "américaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 2,
+    "ingredients": [
+      {"name": "Pain complet", "quantity": 40, "unit": "g"},
+      {"name": "Beurre de cacahuète", "quantity": 20, "unit": "g"},
+      {"name": "Graines de chanvre décortiquées", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Toaster le pain complet. Tartiner généreusement de beurre de cacahuète. Saupoudrer de graines de chanvre. Servir immédiatement.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": ["gluten", "arachides"]
+  },
+  {
+    "name": "Brochettes de tomates cerises et bocconcini",
+    "calories": 165,
+    "protein_g": 12,
+    "meal_type": "collation",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Bocconcini (mini mozzarella)", "quantity": 60, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 80, "unit": "g"},
+      {"name": "Basilic frais", "quantity": 5, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 3, "unit": "ml"}
+    ],
+    "instructions": "Alterner sur des piques en bois : une tomate cerise, une feuille de basilic, un bocconcini. Répéter. Arroser d'un filet d'huile d'olive. Servir frais.",
+    "tags": ["high-protein", "végétarien", "low-carb"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Crackers de sarrasin au fromage de chèvre",
+    "calories": 200,
+    "protein_g": 11,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Crackers de sarrasin", "quantity": 30, "unit": "g"},
+      {"name": "Fromage de chèvre frais", "quantity": 40, "unit": "g"},
+      {"name": "Miel", "quantity": 5, "unit": "g"},
+      {"name": "Noix", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Tartiner les crackers de fromage de chèvre frais. Arroser d'un trait de miel. Parsemer de noix concassées. Servir immédiatement.",
+    "tags": ["végétarien", "high-protein"],
+    "allergen_tags": ["lait", "fruits à coque"]
+  },
+  {
+    "name": "Tataki de bœuf aux graines de sésame",
+    "calories": 190,
+    "protein_g": 24,
+    "meal_type": "collation",
+    "cuisine_type": "japonaise",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "Filet de bœuf", "quantity": 80, "unit": "g"},
+      {"name": "Graines de sésame", "quantity": 8, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "Gingembre frais râpé", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Enrober le filet de bœuf de graines de sésame. Saisir à feu très vif 1 minute de chaque côté. Trancher finement. Servir avec la sauce soja mélangée au gingembre râpé.",
+    "tags": ["high-protein", "low-carb"],
+    "allergen_tags": ["sésame", "soja"]
+  },
+  {
+    "name": "Smoothie bowl protéiné aux graines de chanvre",
+    "calories": 270,
+    "protein_g": 18,
+    "meal_type": "collation",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Banane congelée", "quantity": 80, "unit": "g"},
+      {"name": "Lait de soja", "quantity": 80, "unit": "ml"},
+      {"name": "Graines de chanvre décortiquées", "quantity": 20, "unit": "g"},
+      {"name": "Protéine de pois en poudre", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Mixer la banane congelée avec le lait de soja et la protéine de pois jusqu'à obtenir une texture épaisse. Verser dans un bol. Garnir de graines de chanvre. Servir immédiatement.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Chips de courgettes au four",
+    "calories": 145,
+    "protein_g": 10,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Courgette", "quantity": 150, "unit": "g"},
+      {"name": "Parmesan râpé", "quantity": 25, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 3, "unit": "ml"}
+    ],
+    "instructions": "Préchauffer le four à 200°C. Trancher la courgette en fines rondelles. Disposer sur une plaque huilée. Saupoudrer de parmesan. Cuire 12-15 minutes jusqu'à ce qu'elles soient croustillantes.",
+    "tags": ["low-calorie", "high-protein", "végétarien"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Verrines de guacamole protéiné aux pois chiches",
+    "calories": 225,
+    "protein_g": 10,
+    "meal_type": "collation",
+    "cuisine_type": "américaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 7,
+    "ingredients": [
+      {"name": "Avocat", "quantity": 60, "unit": "g"},
+      {"name": "Pois chiches en conserve", "quantity": 80, "unit": "g"},
+      {"name": "Jus de citron vert", "quantity": 10, "unit": "ml"},
+      {"name": "Tomate", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Écraser l'avocat à la fourchette. Ajouter les pois chiches égouttés et grossièrement écrasés. Incorporer le jus de citron vert et la tomate coupée en dés. Mélanger et servir en verrines.",
+    "tags": ["high-protein", "vegan", "high-fiber"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Rillettes de sardines au citron",
+    "calories": 195,
+    "protein_g": 18,
+    "meal_type": "collation",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "Sardines en conserve", "quantity": 80, "unit": "g"},
+      {"name": "Fromage frais", "quantity": 20, "unit": "g"},
+      {"name": "Jus de citron", "quantity": 5, "unit": "ml"},
+      {"name": "Ciboulette", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Égoutter les sardines et les écraser à la fourchette. Mélanger avec le fromage frais et le jus de citron. Ajouter la ciboulette ciselée. Servir sur des crackers ou des crudités.",
+    "tags": ["high-protein", "omega-3"],
+    "allergen_tags": ["poisson", "lait"]
+  }
+]

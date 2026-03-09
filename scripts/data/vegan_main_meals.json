@@ -1,0 +1,272 @@
+[
+  {
+    "name": "Curry de pois chiches et épinards au lait de coco",
+    "calories": 420, "protein_g": 18, "carbs_g": 45, "fat_g": 19,
+    "meal_type": "diner", "cuisine_type": "indienne", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Pois chiches cuits", "quantity": 200, "unit": "g"},
+      {"name": "Épinards frais", "quantity": 150, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 100, "unit": "ml"},
+      {"name": "Oignon", "quantity": 80, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"},
+      {"name": "Curry en poudre", "quantity": 8, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Faire revenir l'oignon et l'ail. Ajouter le curry, les pois chiches et le lait de coco. Cuire 15 min. Ajouter les épinards en fin de cuisson. Servir avec le riz.",
+    "tags": ["high-fiber", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Pad thaï végétalien aux légumes et tofu",
+    "calories": 450, "protein_g": 20, "carbs_g": 52, "fat_g": 18,
+    "meal_type": "diner", "cuisine_type": "thaïlandaise", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Nouilles de riz", "quantity": 80, "unit": "g"},
+      {"name": "Tofu ferme", "quantity": 150, "unit": "g"},
+      {"name": "Carottes", "quantity": 80, "unit": "g"},
+      {"name": "Germes de soja", "quantity": 60, "unit": "g"},
+      {"name": "Cacahuètes", "quantity": 15, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Citron vert", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Cuire les nouilles. Saisir le tofu coupé en dés. Faire sauter les légumes. Mélanger le tout avec la sauce soja et le jus de citron. Garnir de cacahuètes.",
+    "tags": ["vegan"],
+    "allergen_tags": ["soja", "arachides"]
+  },
+  {
+    "name": "Chili sin carne aux haricots rouges et quinoa",
+    "calories": 440, "protein_g": 22, "carbs_g": 55, "fat_g": 12,
+    "meal_type": "diner", "cuisine_type": "mexicaine", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Haricots rouges cuits", "quantity": 200, "unit": "g"},
+      {"name": "Quinoa", "quantity": 60, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 200, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 100, "unit": "g"},
+      {"name": "Oignon", "quantity": 80, "unit": "g"},
+      {"name": "Cumin", "quantity": 5, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir l'oignon et le poivron. Ajouter les tomates, haricots, cumin. Mijoter 20 min. Cuire le quinoa à part. Servir le chili sur le quinoa.",
+    "tags": ["high-fiber", "high-protein", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Bol de lentilles corail et patate douce rôtie",
+    "calories": 430, "protein_g": 20, "carbs_g": 60, "fat_g": 12,
+    "meal_type": "diner", "cuisine_type": "internationale", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Lentilles corail", "quantity": 80, "unit": "g"},
+      {"name": "Patate douce", "quantity": 200, "unit": "g"},
+      {"name": "Oignon", "quantity": 60, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"},
+      {"name": "Curcuma", "quantity": 3, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Coriandre fraîche", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Couper la patate douce en cubes, rôtir 20 min à 200°C avec huile d'olive. Cuire les lentilles avec oignon, ail et curcuma. Assembler et garnir de coriandre.",
+    "tags": ["high-fiber", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Sauté de tofu et brocoli sauce teriyaki",
+    "calories": 380, "protein_g": 24, "carbs_g": 35, "fat_g": 16,
+    "meal_type": "diner", "cuisine_type": "japonaise", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 200, "unit": "g"},
+      {"name": "Brocoli", "quantity": 200, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 20, "unit": "ml"},
+      {"name": "Sirop d'érable", "quantity": 10, "unit": "ml"},
+      {"name": "Sésame", "quantity": 5, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"},
+      {"name": "Huile de sésame", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Presser et couper le tofu en cubes. Saisir à feu vif avec huile de sésame. Ajouter le brocoli. Verser sauce soja + sirop d'érable. Servir sur le riz, garnir de sésame.",
+    "tags": ["high-protein", "vegan"],
+    "allergen_tags": ["soja", "sésame"]
+  },
+  {
+    "name": "Tajine de légumes aux abricots secs",
+    "calories": 390, "protein_g": 14, "carbs_g": 58, "fat_g": 12,
+    "meal_type": "diner", "cuisine_type": "marocaine", "diet_type": "vegan",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "Courgette", "quantity": 150, "unit": "g"},
+      {"name": "Pois chiches cuits", "quantity": 150, "unit": "g"},
+      {"name": "Carottes", "quantity": 100, "unit": "g"},
+      {"name": "Abricots secs", "quantity": 30, "unit": "g"},
+      {"name": "Semoule", "quantity": 60, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Ras el hanout", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Faire revenir les légumes coupés. Ajouter les pois chiches, abricots, ras el hanout et un peu d'eau. Mijoter 25 min. Servir avec la semoule.",
+    "tags": ["high-fiber", "vegan"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Wok de nouilles soba aux champignons shiitake",
+    "calories": 410, "protein_g": 16, "carbs_g": 55, "fat_g": 14,
+    "meal_type": "diner", "cuisine_type": "japonaise", "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Nouilles soba", "quantity": 80, "unit": "g"},
+      {"name": "Champignons shiitake", "quantity": 120, "unit": "g"},
+      {"name": "Edamames", "quantity": 80, "unit": "g"},
+      {"name": "Chou pak choï", "quantity": 100, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Gingembre frais", "quantity": 5, "unit": "g"},
+      {"name": "Huile de sésame", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Cuire les nouilles soba. Faire sauter les champignons et le pak choï avec gingembre et huile de sésame. Ajouter edamames et sauce soja. Mélanger avec les nouilles.",
+    "tags": ["vegan"],
+    "allergen_tags": ["soja", "gluten", "sésame"]
+  },
+  {
+    "name": "Dhal indien aux lentilles jaunes et tomates",
+    "calories": 400, "protein_g": 22, "carbs_g": 52, "fat_g": 10,
+    "meal_type": "diner", "cuisine_type": "indienne", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Lentilles corail", "quantity": 100, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 200, "unit": "g"},
+      {"name": "Oignon", "quantity": 80, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"},
+      {"name": "Gingembre frais", "quantity": 5, "unit": "g"},
+      {"name": "Curcuma", "quantity": 3, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Faire revenir oignon, ail, gingembre. Ajouter curcuma, lentilles et tomates. Couvrir d'eau et cuire 20 min. Servir avec le riz.",
+    "tags": ["high-protein", "low-fat", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Risotto aux champignons et petits pois végétalien",
+    "calories": 420, "protein_g": 14, "carbs_g": 62, "fat_g": 12,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Riz arborio", "quantity": 80, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 150, "unit": "g"},
+      {"name": "Petits pois", "quantity": 80, "unit": "g"},
+      {"name": "Oignon", "quantity": 60, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Levure maltée", "quantity": 10, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 300, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir l'oignon, ajouter le riz et mouiller progressivement avec le bouillon. À mi-cuisson ajouter les champignons. En fin de cuisson ajouter petits pois et levure maltée.",
+    "tags": ["vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Bol burrito végétalien aux haricots noirs",
+    "calories": 460, "protein_g": 20, "carbs_g": 58, "fat_g": 15,
+    "meal_type": "diner", "cuisine_type": "mexicaine", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Haricots noirs cuits", "quantity": 200, "unit": "g"},
+      {"name": "Riz complet", "quantity": 60, "unit": "g"},
+      {"name": "Maïs", "quantity": 80, "unit": "g"},
+      {"name": "Avocat", "quantity": 50, "unit": "g"},
+      {"name": "Tomate", "quantity": 100, "unit": "g"},
+      {"name": "Oignon rouge", "quantity": 40, "unit": "g"},
+      {"name": "Citron vert", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Cuire le riz. Réchauffer les haricots noirs avec le maïs. Couper tomate et oignon en dés pour la salsa. Assembler le bol : riz, haricots, salsa, avocat.",
+    "tags": ["high-fiber", "vegan"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Soupe thaï au lait de coco et tofu",
+    "calories": 350, "protein_g": 18, "carbs_g": 30, "fat_g": 18,
+    "meal_type": "diner", "cuisine_type": "thaïlandaise", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Tofu soyeux", "quantity": 150, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 150, "unit": "ml"},
+      {"name": "Champignons de Paris", "quantity": 100, "unit": "g"},
+      {"name": "Citronnelle", "quantity": 5, "unit": "g"},
+      {"name": "Gingembre frais", "quantity": 5, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "Coriandre fraîche", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Porter le lait de coco à ébullition avec citronnelle et gingembre. Ajouter champignons émincés et tofu en cubes. Cuire 10 min. Assaisonner de sauce soja, garnir de coriandre.",
+    "tags": ["low-carb", "vegan"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Pâtes complètes aux lentilles et sauce tomate",
+    "calories": 450, "protein_g": 24, "carbs_g": 65, "fat_g": 10,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Pâtes complètes", "quantity": 80, "unit": "g"},
+      {"name": "Lentilles vertes cuites", "quantity": 150, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 200, "unit": "g"},
+      {"name": "Oignon", "quantity": 60, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"},
+      {"name": "Basilic frais", "quantity": 5, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Cuire les pâtes. Faire revenir oignon et ail, ajouter tomates et lentilles. Mijoter 10 min. Mélanger avec les pâtes, garnir de basilic.",
+    "tags": ["high-protein", "high-fiber", "vegan"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Curry vert thaï aux légumes et tofu",
+    "calories": 400, "protein_g": 19, "carbs_g": 40, "fat_g": 18,
+    "meal_type": "diner", "cuisine_type": "thaïlandaise", "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Tofu ferme", "quantity": 150, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 100, "unit": "ml"},
+      {"name": "Courgette", "quantity": 100, "unit": "g"},
+      {"name": "Poivron vert", "quantity": 80, "unit": "g"},
+      {"name": "Pâte de curry vert", "quantity": 15, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"},
+      {"name": "Basilic thaï", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Saisir le tofu coupé en cubes. Faire revenir la pâte de curry, ajouter lait de coco et légumes. Cuire 15 min. Servir avec le riz et le basilic.",
+    "tags": ["vegan"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Falafel maison aux herbes et taboulé",
+    "calories": 440, "protein_g": 18, "carbs_g": 50, "fat_g": 18,
+    "meal_type": "diner", "cuisine_type": "libanaise", "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Pois chiches cuits", "quantity": 200, "unit": "g"},
+      {"name": "Persil plat", "quantity": 20, "unit": "g"},
+      {"name": "Oignon", "quantity": 40, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"},
+      {"name": "Semoule", "quantity": 50, "unit": "g"},
+      {"name": "Tomate", "quantity": 80, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 15, "unit": "ml"}
+    ],
+    "instructions": "Mixer pois chiches, persil, oignon, ail. Former des boulettes et cuire au four 20 min à 200°C. Préparer le taboulé : semoule, tomate en dés, persil, huile d'olive.",
+    "tags": ["high-fiber", "vegan"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Bol poké végétalien au tofu mariné",
+    "calories": 430, "protein_g": 20, "carbs_g": 50, "fat_g": 16,
+    "meal_type": "diner", "cuisine_type": "hawaïenne", "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Riz à sushi", "quantity": 80, "unit": "g"},
+      {"name": "Tofu ferme", "quantity": 150, "unit": "g"},
+      {"name": "Avocat", "quantity": 50, "unit": "g"},
+      {"name": "Edamames", "quantity": 60, "unit": "g"},
+      {"name": "Concombre", "quantity": 80, "unit": "g"},
+      {"name": "Sauce soja", "quantity": 15, "unit": "ml"},
+      {"name": "Sésame", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Mariner le tofu dans la sauce soja 10 min. Cuire le riz. Assembler le bol : riz, tofu, avocat, concombre, edamames. Garnir de sésame.",
+    "tags": ["vegan", "high-protein"],
+    "allergen_tags": ["soja", "sésame"]
+  }
+]

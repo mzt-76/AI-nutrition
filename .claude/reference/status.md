@@ -7,7 +7,7 @@
 - Backend complete: FastAPI + Pydantic AI agent + 6 skills + 17 scripts + JWT auth + RLS
 - React frontend: chat + streaming + Supabase Auth + generative UI (7 components)
 - Multi-user isolation verified, 366 unit tests passing, 13 eval datasets
-- OpenFoodFacts: 275K products, 546 cached ingredient mappings
+- OpenFoodFacts: 264K products (nettoyés Atwater), 933 cached ingredient mappings, online API fallback
 - Database: 16 tables, all RLS-enabled
 - Generative UI committed (7 components, tests, evals)
 - PRD v3.0 + README updated
@@ -111,10 +111,57 @@ Le meal planner produisait des plans avec fat à -30/-55% du target (50g au lieu
 
 ---
 
-## TODO: Meal-planning DB & pipeline improvements
+## DONE: Meal-planning audit & data quality (2026-03-09)
 
-- [ ] **Fusionner dejeuner/diner en `"repas"`** dans la DB + adapter `search_recipes` pour traiter les deux comme interchangeables. Actuellement contourné par double insert (chaque recette principale existe en dejeuner ET diner).
-- [ ] **Auditer les collations existantes** — certaines ont des protéines trop basses, ce qui cause des erreurs de génération de plan. Identifier et corriger les recettes collation avec < 10g protéines.
+- [x] **Atwater sanity check** — `_passes_atwater_check()` dans `openfoodfacts_client.py`. Vérifie `|cal - (P×4+G×4+L×9)| < 30%` à l'insertion en cache ET à la lecture. Empêche les données OFF corrompues de polluer les plans.
+- [x] **API OFF en ligne** — fallback `search_food_online()` quand la DB locale (264K produits) ne trouve pas l'ingrédient. Résultat inséré en local pour les appels futurs. Flux : cache → DB locale → API OFF → no-match.
+- [x] **Nettoyage DB** — 10 500 produits OFF corrompus supprimés (264K restants), 78 mappings cache supprimés (922 restants), 174 recettes re-validées.
+- [x] **Collations auditées** — 11 collations < 10g protéines supprimées, remplacées par 11 nouvelles (10-22g protéines, omnivore/végétarien/vegan). 51 collations total.
+- [x] **Sécurité** — `sanitize_user_text()`, XML delimiters dans prompts LLM, UUID validation, `asyncio.Semaphore(5)` rate-limiting OFF.
+- [x] **Modularité** — `find_worst_meal()`, `validate_recipe_allergens()`, constantes `MACRO_TOLERANCE_*` extraites vers `validators.py`.
+- [x] **Simplification** — `_BatchState` dataclass, magic numbers nommés, `max(0,...)` guard LP targets négatifs, warnings surfacés.
+- [x] **24 nouveaux tests** — Atwater, sanitize, allergens, find_worst_meal.
+
+## DONE: Recipe DB coverage & pool unification (2026-03-09)
+
+- [x] **Pool dejeuner/diner unifié** — `search_recipes()` utilise `.in_("meal_type", ["dejeuner", "diner"])` au lieu de `.eq()`. Pas de migration DB. Batch cooking et food tracking intacts.
+- [x] **150 nouvelles recettes** — 50 petit-dejeuner + 50 main meals + 50 collations, toutes OFF-validées.
+- [x] **25 recettes vegan/végétarien ajoutées** — 15 vegan diner + 10 végétarien diner pour équilibrer les pools.
+- [x] **26 recettes non-validées supprimées** — macros corrompues ou incohérentes.
+- [x] **Cuisine types normalisés** — tous en français (british→britannique, chinese→chinoise, etc.).
+- [x] **Quasi-doublons nettoyés** — 9 recettes similaires (>85% similarité) supprimées.
+- [x] **DB finale** : 547 recettes, 546 OFF-validées. Couverture équilibrée :
+  - collation: 32 omnivore / 33 végétarien / 29 vegan (94 total)
+  - dejeuner: 111 / 28 / 29 (168 total)
+  - diner: 88 / 30 / 30 (148 total)
+  - petit-dejeuner: 65 / 42 / 30 (137 total)
+  - Pool main meals combiné: 199 omnivore / 58 végétarien / 59 vegan (316 total)
+
+## TODO v2: LP optimizer hybride par groupes d'ingrédients (risque moyen)
+
+**Problème** : le LP actuel applique UN scale factor par recette entière. Si une recette a un mauvais ratio macro, le LP ne peut que la réduire/augmenter globalement — il ne peut pas ajuster les proportions internes.
+
+**Solution** : catégoriser les ingrédients par rôle et scaler par groupe :
+
+```
+Recette "Bowl poulet teriyaki"
+  Protéine  : poulet 150g      → scalable [0.5×, 2.0×]
+  Féculent  : riz 80g          → scalable [0.3×, 2.0×]
+  Légumes   : brocoli 100g     → fixe ou léger scaling
+  Sauce     : sauce teriyaki   → proportionnel au féculent
+  Garniture : sésame 5g        → fixe
+```
+
+Le LP optimise 2-3 groupes par recette au lieu d'1 facteur unique, donnant la flexibilité macro sans casser la cohérence culinaire.
+
+**Prérequis** :
+- Tagger chaque ingrédient avec son rôle (`protein`, `starch`, `vegetable`, `sauce`, `garnish`)
+- ~430 recettes × ~5 ingrédients = ~2150 tags → automatisable avec un LLM en batch
+- Ajouter les contraintes de proportion au LP (sauce proportionnelle au féculent, garniture fixe)
+- Modifier `portion_optimizer.py` : passer de n variables (1/recette) à ~3n variables (groupes/recette)
+- Contraintes culinaires : quantités min/max par ingrédient (1 œuf = 60g, pas 37g)
+
+**Complexité** : moyenne-haute. Le LP reste trivial (<10ms) mais le tagging et les contraintes culinaires demandent du travail de design.
 
 ---
 

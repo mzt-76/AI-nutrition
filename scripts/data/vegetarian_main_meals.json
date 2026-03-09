@@ -1,0 +1,177 @@
+[
+  {
+    "name": "Gratin de courgettes au chèvre et noix",
+    "calories": 420, "protein_g": 22, "carbs_g": 30, "fat_g": 24,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Courgette", "quantity": 300, "unit": "g"},
+      {"name": "Fromage de chèvre", "quantity": 80, "unit": "g"},
+      {"name": "Noix", "quantity": 20, "unit": "g"},
+      {"name": "Œufs", "quantity": 2, "unit": "pièces"},
+      {"name": "Crème fraîche", "quantity": 30, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Couper les courgettes en rondelles, disposer dans un plat. Mélanger œufs et crème, verser. Émietter le chèvre et parsemer de noix. Enfourner 25 min à 180°C.",
+    "tags": ["végétarien"],
+    "allergen_tags": ["lait", "œufs", "fruits à coque"]
+  },
+  {
+    "name": "Risotto aux asperges et citron",
+    "calories": 400, "protein_g": 14, "carbs_g": 58, "fat_g": 12,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Riz arborio", "quantity": 80, "unit": "g"},
+      {"name": "Asperges vertes", "quantity": 200, "unit": "g"},
+      {"name": "Parmesan", "quantity": 20, "unit": "g"},
+      {"name": "Oignon", "quantity": 60, "unit": "g"},
+      {"name": "Beurre", "quantity": 10, "unit": "g"},
+      {"name": "Citron", "quantity": 30, "unit": "g"},
+      {"name": "Bouillon de légumes", "quantity": 300, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir l'oignon dans le beurre, ajouter le riz. Mouiller progressivement avec le bouillon. À mi-cuisson ajouter les asperges coupées. Finir avec parmesan et zeste de citron.",
+    "tags": ["végétarien"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Galettes de quinoa aux légumes et sauce yaourt",
+    "calories": 380, "protein_g": 18, "carbs_g": 42, "fat_g": 16,
+    "meal_type": "diner", "cuisine_type": "internationale", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Quinoa", "quantity": 80, "unit": "g"},
+      {"name": "Carottes", "quantity": 80, "unit": "g"},
+      {"name": "Courgette", "quantity": 80, "unit": "g"},
+      {"name": "Œufs", "quantity": 1, "unit": "pièces"},
+      {"name": "Yaourt nature", "quantity": 80, "unit": "g"},
+      {"name": "Menthe fraîche", "quantity": 5, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Cuire le quinoa. Râper les légumes. Mélanger quinoa, légumes et œuf. Former des galettes et cuire à la poêle 4 min par face. Sauce : yaourt + menthe.",
+    "tags": ["high-protein", "végétarien"],
+    "allergen_tags": ["lait", "œufs"]
+  },
+  {
+    "name": "Lasagnes aux épinards et ricotta",
+    "calories": 460, "protein_g": 24, "carbs_g": 45, "fat_g": 20,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 40,
+    "ingredients": [
+      {"name": "Feuilles de lasagne", "quantity": 80, "unit": "g"},
+      {"name": "Épinards frais", "quantity": 200, "unit": "g"},
+      {"name": "Ricotta", "quantity": 120, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 200, "unit": "g"},
+      {"name": "Mozzarella", "quantity": 50, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Faire fondre les épinards avec l'ail. Mélanger à la ricotta. Alterner couches de sauce tomate, lasagnes, mélange épinards-ricotta. Garnir de mozzarella. Cuire 30 min à 180°C.",
+    "tags": ["végétarien"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Tarte aux poireaux et fromage frais",
+    "calories": 400, "protein_g": 16, "carbs_g": 38, "fat_g": 20,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {"name": "Pâte brisée", "quantity": 80, "unit": "g"},
+      {"name": "Poireaux", "quantity": 250, "unit": "g"},
+      {"name": "Fromage frais", "quantity": 80, "unit": "g"},
+      {"name": "Œufs", "quantity": 2, "unit": "pièces"},
+      {"name": "Crème fraîche", "quantity": 30, "unit": "g"},
+      {"name": "Noix de muscade", "quantity": 1, "unit": "g"}
+    ],
+    "instructions": "Émincer et faire fondre les poireaux 10 min. Mélanger œufs, crème, fromage frais et muscade. Garnir le fond de tarte de poireaux, verser l'appareil. Cuire 25 min à 180°C.",
+    "tags": ["végétarien"],
+    "allergen_tags": ["gluten", "lait", "œufs"]
+  },
+  {
+    "name": "Curry de légumes au paneer",
+    "calories": 430, "protein_g": 20, "carbs_g": 40, "fat_g": 22,
+    "meal_type": "diner", "cuisine_type": "indienne", "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "Paneer", "quantity": 100, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 100, "unit": "g"},
+      {"name": "Petits pois", "quantity": 80, "unit": "g"},
+      {"name": "Tomates concassées", "quantity": 150, "unit": "g"},
+      {"name": "Lait de coco", "quantity": 80, "unit": "ml"},
+      {"name": "Garam masala", "quantity": 5, "unit": "g"},
+      {"name": "Riz basmati", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Saisir le paneer coupé en cubes. Faire revenir les légumes, ajouter tomates, lait de coco et garam masala. Mijoter 15 min. Servir avec le riz.",
+    "tags": ["végétarien"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Frittata aux légumes du soleil",
+    "calories": 370, "protein_g": 22, "carbs_g": 18, "fat_g": 24,
+    "meal_type": "diner", "cuisine_type": "méditerranéenne", "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "Œufs", "quantity": 3, "unit": "pièces"},
+      {"name": "Courgette", "quantity": 100, "unit": "g"},
+      {"name": "Poivron rouge", "quantity": 80, "unit": "g"},
+      {"name": "Tomates cerises", "quantity": 80, "unit": "g"},
+      {"name": "Feta", "quantity": 40, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "Basilic frais", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Faire sauter les légumes 5 min. Battre les œufs, verser sur les légumes. Cuire 5 min à la poêle puis 10 min au four à 180°C. Émietter la feta et garnir de basilic.",
+    "tags": ["low-carb", "high-protein", "végétarien"],
+    "allergen_tags": ["œufs", "lait"]
+  },
+  {
+    "name": "Gnocchi aux épinards sauce crémeuse",
+    "calories": 440, "protein_g": 16, "carbs_g": 52, "fat_g": 18,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Gnocchi", "quantity": 200, "unit": "g"},
+      {"name": "Épinards frais", "quantity": 150, "unit": "g"},
+      {"name": "Crème fraîche", "quantity": 50, "unit": "g"},
+      {"name": "Parmesan", "quantity": 20, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"},
+      {"name": "Noix de muscade", "quantity": 1, "unit": "g"}
+    ],
+    "instructions": "Cuire les gnocchi. Faire fondre les épinards avec l'ail. Ajouter crème et muscade. Mélanger les gnocchi à la sauce, saupoudrer de parmesan.",
+    "tags": ["végétarien"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Soupe de lentilles aux légumes racines",
+    "calories": 360, "protein_g": 20, "carbs_g": 50, "fat_g": 8,
+    "meal_type": "diner", "cuisine_type": "française", "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "Lentilles vertes", "quantity": 80, "unit": "g"},
+      {"name": "Carottes", "quantity": 100, "unit": "g"},
+      {"name": "Céleri", "quantity": 60, "unit": "g"},
+      {"name": "Pomme de terre", "quantity": 100, "unit": "g"},
+      {"name": "Oignon", "quantity": 60, "unit": "g"},
+      {"name": "Crème fraîche", "quantity": 20, "unit": "g"},
+      {"name": "Huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir oignon et céleri. Ajouter carottes, pomme de terre et lentilles. Couvrir d'eau, cuire 25 min. Mixer partiellement. Servir avec un filet de crème.",
+    "tags": ["high-fiber", "low-fat", "végétarien"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Poêlée de gnocchi aux champignons et sauge",
+    "calories": 410, "protein_g": 14, "carbs_g": 55, "fat_g": 16,
+    "meal_type": "diner", "cuisine_type": "italienne", "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "Gnocchi", "quantity": 200, "unit": "g"},
+      {"name": "Champignons de Paris", "quantity": 150, "unit": "g"},
+      {"name": "Beurre", "quantity": 15, "unit": "g"},
+      {"name": "Sauge fraîche", "quantity": 5, "unit": "g"},
+      {"name": "Parmesan", "quantity": 15, "unit": "g"},
+      {"name": "Ail", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire les gnocchi. Faire fondre le beurre avec la sauge et l'ail. Ajouter les champignons émincés, cuire 5 min. Ajouter les gnocchi, sauter 2 min. Servir avec le parmesan.",
+    "tags": ["végétarien"],
+    "allergen_tags": ["gluten", "lait"]
+  }
+]

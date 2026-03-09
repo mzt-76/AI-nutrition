@@ -1,0 +1,2658 @@
+[
+  {
+    "name": "Poivrons farcis au quinoa et feta",
+    "calories": 420,
+    "protein_g": 28,
+    "meal_type": "dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {
+        "name": "Poivron rouge",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Quinoa",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Feta",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Persil frais",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 200°C. Couper les poivrons en deux et les épépiner. Cuire le quinoa selon les instructions. Faire revenir l'oignon émincé dans l'huile d'olive. Mélanger le quinoa cuit avec l'oignon, la tomate coupée en dés, la feta émiettée et le persil. Farcir les demi-poivrons avec le mélange. Enfourner 25 minutes jusqu'à ce que les poivrons soient tendres.",
+    "tags": [
+      "high-protein",
+      "végétarien"
+    ],
+    "allergen_tags": [
+      "lait"
+    ]
+  },
+  {
+    "name": "Shakshuka épicée aux œufs",
+    "calories": 380,
+    "protein_g": 26,
+    "meal_type": "diner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Œuf",
+        "quantity": 3,
+        "unit": "pièce"
+      },
+      {
+        "name": "Tomate concassée",
+        "quantity": 400,
+        "unit": "g"
+      },
+      {
+        "name": "Poivron rouge",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Cumin",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Paprika",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Faire revenir l'oignon et le poivron émincés dans l'huile d'olive. Ajouter le cumin et le paprika, mélanger. Verser les tomates concassées, saler, poivrer et laisser mijoter 10 minutes. Creuser des puits dans la sauce et y casser les œufs. Couvrir et cuire 8 minutes jusqu'à ce que les blancs soient pris.",
+    "tags": [
+      "high-protein",
+      "végétarien"
+    ],
+    "allergen_tags": [
+      "œufs"
+    ]
+  },
+  {
+    "name": "Patate douce farcie aux haricots noirs",
+    "calories": 450,
+    "protein_g": 25,
+    "meal_type": "dejeuner",
+    "cuisine_type": "mexicaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 40,
+    "ingredients": [
+      {
+        "name": "Patate douce",
+        "quantity": 250,
+        "unit": "g"
+      },
+      {
+        "name": "Haricots noirs",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Maïs",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Avocat",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Coriandre fraîche",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Jus de citron vert",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Cumin",
+        "quantity": 3,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 200°C. Piquer les patates douces et les enfourner 35 minutes. Réchauffer les haricots noirs avec le cumin et le maïs dans une poêle. Ouvrir les patates douces cuites et les garnir du mélange haricots-maïs. Ajouter l'avocat en tranches, la coriandre et un filet de citron vert.",
+    "tags": [
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": []
+  },
+  {
+    "name": "Courgettes farcies au bœuf et boulgour",
+    "calories": 480,
+    "protein_g": 38,
+    "meal_type": "diner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {
+        "name": "Courgette",
+        "quantity": 300,
+        "unit": "g"
+      },
+      {
+        "name": "Bœuf haché 5%",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Boulgour",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Préchauffer le four à 190°C. Couper les courgettes en deux dans la longueur et les évider. Cuire le boulgour. Faire revenir l'oignon et l'ail, ajouter le bœuf haché et la tomate en dés. Mélanger avec le boulgour. Farcir les courgettes et enfourner 25 minutes.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Steak de chou-fleur rôti aux épices",
+    "calories": 360,
+    "protein_g": 25,
+    "meal_type": "dejeuner",
+    "cuisine_type": "indienne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Chou-fleur",
+        "quantity": 300,
+        "unit": "g"
+      },
+      {
+        "name": "Pois chiches",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Curcuma",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Garam masala",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Citron",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Coriandre fraîche",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 220°C. Couper le chou-fleur en tranches épaisses de 2 cm. Mélanger le curcuma, garam masala et l'huile, badigeonner les tranches. Disposer sur une plaque avec les pois chiches. Rôtir 25 minutes en retournant à mi-cuisson. Servir avec un filet de citron et la coriandre.",
+    "tags": [
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": []
+  },
+  {
+    "name": "Japchae aux légumes et bœuf",
+    "calories": 450,
+    "protein_g": 30,
+    "meal_type": "diner",
+    "cuisine_type": "coréenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Nouilles de patate douce",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Bœuf émincé",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Épinards frais",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Carotte",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Champignon shiitake",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 20,
+        "unit": "ml"
+      },
+      {
+        "name": "Huile de sésame",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Graines de sésame",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire les nouilles de patate douce selon les instructions, égoutter. Faire sauter le bœuf émincé dans l'huile de sésame. Réserver. Sauter les légumes séparément : épinards, carottes julienne, champignons. Mélanger le tout avec la sauce soja. Garnir de graines de sésame.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "soja",
+      "sésame"
+    ]
+  },
+  {
+    "name": "Champignons portobello farcis au fromage de chèvre",
+    "calories": 390,
+    "protein_g": 27,
+    "meal_type": "dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Champignon portobello",
+        "quantity": 250,
+        "unit": "g"
+      },
+      {
+        "name": "Fromage de chèvre",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Épinards frais",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Noix",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Préchauffer le four à 200°C. Retirer les pieds des champignons et les hacher. Faire revenir l'ail et les pieds hachés avec les épinards dans l'huile d'olive. Remplir les chapeaux de champignons avec le mélange épinards. Ajouter le fromage de chèvre émietté et les noix concassées. Enfourner 15 minutes.",
+    "tags": [
+      "végétarien",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "lait",
+      "fruits à coque"
+    ]
+  },
+  {
+    "name": "Lomo saltado péruvien",
+    "calories": 520,
+    "protein_g": 40,
+    "meal_type": "diner",
+    "cuisine_type": "péruvienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Filet de bœuf",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon rouge",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Pomme de terre",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Vinaigre de vin rouge",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Ail",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Coriandre fraîche",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Couper les pommes de terre en frites et les cuire au four à 200°C. Saisir le bœuf coupé en lanières à feu vif. Réserver. Faire sauter l'oignon et l'ail, ajouter les tomates en quartiers. Déglacer avec la sauce soja et le vinaigre. Remettre le bœuf, ajouter les frites et la coriandre. Servir immédiatement.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "soja"
+    ]
+  },
+  {
+    "name": "Tacos de laitue au poulet gingembre",
+    "calories": 380,
+    "protein_g": 35,
+    "meal_type": "dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Blanc de poulet",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Laitue iceberg",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Carotte",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Gingembre frais",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Cacahuètes",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon vert",
+        "quantity": 20,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Hacher le poulet finement. Faire sauter dans une poêle chaude avec le gingembre râpé. Ajouter la carotte râpée et la sauce soja. Cuire 5 minutes. Séparer les feuilles de laitue pour former des coupelles. Garnir chaque feuille du mélange poulet, parsemer de cacahuètes concassées et d'oignon vert.",
+    "tags": [
+      "high-protein",
+      "low-carb"
+    ],
+    "allergen_tags": [
+      "soja",
+      "arachides"
+    ]
+  },
+  {
+    "name": "Aubergines grillées à la libanaise avec tahini",
+    "calories": 370,
+    "protein_g": 25,
+    "meal_type": "dejeuner",
+    "cuisine_type": "libanaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Aubergine",
+        "quantity": 250,
+        "unit": "g"
+      },
+      {
+        "name": "Tahini",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Pois chiches",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Grenade",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Persil frais",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Citron",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Couper l'aubergine en tranches épaisses. Badigeonner d'un peu d'huile et griller au four à 220°C pendant 20 minutes. Préparer la sauce tahini : mélanger le tahini, jus de citron, ail écrasé et un peu d'eau. Disposer les aubergines grillées, garnir de pois chiches, arroser de sauce tahini. Parsemer de graines de grenade et de persil.",
+    "tags": [
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "sésame"
+    ]
+  },
+  {
+    "name": "Poulet en croûte de moutarde et herbes",
+    "calories": 460,
+    "protein_g": 42,
+    "meal_type": "diner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Blanc de poulet",
+        "quantity": 180,
+        "unit": "g"
+      },
+      {
+        "name": "Moutarde de Dijon",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Chapelure",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Haricots verts",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Thym frais",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Préchauffer le four à 200°C. Badigeonner le poulet de moutarde. Mélanger la chapelure avec le thym haché. Recouvrir le poulet du mélange chapelure-herbes. Enfourner 20 minutes. Cuire les haricots verts à la vapeur 8 minutes. Servir le poulet avec les haricots verts arrosés d'un filet d'huile d'olive.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "moutarde"
+    ]
+  },
+  {
+    "name": "Tofu croustillant sauce teriyaki maison",
+    "calories": 400,
+    "protein_g": 28,
+    "meal_type": "dejeuner",
+    "cuisine_type": "japonaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Tofu ferme",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Fécule de maïs",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 20,
+        "unit": "ml"
+      },
+      {
+        "name": "Sirop d'érable",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Riz complet",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Brocoli",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Gingembre frais",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Égoutter et presser le tofu, couper en cubes. Enrober de fécule de maïs. Cuire à la poêle avec un filet d'huile jusqu'à ce qu'il soit doré et croustillant. Préparer la sauce : mélanger sauce soja, sirop d'érable et gingembre râpé, réduire à feu doux. Cuire le riz complet et le brocoli à la vapeur. Napper le tofu de sauce teriyaki et servir.",
+    "tags": [
+      "vegan",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "soja"
+    ]
+  },
+  {
+    "name": "Assiette méditerranéenne complète",
+    "calories": 480,
+    "protein_g": 30,
+    "meal_type": "diner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Houmous",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Œuf dur",
+        "quantity": 2,
+        "unit": "pièce"
+      },
+      {
+        "name": "Concombre",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate cerise",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Olive noire",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Pain complet",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Cuire les œufs durs 10 minutes, les refroidir et les couper en quartiers. Disposer sur une assiette le houmous, le concombre en rondelles, les tomates cerises coupées en deux, les olives et les œufs. Griller le pain complet. Arroser d'un filet d'huile d'olive.",
+    "tags": [
+      "végétarien",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "œufs",
+      "gluten",
+      "sésame"
+    ]
+  },
+  {
+    "name": "Poulet yassa sénégalais",
+    "calories": 490,
+    "protein_g": 38,
+    "meal_type": "dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {
+        "name": "Cuisse de poulet désossée",
+        "quantity": 160,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Citron",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Moutarde",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Riz basmati",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'arachide",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Olive verte",
+        "quantity": 20,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mariner le poulet avec le jus de citron et la moutarde 15 minutes. Émincer finement les oignons. Saisir le poulet dans l'huile d'arachide, réserver. Faire caraméliser les oignons longuement. Remettre le poulet, ajouter les olives et un peu d'eau. Mijoter 15 minutes. Servir sur du riz basmati.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "moutarde",
+      "arachides"
+    ]
+  },
+  {
+    "name": "Bateaux de courgettes au thon et ricotta",
+    "calories": 390,
+    "protein_g": 35,
+    "meal_type": "diner",
+    "cuisine_type": "italienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Courgette",
+        "quantity": 300,
+        "unit": "g"
+      },
+      {
+        "name": "Thon au naturel",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Ricotta",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate séchée",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Basilic frais",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Parmesan",
+        "quantity": 15,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 190°C. Couper les courgettes en deux dans la longueur et les évider. Mélanger le thon égoutté, la ricotta, les tomates séchées hachées et le basilic ciselé. Farcir les courgettes avec le mélange. Parsemer de parmesan râpé. Enfourner 20 minutes.",
+    "tags": [
+      "high-protein",
+      "low-carb"
+    ],
+    "allergen_tags": [
+      "lait",
+      "poisson"
+    ]
+  },
+  {
+    "name": "Curry vert thaï aux crevettes",
+    "calories": 430,
+    "protein_g": 32,
+    "meal_type": "dejeuner",
+    "cuisine_type": "thaïlandaise",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Crevettes décortiquées",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Lait de coco",
+        "quantity": 100,
+        "unit": "ml"
+      },
+      {
+        "name": "Pâte de curry vert",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Courgette",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Poivron vert",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Riz jasmin",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Basilic thaï",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le riz jasmin. Faire chauffer la pâte de curry dans une casserole, ajouter le lait de coco et porter à ébullition. Ajouter la courgette et le poivron en morceaux, cuire 5 minutes. Ajouter les crevettes, cuire 3 minutes. Parsemer de basilic thaï. Servir sur le riz.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "crustacés"
+    ]
+  },
+  {
+    "name": "Parmentier de lentilles vertes gratinées",
+    "calories": 460,
+    "protein_g": 28,
+    "meal_type": "diner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 40,
+    "ingredients": [
+      {
+        "name": "Lentilles vertes",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Pomme de terre",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Carotte",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Concentré de tomate",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Thym",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Lait demi-écrémé",
+        "quantity": 30,
+        "unit": "ml"
+      },
+      {
+        "name": "Emmental râpé",
+        "quantity": 20,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire les lentilles vertes 25 minutes. Cuire les pommes de terre à l'eau, les écraser avec le lait pour faire une purée. Faire revenir l'oignon et la carotte en dés, ajouter les lentilles cuites et le concentré de tomate. Verser dans un plat à gratin, recouvrir de purée. Parsemer de thym. Gratiner au four 15 minutes à 200°C.",
+    "tags": [
+      "végétarien",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "lait"
+    ]
+  },
+  {
+    "name": "Dorade en papillote aux agrumes",
+    "calories": 380,
+    "protein_g": 36,
+    "meal_type": "dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Filet de dorade",
+        "quantity": 180,
+        "unit": "g"
+      },
+      {
+        "name": "Orange",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Fenouil",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate cerise",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Aneth frais",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 200°C. Émincer finement le fenouil. Disposer sur une feuille de papier cuisson le fenouil émincé, les rondelles d'orange et les tomates cerises coupées. Poser le filet de dorade dessus, arroser d'huile d'olive, parsemer d'aneth. Refermer la papillote. Cuire 18 minutes au four.",
+    "tags": [
+      "high-protein",
+      "low-fat"
+    ],
+    "allergen_tags": [
+      "poisson"
+    ]
+  },
+  {
+    "name": "Taco bowl végétarien aux haricots rouges",
+    "calories": 470,
+    "protein_g": 26,
+    "meal_type": "diner",
+    "cuisine_type": "mexicaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Haricots rouges",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Riz complet",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Maïs",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Poivron rouge",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Yaourt nature",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Paprika fumé",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Coriandre fraîche",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le riz complet. Réchauffer les haricots rouges avec le paprika fumé et le maïs. Couper le poivron en lanières et les faire sauter rapidement. Assembler dans un bol : riz, haricots épicés, poivron, maïs. Ajouter une cuillère de yaourt et de la coriandre fraîche.",
+    "tags": [
+      "végétarien",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "lait"
+    ]
+  },
+  {
+    "name": "Souvlaki de dinde aux herbes grecques",
+    "calories": 420,
+    "protein_g": 40,
+    "meal_type": "dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Escalope de dinde",
+        "quantity": 170,
+        "unit": "g"
+      },
+      {
+        "name": "Yaourt grec",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Concombre",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon rouge",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Origan séché",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Couper la dinde en cubes et mariner avec l'origan, l'huile d'olive et du jus de citron. Enfiler sur des brochettes. Griller au four ou à la poêle 12 minutes en retournant. Préparer le tzatziki : mélanger yaourt, concombre râpé et ail. Servir les brochettes avec la tomate et l'oignon en salade.",
+    "tags": [
+      "high-protein",
+      "low-carb"
+    ],
+    "allergen_tags": [
+      "lait"
+    ]
+  },
+  {
+    "name": "Nouilles soba aux edamames et légumes",
+    "calories": 440,
+    "protein_g": 33,
+    "meal_type": "diner",
+    "cuisine_type": "japonaise",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Nouilles soba",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Edamame",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Carotte",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Chou pak choï",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Huile de sésame",
+        "quantity": 8,
+        "unit": "ml"
+      },
+      {
+        "name": "Gingembre frais",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Œuf poché",
+        "quantity": 1,
+        "unit": "pièce"
+      }
+    ],
+    "instructions": "Cuire les nouilles soba selon les instructions, rincer à l'eau froide. Cuire les edamames 5 minutes dans l'eau bouillante. Faire sauter la carotte en julienne et le pak choï dans l'huile de sésame avec le gingembre râpé. Ajouter les nouilles et les edamames, assaisonner avec la sauce soja. Mélanger et servir. Servir avec un œuf poché sur le dessus.",
+    "tags": [
+      "végétarien",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "soja",
+      "sésame",
+      "gluten",
+      "œufs"
+    ]
+  },
+  {
+    "name": "Magret de canard au miel et navets glacés",
+    "calories": 520,
+    "protein_g": 35,
+    "meal_type": "dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {
+        "name": "Magret de canard",
+        "quantity": 130,
+        "unit": "g"
+      },
+      {
+        "name": "Navet",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Miel",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Thym frais",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Sel de Guérande",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Quadriller la peau du magret. Cuire côté peau en poêle froide 8 minutes, retourner 4 minutes. Laisser reposer. Éplucher et couper les navets en quartiers. Les glacer dans une poêle avec le beurre, le miel et le thym, 15 minutes à couvert. Trancher le magret et servir avec les navets glacés.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "lait"
+    ]
+  },
+  {
+    "name": "Frittata aux légumes du soleil",
+    "calories": 400,
+    "protein_g": 28,
+    "meal_type": "diner",
+    "cuisine_type": "italienne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Œuf",
+        "quantity": 4,
+        "unit": "pièce"
+      },
+      {
+        "name": "Poivron rouge",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Courgette",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate séchée",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Parmesan",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Basilic frais",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Préchauffer le gril du four. Faire sauter le poivron et la courgette en dés dans l'huile d'olive 5 minutes. Battre les œufs avec le parmesan râpé et le basilic ciselé. Ajouter les tomates séchées hachées. Verser sur les légumes dans la poêle. Cuire 5 minutes à feu moyen. Finir sous le gril 3 minutes jusqu'à ce que le dessus soit doré.",
+    "tags": [
+      "végétarien",
+      "high-protein",
+      "low-carb"
+    ],
+    "allergen_tags": [
+      "œufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Bol de riz noir aux champignons et miso",
+    "calories": 430,
+    "protein_g": 25,
+    "meal_type": "dejeuner",
+    "cuisine_type": "japonaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Riz noir",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Champignon shiitake",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Pâte de miso",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Tofu soyeux",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Épinards frais",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Graines de sésame",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon vert",
+        "quantity": 15,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le riz noir 30 minutes. Faire sauter les champignons shiitake émincés. Diluer la pâte de miso dans 2 cuillères d'eau tiède et en napper les champignons. Faire tomber les épinards. Assembler le bol : riz noir, champignons au miso, épinards, tofu soyeux en cubes. Garnir de graines de sésame et d'oignon vert.",
+    "tags": [
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "soja",
+      "sésame"
+    ]
+  },
+  {
+    "name": "Émincé de porc au paprika et chou rouge",
+    "calories": 440,
+    "protein_g": 36,
+    "meal_type": "diner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Filet mignon de porc",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Chou rouge",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Pomme",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Paprika doux",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Crème fraîche légère",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Huile de colza",
+        "quantity": 8,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Émincer finement le filet mignon. Assaisonner de paprika. Saisir dans l'huile de colza à feu vif 3 minutes. Réserver. Émincer le chou rouge et la pomme, les faire sauter 10 minutes à feu moyen. Remettre le porc, ajouter la crème fraîche. Mélanger et laisser mijoter 3 minutes.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "lait"
+    ]
+  },
+  {
+    "name": "Tempeh grillé sauce satay aux cacahuètes",
+    "calories": 460,
+    "protein_g": 30,
+    "meal_type": "dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Tempeh",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre de cacahuète",
+        "quantity": 25,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Lait de coco",
+        "quantity": 40,
+        "unit": "ml"
+      },
+      {
+        "name": "Riz basmati",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Concombre",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Citron vert",
+        "quantity": 15,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Couper le tempeh en tranches. Griller à la poêle 3 minutes par face. Préparer la sauce satay : mélanger beurre de cacahuète, sauce soja, lait de coco et jus de citron vert à feu doux. Cuire le riz basmati. Servir le tempeh sur le riz, nappé de sauce satay, avec du concombre en rondelles.",
+    "tags": [
+      "vegan",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "soja",
+      "arachides"
+    ]
+  },
+  {
+    "name": "Tartine complète au saumon fumé et avocat",
+    "calories": 430,
+    "protein_g": 28,
+    "meal_type": "diner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Pain de seigle",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Saumon fumé",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Avocat",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Fromage frais",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Citron",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Aneth frais",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Roquette",
+        "quantity": 20,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Griller les tranches de pain de seigle. Écraser l'avocat avec le jus de citron. Tartiner le fromage frais sur le pain, puis l'avocat écrasé. Disposer les tranches de saumon fumé. Garnir de roquette et d'aneth. Poivrer généreusement.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "lait",
+      "poisson"
+    ]
+  },
+  {
+    "name": "Mijoté de pois chiches à l'indienne",
+    "calories": 440,
+    "protein_g": 26,
+    "meal_type": "dejeuner",
+    "cuisine_type": "indienne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Pois chiches",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate concassée",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Garam masala",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Curcuma",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Épinards frais",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Riz basmati",
+        "quantity": 70,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Faire revenir l'oignon haché. Ajouter le garam masala et le curcuma, torréfier 1 minute. Ajouter les tomates concassées et les pois chiches égouttés. Mijoter 15 minutes. Ajouter les épinards en fin de cuisson. Cuire le riz basmati à part. Servir le mijoté sur le riz.",
+    "tags": [
+      "vegan",
+      "high-fiber",
+      "high-protein"
+    ],
+    "allergen_tags": []
+  },
+  {
+    "name": "Filet de bar poêlé aux artichauts",
+    "calories": 400,
+    "protein_g": 38,
+    "meal_type": "diner",
+    "cuisine_type": "italienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Filet de bar",
+        "quantity": 170,
+        "unit": "g"
+      },
+      {
+        "name": "Cœur d'artichaut",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate cerise",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Câpres",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Citron",
+        "quantity": 20,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Assaisonner le filet de bar de sel et poivre. Poêler côté peau 4 minutes dans l'huile d'olive, retourner 2 minutes. Réserver. Dans la même poêle, faire revenir les cœurs d'artichaut coupés en quartiers et les tomates cerises. Ajouter les câpres et un filet de citron. Servir le bar sur les légumes.",
+    "tags": [
+      "high-protein",
+      "low-carb"
+    ],
+    "allergen_tags": [
+      "poisson"
+    ]
+  },
+  {
+    "name": "Boulettes de dinde à la sauce tomate basilic",
+    "calories": 450,
+    "protein_g": 38,
+    "meal_type": "dejeuner",
+    "cuisine_type": "italienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Dinde hachée",
+        "quantity": 160,
+        "unit": "g"
+      },
+      {
+        "name": "Chapelure",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Œuf",
+        "quantity": 1,
+        "unit": "pièce"
+      },
+      {
+        "name": "Tomate concassée",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Basilic frais",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Semoule complète",
+        "quantity": 70,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mélanger la dinde hachée, la chapelure et l'œuf. Former des boulettes. Les saisir dans une poêle chaude 5 minutes. Préparer la sauce : faire revenir l'ail, ajouter les tomates concassées, le basilic, saler. Déposer les boulettes dans la sauce, mijoter 15 minutes. Cuire la semoule et servir.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "œufs"
+    ]
+  },
+  {
+    "name": "Saag paneer revisité aux pois cassés",
+    "calories": 430,
+    "protein_g": 30,
+    "meal_type": "diner",
+    "cuisine_type": "indienne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Paneer",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Épinards frais",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Pois cassés",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Gingembre frais",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Garam masala",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Crème fraîche légère",
+        "quantity": 20,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire les pois cassés 20 minutes. Faire revenir l'oignon et le gingembre, ajouter les épinards et les cuire jusqu'à ce qu'ils tombent. Mixer grossièrement. Couper le paneer en cubes et les dorer à la poêle. Mélanger le tout avec le garam masala et la crème. Servir avec les pois cassés.",
+    "tags": [
+      "végétarien",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "lait"
+    ]
+  },
+  {
+    "name": "Gambas à la plancha et riz citronné",
+    "calories": 420,
+    "protein_g": 34,
+    "meal_type": "dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Gambas",
+        "quantity": 160,
+        "unit": "g"
+      },
+      {
+        "name": "Riz basmati",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Citron",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Persil frais",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Piment d'Espelette",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le riz basmati, égrainer avec le zeste de citron et le persil haché. Faire chauffer la poêle à feu vif avec l'huile d'olive. Saisir les gambas avec l'ail émincé et le piment d'Espelette, 2 minutes par face. Arroser de jus de citron. Servir immédiatement sur le riz citronné.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "crustacés"
+    ]
+  },
+  {
+    "name": "Omelette aux asperges et comté",
+    "calories": 400,
+    "protein_g": 32,
+    "meal_type": "diner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Œuf",
+        "quantity": 4,
+        "unit": "pièce"
+      },
+      {
+        "name": "Asperge verte",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Comté",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Ciboulette",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Salade verte",
+        "quantity": 40,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire les asperges à la vapeur 5 minutes, les couper en tronçons. Battre les œufs avec la ciboulette ciselée. Faire fondre le beurre dans une poêle, verser les œufs. Quand l'omelette commence à prendre, ajouter les asperges et le comté râpé. Plier et servir avec la salade verte.",
+    "tags": [
+      "végétarien",
+      "high-protein",
+      "low-carb"
+    ],
+    "allergen_tags": [
+      "œufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Galette bretonne aux champignons et épinards",
+    "calories": 380,
+    "protein_g": 25,
+    "meal_type": "dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Farine de sarrasin",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Œuf",
+        "quantity": 1,
+        "unit": "pièce"
+      },
+      {
+        "name": "Champignon de Paris",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Épinards frais",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Emmental râpé",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre",
+        "quantity": 8,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préparer la pâte : mélanger la farine de sarrasin avec 150 ml d'eau et une pincée de sel. Laisser reposer 10 minutes. Faire sauter les champignons émincés et les épinards dans le beurre. Cuire la galette sur une poêle chaude. Garnir du mélange champignons-épinards, de l'emmental et d'un œuf. Replier les bords.",
+    "tags": [
+      "végétarien"
+    ],
+    "allergen_tags": [
+      "œufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Porc effiloché à la coréenne en bol",
+    "calories": 510,
+    "protein_g": 36,
+    "meal_type": "diner",
+    "cuisine_type": "coréenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {
+        "name": "Échine de porc",
+        "quantity": 140,
+        "unit": "g"
+      },
+      {
+        "name": "Pâte de gochujang",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Riz complet",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Chou chinois",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Carotte",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Graines de sésame",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Couper le porc en fines lanières. Mélanger avec le gochujang et la sauce soja, mariner 10 minutes. Cuire le riz complet. Faire sauter le porc à feu vif 5 minutes. Émincer le chou chinois et râper la carotte. Assembler le bol : riz, porc épicé, chou et carotte. Parsemer de graines de sésame.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "soja",
+      "sésame"
+    ]
+  },
+  {
+    "name": "Assiette libanaise aux falafels de fèves",
+    "calories": 450,
+    "protein_g": 26,
+    "meal_type": "dejeuner",
+    "cuisine_type": "libanaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Fève sèche",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Coriandre fraîche",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Cumin",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Tahini",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Huile de tournesol",
+        "quantity": 15,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Mixer les fèves trempées avec l'oignon, la coriandre et le cumin pour obtenir une pâte. Former des boulettes. Les cuire dans l'huile de tournesol 4 minutes par face. Préparer une sauce tahini avec du jus de citron et de l'eau. Disposer les falafels avec la tomate en salade. Napper de sauce tahini.",
+    "tags": [
+      "vegan",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "sésame"
+    ]
+  },
+  {
+    "name": "Filet de lieu noir pané aux flocons d'avoine",
+    "calories": 420,
+    "protein_g": 36,
+    "meal_type": "diner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Filet de lieu noir",
+        "quantity": 180,
+        "unit": "g"
+      },
+      {
+        "name": "Flocons d'avoine",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Œuf",
+        "quantity": 1,
+        "unit": "pièce"
+      },
+      {
+        "name": "Brocoli",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Citron",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Mixer les flocons d'avoine grossièrement. Tremper le filet de lieu noir dans l'œuf battu puis dans les flocons. Cuire à la poêle dans l'huile d'olive 4 minutes par face. Cuire le brocoli à la vapeur 8 minutes. Servir le poisson pané avec le brocoli et un quartier de citron.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "poisson",
+      "œufs",
+      "gluten"
+    ]
+  },
+  {
+    "name": "Chana masala aux tomates fraîches",
+    "calories": 420,
+    "protein_g": 25,
+    "meal_type": "dejeuner",
+    "cuisine_type": "indienne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Pois chiches",
+        "quantity": 180,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Gingembre frais",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Coriandre moulue",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Piment vert",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Pain naan complet",
+        "quantity": 50,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Faire revenir l'oignon haché et le gingembre râpé. Ajouter la coriandre moulue et le piment. Ajouter les tomates concassées fraîches. Cuire 5 minutes puis ajouter les pois chiches. Mijoter 15 minutes. Écraser légèrement quelques pois chiches pour épaissir. Servir avec le pain naan réchauffé.",
+    "tags": [
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Poulet grillé à la citronnelle et légumes rôtis",
+    "calories": 460,
+    "protein_g": 40,
+    "meal_type": "diner",
+    "cuisine_type": "thaïlandaise",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Haut de cuisse de poulet",
+        "quantity": 160,
+        "unit": "g"
+      },
+      {
+        "name": "Citronnelle",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Patate douce",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Haricot vert",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce poisson",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Ail",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Huile de coco",
+        "quantity": 8,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Mariner le poulet avec la citronnelle hachée, l'ail, la sauce poisson et l'huile de coco. Couper la patate douce en cubes et enfourner à 200°C. Griller le poulet à la poêle 6 minutes par face. Cuire les haricots verts à la vapeur. Servir le poulet avec la patate douce rôtie et les haricots verts.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "poisson"
+    ]
+  },
+  {
+    "name": "Osso buco de dinde aux carottes",
+    "calories": 480,
+    "protein_g": 42,
+    "meal_type": "diner",
+    "cuisine_type": "italienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 40,
+    "ingredients": [
+      {
+        "name": "Jarret de dinde",
+        "quantity": 180,
+        "unit": "g"
+      },
+      {
+        "name": "Carotte",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Céleri branche",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate concassée",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Vin blanc",
+        "quantity": 50,
+        "unit": "ml"
+      },
+      {
+        "name": "Persil frais",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Assaisonner et fariner légèrement la dinde. La saisir dans une cocotte. Réserver. Faire revenir l'oignon, les carottes en rondelles et le céleri. Déglacer au vin blanc. Ajouter les tomates concassées et la dinde. Mijoter à couvert 30 minutes à feu doux. Servir avec la gremolata (persil, zeste de citron, ail).",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "sulfites"
+    ]
+  },
+  {
+    "name": "Bol de quinoa aux légumes grillés et houmous",
+    "calories": 470,
+    "protein_g": 25,
+    "meal_type": "dejeuner",
+    "cuisine_type": "libanaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Quinoa",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Aubergine",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Poivron jaune",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Houmous",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate cerise",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Sumac",
+        "quantity": 3,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le quinoa. Couper l'aubergine et le poivron en cubes, assaisonner de sumac et d'huile d'olive. Griller au four à 220°C pendant 20 minutes. Assembler le bol : quinoa, légumes grillés, tomates cerises coupées en deux. Ajouter le houmous au centre.",
+    "tags": [
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "sésame"
+    ]
+  },
+  {
+    "name": "Sauté de veau aux olives et polenta",
+    "calories": 500,
+    "protein_g": 38,
+    "meal_type": "diner",
+    "cuisine_type": "italienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {
+        "name": "Escalope de veau",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Olive verte",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Polenta",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate concassée",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Romarin frais",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Couper le veau en morceaux. Les saisir dans l'huile d'olive. Ajouter l'oignon, faire revenir. Ajouter les tomates concassées, les olives et le romarin. Mijoter 20 minutes à feu doux. Cuire la polenta dans l'eau salée 5 minutes en remuant. Servir le sauté sur un lit de polenta.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": []
+  },
+  {
+    "name": "Quesadilla aux haricots noirs et maïs grillé",
+    "calories": 460,
+    "protein_g": 27,
+    "meal_type": "dejeuner",
+    "cuisine_type": "mexicaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Tortilla de blé",
+        "quantity": 2,
+        "unit": "pièce"
+      },
+      {
+        "name": "Haricots noirs",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Maïs",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Cheddar râpé",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Poivron rouge",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Crème fraîche légère",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Cumin",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Écraser grossièrement les haricots noirs avec le cumin. Griller le maïs et le poivron en dés à la poêle. Étaler les haricots sur une tortilla, ajouter le maïs, le poivron et le cheddar. Couvrir de la seconde tortilla. Cuire à la poêle 3 minutes par face. Découper en quartiers, servir avec la crème fraîche.",
+    "tags": [
+      "végétarien",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "lait"
+    ]
+  },
+  {
+    "name": "Filets de maquereau grillés et salade de lentilles tièdes",
+    "calories": 490,
+    "protein_g": 36,
+    "meal_type": "diner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Filet de maquereau",
+        "quantity": 140,
+        "unit": "g"
+      },
+      {
+        "name": "Lentilles vertes du Puy",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Échalote",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Moutarde à l'ancienne",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Vinaigre de cidre",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Persil frais",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Cuire les lentilles 20 minutes. Griller les filets de maquereau au four 10 minutes à 200°C. Préparer la vinaigrette : mélanger moutarde, vinaigre et huile d'olive. Égoutter les lentilles, les assaisonner de la vinaigrette tiède avec l'échalote hachée et le persil. Servir le maquereau sur les lentilles.",
+    "tags": [
+      "high-protein",
+      "omega-3"
+    ],
+    "allergen_tags": [
+      "poisson",
+      "moutarde"
+    ]
+  },
+  {
+    "name": "Enchiladas végétaliennes aux patates douces",
+    "calories": 440,
+    "protein_g": 25,
+    "meal_type": "dejeuner",
+    "cuisine_type": "mexicaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {
+        "name": "Tortilla de maïs",
+        "quantity": 3,
+        "unit": "pièce"
+      },
+      {
+        "name": "Patate douce",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Haricots noirs",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce tomate",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Cumin",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Piment en poudre",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 50,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire la patate douce en cubes au four 20 minutes à 200°C. Mélanger avec les haricots noirs, le cumin et l'oignon revenu. Garnir les tortillas et les rouler. Disposer dans un plat, napper de sauce tomate épicée au piment. Enfourner 15 minutes à 180°C.",
+    "tags": [
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": []
+  },
+  {
+    "name": "Blancs de seiche sautés à l'ail et persil",
+    "calories": 350,
+    "protein_g": 34,
+    "meal_type": "diner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Blanc de seiche",
+        "quantity": 180,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Persil plat",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Pomme de terre grenaille",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Citron",
+        "quantity": 20,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire les pommes de terre grenaille à l'eau salée 15 minutes. Nettoyer et couper les blancs de seiche en lanières. Faire chauffer l'huile d'olive à feu vif. Saisir la seiche 2 minutes. Ajouter l'ail émincé et le persil haché, sauter 1 minute. Arroser de jus de citron. Servir avec les pommes de terre.",
+    "tags": [
+      "high-protein",
+      "low-fat"
+    ],
+    "allergen_tags": [
+      "mollusques"
+    ]
+  },
+  {
+    "name": "Mafé de légumes aux arachides",
+    "calories": 470,
+    "protein_g": 26,
+    "meal_type": "dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "vegan",
+    "prep_time_minutes": 35,
+    "ingredients": [
+      {
+        "name": "Beurre de cacahuète",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Patate douce",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Chou blanc",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate concassée",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Riz complet",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Pois chiches",
+        "quantity": 80,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Faire revenir l'oignon. Ajouter les tomates concassées, la patate douce en cubes et le chou émincé. Couvrir d'eau et mijoter 15 minutes. Diluer le beurre de cacahuète dans un peu de bouillon et l'ajouter. Ajouter les pois chiches. Mijoter encore 10 minutes. Cuire le riz complet. Servir le mafé sur le riz.",
+    "tags": [
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "arachides"
+    ]
+  },
+  {
+    "name": "Truite en croûte de noisettes et purée de céleri",
+    "calories": 450,
+    "protein_g": 35,
+    "meal_type": "diner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Filet de truite",
+        "quantity": 170,
+        "unit": "g"
+      },
+      {
+        "name": "Noisettes",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Céleri-rave",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Lait demi-écrémé",
+        "quantity": 30,
+        "unit": "ml"
+      },
+      {
+        "name": "Beurre",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Citron",
+        "quantity": 15,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Concasser grossièrement les noisettes. Cuire le céleri-rave en morceaux à l'eau 20 minutes. L'écraser avec le lait et le beurre pour obtenir une purée lisse. Assaisonner les filets de truite, les recouvrir de noisettes concassées. Cuire au four à 200°C pendant 12 minutes. Servir avec la purée et un filet de citron.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "poisson",
+      "fruits à coque",
+      "lait"
+    ]
+  },
+  {
+    "name": "Tortilla espagnole aux poivrons",
+    "calories": 410,
+    "protein_g": 26,
+    "meal_type": "dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Œuf",
+        "quantity": 4,
+        "unit": "pièce"
+      },
+      {
+        "name": "Pomme de terre",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Poivron rouge",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Sel",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Couper les pommes de terre en fines rondelles. Les cuire dans l'huile d'olive à feu doux avec l'oignon émincé et le poivron en lamelles, 15 minutes. Battre les œufs, saler. Ajouter les légumes cuits aux œufs. Verser le tout dans la poêle. Cuire 5 minutes à feu moyen, retourner à l'aide d'une assiette. Cuire 3 minutes de l'autre côté.",
+    "tags": [
+      "végétarien"
+    ],
+    "allergen_tags": [
+      "œufs"
+    ]
+  },
+  {
+    "name": "Bol de riz au saumon mariné et avocat",
+    "calories": 520,
+    "protein_g": 32,
+    "meal_type": "diner",
+    "cuisine_type": "japonaise",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Pavé de saumon frais",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Riz à sushi",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Avocat",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Vinaigre de riz",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Gingembre mariné",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Nori en feuille",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le riz à sushi, assaisonner de vinaigre de riz. Couper le saumon en cubes et le mariner dans la sauce soja 10 minutes. Couper l'avocat en tranches. Assembler le bol : riz vinaigré, saumon mariné, avocat. Garnir de gingembre mariné et de nori émietté.",
+    "tags": [
+      "high-protein",
+      "omega-3"
+    ],
+    "allergen_tags": [
+      "poisson",
+      "soja"
+    ]
+  }
+]

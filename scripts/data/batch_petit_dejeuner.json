@@ -1,0 +1,2429 @@
+[
+  {
+    "name": "Baked oats chocolat noisette",
+    "calories": 420,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Flocons d'avoine",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Lait demi-écrémé",
+        "quantity": 150,
+        "unit": "ml"
+      },
+      {
+        "name": "Oeuf",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Cacao en poudre non sucré",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Banane",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Noisettes concassées",
+        "quantity": 15,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 180°C. Écraser la banane et mélanger avec les flocons d'avoine, le lait, l'œuf battu et le cacao. Verser dans un ramequin, parsemer de noisettes concassées. Enfourner 20 minutes jusqu'à ce que le dessus soit doré.",
+    "tags": [
+      "high-protein",
+      "baked"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "lait",
+      "oeufs",
+      "fruits à coque"
+    ]
+  },
+  {
+    "name": "Egg muffins épinards feta",
+    "calories": 340,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Oeufs",
+        "quantity": 180,
+        "unit": "g"
+      },
+      {
+        "name": "Épinards frais",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Feta",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Tomates cerises",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 5,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Préchauffer le four à 190°C. Battre les œufs, ajouter les épinards hachés, la feta émiettée et les tomates cerises coupées en deux. Huiler un moule à muffins, répartir la préparation. Cuire 18-20 minutes.",
+    "tags": [
+      "high-protein",
+      "low-carb",
+      "meal-prep"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Burrito petit-déjeuner haricots noirs",
+    "calories": 480,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Tortilla de blé complet",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Oeufs",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Haricots noirs en conserve",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Poivron rouge",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Fromage râpé",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Salsa",
+        "quantity": 30,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Brouiller les œufs dans une poêle. Réchauffer les haricots noirs égouttés. Faire revenir le poivron coupé en dés. Garnir la tortilla avec les œufs, haricots, poivron, fromage râpé et salsa. Rouler en burrito.",
+    "tags": [
+      "high-protein",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Tofu brouillé méditerranéen",
+    "calories": 350,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {
+        "name": "Tofu ferme",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Tomates séchées",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Olives noires",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Curcuma",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Basilic frais",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Émietter le tofu à la fourchette. Chauffer l'huile d'olive, faire revenir le tofu avec le curcuma 5 minutes. Ajouter les tomates séchées hachées et les olives tranchées. Cuire 3 minutes. Garnir de basilic frais.",
+    "tags": [
+      "high-protein",
+      "low-carb",
+      "vegan"
+    ],
+    "allergen_tags": [
+      "soja"
+    ]
+  },
+  {
+    "name": "Bol de quinoa pomme cannelle",
+    "calories": 380,
+    "protein_g": 14,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Quinoa",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Lait d'amande",
+        "quantity": 150,
+        "unit": "ml"
+      },
+      {
+        "name": "Pomme",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Cannelle",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "Sirop d'érable",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Graines de chia",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le quinoa dans le lait d'amande à feu doux 15 minutes. Couper la pomme en petits dés. Ajouter la cannelle et le sirop d'érable au quinoa cuit. Servir avec les dés de pomme et les graines de chia.",
+    "tags": [
+      "vegan",
+      "sans-gluten"
+    ],
+    "allergen_tags": [
+      "fruits à coque"
+    ]
+  },
+  {
+    "name": "Clafoutis protéiné aux myrtilles",
+    "calories": 360,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Oeufs",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Fromage blanc 0%",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Farine de blé complète",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Myrtilles",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Miel",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 180°C. Battre les œufs, incorporer le fromage blanc, la farine et le miel. Verser dans un plat beurré, disposer les myrtilles sur le dessus. Enfourner 25 minutes jusqu'à ce que le clafoutis soit doré.",
+    "tags": [
+      "high-protein",
+      "baked"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "lait",
+      "gluten"
+    ]
+  },
+  {
+    "name": "Congee de riz au poulet",
+    "calories": 380,
+    "protein_g": 32,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Riz rond",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Blanc de poulet",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Bouillon de poulet",
+        "quantity": 400,
+        "unit": "ml"
+      },
+      {
+        "name": "Gingembre frais",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Ciboule",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 10,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Cuire le riz dans le bouillon à feu doux 20 minutes en remuant régulièrement jusqu'à obtenir une bouillie épaisse. Pocher le poulet dans le congee, effilocher. Ajouter le gingembre râpé et la sauce soja. Garnir de ciboule émincée.",
+    "tags": [
+      "high-protein",
+      "savory",
+      "comfort"
+    ],
+    "allergen_tags": [
+      "soja"
+    ]
+  },
+  {
+    "name": "Galette de patate douce et œuf",
+    "calories": 390,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Patate douce",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Oeufs",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      },
+      {
+        "name": "Sel",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "Poivre",
+        "quantity": 1,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Râper la patate douce et l'oignon. Presser pour enlever l'excès d'humidité. Former des galettes et cuire dans l'huile d'olive 4 minutes de chaque côté. Cuire les œufs au plat et servir sur les galettes.",
+    "tags": [
+      "sans-gluten",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "oeufs"
+    ]
+  },
+  {
+    "name": "Bol de lentilles corail au curry",
+    "calories": 410,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Lentilles corail",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Lait de coco",
+        "quantity": 80,
+        "unit": "ml"
+      },
+      {
+        "name": "Curry en poudre",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate concassée",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Épinards frais",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Pain naan complet",
+        "quantity": 40,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire les lentilles corail dans l'eau 10 minutes. Égoutter. Dans une casserole, faire revenir le curry, ajouter la tomate concassée et le lait de coco. Ajouter les lentilles et les épinards, cuire 5 minutes. Servir avec le pain naan réchauffé.",
+    "tags": [
+      "vegan",
+      "high-fiber",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Gaufre de courgette au saumon fumé",
+    "calories": 370,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Courgette",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Oeufs",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Farine de blé",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Saumon fumé",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Crème fraîche légère",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Aneth",
+        "quantity": 3,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Râper la courgette, saler et presser pour enlever l'eau. Mélanger avec l'œuf battu et la farine. Cuire dans un gaufrier chaud. Servir avec le saumon fumé, la crème fraîche et l'aneth.",
+    "tags": [
+      "high-protein",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "oeufs",
+      "lait",
+      "poisson"
+    ]
+  },
+  {
+    "name": "Bol de sarrasin kasha aux fruits secs",
+    "calories": 430,
+    "protein_g": 16,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Sarrasin décortiqué (kasha)",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Lait d'avoine",
+        "quantity": 150,
+        "unit": "ml"
+      },
+      {
+        "name": "Abricots secs",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Noix",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Miel",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le sarrasin dans le lait d'avoine à feu doux 10 minutes. Couper les abricots secs en morceaux. Servir le sarrasin crémeux garni d'abricots secs et de noix concassées. Arroser de miel.",
+    "tags": [
+      "sans-gluten",
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "fruits à coque",
+      "gluten"
+    ]
+  },
+  {
+    "name": "Croque-monsieur léger au four",
+    "calories": 420,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Pain de mie complet",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Jambon blanc",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Emmental râpé",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Béchamel légère",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Moutarde de Dijon",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 200°C. Tartiner une tranche de pain avec la moutarde et la béchamel. Ajouter le jambon, couvrir avec la deuxième tranche. Saupoudrer d'emmental râpé. Enfourner 10 minutes jusqu'à ce que le fromage soit gratiné.",
+    "tags": [
+      "high-protein",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "lait"
+    ]
+  },
+  {
+    "name": "Bol de boulgour aux herbes et œuf mollet",
+    "calories": 400,
+    "protein_g": 20,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Boulgour",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Oeuf",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Concombre",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Persil plat",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Menthe fraîche",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Jus de citron",
+        "quantity": 10,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Cuire le boulgour selon les instructions. Cuire l'œuf mollet 6 minutes dans l'eau bouillante. Mélanger le boulgour avec le concombre coupé en dés, le persil et la menthe hachés. Assaisonner d'huile d'olive et de citron. Servir avec l'œuf mollet.",
+    "tags": [
+      "high-fiber",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "oeufs"
+    ]
+  },
+  {
+    "name": "Pancake japonais soufflé",
+    "calories": 350,
+    "protein_g": 20,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Oeufs",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Farine de blé",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Lait demi-écrémé",
+        "quantity": 30,
+        "unit": "ml"
+      },
+      {
+        "name": "Sucre en poudre",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Yaourt grec",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Fruits rouges",
+        "quantity": 60,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Séparer les blancs des jaunes. Mélanger les jaunes avec la farine et le lait. Monter les blancs en neige ferme avec le sucre. Incorporer délicatement. Cuire à la poêle à feu très doux avec un couvercle 8 minutes par face. Servir avec yaourt grec et fruits rouges.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Avocat farci aux crevettes",
+    "calories": 380,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {
+        "name": "Avocat",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Crevettes cuites",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Jus de citron vert",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Tomate",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Coriandre fraîche",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Piment d'Espelette",
+        "quantity": 1,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Couper l'avocat en deux et retirer le noyau. Mélanger les crevettes avec la tomate coupée en dés, le jus de citron vert, la coriandre hachée et le piment d'Espelette. Garnir les moitiés d'avocat avec le mélange de crevettes.",
+    "tags": [
+      "high-protein",
+      "low-carb",
+      "sans-gluten"
+    ],
+    "allergen_tags": [
+      "crustacés"
+    ]
+  },
+  {
+    "name": "Bol de miso et riz complet",
+    "calories": 360,
+    "protein_g": 20,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Riz complet cuit",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Pâte de miso",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Tofu soyeux",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Algue wakame",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Oeuf",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Ciboule",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préparer la soupe miso en diluant la pâte dans 200ml d'eau chaude (pas bouillante). Ajouter le tofu coupé en dés et le wakame réhydraté. Cuire un œuf mollet. Servir le riz complet avec la soupe miso et l'œuf mollet. Garnir de ciboule.",
+    "tags": [
+      "savory",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "soja",
+      "oeufs"
+    ]
+  },
+  {
+    "name": "Müesli croquant maison aux graines",
+    "calories": 450,
+    "protein_g": 18,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {
+        "name": "Flocons d'avoine",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Graines de tournesol",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Graines de courge",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Raisins secs",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Lait de soja",
+        "quantity": 200,
+        "unit": "ml"
+      },
+      {
+        "name": "Pomme",
+        "quantity": 100,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mélanger les flocons d'avoine, les graines de tournesol, les graines de courge et les raisins secs. Verser le lait de soja. Râper la pomme par-dessus. Laisser reposer 2 minutes et déguster.",
+    "tags": [
+      "vegan",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "soja"
+    ]
+  },
+  {
+    "name": "Brioche perdue ricotta framboise",
+    "calories": 420,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {
+        "name": "Brioche tranchée",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Oeufs",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Lait demi-écrémé",
+        "quantity": 50,
+        "unit": "ml"
+      },
+      {
+        "name": "Ricotta",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Framboises",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Miel",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Battre l'œuf avec le lait. Tremper les tranches de brioche dans le mélange. Cuire à la poêle 2 minutes de chaque côté. Servir garni de ricotta, de framboises fraîches et d'un filet de miel.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Bol de pois chiches rôtis et avocat",
+    "calories": 440,
+    "protein_g": 18,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Pois chiches en conserve",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Avocat",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Paprika fumé",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      },
+      {
+        "name": "Pain complet grillé",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Jus de citron",
+        "quantity": 10,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Égoutter et sécher les pois chiches. Les mélanger avec l'huile d'olive et le paprika fumé. Rôtir au four à 200°C pendant 20 minutes. Écraser l'avocat avec le jus de citron. Servir les pois chiches rôtis sur le pain grillé avec l'avocat écrasé.",
+    "tags": [
+      "vegan",
+      "high-fiber",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Crumble de fruits au yaourt",
+    "calories": 380,
+    "protein_g": 20,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Pomme",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Poire",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Flocons d'avoine",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Amandes effilées",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Yaourt nature",
+        "quantity": 150,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 180°C. Couper les fruits en dés et disposer dans un plat. Mélanger les flocons d'avoine, les amandes et le beurre fondu. Parsemer sur les fruits. Enfourner 20 minutes. Servir tiède avec le yaourt nature.",
+    "tags": [
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "lait",
+      "fruits à coque"
+    ]
+  },
+  {
+    "name": "Rösti de pommes de terre au jambon",
+    "calories": 420,
+    "protein_g": 25,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Pommes de terre",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Jambon blanc",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Oeuf",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Huile de colza",
+        "quantity": 8,
+        "unit": "ml"
+      },
+      {
+        "name": "Ciboulette",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Râper les pommes de terre, presser pour enlever l'eau. Mélanger avec le jambon coupé en dés. Former des galettes. Cuire dans l'huile de colza 5 minutes de chaque côté jusqu'à ce qu'elles soient dorées. Cuire un œuf au plat et servir sur le rösti. Parsemer de ciboulette.",
+    "tags": [
+      "high-protein",
+      "sans-gluten",
+      "savory"
+    ],
+    "allergen_tags": [
+      "oeufs"
+    ]
+  },
+  {
+    "name": "Soupe d'avoine salée aux champignons",
+    "calories": 340,
+    "protein_g": 16,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Flocons d'avoine",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Champignons de Paris",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Bouillon de légumes",
+        "quantity": 300,
+        "unit": "ml"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      },
+      {
+        "name": "Thym",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Émincer l'oignon et les champignons. Faire revenir dans l'huile d'olive 5 minutes. Ajouter le bouillon et porter à ébullition. Incorporer les flocons d'avoine et le thym. Cuire à feu doux 8 minutes en remuant jusqu'à épaississement.",
+    "tags": [
+      "vegan",
+      "savory",
+      "comfort"
+    ],
+    "allergen_tags": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Socca niçoise aux herbes",
+    "calories": 350,
+    "protein_g": 16,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Farine de pois chiches",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Eau",
+        "quantity": 160,
+        "unit": "ml"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Romarin frais",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Sel",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "Poivre",
+        "quantity": 1,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mélanger la farine de pois chiches avec l'eau et l'huile d'olive. Laisser reposer 10 minutes. Verser dans un plat huilé allant au four. Parsemer de romarin. Cuire au four à 250°C pendant 10 minutes jusqu'à ce que le dessus soit doré et croustillant.",
+    "tags": [
+      "sans-gluten",
+      "vegan",
+      "savory"
+    ],
+    "allergen_tags": []
+  },
+  {
+    "name": "Bol açaï protéiné au beurre de cacahuète",
+    "calories": 480,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {
+        "name": "Purée d'açaï surgelée",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Banane",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre de cacahuète",
+        "quantity": 25,
+        "unit": "g"
+      },
+      {
+        "name": "Protéine de pois en poudre",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Lait d'avoine",
+        "quantity": 80,
+        "unit": "ml"
+      },
+      {
+        "name": "Graines de lin",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mixer l'açaï surgelé, la banane, la protéine de pois et le lait d'avoine jusqu'à consistance épaisse. Verser dans un bol. Garnir de beurre de cacahuète et de graines de lin.",
+    "tags": [
+      "vegan",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "arachides",
+      "gluten"
+    ]
+  },
+  {
+    "name": "Flan de courgette au parmesan",
+    "calories": 320,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Courgette",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Oeufs",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Parmesan râpé",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Crème légère",
+        "quantity": 40,
+        "unit": "ml"
+      },
+      {
+        "name": "Muscade",
+        "quantity": 1,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 180°C. Râper la courgette, la presser. Battre les œufs avec la crème et la muscade. Ajouter la courgette et le parmesan. Verser dans des ramequins. Cuire au bain-marie 25 minutes.",
+    "tags": [
+      "high-protein",
+      "low-carb",
+      "sans-gluten"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Tartine de houmous et légumes grillés",
+    "calories": 380,
+    "protein_g": 14,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Pain de seigle",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Houmous",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Aubergine",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Poivron rouge",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 5,
+        "unit": "ml"
+      },
+      {
+        "name": "Graines de sésame",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Couper l'aubergine et le poivron en tranches. Griller à la poêle avec l'huile d'olive 5 minutes de chaque côté. Tartiner le pain de seigle avec le houmous. Disposer les légumes grillés par-dessus. Parsemer de graines de sésame.",
+    "tags": [
+      "vegan",
+      "high-fiber",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "sésame"
+    ]
+  },
+  {
+    "name": "Riz au lait de coco et mangue",
+    "calories": 420,
+    "protein_g": 10,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Riz gluant",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Lait de coco",
+        "quantity": 120,
+        "unit": "ml"
+      },
+      {
+        "name": "Mangue",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Sucre de coco",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Graines de sésame",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le riz gluant à la vapeur 15 minutes. Chauffer le lait de coco avec le sucre de coco. Verser sur le riz cuit et mélanger. Couper la mangue en lamelles. Servir le riz au lait de coco avec la mangue et les graines de sésame.",
+    "tags": [
+      "vegan",
+      "sans-gluten"
+    ],
+    "allergen_tags": [
+      "sésame"
+    ]
+  },
+  {
+    "name": "Blinis de sarrasin au saumon",
+    "calories": 390,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 18,
+    "ingredients": [
+      {
+        "name": "Farine de sarrasin",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Oeuf",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Lait demi-écrémé",
+        "quantity": 80,
+        "unit": "ml"
+      },
+      {
+        "name": "Saumon fumé",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Fromage frais",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Ciboulette",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mélanger la farine de sarrasin, l'œuf et le lait pour obtenir une pâte lisse. Cuire de petits blinis à la poêle 2 minutes de chaque côté. Garnir de fromage frais, de saumon fumé et de ciboulette ciselée.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "lait",
+      "poisson"
+    ]
+  },
+  {
+    "name": "Pudding de graines de lin au cacao",
+    "calories": 350,
+    "protein_g": 16,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {
+        "name": "Graines de lin moulues",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Lait de soja",
+        "quantity": 200,
+        "unit": "ml"
+      },
+      {
+        "name": "Cacao en poudre non sucré",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Sirop d'agave",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Banane",
+        "quantity": 80,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mélanger les graines de lin moulues avec le lait de soja, le cacao et le sirop d'agave. Réfrigérer au moins 4 heures ou toute la nuit. Au matin, garnir de rondelles de banane.",
+    "tags": [
+      "vegan",
+      "high-fiber",
+      "meal-prep"
+    ],
+    "allergen_tags": [
+      "soja"
+    ]
+  },
+  {
+    "name": "Omelette roulée aux asperges",
+    "calories": 330,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {
+        "name": "Oeufs",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Asperges vertes",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Gruyère râpé",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Ciboulette",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire les asperges à la vapeur 5 minutes. Battre les œufs avec la ciboulette. Cuire l'omelette dans le beurre fondu. Quand elle est encore légèrement baveuse, disposer les asperges et le gruyère au centre. Rouler et servir.",
+    "tags": [
+      "high-protein",
+      "low-carb",
+      "sans-gluten"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Naan au fromage et épinards",
+    "calories": 430,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Farine de blé",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Yaourt nature",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Épinards frais",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Mozzarella",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Levure chimique",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mélanger la farine, le yaourt et la levure pour former une pâte. Faire revenir les épinards avec l'ail. Étaler la pâte, garnir d'épinards et de mozzarella, replier. Cuire à la poêle 3 minutes de chaque côté à couvert.",
+    "tags": [
+      "savory",
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "lait"
+    ]
+  },
+  {
+    "name": "Bol protéiné au tahini et dattes",
+    "calories": 460,
+    "protein_g": 20,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 8,
+    "ingredients": [
+      {
+        "name": "Flocons d'avoine",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Tahini",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Dattes Medjool",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Lait de soja",
+        "quantity": 180,
+        "unit": "ml"
+      },
+      {
+        "name": "Protéine de pois en poudre",
+        "quantity": 15,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire les flocons d'avoine dans le lait de soja 5 minutes. Incorporer la protéine de pois. Couper les dattes en morceaux. Verser dans un bol, garnir de tahini et de dattes. Mélanger au moment de déguster.",
+    "tags": [
+      "vegan",
+      "high-protein",
+      "high-fiber"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "soja",
+      "sésame"
+    ]
+  },
+  {
+    "name": "Frittata de poireaux et chèvre",
+    "calories": 370,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 22,
+    "ingredients": [
+      {
+        "name": "Oeufs",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Poireau",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Fromage de chèvre frais",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      },
+      {
+        "name": "Thym",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Émincer le poireau et le faire fondre dans l'huile d'olive 8 minutes. Battre les œufs avec le thym, verser sur les poireaux. Parsemer de chèvre émietté. Cuire à feu doux 5 minutes puis passer sous le grill 3 minutes.",
+    "tags": [
+      "high-protein",
+      "low-carb",
+      "sans-gluten"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Crêpe complète aux champignons",
+    "calories": 400,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 18,
+    "ingredients": [
+      {
+        "name": "Farine de sarrasin",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Oeuf",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Champignons de Paris",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Emmental râpé",
+        "quantity": 25,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Persil",
+        "quantity": 5,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préparer la pâte avec la farine de sarrasin, un peu d'eau et de sel. Faire revenir les champignons émincés dans le beurre. Cuire la crêpe, garnir de champignons, casser un œuf dessus et ajouter l'emmental. Replier et cuire jusqu'à ce que l'œuf soit pris. Garnir de persil.",
+    "tags": [
+      "high-protein",
+      "savory"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Bol de yaourt à la turque (çilbir)",
+    "calories": 380,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {
+        "name": "Yaourt grec",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Oeufs",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Piment d'Espelette",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Pain pita",
+        "quantity": 30,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mélanger le yaourt avec l'ail pressé. Pocher les œufs dans l'eau vinaigrée 3 minutes. Faire fondre le beurre avec le piment d'Espelette. Disposer le yaourt dans un bol, placer les œufs pochés dessus, arroser du beurre pimenté. Servir avec le pain pita.",
+    "tags": [
+      "high-protein",
+      "savory"
+    ],
+    "allergen_tags": [
+      "lait",
+      "oeufs",
+      "gluten"
+    ]
+  },
+  {
+    "name": "Scone complet aux cranberries",
+    "calories": 380,
+    "protein_g": 12,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {
+        "name": "Farine de blé complète",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre froid",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Lait demi-écrémé",
+        "quantity": 40,
+        "unit": "ml"
+      },
+      {
+        "name": "Cranberries séchées",
+        "quantity": 25,
+        "unit": "g"
+      },
+      {
+        "name": "Levure chimique",
+        "quantity": 4,
+        "unit": "g"
+      },
+      {
+        "name": "Yaourt grec",
+        "quantity": 80,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 200°C. Sabler la farine avec le beurre froid coupé en dés. Ajouter la levure, les cranberries et le lait pour former une pâte. Façonner en disque, découper en triangles. Enfourner 15 minutes. Servir tiède avec le yaourt grec.",
+    "tags": [
+      "baked"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "lait"
+    ]
+  },
+  {
+    "name": "Toasts de patate douce au beurre d'amande",
+    "calories": 360,
+    "protein_g": 14,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Patate douce",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Beurre d'amande",
+        "quantity": 25,
+        "unit": "g"
+      },
+      {
+        "name": "Banane",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Graines de chia",
+        "quantity": 8,
+        "unit": "g"
+      },
+      {
+        "name": "Cannelle",
+        "quantity": 1,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Couper la patate douce en tranches de 1 cm d'épaisseur. Passer au grille-pain à puissance maximale 2-3 fois jusqu'à ce qu'elles soient tendres. Tartiner de beurre d'amande, garnir de rondelles de banane, graines de chia et cannelle.",
+    "tags": [
+      "sans-gluten",
+      "vegan"
+    ],
+    "allergen_tags": [
+      "fruits à coque"
+    ]
+  },
+  {
+    "name": "Quiche sans pâte brocoli jambon",
+    "calories": 380,
+    "protein_g": 32,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Oeufs",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Brocoli",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Jambon blanc",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Crème légère",
+        "quantity": 50,
+        "unit": "ml"
+      },
+      {
+        "name": "Emmental râpé",
+        "quantity": 25,
+        "unit": "g"
+      },
+      {
+        "name": "Muscade",
+        "quantity": 1,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Préchauffer le four à 180°C. Cuire les bouquets de brocoli à la vapeur 5 minutes. Battre les œufs avec la crème et la muscade. Disposer le brocoli et le jambon coupé en dés dans un moule. Verser l'appareil, parsemer d'emmental. Cuire 25 minutes.",
+    "tags": [
+      "high-protein",
+      "sans-gluten",
+      "low-carb"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Bol de riz noir au lait de coco",
+    "calories": 400,
+    "protein_g": 12,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {
+        "name": "Riz noir",
+        "quantity": 70,
+        "unit": "g"
+      },
+      {
+        "name": "Lait de coco",
+        "quantity": 100,
+        "unit": "ml"
+      },
+      {
+        "name": "Banane",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Sucre de coco",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Noix de coco râpée",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire le riz noir dans 200ml d'eau pendant 25 minutes. Égoutter et ajouter le lait de coco et le sucre de coco. Servir dans un bol avec des rondelles de banane et la noix de coco râpée.",
+    "tags": [
+      "vegan",
+      "sans-gluten"
+    ],
+    "allergen_tags": []
+  },
+  {
+    "name": "Galette d'avoine aux myrtilles",
+    "calories": 340,
+    "protein_g": 18,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {
+        "name": "Flocons d'avoine",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Oeuf",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Fromage blanc 0%",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Myrtilles",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Miel",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mixer les flocons d'avoine grossièrement. Mélanger avec l'œuf battu et la moitié du fromage blanc. Incorporer la moitié des myrtilles. Cuire en galettes à la poêle 3 minutes de chaque côté. Servir avec le reste de fromage blanc et de myrtilles. Arroser de miel.",
+    "tags": [
+      "high-protein"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Sandwich turc aux oeufs (menemen)",
+    "calories": 400,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Oeufs",
+        "quantity": 120,
+        "unit": "g"
+      },
+      {
+        "name": "Tomates",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Poivron vert",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Pain turc (simit)",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Faire revenir l'oignon et le poivron coupés en dés dans l'huile d'olive. Ajouter les tomates pelées et concassées, cuire 5 minutes. Casser les œufs dans la poêle et brouiller doucement. Servir avec le pain turc grillé.",
+    "tags": [
+      "high-protein",
+      "savory"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "gluten",
+      "sésame"
+    ]
+  },
+  {
+    "name": "Verrines de chia au matcha",
+    "calories": 320,
+    "protein_g": 14,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {
+        "name": "Graines de chia",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Lait demi-écrémé",
+        "quantity": 200,
+        "unit": "ml"
+      },
+      {
+        "name": "Matcha en poudre",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Miel",
+        "quantity": 10,
+        "unit": "g"
+      },
+      {
+        "name": "Kiwi",
+        "quantity": 80,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mélanger le matcha avec un peu de lait tiède pour le dissoudre. Ajouter le reste du lait, les graines de chia et le miel. Verser dans des verrines. Réfrigérer au moins 4 heures. Garnir de tranches de kiwi au moment de servir.",
+    "tags": [
+      "meal-prep",
+      "antioxidant"
+    ],
+    "allergen_tags": [
+      "lait"
+    ]
+  },
+  {
+    "name": "Dhal express aux lentilles jaunes",
+    "calories": 380,
+    "protein_g": 20,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {
+        "name": "Lentilles jaunes (moong dal)",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Tomate",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Curcuma",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "Cumin",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "Pain chapati",
+        "quantity": 40,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Cuire les lentilles dans 300ml d'eau avec le curcuma pendant 15 minutes. Dans une poêle, faire revenir l'oignon émincé et la tomate coupée en dés avec le cumin. Mélanger avec les lentilles cuites. Servir avec le chapati chaud.",
+    "tags": [
+      "vegan",
+      "high-fiber",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Mug cake protéiné pomme",
+    "calories": 340,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {
+        "name": "Oeuf",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Flocons d'avoine",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Protéine whey vanille",
+        "quantity": 25,
+        "unit": "g"
+      },
+      {
+        "name": "Pomme",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Cannelle",
+        "quantity": 2,
+        "unit": "g"
+      },
+      {
+        "name": "Levure chimique",
+        "quantity": 2,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Mixer les flocons d'avoine en farine. Mélanger avec l'œuf, la protéine whey, la pomme râpée, la cannelle et la levure. Verser dans un mug. Cuire au micro-ondes 2 minutes à pleine puissance. Démouler et déguster tiède.",
+    "tags": [
+      "high-protein",
+      "quick"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "oeufs",
+      "lait"
+    ]
+  },
+  {
+    "name": "Bol de haricots blancs à la tomate",
+    "calories": 380,
+    "protein_g": 20,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 12,
+    "ingredients": [
+      {
+        "name": "Haricots blancs en conserve",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce tomate",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 8,
+        "unit": "ml"
+      },
+      {
+        "name": "Pain complet grillé",
+        "quantity": 40,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Faire revenir l'oignon émincé et l'ail dans l'huile d'olive. Ajouter la sauce tomate et les haricots blancs égouttés. Cuire 8 minutes à feu moyen. Assaisonner de sel et poivre. Servir avec le pain complet grillé.",
+    "tags": [
+      "vegan",
+      "high-fiber",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Wrap d'omelette aux légumes croquants",
+    "calories": 360,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {
+        "name": "Oeufs",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Carotte",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Concombre",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "name": "Avocat",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce soja",
+        "quantity": 5,
+        "unit": "ml"
+      }
+    ],
+    "instructions": "Battre les œufs et cuire une omelette fine dans une poêle. Râper la carotte, couper le concombre en bâtonnets et l'avocat en tranches. Disposer les légumes sur l'omelette, arroser de sauce soja. Rouler comme un wrap et couper en deux.",
+    "tags": [
+      "high-protein",
+      "low-carb",
+      "sans-gluten"
+    ],
+    "allergen_tags": [
+      "oeufs",
+      "soja"
+    ]
+  },
+  {
+    "name": "Baked beans maison au bacon de dinde",
+    "calories": 420,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 18,
+    "ingredients": [
+      {
+        "name": "Haricots blancs en conserve",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Bacon de dinde",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Sauce tomate",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Oignon",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Moutarde de Dijon",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Pain complet grillé",
+        "quantity": 40,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Faire griller le bacon de dinde coupé en lardons. Ajouter l'oignon émincé. Incorporer les haricots égouttés, la sauce tomate et la moutarde. Cuire 10 minutes à feu moyen. Servir avec le pain complet grillé.",
+    "tags": [
+      "high-protein",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Bol de semoule aux abricots et pistaches",
+    "calories": 400,
+    "protein_g": 14,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {
+        "name": "Semoule fine",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "name": "Lait demi-écrémé",
+        "quantity": 150,
+        "unit": "ml"
+      },
+      {
+        "name": "Abricots frais",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "name": "Pistaches non salées",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "name": "Eau de fleur d'oranger",
+        "quantity": 5,
+        "unit": "ml"
+      },
+      {
+        "name": "Miel",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Chauffer le lait et le verser sur la semoule. Couvrir et laisser gonfler 5 minutes. Égrainer à la fourchette, ajouter l'eau de fleur d'oranger. Couper les abricots en quartiers. Servir garni d'abricots, de pistaches concassées et de miel.",
+    "tags": [
+      "quick"
+    ],
+    "allergen_tags": [
+      "gluten",
+      "lait",
+      "fruits à coque"
+    ]
+  },
+  {
+    "name": "Galette de riz soufflé au chocolat noir",
+    "calories": 350,
+    "protein_g": 20,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {
+        "name": "Galettes de riz soufflé",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "name": "Chocolat noir 70%",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "name": "Fromage blanc 0%",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "name": "Banane",
+        "quantity": 80,
+        "unit": "g"
+      },
+      {
+        "name": "Amandes effilées",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Faire fondre le chocolat noir au micro-ondes ou au bain-marie. Tartiner les galettes de riz de fromage blanc. Disposer les rondelles de banane et les amandes effilées. Arroser de chocolat fondu.",
+    "tags": [
+      "quick",
+      "sans-gluten"
+    ],
+    "allergen_tags": [
+      "lait",
+      "fruits à coque"
+    ]
+  },
+  {
+    "name": "Ful medames (fèves à l'égyptienne)",
+    "calories": 410,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {
+        "name": "Fèves en conserve",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "name": "Jus de citron",
+        "quantity": 15,
+        "unit": "ml"
+      },
+      {
+        "name": "Huile d'olive",
+        "quantity": 10,
+        "unit": "ml"
+      },
+      {
+        "name": "Cumin",
+        "quantity": 3,
+        "unit": "g"
+      },
+      {
+        "name": "Ail",
+        "quantity": 5,
+        "unit": "g"
+      },
+      {
+        "name": "Pain pita complet",
+        "quantity": 40,
+        "unit": "g"
+      }
+    ],
+    "instructions": "Égoutter les fèves et les réchauffer dans une casserole. Écraser légèrement à la fourchette. Ajouter l'ail pressé, le cumin, le jus de citron et l'huile d'olive. Servir dans un bol avec le pain pita chaud.",
+    "tags": [
+      "vegan",
+      "high-fiber",
+      "savory"
+    ],
+    "allergen_tags": [
+      "gluten"
+    ]
+  }
+]

@@ -193,9 +193,7 @@ _OFF_API_BASE = "https://world.openfoodfacts.org/cgi/search.pl"
 _OFF_API_TIMEOUT = 8.0  # seconds
 
 
-async def search_food_online(
-    query: str, max_results: int = 5
-) -> list[dict]:
+async def search_food_online(query: str, max_results: int = 5) -> list[dict]:
     """Search the OpenFoodFacts API online when local DB has no match.
 
     Only called as fallback when search_food_local returns no confident result.
@@ -214,8 +212,7 @@ async def search_food_online(
         "action": "process",
         "json": 1,
         "page_size": max_results,
-        "fields": "code,product_name,product_name_fr,"
-        "nutriments",
+        "fields": "code,product_name,product_name_fr," "nutriments",
     }
     try:
         async with httpx.AsyncClient(timeout=_OFF_API_TIMEOUT) as client:

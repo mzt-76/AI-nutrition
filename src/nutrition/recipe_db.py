@@ -121,8 +121,10 @@ async def search_recipes(
     try:
         # Dejeuner and diner share the same recipe pool — query both
         if meal_type in ("dejeuner", "diner"):
-            query = supabase.table("recipes").select("*").in_(
-                "meal_type", ["dejeuner", "diner"]
+            query = (
+                supabase.table("recipes")
+                .select("*")
+                .in_("meal_type", ["dejeuner", "diner"])
             )
         else:
             query = supabase.table("recipes").select("*").eq("meal_type", meal_type)
