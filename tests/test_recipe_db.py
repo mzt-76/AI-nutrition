@@ -9,6 +9,7 @@ from unittest.mock import MagicMock
 from datetime import datetime, timedelta, timezone
 
 from src.nutrition.recipe_db import (
+    _contains_disliked,
     count_recipes_by_meal_type,
     get_recipe_by_id,
     save_recipe,
@@ -179,6 +180,45 @@ async def test_search_recipes_compound_food_exception():
     # "Fromage blanc fruits" should survive, "Galette fromage" should be excluded
     assert len(results) == 1
     assert results[0]["id"] == "uuid-1"
+
+
+@pytest.mark.asyncio
+async def test_disliked_synonym_parmesan():
+    """'fromage' disliked excludes recipe with 'parmesan' via synonym mapping."""
+    recipes = [
+        make_recipe(recipe_id="uuid-1", name="Pâtes au parmesan"),
+        make_recipe(recipe_id="uuid-2", name="Poulet grillé"),
+    ]
+    mock = make_supabase_mock(data=recipes)
+
+    results = await search_recipes(mock, "dejeuner", exclude_ingredients=["fromage"])
+
+    assert len(results) == 1
+    assert results[0]["id"] == "uuid-2"
+
+
+@pytest.mark.asyncio
+async def test_disliked_synonym_in_ingredient():
+    """'fromage' disliked excludes recipe with 'mozzarella' in ingredients."""
+    recipe_mozza = make_recipe(recipe_id="uuid-1", name="Pizza maison")
+    recipe_mozza["ingredients"] = [
+        {"name": "pâte", "quantity": 200, "unit": "g"},
+        {"name": "mozzarella", "quantity": 100, "unit": "g"},
+    ]
+    recipe_clean = make_recipe(recipe_id="uuid-2", name="Salade verte")
+    mock = make_supabase_mock(data=[recipe_mozza, recipe_clean])
+
+    results = await search_recipes(mock, "dejeuner", exclude_ingredients=["fromage"])
+
+    assert len(results) == 1
+    assert results[0]["id"] == "uuid-2"
+
+
+def test_disliked_compound_exception_still_works():
+    """'fromage blanc' is NOT excluded when 'fromage' is disliked (compound exception)."""
+    assert _contains_disliked("fromage blanc fruits rouges", "fromage") is False
+    assert _contains_disliked("gratin au fromage", "fromage") is True
+    assert _contains_disliked("pâtes au parmesan", "fromage") is True
 
 
 @pytest.mark.asyncio

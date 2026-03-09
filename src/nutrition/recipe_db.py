@@ -23,17 +23,50 @@ COMPOUND_FOOD_EXCEPTIONS: dict[str, list[str]] = {
     "fromage": ["fromage blanc", "fromage frais"],
 }
 
+# Synonyms for disliked foods — catches variants the substring check would miss
+DISLIKED_FOOD_SYNONYMS: dict[str, list[str]] = {
+    "fromage": [
+        "parmesan",
+        "emmental",
+        "gruyere",
+        "gruyère",
+        "mozzarella",
+        "cheddar",
+        "comte",
+        "comté",
+        "brie",
+        "camembert",
+        "raclette",
+        "feta",
+        "ricotta",
+        "mascarpone",
+        "chevre",
+        "chèvre",
+        "roquefort",
+        "reblochon",
+        "beaufort",
+        "cantal",
+        "gouda",
+        "pecorino",
+        "gorgonzola",
+    ],
+}
+
 
 def _contains_disliked(text: str, disliked: str) -> bool:
-    """Check if text contains disliked food, respecting compound exceptions."""
+    """Check if text contains disliked food, respecting compound exceptions and synonyms."""
     text_lower = text.lower()
-    if disliked not in text_lower:
-        return False
-    # If the match is actually a different compound food, don't exclude
-    for exception in COMPOUND_FOOD_EXCEPTIONS.get(disliked, []):
-        if exception in text_lower:
-            return False
-    return True
+    if disliked in text_lower:
+        # If the match is actually a different compound food, don't exclude
+        for exception in COMPOUND_FOOD_EXCEPTIONS.get(disliked, []):
+            if exception in text_lower:
+                return False
+        return True
+    # Substring didn't match — check synonyms
+    for synonym in DISLIKED_FOOD_SYNONYMS.get(disliked, []):
+        if synonym in text_lower:
+            return True
+    return False
 
 
 async def search_recipes(
@@ -164,36 +197,18 @@ async def search_recipes(
             excluded_set = set(exclude_recipe_ids)
             results = [r for r in results if r.get("id") not in excluded_set]
 
-        # Python-side filtering: macro-profile (exclude recipes with bad macro ratios)
+        # Python-side filtering: macro-profile (protein-only — LP solver handles fat/carbs)
         if target_macro_ratios and results:
-            target_fat_ratio = target_macro_ratios.get("fat_ratio")
-            target_carb_ratio = target_macro_ratios.get("carb_ratio")
+            target_prot_ratio = target_macro_ratios.get("protein_ratio")
             macro_filtered = []
             for r in results:
                 cal = r.get("calories_per_serving", 0) or 0
                 if cal <= 0:
                     macro_filtered.append(r)
                     continue
-                fat_g = r.get("fat_g_per_serving", 0) or 0
-                carbs_g = r.get("carbs_g_per_serving", 0) or 0
-                recipe_fat_ratio = (fat_g * 9) / cal
-                recipe_carb_ratio = (carbs_g * 4) / cal
                 protein_g = r.get("protein_g_per_serving", 0) or 0
                 recipe_prot_ratio = (protein_g * 4) / cal
-                target_prot_ratio = target_macro_ratios.get("protein_ratio")
                 skip = False
-                if target_fat_ratio and target_fat_ratio > 0:
-                    if (
-                        abs(recipe_fat_ratio - target_fat_ratio) / target_fat_ratio
-                        > macro_ratio_tolerance
-                    ):
-                        skip = True
-                if target_carb_ratio and target_carb_ratio > 0:
-                    if (
-                        abs(recipe_carb_ratio - target_carb_ratio) / target_carb_ratio
-                        > macro_ratio_tolerance
-                    ):
-                        skip = True
                 if target_prot_ratio and target_prot_ratio > 0:
                     if (
                         abs(recipe_prot_ratio - target_prot_ratio) / target_prot_ratio

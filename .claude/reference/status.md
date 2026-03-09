@@ -111,6 +111,13 @@ Le meal planner produisait des plans avec fat à -30/-55% du target (50g au lieu
 
 ---
 
+## TODO: Meal-planning DB & pipeline improvements
+
+- [ ] **Fusionner dejeuner/diner en `"repas"`** dans la DB + adapter `search_recipes` pour traiter les deux comme interchangeables. Actuellement contourné par double insert (chaque recette principale existe en dejeuner ET diner).
+- [ ] **Auditer les collations existantes** — certaines ont des protéines trop basses, ce qui cause des erreurs de génération de plan. Identifier et corriger les recettes collation avec < 10g protéines.
+
+---
+
 ## Feature: Recettes favorites + vue détail ← CURRENT
 
 ### Étape 1 : Vue détail recette + bouton favori

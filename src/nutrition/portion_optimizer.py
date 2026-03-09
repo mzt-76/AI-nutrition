@@ -21,13 +21,14 @@ import logging
 from scipy.optimize import linprog
 
 from src.nutrition.meal_plan_optimizer import MIN_SCALE_FACTOR, MAX_SCALE_FACTOR
+from src.nutrition.openfoodfacts_client import _unit_to_multiplier
 from src.nutrition.quantity_rounding import round_quantity_smart
 
 logger = logging.getLogger(__name__)
 
 # Macro weights in objective — protein is highest priority
 WEIGHT_PROTEIN = 2.0
-WEIGHT_FAT = 1.5
+WEIGHT_FAT = 2.0  # equal to protein — critical for hormonal health
 WEIGHT_CALORIES = 1.0
 WEIGHT_CARBS = 0.5  # carbs are the adjustment variable
 WEIGHT_MEAL_BALANCE = 1.5  # per-meal calorie balance
@@ -52,7 +53,9 @@ def _extract_recipe_macros(recipe: dict) -> dict:
             continue
         has_per_100g = True
         qty = ing.get("quantity", 0) or 0
-        factor = qty / 100.0
+        unit = ing.get("unit", "g")
+        name = ing.get("name", "")
+        factor = _unit_to_multiplier(qty, unit, name)
         totals["calories"] += (n.get("calories", 0) or 0) * factor
         totals["protein_g"] += (n.get("protein_g", 0) or 0) * factor
         totals["fat_g"] += (n.get("fat_g", 0) or 0) * factor

@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 DAY_NAMES_FR = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
 
 # Max retries when validation fails (1 retry = 1 swap)
-MAX_RETRIES = 1
+MAX_RETRIES = 2
 
 # Warn when more than half the slots use LLM fallback
 LLM_FALLBACK_WARN_THRESHOLD = 0.5
@@ -250,6 +250,15 @@ async def _select_recipe_for_slot(
                 "protein_ratio": (target_protein_g * 4) / target_calories,
             }
 
+    # Calorie range: select recipes in the right ballpark so LP solver
+    # doesn't need extreme scale factors. Range = target/3 to target*2
+    # (scale factor 0.5–3.0 can then hit the exact target).
+    calorie_range = (
+        (max(50, int(target_calories / 3)), int(target_calories * 2))
+        if target_calories > 0
+        else None
+    )
+
     # Attempt 1: Full filters (cuisine + macro ratio tolerance 0.30)
     candidates = await search_recipes(
         supabase=supabase,
@@ -260,15 +269,16 @@ async def _select_recipe_for_slot(
         diet_type=diet_type,
         cuisine_types=preferred_cuisines,
         max_prep_time=max_prep_time,
+        calorie_range=calorie_range,
         limit=5,
         target_macro_ratios=target_macro_ratios,
-        macro_ratio_tolerance=0.25,
+        macro_ratio_tolerance=0.30,
     )
 
-    # Attempt 2: Drop cuisine filter, widen macro tolerance
+    # Attempt 2: Drop cuisine filter, widen macro tolerance + calorie range
     if not candidates:
         logger.info(
-            f"  {meal_type_display}: widening search (no cuisine filter, tolerance 0.30)"
+            f"  {meal_type_display}: widening search (no cuisine filter, tolerance 0.50)"
         )
         candidates = await search_recipes(
             supabase=supabase,
@@ -279,9 +289,10 @@ async def _select_recipe_for_slot(
             diet_type=diet_type,
             cuisine_types=None,  # No cuisine filter
             max_prep_time=max_prep_time,
+            calorie_range=None,  # Drop calorie range too
             limit=5,
             target_macro_ratios=target_macro_ratios,
-            macro_ratio_tolerance=0.30,
+            macro_ratio_tolerance=0.50,
         )
 
     # Attempt 3: Drop macro ratio filter entirely
@@ -553,22 +564,22 @@ def validate_day(
         {"fat_g": target_macros.get("fat_g", 0)},
         tolerance=0.10,  # tight — fat must hit target
     )
-    calorie_carb_check = validate_daily_macros(
-        {
-            "calories": daily_totals.get("calories", 0),
-            "carbs_g": daily_totals.get("carbs_g", 0),
-        },
-        {
-            "calories": target_macros.get("calories", 0),
-            "carbs_g": target_macros.get("carbs_g", 0),
-        },
+    calorie_check = validate_daily_macros(
+        {"calories": daily_totals.get("calories", 0)},
+        {"calories": target_macros.get("calories", 0)},
+        tolerance=0.10,  # calories must be close to target
+    )
+    carb_check = validate_daily_macros(
+        {"carbs_g": daily_totals.get("carbs_g", 0)},
+        {"carbs_g": target_macros.get("carbs_g", 0)},
         tolerance=0.20,  # flexible — carbs are adjustment variable
     )
 
     all_violations = (
         allergen_violations
         + protein_check.get("violations", [])
-        + calorie_carb_check.get("violations", [])
+        + calorie_check.get("violations", [])
+        + carb_check.get("violations", [])
         + fat_check.get("violations", [])
     )
 
@@ -868,12 +879,14 @@ async def execute(**kwargs) -> str:
         )
 
         # ------------------------------------------------------------------
-        # Step 5: Repair (if needed, max 1 retry)
+        # Step 5: Repair (if needed, up to MAX_RETRIES swaps)
         # ------------------------------------------------------------------
-        if not validation["valid"]:
+        retries = 0
+        while not validation["valid"] and retries < MAX_RETRIES:
+            retries += 1
             logger.warning(
                 f"Day {day_name} validation failed: "
-                f"{len(validation['violations'])} violations — attempting repair"
+                f"{len(validation['violations'])} violations — repair attempt {retries}/{MAX_RETRIES}"
             )
 
             t0 = time.monotonic()
@@ -902,6 +915,7 @@ async def execute(**kwargs) -> str:
                 day_index=day_index,
                 duration_ms=t_repair,
                 output_summary={
+                    "retry": retries,
                     "valid_after_repair": validation["valid"],
                     "violations_remaining": len(validation["violations"]),
                 },
