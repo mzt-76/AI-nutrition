@@ -14,7 +14,7 @@ import {
   apiFetch,
 } from '@/lib/api';
 import type { DailyFoodLog, DailyFoodLogInsert } from '@/types/database.types';
-import { normalizeMealType, MEAL_LABELS, MEAL_TYPE_ORDER } from '@/lib/meal-constants';
+import { normalizeMealType, MEAL_LABELS } from '@/lib/meal-constants';
 import type { MealType } from '@/lib/meal-constants';
 import { logger } from '@/lib/logger';
 
@@ -97,11 +97,12 @@ export function useDailyTracking() {
   useEffect(() => {
     if (!user) return;
     const fetchTargets = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('user_profiles')
         .select('target_calories, target_protein_g, target_carbs_g, target_fat_g')
         .eq('id', user.id)
         .single();
+      if (error || !data) return; // Use default targets already set in state
       if (data) {
         setTargets({
           calories: data.target_calories ?? 2000,

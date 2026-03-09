@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import remarkGfm from 'remark-gfm';
 import breaks from 'remark-breaks';
 import { Message, FileAttachment } from '@/types/database.types';
@@ -33,6 +34,7 @@ interface CodeProps {
 
 export const MessageItem = memo(({ message, isLastMessage = false, onAction, onMealClick }: MessageItemProps) => {
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
 
   const handleMealClick = useCallback((comp: UIComponentBlock) => {
     if (!onMealClick) return;
@@ -108,10 +110,26 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
           p: ({children}) => <p className="mb-6 last:mb-0">{children}</p>,
           // Ensure proper link styling with a distinct color
           a: ({href, children}) => {
+            // Internal links — only whitelisted routes use React Router
+            const SAFE_INTERNAL_PREFIXES = ['/plans/'];
+            const isSafeInternal = href && SAFE_INTERNAL_PREFIXES.some(p => href.startsWith(p));
+
+            if (isSafeInternal) {
+              return (
+                <a
+                  href={href}
+                  onClick={(e) => { e.preventDefault(); navigate(href!); }}
+                  className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 underline font-medium cursor-pointer"
+                >
+                  {children} →
+                </a>
+              );
+            }
+            // External links → validate protocol
             let isSafe = false;
             if (href) {
               try {
-                const url = new URL(href);
+                const url = new URL(href, window.location.origin);
                 isSafe = url.protocol === 'http:' || url.protocol === 'https:';
               } catch {
                 isSafe = false;
@@ -147,7 +165,7 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
         {message.message.content ?? ''}
       </ReactMarkdown>
     );
-  }, [message.message.content]);
+  }, [message.message.content, navigate]);
 
   return (
     <div 

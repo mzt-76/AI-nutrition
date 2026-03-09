@@ -24,6 +24,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Conversation } from '@/types/database.types';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Link, useLocation } from 'react-router-dom';
 import { SettingsModal } from './SettingsModal';
 import { TypewriterText } from '@/components/ui/TypewriterText';
@@ -51,6 +52,7 @@ export const ChatSidebar = ({
 }: ChatSidebarProps) => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [filteredConversations, setFilteredConversations] = useState<Conversation[]>(conversations);
   const location = useLocation();
@@ -122,7 +124,7 @@ export const ChatSidebar = ({
       <div className="flex items-center justify-between p-4">
         <div className="text-sidebar-foreground font-semibold flex items-center">
           <Salad className="mr-2 h-5 w-5 text-primary" />
-          Nutritionniste IA
+          Assistant Nutrition IA
         </div>
         <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
           <ChevronLeft className="h-5 w-5" />
@@ -155,28 +157,30 @@ export const ChatSidebar = ({
           Nouvelle conversation
         </Button>
 
-        <div className="mt-3 space-y-1">
-          <Button
-            variant={location.pathname.startsWith('/tracking') ? 'secondary' : 'ghost'}
-            className="w-full justify-start"
-            asChild
-          >
-            <Link to="/tracking">
-              <Activity className="mr-2 h-5 w-5" />
-              Suivi du Jour
-            </Link>
-          </Button>
-          <Button
-            variant={location.pathname === '/plans' ? 'secondary' : 'ghost'}
-            className="w-full justify-start"
-            asChild
-          >
-            <Link to="/plans">
-              <BookOpen className="mr-2 h-5 w-5" />
-              Bibliothèque
-            </Link>
-          </Button>
-        </div>
+        {!isMobile && (
+          <div className="mt-3 space-y-1">
+            <Button
+              variant={location.pathname.startsWith('/tracking') ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+              asChild
+            >
+              <Link to="/tracking">
+                <Activity className="mr-2 h-5 w-5" />
+                Suivi du Jour
+              </Link>
+            </Button>
+            <Button
+              variant={location.pathname === '/plans' ? 'secondary' : 'ghost'}
+              className="w-full justify-start"
+              asChild
+            >
+              <Link to="/plans">
+                <BookOpen className="mr-2 h-5 w-5" />
+                Bibliothèque
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="px-4 pt-4 pb-2">
@@ -209,12 +213,12 @@ export const ChatSidebar = ({
                   <MessageSquare className="mr-2 h-4 w-4 shrink-0" />
                   {newConversationId === conversation.session_id ? (
                     <TypewriterText
-                      text={conversation.title || ''}
+                      text={conversation.title || 'Nouvelle conversation'}
                       duration={300}
                       className="truncate"
                     />
                   ) : (
-                    <span className="truncate">{conversation.title}</span>
+                    <span className="truncate">{conversation.title || 'Nouvelle conversation'}</span>
                   )}
                 </Button>
                 <button

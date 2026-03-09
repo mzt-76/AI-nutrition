@@ -66,7 +66,7 @@ async def create_conversation(
     """
     response = (
         supabase.table("conversations")
-        .insert({"user_id": user_id, "session_id": session_id})
+        .insert({"user_id": user_id, "session_id": session_id, "title": "Nouvelle conversation"})
         .execute()
     )
 

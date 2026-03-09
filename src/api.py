@@ -86,6 +86,13 @@ mem0_client: Any = None
 _http_client: httpx.AsyncClient | None = None
 
 
+def _require_supabase() -> Any:
+    """Return supabase client, raising if not yet initialized."""
+    if supabase is None:
+        raise RuntimeError("Supabase client not initialized — server still starting")
+    return supabase
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # noqa: ARG001
     """Initialize and clean up global clients."""
@@ -112,6 +119,11 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
     except Exception as e:
         logger.warning(f"mem0 not available: {e}")
         mem0_client = None
+
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        logger.warning(
+            "ANTHROPIC_API_KEY not set — agent will use LLM_API_KEY fallback"
+        )
 
     # Validate main agent model at startup
     try:
@@ -172,7 +184,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Content-Security-Policy"] = "default-src 'none'"
-        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers[
+            "Strict-Transport-Security"
+        ] = "max-age=31536000; includeSubDomains"
         return response
 
 
@@ -253,7 +267,9 @@ class FileAttachment(BaseModel):
 
 class AgentRequest(BaseModel):
     query: str = Field(max_length=5000)
-    user_id: str = Field(pattern=r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+    user_id: str = Field(
+        pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    )
     request_id: str
     session_id: str = ""
     files: list[FileAttachment] | None = None
@@ -391,7 +407,31 @@ async def agent_endpoint(
                     status_code=400,
                 )
             for f in request.files:
-                if len(f.content) > 1_400_000:  # ~1MB in base64
+                # Pre-check: reject obviously oversized payloads before allocating memory
+                # base64 expands ~4/3, so 1MB decoded ≈ 1.33MB encoded
+                if len(f.content) > 1_400_000:
+                    return StreamingResponse(
+                        _stream_error(
+                            f"Le fichier {f.file_name} dépasse 1 Mo.",
+                            request.session_id,
+                        ),
+                        media_type="text/plain",
+                        status_code=400,
+                    )
+                # Validate base64 is well-formed BEFORE checking size
+                # (malformed base64 could bypass the size check)
+                try:
+                    decoded = base64.b64decode(f.content, validate=True)
+                except Exception:
+                    return StreamingResponse(
+                        _stream_error(
+                            f"Le fichier {f.file_name} est mal encodé.",
+                            request.session_id,
+                        ),
+                        media_type="text/plain",
+                        status_code=400,
+                    )
+                if len(decoded) > 1_000_000:  # 1MB decoded size
                     return StreamingResponse(
                         _stream_error(
                             f"Le fichier {f.file_name} dépasse 1 Mo.",
@@ -506,7 +546,10 @@ async def agent_endpoint(
                         memories_str = "\n".join(
                             f"- {entry['memory']}" for entry in relevant["results"]
                         )
-                        logger.info(f"mem0 memories injected: {memories_str}")
+                        logger.debug(
+                            "mem0 memories injected (%d entries)",
+                            len(relevant["results"]),
+                        )
                 except Exception as e:
                     logger.warning(f"Could not load memories: {e}")
 
