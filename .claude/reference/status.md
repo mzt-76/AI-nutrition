@@ -163,6 +163,36 @@ Le LP optimise 2-3 groupes par recette au lieu d'1 facteur unique, donnant la fl
 
 **Complexité** : moyenne-haute. Le LP reste trivial (<10ms) mais le tagging et les contraintes culinaires demandent du travail de design.
 
+## TODO v2b: Compensation inter-repas (budget macro glissant)
+
+**Problème** : la sélection de recettes applique le MÊME target macro ratio à chaque repas indépendamment. Si le dîner a 40% fat, le petit-déjeuner devrait compenser à 15% fat — mais le système ne le sait pas car chaque slot est traité en isolation.
+
+**Solution** : sélection séquentielle avec budget macro glissant :
+
+```
+Budget jour : 2500 kcal, 170g P, 80g F, 300g C
+
+1. Sélectionner petit-déjeuner → "Omelette champignons" (500 kcal, 35g P, 25g F, 40g C)
+2. Budget restant : 2000 kcal, 135g P, 55g F, 260g C
+   → Nouveau target ratio : P=27%, F=25%, C=52% (fat a baissé car l'omelette était grasse)
+3. Sélectionner déjeuner avec ces nouveaux ratios → recette plus lean
+4. Budget restant recalculé → sélectionner dîner + collation
+```
+
+**Avantages** :
+- Permet de mixer recettes grasses et lean dans la même journée
+- Pas besoin de filtrer/exclure des recettes — le pool reste large
+- Compatible avec le LP actuel (le LP reçoit des targets ajustés)
+- Implémentation légère : modifier `generate_day_plan.py` pour passer les targets cumulés
+
+**Prérequis** :
+- Modifier `_select_recipe_for_slot()` pour recevoir le budget restant au lieu du budget total
+- Ordre de sélection : fixer un ordre (petit-déj → déjeuner → dîner → collation) ou optimiser l'ordre
+- Recalculer `target_macro_ratios` après chaque sélection dans la boucle de `select_recipes()`
+- Le LP `scale_portions()` reçoit déjà les targets jour — pas de changement nécessaire
+
+**Complexité** : basse-moyenne. Pas de nouveau modèle, juste une boucle séquentielle au lieu de calls indépendants.
+
 ---
 
 ## Feature: Recettes favorites + vue détail ← CURRENT

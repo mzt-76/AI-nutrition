@@ -1,0 +1,401 @@
+[
+  {
+    "name": "Tortilla espagnole aux légumes",
+    "calories": 400,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "espagnole",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 4, "unit": "pièces"},
+      {"name": "pomme de terre", "quantity": 80, "unit": "g"},
+      {"name": "poivron rouge", "quantity": 40, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Cuire les pommes de terre en rondelles avec poivrons et oignons. Verser les œufs battus, cuire la tortilla des deux côtés.",
+    "tags": ["high-protein", "spanish"],
+    "allergen_tags": ["oeufs"]
+  },
+  {
+    "name": "Cloud eggs au parmesan",
+    "calories": 320,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "parmesan râpé", "quantity": 20, "unit": "g"},
+      {"name": "pain complet", "quantity": 40, "unit": "g"},
+      {"name": "ciboulette", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Séparer blancs et jaunes. Monter les blancs en neige avec le parmesan. Former des nids sur une plaque. Cuire 3 min, ajouter les jaunes, cuire encore 3 min.",
+    "tags": ["high-protein", "creative"],
+    "allergen_tags": ["oeufs", "lait", "gluten"]
+  },
+  {
+    "name": "Halloumi grillé aux légumes du soleil",
+    "calories": 380,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "halloumi", "quantity": 80, "unit": "g"},
+      {"name": "tomate", "quantity": 80, "unit": "g"},
+      {"name": "courgette", "quantity": 60, "unit": "g"},
+      {"name": "poivron rouge", "quantity": 50, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "pain complet", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Couper le halloumi en tranches épaisses et griller. Griller les légumes émincés. Servir ensemble avec le pain.",
+    "tags": ["high-protein", "mediterranean"],
+    "allergen_tags": ["lait", "gluten"]
+  },
+  {
+    "name": "Paneer bhurji sur pain naan",
+    "calories": 420,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "indienne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "paneer", "quantity": 100, "unit": "g"},
+      {"name": "pain naan", "quantity": 50, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "tomate", "quantity": 40, "unit": "g"},
+      {"name": "curcuma", "quantity": 2, "unit": "g"},
+      {"name": "garam masala", "quantity": 2, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Émietter le paneer. Faire revenir l'oignon et la tomate avec les épices. Ajouter le paneer, mélanger. Servir sur le naan chaud.",
+    "tags": ["high-protein", "indian"],
+    "allergen_tags": ["lait", "gluten"]
+  },
+  {
+    "name": "Cheese blintzes aux fruits rouges",
+    "calories": 400,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "farine de blé", "quantity": 40, "unit": "g"},
+      {"name": "fromage blanc", "quantity": 100, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "fruits rouges", "quantity": 60, "unit": "g"},
+      {"name": "miel", "quantity": 10, "unit": "g"},
+      {"name": "beurre", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Préparer des crêpes fines. Les garnir de fromage blanc sucré au miel. Plier et dorer au beurre. Servir avec les fruits rouges.",
+    "tags": ["high-protein", "sweet"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Œufs en nuage aux herbes de Provence",
+    "calories": 340,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "fromage râpé", "quantity": 20, "unit": "g"},
+      {"name": "pain complet", "quantity": 40, "unit": "g"},
+      {"name": "herbes de Provence", "quantity": 3, "unit": "g"},
+      {"name": "beurre", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Monter les blancs en neige, incorporer le fromage et les herbes. Former des nids, déposer les jaunes. Cuire 8 min à 200°C. Servir sur pain grillé.",
+    "tags": ["high-protein", "creative"],
+    "allergen_tags": ["oeufs", "lait", "gluten"]
+  },
+  {
+    "name": "Bol de kéfir protéiné granola maison",
+    "calories": 380,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "kéfir", "quantity": 200, "unit": "ml"},
+      {"name": "whey protéine", "quantity": 15, "unit": "g"},
+      {"name": "flocons d'avoine", "quantity": 30, "unit": "g"},
+      {"name": "amandes", "quantity": 10, "unit": "g"},
+      {"name": "miel", "quantity": 10, "unit": "g"},
+      {"name": "cannelle", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Mélanger le kéfir avec la whey. Verser dans un bol, garnir de flocons d'avoine, amandes concassées et miel.",
+    "tags": ["high-protein", "probiotics", "quick"],
+    "allergen_tags": ["lait", "gluten", "fruits à coque"]
+  },
+  {
+    "name": "Œufs pochés sur rösti de patate douce",
+    "calories": 380,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "patate douce", "quantity": 120, "unit": "g"},
+      {"name": "oignon", "quantity": 20, "unit": "g"},
+      {"name": "farine de blé", "quantity": 10, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "ciboulette", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Râper la patate douce, mélanger avec oignon et farine. Former des galettes et cuire à la poêle. Pocher les œufs, servir sur les rösti.",
+    "tags": ["high-protein", "savory"],
+    "allergen_tags": ["oeufs", "gluten"]
+  },
+  {
+    "name": "Ricotta fouettée aux agrumes et pistaches",
+    "calories": 360,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "italienne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "ricotta", "quantity": 130, "unit": "g"},
+      {"name": "orange", "quantity": 80, "unit": "g"},
+      {"name": "pistaches", "quantity": 15, "unit": "g"},
+      {"name": "miel", "quantity": 10, "unit": "g"},
+      {"name": "zeste de citron", "quantity": 3, "unit": "g"},
+      {"name": "pain complet", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Fouetter la ricotta avec le zeste de citron et le miel. Servir avec les suprêmes d'orange et les pistaches concassées. Accompagner de pain grillé.",
+    "tags": ["high-protein", "fresh", "quick"],
+    "allergen_tags": ["lait", "fruits à coque", "gluten"]
+  },
+  {
+    "name": "Grilled cheese aux épinards et mozzarella",
+    "calories": 410,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "pain de mie complet", "quantity": 60, "unit": "g"},
+      {"name": "mozzarella", "quantity": 50, "unit": "g"},
+      {"name": "épinards frais", "quantity": 40, "unit": "g"},
+      {"name": "oeufs", "quantity": 1, "unit": "pièces"},
+      {"name": "beurre", "quantity": 10, "unit": "g"},
+      {"name": "tomate", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Garnir le pain de mozzarella et épinards. Griller au beurre des deux côtés. Servir avec un œuf au plat et tomate.",
+    "tags": ["high-protein", "comfort"],
+    "allergen_tags": ["gluten", "lait", "oeufs"]
+  },
+  {
+    "name": "Açaí bowl protéiné au skyr",
+    "calories": 400,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "brésilienne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "açaí surgelé", "quantity": 100, "unit": "g"},
+      {"name": "skyr", "quantity": 120, "unit": "g"},
+      {"name": "banane", "quantity": 60, "unit": "g"},
+      {"name": "granola", "quantity": 20, "unit": "g"},
+      {"name": "graines de chia", "quantity": 5, "unit": "g"},
+      {"name": "miel", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Mixer l'açaí avec la moitié de la banane. Verser dans un bol, garnir de skyr, granola, tranches de banane et graines de chia.",
+    "tags": ["high-protein", "smoothie-bowl"],
+    "allergen_tags": ["lait", "gluten"]
+  },
+  {
+    "name": "Shakshuka verte aux herbes",
+    "calories": 370,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "épinards frais", "quantity": 80, "unit": "g"},
+      {"name": "feta", "quantity": 25, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "ail", "quantity": 3, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "coriandre fraîche", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Faire fondre les épinards avec l'oignon et l'ail. Casser les œufs dans les épinards. Émietter la feta. Cuire couvert 8 min.",
+    "tags": ["high-protein", "green"],
+    "allergen_tags": ["oeufs", "lait"]
+  },
+  {
+    "name": "Welsh rarebit végétarien",
+    "calories": 420,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "britannique",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "pain de campagne", "quantity": 60, "unit": "g"},
+      {"name": "cheddar", "quantity": 60, "unit": "g"},
+      {"name": "oeufs", "quantity": 1, "unit": "pièces"},
+      {"name": "moutarde", "quantity": 5, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 20, "unit": "ml"},
+      {"name": "bière", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Faire fondre le cheddar avec la moutarde et le lait. Étaler sur le pain grillé. Gratiner au four. Servir avec un œuf poché.",
+    "tags": ["high-protein", "british", "comfort"],
+    "allergen_tags": ["gluten", "lait", "oeufs", "moutarde"]
+  },
+  {
+    "name": "Crêpe soufflée au fromage blanc et vanille",
+    "calories": 380,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "fromage blanc", "quantity": 100, "unit": "g"},
+      {"name": "farine de blé", "quantity": 30, "unit": "g"},
+      {"name": "vanille", "quantity": 3, "unit": "g"},
+      {"name": "beurre", "quantity": 5, "unit": "g"},
+      {"name": "fruits rouges", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Séparer les blancs et jaunes. Mélanger jaunes, fromage blanc, farine et vanille. Monter les blancs en neige, incorporer. Cuire à la poêle. Garnir de fruits rouges.",
+    "tags": ["high-protein", "fluffy"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Galette de flocons d'avoine aux œufs et fromage",
+    "calories": 400,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "flocons d'avoine", "quantity": 40, "unit": "g"},
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "emmental râpé", "quantity": 25, "unit": "g"},
+      {"name": "oignon vert", "quantity": 10, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "sel", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Mélanger les flocons d'avoine, les œufs battus et l'emmental. Cuire en galettes à la poêle. Servir garni d'oignon vert.",
+    "tags": ["high-protein", "savory", "quick"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Bol de labneh za'atar et œuf mollet",
+    "calories": 370,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "moyen-orientale",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "labneh", "quantity": 100, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "za'atar", "quantity": 5, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "pain pita", "quantity": 40, "unit": "g"},
+      {"name": "concombre", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Étaler le labneh dans un bol, créer un puits au centre. Arroser d'huile et saupoudrer de za'atar. Cuire les œufs mollets, disposer dessus. Servir avec pita.",
+    "tags": ["high-protein", "middle-eastern"],
+    "allergen_tags": ["lait", "oeufs", "gluten", "sésame"]
+  },
+  {
+    "name": "Wrap cottage cheese avocat et roquette",
+    "calories": 360,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "tortilla de blé", "quantity": 50, "unit": "g"},
+      {"name": "cottage cheese", "quantity": 100, "unit": "g"},
+      {"name": "avocat", "quantity": 50, "unit": "g"},
+      {"name": "roquette", "quantity": 20, "unit": "g"},
+      {"name": "tomate cerise", "quantity": 40, "unit": "g"},
+      {"name": "jus de citron", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Tartiner la tortilla de cottage cheese. Ajouter l'avocat tranché, la roquette et les tomates. Rouler et couper en deux.",
+    "tags": ["high-protein", "quick", "no-cook"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Syrniki au fromage blanc (galettes russes)",
+    "calories": 390,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "fromage blanc", "quantity": 150, "unit": "g"},
+      {"name": "oeufs", "quantity": 1, "unit": "pièces"},
+      {"name": "farine de blé", "quantity": 25, "unit": "g"},
+      {"name": "vanille", "quantity": 2, "unit": "g"},
+      {"name": "beurre", "quantity": 10, "unit": "g"},
+      {"name": "crème fraîche", "quantity": 20, "unit": "g"},
+      {"name": "fruits rouges", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Mélanger le fromage blanc, l'œuf, la farine et la vanille. Former des galettes. Cuire au beurre. Servir avec crème fraîche et fruits rouges.",
+    "tags": ["high-protein", "russian"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Bol de yaourt grec aux noix de pécan et cacao",
+    "calories": 380,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "yaourt grec", "quantity": 180, "unit": "g"},
+      {"name": "noix de pécan", "quantity": 15, "unit": "g"},
+      {"name": "cacao en poudre", "quantity": 8, "unit": "g"},
+      {"name": "miel", "quantity": 10, "unit": "g"},
+      {"name": "banane", "quantity": 60, "unit": "g"},
+      {"name": "graines de lin", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Mélanger le yaourt grec avec le cacao et le miel. Garnir de tranches de banane, noix de pécan et graines de lin.",
+    "tags": ["high-protein", "quick", "no-cook"],
+    "allergen_tags": ["lait", "fruits à coque"]
+  },
+  {
+    "name": "Muffins aux œufs et brocoli",
+    "calories": 340,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "végétarien",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 4, "unit": "pièces"},
+      {"name": "brocoli", "quantity": 80, "unit": "g"},
+      {"name": "fromage râpé", "quantity": 20, "unit": "g"},
+      {"name": "oignon vert", "quantity": 10, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 30, "unit": "ml"},
+      {"name": "sel", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Battre les œufs avec le lait. Ajouter le brocoli blanchi coupé, le fromage et l'oignon. Répartir dans un moule à muffins. Cuire 20 min à 180°C.",
+    "tags": ["high-protein", "meal-prep"],
+    "allergen_tags": ["oeufs", "lait"]
+  }
+]

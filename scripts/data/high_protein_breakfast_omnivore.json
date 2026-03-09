@@ -1,0 +1,800 @@
+[
+  {
+    "name": "Huevos rancheros protéinés",
+    "calories": 420,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "mexicaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "haricots noirs", "quantity": 80, "unit": "g"},
+      {"name": "tortilla de maïs", "quantity": 1, "unit": "pièces"},
+      {"name": "sauce tomate", "quantity": 60, "unit": "g"},
+      {"name": "avocat", "quantity": 40, "unit": "g"},
+      {"name": "coriandre fraîche", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Faire chauffer les haricots noirs avec la sauce tomate. Cuire les œufs au plat. Servir sur la tortilla avec l'avocat et la coriandre.",
+    "tags": ["high-protein", "savory"],
+    "allergen_tags": ["oeufs", "gluten"]
+  },
+  {
+    "name": "Kedgeree au haddock fumé",
+    "calories": 450,
+    "protein_g": 32,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "britannique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "haddock fumé", "quantity": 120, "unit": "g"},
+      {"name": "riz basmati", "quantity": 80, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "beurre", "quantity": 10, "unit": "g"},
+      {"name": "curry en poudre", "quantity": 3, "unit": "g"},
+      {"name": "persil frais", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire le riz. Pocher le haddock dans du lait. Émietter le poisson, mélanger au riz avec le beurre et le curry. Servir avec des œufs durs coupés en quartiers.",
+    "tags": ["high-protein", "british"],
+    "allergen_tags": ["oeufs", "poisson", "lait"]
+  },
+  {
+    "name": "Bol de riz japonais au saumon grillé",
+    "calories": 430,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "japonaise",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "saumon", "quantity": 100, "unit": "g"},
+      {"name": "riz japonais", "quantity": 80, "unit": "g"},
+      {"name": "sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "nori", "quantity": 2, "unit": "g"},
+      {"name": "oeufs", "quantity": 1, "unit": "pièces"},
+      {"name": "oignon vert", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Cuire le riz. Griller le saumon, l'émietter. Servir sur le riz avec un œuf au plat, le nori émietté et la sauce soja.",
+    "tags": ["high-protein", "japanese"],
+    "allergen_tags": ["oeufs", "poisson", "soja"]
+  },
+  {
+    "name": "Œufs cocotte au jambon et gruyère",
+    "calories": 350,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "jambon blanc", "quantity": 40, "unit": "g"},
+      {"name": "gruyère râpé", "quantity": 20, "unit": "g"},
+      {"name": "crème fraîche", "quantity": 20, "unit": "g"},
+      {"name": "ciboulette", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Beurrer un ramequin, tapisser de jambon. Casser les œufs, ajouter la crème et le gruyère. Cuire au bain-marie 12 min à 180°C.",
+    "tags": ["high-protein", "quick"],
+    "allergen_tags": ["oeufs", "lait"]
+  },
+  {
+    "name": "Tartine de sardines à la tomate",
+    "calories": 380,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "sardines en conserve", "quantity": 100, "unit": "g"},
+      {"name": "pain complet", "quantity": 60, "unit": "g"},
+      {"name": "tomate", "quantity": 80, "unit": "g"},
+      {"name": "oignon rouge", "quantity": 20, "unit": "g"},
+      {"name": "jus de citron", "quantity": 10, "unit": "ml"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Écraser les sardines à la fourchette avec le citron. Tartiner sur le pain grillé. Garnir de tomate et oignon émincés.",
+    "tags": ["high-protein", "omega-3", "quick"],
+    "allergen_tags": ["poisson", "gluten"]
+  },
+  {
+    "name": "Chilaquiles au poulet effiloché",
+    "calories": 460,
+    "protein_g": 32,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "mexicaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "blanc de poulet", "quantity": 100, "unit": "g"},
+      {"name": "tortilla chips", "quantity": 40, "unit": "g"},
+      {"name": "sauce tomate", "quantity": 80, "unit": "g"},
+      {"name": "crème fraîche", "quantity": 20, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "coriandre fraîche", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire et effilocher le poulet. Faire la sauce tomate avec l'oignon. Mélanger les chips avec la sauce, garnir de poulet et crème.",
+    "tags": ["high-protein", "mexican"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Steak haché et œuf au plat",
+    "calories": 420,
+    "protein_g": 35,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "steak haché 5%", "quantity": 125, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "pain complet", "quantity": 40, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "sel", "quantity": 2, "unit": "g"},
+      {"name": "poivre", "quantity": 1, "unit": "g"}
+    ],
+    "instructions": "Cuire le steak haché à la poêle. Faire les œufs au plat dans la même poêle. Servir avec le pain grillé.",
+    "tags": ["high-protein", "savory"],
+    "allergen_tags": ["oeufs", "gluten"]
+  },
+  {
+    "name": "Pain de mie dinde et avocat",
+    "calories": 380,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "blanc de dinde", "quantity": 80, "unit": "g"},
+      {"name": "pain de mie complet", "quantity": 60, "unit": "g"},
+      {"name": "avocat", "quantity": 50, "unit": "g"},
+      {"name": "tomate", "quantity": 40, "unit": "g"},
+      {"name": "moutarde", "quantity": 5, "unit": "g"},
+      {"name": "salade verte", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Toaster le pain. Tartiner d'avocat écrasé et de moutarde. Garnir de tranches de dinde et de tomate.",
+    "tags": ["high-protein", "quick", "sandwich"],
+    "allergen_tags": ["gluten", "moutarde"]
+  },
+  {
+    "name": "Bol cottage cheese et saumon fumé",
+    "calories": 340,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "cottage cheese", "quantity": 150, "unit": "g"},
+      {"name": "saumon fumé", "quantity": 60, "unit": "g"},
+      {"name": "concombre", "quantity": 50, "unit": "g"},
+      {"name": "aneth", "quantity": 3, "unit": "g"},
+      {"name": "jus de citron", "quantity": 5, "unit": "ml"},
+      {"name": "graines de lin", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Disposer le cottage cheese dans un bol. Garnir de saumon fumé, concombre en dés, aneth et graines de lin.",
+    "tags": ["high-protein", "quick", "no-cook"],
+    "allergen_tags": ["lait", "poisson"]
+  },
+  {
+    "name": "Muffin anglais œuf bacon cheddar",
+    "calories": 400,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "muffin anglais", "quantity": 1, "unit": "pièces"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "bacon", "quantity": 30, "unit": "g"},
+      {"name": "cheddar", "quantity": 20, "unit": "g"},
+      {"name": "beurre", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Griller le bacon. Cuire les œufs brouillés. Toaster le muffin, garnir de bacon, œufs et cheddar fondu.",
+    "tags": ["high-protein", "american"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Galette de pois chiches au thon",
+    "calories": 380,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "farine de pois chiches", "quantity": 50, "unit": "g"},
+      {"name": "thon en conserve", "quantity": 80, "unit": "g"},
+      {"name": "oeufs", "quantity": 1, "unit": "pièces"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "cumin", "quantity": 2, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Mélanger la farine de pois chiches, l'œuf et l'eau. Ajouter le thon émietté et l'oignon. Cuire en galette à la poêle.",
+    "tags": ["high-protein", "gluten-free"],
+    "allergen_tags": ["oeufs", "poisson"]
+  },
+  {
+    "name": "Riz sauté aux crevettes et œuf",
+    "calories": 430,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "crevettes décortiquées", "quantity": 80, "unit": "g"},
+      {"name": "riz cuit", "quantity": 120, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "oignon vert", "quantity": 15, "unit": "g"},
+      {"name": "huile de sésame", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Sauter le riz dans un wok. Ajouter les crevettes et les œufs battus. Assaisonner de sauce soja et huile de sésame.",
+    "tags": ["high-protein", "asian"],
+    "allergen_tags": ["oeufs", "crustacés", "soja", "sésame"]
+  },
+  {
+    "name": "Pita garnie poulet tzatziki",
+    "calories": 410,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "blanc de poulet", "quantity": 100, "unit": "g"},
+      {"name": "pain pita", "quantity": 60, "unit": "g"},
+      {"name": "yaourt grec", "quantity": 40, "unit": "g"},
+      {"name": "concombre", "quantity": 40, "unit": "g"},
+      {"name": "tomate", "quantity": 40, "unit": "g"},
+      {"name": "ail", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Griller le poulet émincé. Préparer le tzatziki avec le yaourt, concombre râpé et ail. Garnir la pita de poulet, tzatziki et tomate.",
+    "tags": ["high-protein", "mediterranean"],
+    "allergen_tags": ["gluten", "lait"]
+  },
+  {
+    "name": "Bánh mì au poulet grillé",
+    "calories": 420,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "vietnamienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "blanc de poulet", "quantity": 100, "unit": "g"},
+      {"name": "baguette", "quantity": 60, "unit": "g"},
+      {"name": "carotte", "quantity": 40, "unit": "g"},
+      {"name": "daikon", "quantity": 30, "unit": "g"},
+      {"name": "coriandre fraîche", "quantity": 5, "unit": "g"},
+      {"name": "sauce nuoc mam", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Griller le poulet mariné au nuoc mam. Préparer le pickle de carotte et daikon. Garnir la baguette de poulet, pickles et coriandre.",
+    "tags": ["high-protein", "vietnamese"],
+    "allergen_tags": ["gluten", "poisson"]
+  },
+  {
+    "name": "Quesadilla œuf fromage et poivrons",
+    "calories": 440,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "mexicaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "tortilla de blé", "quantity": 60, "unit": "g"},
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "fromage râpé", "quantity": 30, "unit": "g"},
+      {"name": "poivron rouge", "quantity": 50, "unit": "g"},
+      {"name": "oignon", "quantity": 20, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Brouiller les œufs avec les poivrons et oignons. Garnir la tortilla, ajouter le fromage, plier et griller.",
+    "tags": ["high-protein", "mexican"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Bagel saumon fumé et cream cheese",
+    "calories": 420,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "bagel complet", "quantity": 1, "unit": "pièces"},
+      {"name": "saumon fumé", "quantity": 60, "unit": "g"},
+      {"name": "cream cheese", "quantity": 30, "unit": "g"},
+      {"name": "câpres", "quantity": 5, "unit": "g"},
+      {"name": "oignon rouge", "quantity": 15, "unit": "g"},
+      {"name": "jus de citron", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Toaster le bagel. Tartiner de cream cheese. Garnir de saumon fumé, câpres et oignon rouge émincé.",
+    "tags": ["high-protein", "quick", "no-cook"],
+    "allergen_tags": ["gluten", "lait", "poisson"]
+  },
+  {
+    "name": "Gratin d'œufs aux épinards et jambon",
+    "calories": 400,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "épinards frais", "quantity": 80, "unit": "g"},
+      {"name": "jambon blanc", "quantity": 50, "unit": "g"},
+      {"name": "gruyère râpé", "quantity": 20, "unit": "g"},
+      {"name": "crème fraîche", "quantity": 20, "unit": "g"},
+      {"name": "muscade", "quantity": 1, "unit": "g"}
+    ],
+    "instructions": "Faire fondre les épinards. Mélanger avec les œufs battus, le jambon coupé et la crème. Gratiner au four 15 min à 200°C.",
+    "tags": ["high-protein", "savory"],
+    "allergen_tags": ["oeufs", "lait"]
+  },
+  {
+    "name": "Bruschetta aux œufs brouillés et tomate",
+    "calories": 360,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "italienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "pain de campagne", "quantity": 60, "unit": "g"},
+      {"name": "tomate", "quantity": 80, "unit": "g"},
+      {"name": "basilic frais", "quantity": 5, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "ail", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Toaster le pain frotté d'ail. Préparer les œufs brouillés. Servir sur le pain avec tomate concassée et basilic.",
+    "tags": ["high-protein", "italian", "quick"],
+    "allergen_tags": ["oeufs", "gluten"]
+  },
+  {
+    "name": "Toast thon fondu au fromage",
+    "calories": 400,
+    "protein_g": 32,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "thon en conserve", "quantity": 100, "unit": "g"},
+      {"name": "pain complet", "quantity": 60, "unit": "g"},
+      {"name": "emmental râpé", "quantity": 25, "unit": "g"},
+      {"name": "fromage blanc", "quantity": 20, "unit": "g"},
+      {"name": "cornichon", "quantity": 15, "unit": "g"},
+      {"name": "ciboulette", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Mélanger le thon avec le fromage blanc et les cornichons. Tartiner sur le pain, couvrir d'emmental, gratiner au four.",
+    "tags": ["high-protein", "quick"],
+    "allergen_tags": ["poisson", "gluten", "lait"]
+  },
+  {
+    "name": "Brik à l'œuf et thon",
+    "calories": 380,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "tunisienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "feuille de brick", "quantity": 2, "unit": "pièces"},
+      {"name": "thon en conserve", "quantity": 60, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "pomme de terre", "quantity": 50, "unit": "g"},
+      {"name": "persil frais", "quantity": 5, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Mélanger le thon émietté avec la pomme de terre cuite en dés et le persil. Garnir les feuilles de brick, casser un œuf dans chaque, plier et frire.",
+    "tags": ["high-protein", "tunisian"],
+    "allergen_tags": ["oeufs", "poisson", "gluten"]
+  },
+  {
+    "name": "Œufs bénédictine au saumon",
+    "calories": 450,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "saumon fumé", "quantity": 60, "unit": "g"},
+      {"name": "muffin anglais", "quantity": 1, "unit": "pièces"},
+      {"name": "beurre", "quantity": 15, "unit": "g"},
+      {"name": "jus de citron", "quantity": 5, "unit": "ml"},
+      {"name": "jaune d'oeuf", "quantity": 1, "unit": "pièces"}
+    ],
+    "instructions": "Pocher les œufs. Préparer la hollandaise avec le jaune, le beurre fondu et le citron. Servir les œufs pochés sur le muffin avec le saumon et la sauce.",
+    "tags": ["high-protein", "brunch"],
+    "allergen_tags": ["oeufs", "poisson", "gluten", "lait"]
+  },
+  {
+    "name": "Crêpe de sarrasin au poulet et champignons",
+    "calories": 400,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "farine de sarrasin", "quantity": 40, "unit": "g"},
+      {"name": "blanc de poulet", "quantity": 80, "unit": "g"},
+      {"name": "champignons", "quantity": 60, "unit": "g"},
+      {"name": "oeufs", "quantity": 1, "unit": "pièces"},
+      {"name": "crème fraîche", "quantity": 15, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Préparer la pâte à crêpe de sarrasin. Sauter le poulet émincé et les champignons. Garnir la crêpe et replier.",
+    "tags": ["high-protein", "savory"],
+    "allergen_tags": ["oeufs", "lait"]
+  },
+  {
+    "name": "Bol de lentilles vertes au lard et œuf poché",
+    "calories": 420,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "lentilles vertes", "quantity": 80, "unit": "g"},
+      {"name": "lardons fumés", "quantity": 30, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "vinaigre de vin", "quantity": 5, "unit": "ml"},
+      {"name": "persil frais", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire les lentilles. Faire revenir les lardons et l'oignon. Mélanger. Pocher les œufs, disposer sur les lentilles.",
+    "tags": ["high-protein", "hearty"],
+    "allergen_tags": ["oeufs"]
+  },
+  {
+    "name": "Tartine de maquereau fumé et radis",
+    "calories": 360,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "maquereau fumé", "quantity": 80, "unit": "g"},
+      {"name": "pain de seigle", "quantity": 50, "unit": "g"},
+      {"name": "fromage frais", "quantity": 30, "unit": "g"},
+      {"name": "radis", "quantity": 40, "unit": "g"},
+      {"name": "aneth", "quantity": 3, "unit": "g"},
+      {"name": "jus de citron", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Tartiner le pain de seigle de fromage frais. Émietter le maquereau dessus. Garnir de radis émincés et d'aneth.",
+    "tags": ["high-protein", "omega-3", "quick"],
+    "allergen_tags": ["poisson", "gluten", "lait"]
+  },
+  {
+    "name": "Cassolette d'œufs au chorizo et poivrons",
+    "calories": 420,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "espagnole",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "chorizo", "quantity": 40, "unit": "g"},
+      {"name": "poivron rouge", "quantity": 60, "unit": "g"},
+      {"name": "tomate", "quantity": 80, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Faire revenir le chorizo, poivrons et oignons. Ajouter la tomate concassée, casser les œufs dessus et cuire couvert.",
+    "tags": ["high-protein", "spanish"],
+    "allergen_tags": ["oeufs"]
+  },
+  {
+    "name": "Flatbread au poulet et houmous",
+    "calories": 430,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "blanc de poulet", "quantity": 100, "unit": "g"},
+      {"name": "pain naan", "quantity": 60, "unit": "g"},
+      {"name": "houmous", "quantity": 40, "unit": "g"},
+      {"name": "tomate", "quantity": 40, "unit": "g"},
+      {"name": "salade verte", "quantity": 20, "unit": "g"},
+      {"name": "sumac", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Griller le poulet émincé avec le sumac. Tartiner le naan de houmous. Garnir de poulet, tomate et salade.",
+    "tags": ["high-protein", "mediterranean"],
+    "allergen_tags": ["gluten", "sésame"]
+  },
+  {
+    "name": "Bol de riz au thon et sésame",
+    "calories": 420,
+    "protein_g": 30,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "japonaise",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "thon en conserve", "quantity": 100, "unit": "g"},
+      {"name": "riz japonais", "quantity": 80, "unit": "g"},
+      {"name": "sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "graines de sésame", "quantity": 5, "unit": "g"},
+      {"name": "avocat", "quantity": 40, "unit": "g"},
+      {"name": "oignon vert", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Cuire le riz. Mélanger le thon avec la sauce soja. Servir sur le riz avec l'avocat et parsemer de sésame.",
+    "tags": ["high-protein", "japanese"],
+    "allergen_tags": ["poisson", "soja", "sésame"]
+  },
+  {
+    "name": "Pancakes de courgette au saumon fumé",
+    "calories": 380,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "nordique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "courgette", "quantity": 120, "unit": "g"},
+      {"name": "saumon fumé", "quantity": 50, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "farine de blé", "quantity": 30, "unit": "g"},
+      {"name": "fromage frais", "quantity": 20, "unit": "g"},
+      {"name": "aneth", "quantity": 3, "unit": "g"}
+    ],
+    "instructions": "Râper la courgette, essorer. Mélanger avec les œufs et la farine. Cuire en petits pancakes. Garnir de saumon fumé et fromage frais.",
+    "tags": ["high-protein", "savory"],
+    "allergen_tags": ["oeufs", "gluten", "lait", "poisson"]
+  },
+  {
+    "name": "Msemen farci à la viande hachée",
+    "calories": 430,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "marocaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "farine de blé", "quantity": 60, "unit": "g"},
+      {"name": "viande hachée", "quantity": 80, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "persil frais", "quantity": 10, "unit": "g"},
+      {"name": "cumin", "quantity": 2, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Préparer la pâte du msemen, étaler. Faire revenir la viande hachée avec oignon et épices. Farcir le msemen et cuire à la poêle.",
+    "tags": ["high-protein", "moroccan"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Salade protéinée du matin poulet et œuf",
+    "calories": 380,
+    "protein_g": 34,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "blanc de poulet", "quantity": 80, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "salade verte", "quantity": 40, "unit": "g"},
+      {"name": "tomate cerise", "quantity": 50, "unit": "g"},
+      {"name": "avocat", "quantity": 40, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Griller le poulet, couper en tranches. Cuire les œufs durs. Assembler la salade avec tomates, avocat et vinaigrette.",
+    "tags": ["high-protein", "fresh"],
+    "allergen_tags": ["oeufs"]
+  },
+  {
+    "name": "Nasi goreng au poulet",
+    "calories": 450,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "indonésienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "blanc de poulet", "quantity": 80, "unit": "g"},
+      {"name": "riz cuit", "quantity": 120, "unit": "g"},
+      {"name": "oeufs", "quantity": 1, "unit": "pièces"},
+      {"name": "sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "carotte", "quantity": 30, "unit": "g"},
+      {"name": "oignon vert", "quantity": 10, "unit": "g"},
+      {"name": "huile de sésame", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Sauter le poulet émincé au wok. Ajouter le riz et les légumes. Assaisonner de sauce soja. Servir avec un œuf au plat.",
+    "tags": ["high-protein", "asian"],
+    "allergen_tags": ["oeufs", "soja", "sésame"]
+  },
+  {
+    "name": "Tortilla española aux pommes de terre",
+    "calories": 400,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "espagnole",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 4, "unit": "pièces"},
+      {"name": "pomme de terre", "quantity": 100, "unit": "g"},
+      {"name": "oignon", "quantity": 40, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"},
+      {"name": "sel", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Couper les pommes de terre en rondelles fines, cuire dans l'huile avec l'oignon. Battre les œufs, ajouter les pommes de terre. Cuire la tortilla des deux côtés.",
+    "tags": ["high-protein", "spanish", "classic"],
+    "allergen_tags": ["oeufs"]
+  },
+  {
+    "name": "Bol de quinoa aux œufs et feta",
+    "calories": 440,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "quinoa", "quantity": 60, "unit": "g"},
+      {"name": "oeufs", "quantity": 2, "unit": "pièces"},
+      {"name": "feta", "quantity": 30, "unit": "g"},
+      {"name": "épinards frais", "quantity": 40, "unit": "g"},
+      {"name": "tomate cerise", "quantity": 40, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Cuire le quinoa. Pocher les œufs. Faire fondre les épinards. Assembler le bol avec feta émiettée et tomates.",
+    "tags": ["high-protein", "bowl"],
+    "allergen_tags": ["oeufs", "lait"]
+  },
+  {
+    "name": "Clafouti salé jambon courgette",
+    "calories": 380,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "oeufs", "quantity": 3, "unit": "pièces"},
+      {"name": "jambon blanc", "quantity": 50, "unit": "g"},
+      {"name": "courgette", "quantity": 80, "unit": "g"},
+      {"name": "farine de blé", "quantity": 30, "unit": "g"},
+      {"name": "lait demi-écrémé", "quantity": 80, "unit": "ml"},
+      {"name": "gruyère râpé", "quantity": 15, "unit": "g"}
+    ],
+    "instructions": "Mélanger les œufs, farine et lait. Ajouter le jambon en dés et les courgettes en rondelles. Verser dans un moule, parsemer de gruyère et cuire 25 min à 180°C.",
+    "tags": ["high-protein", "savory"],
+    "allergen_tags": ["oeufs", "gluten", "lait"]
+  },
+  {
+    "name": "Bol de ricotta aux tomates séchées et basilic",
+    "calories": 370,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "italienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "ricotta", "quantity": 120, "unit": "g"},
+      {"name": "tomates séchées", "quantity": 25, "unit": "g"},
+      {"name": "pain complet", "quantity": 40, "unit": "g"},
+      {"name": "basilic frais", "quantity": 5, "unit": "g"},
+      {"name": "pignons de pin", "quantity": 10, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Disposer la ricotta dans un bol. Garnir de tomates séchées hachées, pignons et basilic. Servir avec le pain grillé.",
+    "tags": ["high-protein", "italian", "quick"],
+    "allergen_tags": ["lait", "gluten", "fruits à coque"]
+  },
+  {
+    "name": "Harcha marocaine au fromage blanc",
+    "calories": 380,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "marocaine",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "semoule fine", "quantity": 60, "unit": "g"},
+      {"name": "fromage blanc", "quantity": 80, "unit": "g"},
+      {"name": "beurre", "quantity": 15, "unit": "g"},
+      {"name": "oeufs", "quantity": 1, "unit": "pièces"},
+      {"name": "miel", "quantity": 10, "unit": "g"},
+      {"name": "fleur d'oranger", "quantity": 3, "unit": "ml"}
+    ],
+    "instructions": "Mélanger la semoule, le beurre fondu et l'œuf. Former des galettes. Cuire à la poêle. Servir avec le fromage blanc et le miel.",
+    "tags": ["high-protein", "moroccan"],
+    "allergen_tags": ["gluten", "oeufs", "lait"]
+  },
+  {
+    "name": "Dosa au poulet et chutney",
+    "calories": 400,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "indienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 30,
+    "ingredients": [
+      {"name": "farine de riz", "quantity": 50, "unit": "g"},
+      {"name": "blanc de poulet", "quantity": 80, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "curcuma", "quantity": 2, "unit": "g"},
+      {"name": "yaourt nature", "quantity": 30, "unit": "g"},
+      {"name": "coriandre fraîche", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Préparer la pâte à dosa avec la farine de riz. Cuire en crêpe fine. Garnir de poulet sauté aux épices et oignons. Servir avec le yaourt.",
+    "tags": ["high-protein", "indian"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Croissant dinde emmental tomate",
+    "calories": 410,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "française",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "croissant", "quantity": 1, "unit": "pièces"},
+      {"name": "blanc de dinde", "quantity": 60, "unit": "g"},
+      {"name": "emmental", "quantity": 20, "unit": "g"},
+      {"name": "tomate", "quantity": 40, "unit": "g"},
+      {"name": "salade verte", "quantity": 10, "unit": "g"},
+      {"name": "moutarde", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Ouvrir le croissant. Tartiner de moutarde. Garnir de dinde, emmental et tomate. Passer au four 5 min.",
+    "tags": ["high-protein", "quick"],
+    "allergen_tags": ["gluten", "lait", "moutarde"]
+  },
+  {
+    "name": "Idli au sambar protéiné",
+    "calories": 380,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "indienne",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "farine de riz", "quantity": 50, "unit": "g"},
+      {"name": "lentilles corail", "quantity": 40, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "tomate", "quantity": 40, "unit": "g"},
+      {"name": "curry en poudre", "quantity": 3, "unit": "g"},
+      {"name": "yaourt nature", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Préparer les idli à la vapeur avec la farine et une partie des lentilles. Cuisiner le sambar avec le reste des lentilles, tomate et épices.",
+    "tags": ["high-protein", "indian", "steamed"],
+    "allergen_tags": ["lait"]
+  },
+  {
+    "name": "Porridge salé aux crevettes et ciboulette",
+    "calories": 380,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "omnivore",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "flocons d'avoine", "quantity": 50, "unit": "g"},
+      {"name": "crevettes décortiquées", "quantity": 80, "unit": "g"},
+      {"name": "bouillon de légumes", "quantity": 200, "unit": "ml"},
+      {"name": "sauce soja", "quantity": 5, "unit": "ml"},
+      {"name": "ciboulette", "quantity": 5, "unit": "g"},
+      {"name": "huile de sésame", "quantity": 3, "unit": "ml"}
+    ],
+    "instructions": "Cuire les flocons d'avoine dans le bouillon comme un porridge salé. Sauter les crevettes. Servir le porridge garni de crevettes et ciboulette.",
+    "tags": ["high-protein", "savory"],
+    "allergen_tags": ["gluten", "crustacés", "soja", "sésame"]
+  }
+]

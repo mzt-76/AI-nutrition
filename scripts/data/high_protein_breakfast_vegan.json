@@ -1,0 +1,408 @@
+[
+  {
+    "name": "Scramble de tofu fumé aux poivrons",
+    "calories": 360,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "tofu ferme", "quantity": 150, "unit": "g"},
+      {"name": "poivron rouge", "quantity": 50, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "curcuma", "quantity": 2, "unit": "g"},
+      {"name": "levure nutritionnelle", "quantity": 10, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Émietter le tofu fumé. Faire revenir l'oignon et les poivrons. Ajouter le tofu, le curcuma et la levure nutritionnelle. Cuire 5 min.",
+    "tags": ["high-protein", "savory"],
+    "allergen_tags": ["soja"]
+  },
+  {
+    "name": "Omelette de farine de pois chiches (besan chilla)",
+    "calories": 380,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "indienne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "farine de pois chiches", "quantity": 60, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "tomate", "quantity": 40, "unit": "g"},
+      {"name": "épinards frais", "quantity": 30, "unit": "g"},
+      {"name": "cumin", "quantity": 2, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "coriandre fraîche", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Mélanger la farine de pois chiches avec de l'eau pour obtenir une pâte. Ajouter les légumes hachés et le cumin. Cuire à la poêle comme une omelette.",
+    "tags": ["high-protein", "indian", "gluten-free"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Tempeh bacon et toast avocat",
+    "calories": 420,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "tempeh", "quantity": 80, "unit": "g"},
+      {"name": "pain complet", "quantity": 60, "unit": "g"},
+      {"name": "avocat", "quantity": 50, "unit": "g"},
+      {"name": "sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "sirop d'érable", "quantity": 5, "unit": "ml"},
+      {"name": "paprika fumé", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Trancher le tempeh finement, mariner dans la sauce soja, sirop d'érable et paprika. Griller à la poêle. Servir sur le pain grillé avec l'avocat écrasé.",
+    "tags": ["high-protein", "smoky"],
+    "allergen_tags": ["soja", "gluten"]
+  },
+  {
+    "name": "Bol de edamame et riz au sésame",
+    "calories": 400,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "japonaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "edamame décortiqués", "quantity": 100, "unit": "g"},
+      {"name": "riz japonais", "quantity": 80, "unit": "g"},
+      {"name": "sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "graines de sésame", "quantity": 5, "unit": "g"},
+      {"name": "nori", "quantity": 2, "unit": "g"},
+      {"name": "oignon vert", "quantity": 10, "unit": "g"}
+    ],
+    "instructions": "Cuire le riz. Cuire les edamame à la vapeur. Assembler le bol avec le riz, les edamame, le nori et le sésame. Arroser de sauce soja.",
+    "tags": ["high-protein", "japanese"],
+    "allergen_tags": ["soja", "sésame"]
+  },
+  {
+    "name": "Wrap de seitan aux légumes grillés",
+    "calories": 400,
+    "protein_g": 28,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "seitan", "quantity": 80, "unit": "g"},
+      {"name": "tortilla de blé", "quantity": 60, "unit": "g"},
+      {"name": "courgette", "quantity": 50, "unit": "g"},
+      {"name": "poivron rouge", "quantity": 40, "unit": "g"},
+      {"name": "houmous", "quantity": 30, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Griller le seitan émincé et les légumes. Tartiner la tortilla de houmous. Garnir et rouler.",
+    "tags": ["high-protein", "wrap"],
+    "allergen_tags": ["gluten", "sésame"]
+  },
+  {
+    "name": "Scramble de pois chiches au curry",
+    "calories": 380,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "pois chiches", "quantity": 120, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "tomate", "quantity": 60, "unit": "g"},
+      {"name": "curry en poudre", "quantity": 3, "unit": "g"},
+      {"name": "épinards frais", "quantity": 40, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 5, "unit": "ml"},
+      {"name": "pain complet", "quantity": 30, "unit": "g"}
+    ],
+    "instructions": "Écraser grossièrement les pois chiches. Faire revenir l'oignon, ajouter la tomate et le curry. Ajouter les pois chiches et les épinards. Servir avec le pain.",
+    "tags": ["high-protein", "spicy"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Galettes de lentilles corail et épinards",
+    "calories": 370,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "lentilles corail", "quantity": 80, "unit": "g"},
+      {"name": "épinards frais", "quantity": 50, "unit": "g"},
+      {"name": "oignon", "quantity": 20, "unit": "g"},
+      {"name": "cumin", "quantity": 2, "unit": "g"},
+      {"name": "farine de pois chiches", "quantity": 15, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Cuire les lentilles, égoutter. Mixer grossièrement avec les épinards, l'oignon et la farine. Former des galettes. Cuire à la poêle.",
+    "tags": ["high-protein", "lentil"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Bol de quinoa protéiné aux haricots noirs",
+    "calories": 420,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "mexicaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "quinoa", "quantity": 60, "unit": "g"},
+      {"name": "haricots noirs", "quantity": 80, "unit": "g"},
+      {"name": "avocat", "quantity": 40, "unit": "g"},
+      {"name": "tomate", "quantity": 50, "unit": "g"},
+      {"name": "jus de citron vert", "quantity": 10, "unit": "ml"},
+      {"name": "coriandre fraîche", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire le quinoa. Réchauffer les haricots noirs. Assembler le bol avec avocat, tomate et coriandre. Arroser de citron vert.",
+    "tags": ["high-protein", "bowl", "mexican"],
+    "allergen_tags": []
+  },
+  {
+    "name": "Tofu bénédictine sur muffin anglais",
+    "calories": 400,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "tofu soyeux", "quantity": 120, "unit": "g"},
+      {"name": "tofu ferme", "quantity": 60, "unit": "g"},
+      {"name": "muffin anglais", "quantity": 1, "unit": "pièces"},
+      {"name": "curcuma", "quantity": 2, "unit": "g"},
+      {"name": "levure nutritionnelle", "quantity": 10, "unit": "g"},
+      {"name": "jus de citron", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Mixer le tofu soyeux avec curcuma, levure et citron pour la sauce. Trancher et griller le tofu ferme. Toaster le muffin, garnir de tofu grillé et sauce.",
+    "tags": ["high-protein", "brunch"],
+    "allergen_tags": ["soja", "gluten"]
+  },
+  {
+    "name": "Pancakes protéinés à la farine de lupin",
+    "calories": 380,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "farine de lupin", "quantity": 30, "unit": "g"},
+      {"name": "farine de blé", "quantity": 30, "unit": "g"},
+      {"name": "lait de soja", "quantity": 100, "unit": "ml"},
+      {"name": "banane", "quantity": 60, "unit": "g"},
+      {"name": "beurre de cacahuète", "quantity": 15, "unit": "g"},
+      {"name": "sirop d'érable", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Mélanger les farines avec le lait de soja et la banane écrasée. Cuire en pancakes à la poêle. Servir avec le beurre de cacahuète et le sirop d'érable.",
+    "tags": ["high-protein", "pancakes"],
+    "allergen_tags": ["gluten", "soja", "arachides"]
+  },
+  {
+    "name": "Porridge de sarrasin au beurre d'amande et protéine",
+    "calories": 400,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "sarrasin décortiqué", "quantity": 50, "unit": "g"},
+      {"name": "lait de soja", "quantity": 150, "unit": "ml"},
+      {"name": "beurre d'amande", "quantity": 15, "unit": "g"},
+      {"name": "protéine de pois", "quantity": 15, "unit": "g"},
+      {"name": "banane", "quantity": 60, "unit": "g"},
+      {"name": "cannelle", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Cuire le sarrasin dans le lait de soja. Incorporer la protéine de pois et le beurre d'amande. Garnir de banane et cannelle.",
+    "tags": ["high-protein", "porridge"],
+    "allergen_tags": ["soja", "fruits à coque"]
+  },
+  {
+    "name": "Bol de tempeh teriyaki et riz complet",
+    "calories": 430,
+    "protein_g": 26,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "japonaise",
+    "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "tempeh", "quantity": 80, "unit": "g"},
+      {"name": "riz complet", "quantity": 80, "unit": "g"},
+      {"name": "sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "sirop d'érable", "quantity": 5, "unit": "ml"},
+      {"name": "gingembre frais", "quantity": 5, "unit": "g"},
+      {"name": "brocoli", "quantity": 50, "unit": "g"},
+      {"name": "graines de sésame", "quantity": 5, "unit": "g"}
+    ],
+    "instructions": "Cuire le riz. Trancher le tempeh, le mariner dans la sauce soja, sirop d'érable et gingembre. Griller à la poêle. Cuire le brocoli à la vapeur. Assembler le bol.",
+    "tags": ["high-protein", "japanese", "umami"],
+    "allergen_tags": ["soja", "sésame"]
+  },
+  {
+    "name": "Falafel du matin dans pita et houmous",
+    "calories": 430,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "pois chiches", "quantity": 100, "unit": "g"},
+      {"name": "pain pita", "quantity": 50, "unit": "g"},
+      {"name": "houmous", "quantity": 40, "unit": "g"},
+      {"name": "tomate", "quantity": 40, "unit": "g"},
+      {"name": "persil frais", "quantity": 10, "unit": "g"},
+      {"name": "cumin", "quantity": 2, "unit": "g"},
+      {"name": "huile d'olive", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Mixer les pois chiches avec persil, cumin et ail. Former des boulettes, cuire à la poêle. Garnir la pita de houmous, falafels et tomate.",
+    "tags": ["high-protein", "falafel"],
+    "allergen_tags": ["gluten", "sésame"]
+  },
+  {
+    "name": "Smoothie protéiné mangue chanvre",
+    "calories": 380,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "internationale",
+    "diet_type": "vegan",
+    "prep_time_minutes": 5,
+    "ingredients": [
+      {"name": "mangue surgelée", "quantity": 80, "unit": "g"},
+      {"name": "lait de soja", "quantity": 200, "unit": "ml"},
+      {"name": "protéine de chanvre", "quantity": 20, "unit": "g"},
+      {"name": "beurre de cacahuète", "quantity": 15, "unit": "g"},
+      {"name": "graines de chia", "quantity": 5, "unit": "g"},
+      {"name": "épinards frais", "quantity": 20, "unit": "g"}
+    ],
+    "instructions": "Mixer tous les ingrédients jusqu'à obtenir un smoothie onctueux. Servir immédiatement.",
+    "tags": ["high-protein", "smoothie", "quick"],
+    "allergen_tags": ["soja", "arachides"]
+  },
+  {
+    "name": "Dhal petit-déjeuner aux lentilles jaunes",
+    "calories": 400,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "indienne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 25,
+    "ingredients": [
+      {"name": "lentilles jaunes", "quantity": 80, "unit": "g"},
+      {"name": "oignon", "quantity": 30, "unit": "g"},
+      {"name": "tomate", "quantity": 50, "unit": "g"},
+      {"name": "lait de coco", "quantity": 40, "unit": "ml"},
+      {"name": "curcuma", "quantity": 2, "unit": "g"},
+      {"name": "garam masala", "quantity": 2, "unit": "g"},
+      {"name": "pain naan", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Cuire les lentilles avec l'oignon, la tomate et les épices. Ajouter le lait de coco en fin de cuisson. Servir avec le naan chaud.",
+    "tags": ["high-protein", "indian", "warming"],
+    "allergen_tags": ["gluten"]
+  },
+  {
+    "name": "Tartine de houmous de lentilles et avocat",
+    "calories": 380,
+    "protein_g": 20,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "lentilles vertes", "quantity": 80, "unit": "g"},
+      {"name": "pain complet", "quantity": 60, "unit": "g"},
+      {"name": "avocat", "quantity": 50, "unit": "g"},
+      {"name": "tahini", "quantity": 10, "unit": "g"},
+      {"name": "jus de citron", "quantity": 10, "unit": "ml"},
+      {"name": "paprika", "quantity": 2, "unit": "g"}
+    ],
+    "instructions": "Mixer les lentilles cuites avec le tahini et le citron en houmous. Tartiner sur le pain grillé. Garnir d'avocat tranché et de paprika.",
+    "tags": ["high-protein", "spread"],
+    "allergen_tags": ["gluten", "sésame"]
+  },
+  {
+    "name": "Bol d'avoine protéiné au beurre de cacahuète et cacao",
+    "calories": 420,
+    "protein_g": 24,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "américaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "flocons d'avoine", "quantity": 50, "unit": "g"},
+      {"name": "lait de soja", "quantity": 150, "unit": "ml"},
+      {"name": "beurre de cacahuète", "quantity": 20, "unit": "g"},
+      {"name": "cacao en poudre", "quantity": 8, "unit": "g"},
+      {"name": "protéine de pois", "quantity": 15, "unit": "g"},
+      {"name": "banane", "quantity": 60, "unit": "g"}
+    ],
+    "instructions": "Cuire les flocons d'avoine dans le lait de soja. Incorporer la protéine de pois, le cacao et le beurre de cacahuète. Garnir de banane.",
+    "tags": ["high-protein", "chocolate", "comfort"],
+    "allergen_tags": ["gluten", "soja", "arachides"]
+  },
+  {
+    "name": "Assiette protéinée méditerranéenne vegan",
+    "calories": 400,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "méditerranéenne",
+    "diet_type": "vegan",
+    "prep_time_minutes": 10,
+    "ingredients": [
+      {"name": "houmous", "quantity": 60, "unit": "g"},
+      {"name": "falafel", "quantity": 80, "unit": "g"},
+      {"name": "tomate", "quantity": 60, "unit": "g"},
+      {"name": "concombre", "quantity": 50, "unit": "g"},
+      {"name": "olives noires", "quantity": 15, "unit": "g"},
+      {"name": "pain pita", "quantity": 40, "unit": "g"}
+    ],
+    "instructions": "Disposer le houmous, les falafels réchauffés, les tomates, concombres et olives sur une assiette. Servir avec le pain pita.",
+    "tags": ["high-protein", "mediterranean", "mezze"],
+    "allergen_tags": ["gluten", "sésame"]
+  },
+  {
+    "name": "Crêpe de riz au tofu et champignons shiitake",
+    "calories": 380,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "asiatique",
+    "diet_type": "vegan",
+    "prep_time_minutes": 20,
+    "ingredients": [
+      {"name": "farine de riz", "quantity": 40, "unit": "g"},
+      {"name": "tofu ferme", "quantity": 80, "unit": "g"},
+      {"name": "champignons shiitake", "quantity": 50, "unit": "g"},
+      {"name": "sauce soja", "quantity": 10, "unit": "ml"},
+      {"name": "oignon vert", "quantity": 10, "unit": "g"},
+      {"name": "huile de sésame", "quantity": 5, "unit": "ml"}
+    ],
+    "instructions": "Préparer la pâte de crêpe à la farine de riz. Cuire une crêpe fine. Sauter le tofu émietté avec les shiitake et la sauce soja. Garnir la crêpe et rouler.",
+    "tags": ["high-protein", "asian", "gluten-free"],
+    "allergen_tags": ["soja", "sésame"]
+  },
+  {
+    "name": "Bol de haricots rouges épicés et avocat",
+    "calories": 400,
+    "protein_g": 22,
+    "meal_type": "petit-dejeuner",
+    "cuisine_type": "mexicaine",
+    "diet_type": "vegan",
+    "prep_time_minutes": 15,
+    "ingredients": [
+      {"name": "haricots rouges", "quantity": 100, "unit": "g"},
+      {"name": "avocat", "quantity": 50, "unit": "g"},
+      {"name": "tomate", "quantity": 60, "unit": "g"},
+      {"name": "oignon rouge", "quantity": 20, "unit": "g"},
+      {"name": "cumin", "quantity": 2, "unit": "g"},
+      {"name": "piment", "quantity": 1, "unit": "g"},
+      {"name": "jus de citron vert", "quantity": 10, "unit": "ml"}
+    ],
+    "instructions": "Réchauffer les haricots rouges avec le cumin et le piment. Servir dans un bol avec l'avocat en tranches, la tomate et l'oignon. Arroser de citron vert.",
+    "tags": ["high-protein", "spicy", "mexican"],
+    "allergen_tags": []
+  }
+]

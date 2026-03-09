@@ -48,7 +48,7 @@ CALORIE_RANGE_MIN_DIVISOR = 3
 CALORIE_RANGE_MAX_MULTIPLIER = 2
 
 # Macro ratio tolerance for recipe search (attempt 1 = strict, attempt 2 = wide)
-MACRO_RATIO_TOLERANCE_STRICT = 0.30
+MACRO_RATIO_TOLERANCE_STRICT = 0.20
 MACRO_RATIO_TOLERANCE_WIDE = 0.50
 
 # Project root for sibling script imports
@@ -610,8 +610,14 @@ async def repair(
     worst_type = meals[worst_idx].get("meal_type", "?")
     logger.info(f"  Repair: swapping meal #{worst_idx} ({worst_type})")
 
-    # Try runner-up from step 2 first
+    # Try runner-up from step 2 first — skip any already used in this day
     runner_ups = assignments[worst_idx].get("runner_ups", [])
+    current_day_ids = {
+        a.get("recipe", {}).get("id")
+        for i, a in enumerate(assignments)
+        if i != worst_idx and a.get("recipe", {}).get("id")
+    }
+    runner_ups = [r for r in runner_ups if r.get("id") not in current_day_ids]
     if runner_ups:
         replacement = runner_ups[0]
         meal_slot = assignments[worst_idx]["meal_slot"]
