@@ -90,8 +90,8 @@ export function useSpeechRecognition({ onResult, onError }: UseSpeechRecognition
     };
 
     recognition.onend = () => {
-      // If still supposed to be listening (continuous mode can auto-stop), restart
-      if (recognitionRef.current === recognition && isListening) {
+      // Continuous mode can auto-stop; restart if our ref wasn't cleared by stopListening()
+      if (recognitionRef.current === recognition) {
         try {
           recognition.start();
         } catch {
@@ -113,7 +113,7 @@ export function useSpeechRecognition({ onResult, onError }: UseSpeechRecognition
       onErrorRef.current?.("Impossible de démarrer la reconnaissance vocale.");
       recognitionRef.current = null;
     }
-  }, [isListening]);
+  }, []);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {

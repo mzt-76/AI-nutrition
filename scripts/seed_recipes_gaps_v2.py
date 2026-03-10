@@ -1604,7 +1604,7 @@ async def seed() -> None:
     purged = post_insertion_audit(supabase)
 
     # Final summary
-    print(f"\n=== FINAL SUMMARY ===")
+    print("\n=== FINAL SUMMARY ===")
     print(f"  Defined: {len(recipes)}")
     print(f"  Passed validation: {len(rows)}")
     print(f"  Inserted to DB: {inserted}")

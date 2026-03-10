@@ -248,7 +248,7 @@ async def run_skill_script(
     ctx: RunContext[AgentDeps],
     skill_name: str,
     script_name: str,
-    parameters: dict[str, str | int | float | bool | list | dict | None] | None = None,
+    parameters: dict[str, str | int | float | bool | list[str | int | float] | dict[str, str | int | float] | None] | None = None,
 ) -> str:
     """Execute a script from a skill's scripts/ folder.
 
@@ -306,24 +306,24 @@ async def fetch_my_profile(ctx: RunContext[AgentDeps]) -> str:
 
 async def update_my_profile(
     ctx: RunContext[AgentDeps],
-    age: int = None,
-    gender: str = None,
-    weight_kg: float = None,
-    height_cm: int = None,
-    activity_level: str = None,
+    age: int | None = None,
+    gender: str | None = None,
+    weight_kg: float | None = None,
+    height_cm: int | None = None,
+    activity_level: str | None = None,
     goals: dict[str, int] | None = None,
-    allergies: list[str] = None,
-    diet_type: str = None,
-    disliked_foods: list[str] = None,
-    favorite_foods: list[str] = None,
-    max_prep_time: int = None,
-    preferred_cuisines: list[str] = None,
-    bmr: float = None,
-    tdee: float = None,
-    target_calories: float = None,
-    target_protein_g: float = None,
-    target_carbs_g: float = None,
-    target_fat_g: float = None,
+    allergies: list[str] | None = None,
+    diet_type: str | None = None,
+    disliked_foods: list[str] | None = None,
+    favorite_foods: list[str] | None = None,
+    max_prep_time: int | None = None,
+    preferred_cuisines: list[str] | None = None,
+    bmr: float | None = None,
+    tdee: float | None = None,
+    target_calories: float | None = None,
+    target_protein_g: float | None = None,
+    target_carbs_g: float | None = None,
+    target_fat_g: float | None = None,
 ) -> str:
     """Update user profile. Only provide fields that changed.
 
@@ -349,6 +349,14 @@ async def update_my_profile(
         target_fat_g: Daily fat target in grams
     """
     logger.info("Tool called: update_my_profile")
+    all_fields = [
+        age, gender, weight_kg, height_cm, activity_level, goals,
+        allergies, diet_type, disliked_foods, favorite_foods,
+        max_prep_time, preferred_cuisines, bmr, tdee,
+        target_calories, target_protein_g, target_carbs_g, target_fat_g,
+    ]
+    if all(v is None for v in all_fields):
+        return "Aucun champ à mettre à jour. Précise ce que tu veux modifier."
     return await update_my_profile_tool(
         ctx.deps.supabase,
         user_id=ctx.deps.user_id,

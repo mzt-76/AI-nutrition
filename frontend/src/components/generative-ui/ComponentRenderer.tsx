@@ -10,8 +10,10 @@ import { WeightTrendIndicator } from './components/WeightTrendIndicator';
 import { AdjustmentCard } from './components/AdjustmentCard';
 import { QuickReplyChips } from './components/QuickReplyChips';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const COMPONENT_CATALOG: Record<string, React.FC<any>> = {
+// Dynamic catalog: props are Zod-validated at runtime (validateComponentProps) before
+// reaching components, so type safety is enforced there. Record<string, unknown> replaces
+// bare `any` — it constrains to object types while allowing the dynamic dispatch pattern.
+const COMPONENT_CATALOG: Record<string, React.FC<Record<string, unknown>>> = {
   NutritionSummaryCard,
   MacroGauges,
   MealCard,

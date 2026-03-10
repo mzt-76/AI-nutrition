@@ -16,7 +16,7 @@ import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from uuid import UUID as _UUID
-from typing import Any
+from typing import Any, Literal
 
 from dotenv import load_dotenv
 import httpx
@@ -39,7 +39,12 @@ from src.nutrition.calculations import (
     infer_goals_from_context,
     mifflin_st_jeor_bmr,
 )
-from src.nutrition.constants import GOAL_CALORIE_ADJUSTMENTS
+from src.nutrition.constants import (
+    GOAL_CALORIE_ADJUSTMENTS,
+    MIN_CALORIES_MEN,
+    MIN_CALORIES_WOMEN,
+)
+from src.nutrition.validators import sanitize_user_text
 from src.nutrition.openfoodfacts_client import (
     match_ingredient,
     normalize_ingredient_name,
@@ -327,7 +332,7 @@ class RecipeCreate(BaseModel):
 
 class RecalculateRequest(BaseModel):
     age: int
-    gender: str
+    gender: Literal["male", "female"]
     weight_kg: float
     height_cm: int
     activity_level: str
@@ -403,7 +408,10 @@ async def agent_endpoint(
             )
 
         # Validate file attachments (defense in depth)
-        _ALLOWED_MIME_PREFIXES = ("image/", "text/plain", "application/pdf")
+        _ALLOWED_MIME_TYPES = {
+            "image/jpeg", "image/png", "image/gif", "image/webp",
+            "text/plain", "application/pdf",
+        }
         if request.files:
             if len(request.files) > 5:
                 return StreamingResponse(
@@ -445,9 +453,7 @@ async def agent_endpoint(
                         media_type="text/plain",
                         status_code=400,
                     )
-                if not any(
-                    f.mime_type.startswith(prefix) for prefix in _ALLOWED_MIME_PREFIXES
-                ):
+                if f.mime_type not in _ALLOWED_MIME_TYPES:
                     return StreamingResponse(
                         _stream_error(
                             f"Type de fichier non supporté : {f.mime_type}",
@@ -1250,12 +1256,6 @@ async def recalculate_profile(
     """Recalculate BMR/TDEE/macros from biometric data and persist to user_profiles."""
     user_id = auth_user["id"]
 
-    # Validate gender
-    if body.gender not in ("male", "female"):
-        raise HTTPException(
-            status_code=422, detail="gender doit être 'male' ou 'female'"
-        )
-
     # Validate activity level
     if body.activity_level not in ACTIVITY_MULTIPLIERS:
         valid = ", ".join(ACTIVITY_MULTIPLIERS.keys())
@@ -1275,7 +1275,7 @@ async def recalculate_profile(
     target_calories = tdee + GOAL_CALORIE_ADJUSTMENTS.get(primary_goal, 0)
 
     # Safety: enforce minimum calorie thresholds
-    min_calories = 1200 if body.gender == "female" else 1500
+    min_calories = MIN_CALORIES_WOMEN if body.gender == "female" else MIN_CALORIES_MEN
     target_calories = max(target_calories, min_calories)
 
     protein_g, _, _ = calculate_protein_target(body.weight_kg, primary_goal)
@@ -1355,10 +1355,17 @@ async def _stream_agent_response(
             except Exception as e:
                 logger.warning(f"Error processing file {f.file_name}: {e}")
 
+    # Sanitize user input (defense-in-depth against prompt injection)
+    try:
+        sanitized_query = sanitize_user_text(request.query, 5000, "agent_query")
+    except ValueError:
+        yield json.dumps({"error": "Requête invalide."}) + "\n"
+        return
+
     # Build agent input: query + any binary contents
-    agent_input: str | list = request.query
+    agent_input: str | list = sanitized_query
     if binary_contents:
-        agent_input = [request.query, *binary_contents]
+        agent_input = [sanitized_query, *binary_contents]
 
     try:
         async with agent.iter(

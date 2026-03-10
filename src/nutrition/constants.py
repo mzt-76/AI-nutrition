@@ -185,3 +185,22 @@ DISCRETE_UNITS: set[str] = {
     "œuf",
     "œufs",
 }
+
+# =============================================================================
+# SAFETY CONSTRAINTS -- hardcoded, never bypass (CLAUDE.md rule 3)
+# =============================================================================
+# Absolute minimum daily calorie intake to prevent metabolic harm.
+# Below these thresholds, hormonal function, muscle preservation, and
+# cognitive performance are significantly impaired.
+
+# Women: 1200 kcal/day minimum (WHO guideline for supervised weight loss)
+MIN_CALORIES_WOMEN = 1200
+
+# Men: 1500 kcal/day minimum (WHO guideline for supervised weight loss)
+MIN_CALORIES_MEN = 1500
+
+# Zero tolerance: if a recipe contains ANY user allergen, it must be excluded
+ALLERGEN_ZERO_TOLERANCE = True
+
+# Always filter out disliked foods from recipe search results
+DISLIKED_FOODS_FILTERED = True

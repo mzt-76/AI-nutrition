@@ -37,7 +37,6 @@ EXPECTED_SKILLS = {
     "weekly-coaching",
     "knowledge-searching",
     "body-analyzing",
-    "skill-creator",
 }
 
 
@@ -196,17 +195,8 @@ def skill_loading_dataset() -> Dataset:
                 ContainsSubstring(substring="outil", case_sensitive=False),
             ),
         )
-        for skill_name in sorted(EXPECTED_SKILLS - {"skill-creator"})
+        for skill_name in sorted(EXPECTED_SKILLS)
     ]
-
-    # skill-creator has its own structure
-    cases.append(
-        Case(
-            name="load_skill-creator",
-            inputs={"skill_name": "skill-creator"},
-            evaluators=(NoError(), MinLength(min_chars=50)),
-        )
-    )
 
     return Dataset(
         name="skill_loading",
