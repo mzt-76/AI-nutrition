@@ -8,50 +8,11 @@ References:
     USDA FoodData Central: Macronutrient profiles used to assign roles
 """
 
+from src.nutrition.constants import (
+    DISCRETE_UNITS,
+    ROLE_BOUNDS,
+)
 from src.nutrition.openfoodfacts_client import normalize_ingredient_name
-
-# ---------------------------------------------------------------------------
-# Role bounds — scaling limits per culinary role
-# ---------------------------------------------------------------------------
-
-ROLE_BOUNDS: dict[str, tuple[float, float]] = {
-    "protein": (0.5, 2.0),
-    "starch": (0.3, 2.5),
-    "vegetable": (0.7, 1.5),
-    "fat_source": (0.2, 1.5),
-    "unknown": (0.75, 1.25),
-    "fixed": (1.0, 1.0),
-}
-
-# ---------------------------------------------------------------------------
-# Divergence constraints — inter-group coherence
-# ---------------------------------------------------------------------------
-
-MAX_GROUP_DIVERGENCE: float = 2.0
-
-# fat_source is EXEMPT from divergence — oils/butter are independent adjustments
-DIVERGENCE_PAIRS: list[tuple[str, str]] = [
-    ("protein", "starch"),
-    ("protein", "vegetable"),
-    ("starch", "vegetable"),
-]
-
-# ---------------------------------------------------------------------------
-# Discrete units — items counted in pieces (MILP integer variables)
-# ---------------------------------------------------------------------------
-
-DISCRETE_UNITS: set[str] = {
-    "pièces",
-    "pièce",
-    "piece",
-    "pieces",
-    "tranche",
-    "tranches",
-    "oeuf",
-    "oeufs",
-    "œuf",
-    "œufs",
-}
 
 # ---------------------------------------------------------------------------
 # Role exceptions — override substring matching for specific ingredients

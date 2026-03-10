@@ -13,6 +13,16 @@ from datetime import datetime, timezone
 
 from supabase import Client
 
+from src.nutrition.constants import (
+    DEFAULT_MACRO_RATIO_TOLERANCE,
+    FETCH_LIMIT_MULTIPLIER,
+    FETCH_LIMIT_PADDING,
+    MACRO_FIT_PROTEIN_WEIGHT,
+    VARIETY_WEIGHT_CUISINE,
+    VARIETY_WEIGHT_FRESHNESS,
+    VARIETY_WEIGHT_MACRO_FIT,
+    VARIETY_WEIGHT_USAGE,
+)
 from src.nutrition.openfoodfacts_client import normalize_ingredient_name
 from src.nutrition.validators import matches_allergen
 
@@ -81,7 +91,7 @@ async def search_recipes(
     calorie_range: tuple[int, int] | None = None,
     limit: int = 10,
     target_macro_ratios: dict[str, float] | None = None,
-    macro_ratio_tolerance: float = 0.25,
+    macro_ratio_tolerance: float = DEFAULT_MACRO_RATIO_TOLERANCE,
 ) -> list[dict]:
     """Search recipes with filtering constraints.
 
@@ -145,7 +155,11 @@ async def search_recipes(
             )
 
         # Fetch more than needed to allow Python-side filtering
-        fetch_limit = (limit * 3) + len(exclude_recipe_ids or []) + 10
+        fetch_limit = (
+            (limit * FETCH_LIMIT_MULTIPLIER)
+            + len(exclude_recipe_ids or [])
+            + FETCH_LIMIT_PADDING
+        )
         response = query.order("created_at", desc=False).limit(fetch_limit).execute()
         results = response.data or []
 
@@ -423,7 +437,7 @@ def score_macro_fit(recipe: dict, target: dict) -> float:
     target_fat_ratio = target.get("target_fat_g", 0) * 9 / target_cal
 
     score = (
-        2 * abs(recipe_prot_ratio - target_prot_ratio)
+        MACRO_FIT_PROTEIN_WEIGHT * abs(recipe_prot_ratio - target_prot_ratio)
         + abs(recipe_carb_ratio - target_carb_ratio)
         + abs(recipe_fat_ratio - target_fat_ratio)
     )
@@ -484,8 +498,8 @@ def score_recipe_variety(
     usage_score = 1.0 / (1.0 + usage_count)
 
     return (
-        0.40 * macro_score
-        + 0.30 * freshness_score
-        + 0.20 * cuisine_score
-        + 0.10 * usage_score
+        VARIETY_WEIGHT_MACRO_FIT * macro_score
+        + VARIETY_WEIGHT_FRESHNESS * freshness_score
+        + VARIETY_WEIGHT_CUISINE * cuisine_score
+        + VARIETY_WEIGHT_USAGE * usage_score
     )

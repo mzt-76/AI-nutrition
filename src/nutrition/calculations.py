@@ -13,6 +13,12 @@ References:
 from typing import Dict, Literal
 import logging
 
+from src.nutrition.constants import (
+    MIN_FAT_G_PER_KG,
+    PROTEIN_INTERMEDIATE_MUSCLE_GAIN,
+    PROTEIN_INTERMEDIATE_WEIGHT_LOSS,
+)
+
 logger = logging.getLogger(__name__)
 
 # Activity level multipliers (based on research)
@@ -255,10 +261,10 @@ def calculate_protein_target(
     if use_intermediate:
         if primary_goal == "weight_loss":
             # Start at 2.5g/kg (middle of 2.3-3.1 range) for better adherence
-            protein_per_kg = 2.5
+            protein_per_kg = PROTEIN_INTERMEDIATE_WEIGHT_LOSS
         elif primary_goal == "muscle_gain":
             # Start at 2g/kg (high-middle of 1.6-2.2 range)
-            protein_per_kg = 2
+            protein_per_kg = PROTEIN_INTERMEDIATE_MUSCLE_GAIN
         else:
             # Use middle of range for other goals
             protein_per_kg = (min_protein_per_kg + max_protein_per_kg) / 2
@@ -332,7 +338,7 @@ def calculate_macros(
 
     # Fat floor: minimum 0.6g/kg for hormonal health (ISSN guideline)
     if weight_kg is not None:
-        min_fat_g = round(weight_kg * 0.6)
+        min_fat_g = round(weight_kg * MIN_FAT_G_PER_KG)
         fat_g = max(fat_g, min_fat_g)
 
     # Carbs get the remaining calories after protein and fat

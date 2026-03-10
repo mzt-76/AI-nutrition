@@ -11,6 +11,10 @@ Source: Extracted from src/tools.py calculate_nutritional_needs_tool
 import json
 import logging
 
+from src.nutrition.constants import (
+    MUSCLE_GAIN_SURPLUS_KCAL,
+    WEIGHT_LOSS_DEFICIT_KCAL,
+)
 from src.tools import update_my_profile_tool
 from src.nutrition.calculations import (
     mifflin_st_jeor_bmr,
@@ -70,9 +74,9 @@ async def execute(**kwargs) -> str:
 
         # Step 5: Calculate calorie target
         if primary_goal == "muscle_gain":
-            target_calories = tdee + 300  # Moderate surplus
+            target_calories = tdee + MUSCLE_GAIN_SURPLUS_KCAL  # Moderate surplus
         elif primary_goal == "weight_loss":
-            target_calories = tdee - 500  # Moderate deficit
+            target_calories = tdee - WEIGHT_LOSS_DEFICIT_KCAL  # Moderate deficit
         else:
             target_calories = tdee
 

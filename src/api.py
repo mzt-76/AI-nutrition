@@ -39,6 +39,7 @@ from src.nutrition.calculations import (
     infer_goals_from_context,
     mifflin_st_jeor_bmr,
 )
+from src.nutrition.constants import GOAL_CALORIE_ADJUSTMENTS
 from src.nutrition.openfoodfacts_client import (
     match_ingredient,
     normalize_ingredient_name,
@@ -1229,13 +1230,7 @@ async def recalculate_profile(
     primary_goal = max(goals, key=lambda k: goals[k]) if goals else "muscle_gain"
 
     # Target calories based on goal
-    calorie_adjustments = {
-        "weight_loss": -500,
-        "muscle_gain": 300,
-        "maintenance": 0,
-        "performance": 200,
-    }
-    target_calories = tdee + calorie_adjustments.get(primary_goal, 0)
+    target_calories = tdee + GOAL_CALORIE_ADJUSTMENTS.get(primary_goal, 0)
 
     # Safety: enforce minimum calorie thresholds
     min_calories = 1200 if body.gender == "female" else 1500

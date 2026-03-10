@@ -21,9 +21,16 @@ from dataclasses import dataclass
 
 import numpy as np
 from scipy.optimize import LinearConstraint, milp
-from src.nutrition.ingredient_roles import (
+from src.nutrition.constants import (
     DIVERGENCE_PAIRS,
     MAX_GROUP_DIVERGENCE,
+    WEIGHT_CALORIES,
+    WEIGHT_CARBS,
+    WEIGHT_FAT,
+    WEIGHT_MEAL_BALANCE,
+    WEIGHT_PROTEIN,
+)
+from src.nutrition.ingredient_roles import (
     get_ingredient_role,
     get_role_bounds,
     is_discrete_unit,
@@ -32,13 +39,6 @@ from src.nutrition.openfoodfacts_client import _PIECE_WEIGHTS, _unit_to_multipli
 from src.nutrition.quantity_rounding import round_quantity_smart
 
 logger = logging.getLogger(__name__)
-
-# Macro weights in objective — same as v1 for continuity
-WEIGHT_PROTEIN = 2.0
-WEIGHT_FAT = 2.0
-WEIGHT_CALORIES = 1.0
-WEIGHT_CARBS = 0.5
-WEIGHT_MEAL_BALANCE = 1.5
 
 
 @dataclass
@@ -413,12 +413,49 @@ def optimize_day_portions_v2(
     return factors_per_recipe
 
 
+def _extract_recipe_macros(recipe: dict) -> dict:
+    """Extract per-serving macros from a recipe dict.
+
+    Tries nutrition_per_100g-based calculation from ingredients first,
+    then falls back to per_serving fields.
+
+    Returns:
+        Dict with calories, protein_g, fat_g, carbs_g.
+    """
+    ingredients = recipe.get("ingredients", [])
+    totals = {"calories": 0.0, "protein_g": 0.0, "fat_g": 0.0, "carbs_g": 0.0}
+
+    has_per_100g = False
+    for ing in ingredients:
+        n = ing.get("nutrition_per_100g")
+        if not n:
+            continue
+        has_per_100g = True
+        qty = ing.get("quantity", 0) or 0
+        unit = ing.get("unit", "g")
+        name = ing.get("name", "")
+        factor = _unit_to_multiplier(qty, unit, name)
+        totals["calories"] += (n.get("calories", 0) or 0) * factor
+        totals["protein_g"] += (n.get("protein_g", 0) or 0) * factor
+        totals["fat_g"] += (n.get("fat_g", 0) or 0) * factor
+        totals["carbs_g"] += (n.get("carbs_g", 0) or 0) * factor
+
+    if has_per_100g and totals["calories"] > 0:
+        return totals
+
+    # Fallback to per_serving fields
+    return {
+        "calories": float(recipe.get("calories_per_serving", 0) or 0),
+        "protein_g": float(recipe.get("protein_g_per_serving", 0) or 0),
+        "fat_g": float(recipe.get("fat_g_per_serving", 0) or 0),
+        "carbs_g": float(recipe.get("carbs_g_per_serving", 0) or 0),
+    }
+
+
 def _fallback_uniform(
     recipes: list[dict], daily_targets: dict
 ) -> list[dict[int, float]]:
     """Fallback: compute uniform calorie-based scale factor per recipe."""
-    from src.nutrition.portion_optimizer import _extract_recipe_macros
-
     target_cal = float(daily_targets.get("calories", 0) or 0)
     recipe_macros = [_extract_recipe_macros(r) for r in recipes]
     total_cal = sum(rm["calories"] for rm in recipe_macros)

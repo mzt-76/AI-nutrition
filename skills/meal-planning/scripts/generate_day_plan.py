@@ -12,6 +12,7 @@ import logging
 import time
 from pathlib import Path
 
+from src.nutrition.constants import DEFAULT_PREP_TIME_MINUTES
 from src.nutrition.portion_optimizer_v2 import (
     apply_ingredient_scale_factors,
     optimize_day_portions_v2,
@@ -116,7 +117,9 @@ def _build_meal_from_scaled_recipe(scaled_recipe: dict, meal_slot: dict) -> dict
         "name": scaled_recipe.get("name", ""),
         "ingredients": scaled_recipe.get("ingredients", []),
         "instructions": scaled_recipe.get("instructions", ""),
-        "prep_time_minutes": scaled_recipe.get("prep_time_minutes", 30),
+        "prep_time_minutes": scaled_recipe.get(
+            "prep_time_minutes", DEFAULT_PREP_TIME_MINUTES
+        ),
         "nutrition": {
             "calories": nutrition.get("calories", 0.0),
             "protein_g": nutrition.get("protein_g", 0.0),

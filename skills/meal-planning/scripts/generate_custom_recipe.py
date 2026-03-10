@@ -12,6 +12,11 @@ import logging
 
 from pydantic import BaseModel, Field, field_validator
 
+from src.nutrition.constants import (
+    DEFAULT_PREP_TIME_MINUTES,
+    RECIPE_MAX_TOKENS,
+    RECIPE_TEMPERATURE,
+)
 from src.nutrition.openfoodfacts_client import match_ingredient
 from src.nutrition.recipe_db import save_recipe
 from src.nutrition.validators import sanitize_user_text, validate_recipe_allergens
@@ -36,7 +41,7 @@ class _LLMRecipe(BaseModel):
     meal_type: str = Field(min_length=1)
     cuisine_type: str = "française"
     diet_type: str = "omnivore"
-    prep_time_minutes: int = Field(default=30, ge=1, le=180)
+    prep_time_minutes: int = Field(default=DEFAULT_PREP_TIME_MINUTES, ge=1, le=180)
     ingredients: list[_RecipeIngredient] = Field(min_length=1)
     instructions: str = Field(min_length=1)
     tags: list[str] = Field(default_factory=list)
@@ -167,8 +172,8 @@ async def execute(**kwargs) -> str:
         # Call Claude model
         message = await anthropic_client.messages.create(
             model=RECIPE_MODEL,
-            max_tokens=2000,
-            temperature=0.7,
+            max_tokens=RECIPE_MAX_TOKENS,
+            temperature=RECIPE_TEMPERATURE,
             messages=[{"role": "user", "content": prompt}],
         )
 
@@ -248,7 +253,9 @@ async def execute(**kwargs) -> str:
             "tags": recipe_dict.get("tags", []),
             "ingredients": ingredients,
             "instructions": recipe_dict.get("instructions", ""),
-            "prep_time_minutes": recipe_dict.get("prep_time_minutes", 30),
+            "prep_time_minutes": recipe_dict.get(
+                "prep_time_minutes", DEFAULT_PREP_TIME_MINUTES
+            ),
             "calories_per_serving": round(total_calories, 2),
             "protein_g_per_serving": round(total_protein, 2),
             "carbs_g_per_serving": round(total_carbs, 2),
@@ -305,7 +312,9 @@ async def execute(**kwargs) -> str:
                     "carbs_g": round(total_carbs),
                     "fat_g": round(total_fat),
                 },
-                "prep_time": recipe_to_save.get("prep_time_minutes", 30),
+                "prep_time": recipe_to_save.get(
+                    "prep_time_minutes", DEFAULT_PREP_TIME_MINUTES
+                ),
                 "ingredients": ingredient_labels,
                 "instructions": recipe_to_save.get("instructions", ""),
             },
