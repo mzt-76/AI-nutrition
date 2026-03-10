@@ -29,6 +29,10 @@ VARIETY_WEIGHT_CUISINE = 0.20
 # How many times the recipe has been used overall (less used = higher score)
 VARIETY_WEIGHT_USAGE = 0.10
 
+# Additive bonus when recipe is in user's favorites (promotes recipes the user explicitly saved).
+# Added on top of the 4-factor score (not weighted against them), so score can exceed 1.0.
+VARIETY_WEIGHT_FAVORITE = 0.15
+
 # =============================================================================
 # MACRO FIT SCORING -- used by recipe_db.py -> score_macro_fit()
 # =============================================================================

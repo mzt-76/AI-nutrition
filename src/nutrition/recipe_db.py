@@ -19,6 +19,7 @@ from src.nutrition.constants import (
     FETCH_LIMIT_PADDING,
     MACRO_FIT_PROTEIN_WEIGHT,
     VARIETY_WEIGHT_CUISINE,
+    VARIETY_WEIGHT_FAVORITE,
     VARIETY_WEIGHT_FRESHNESS,
     VARIETY_WEIGHT_MACRO_FIT,
     VARIETY_WEIGHT_USAGE,
@@ -273,6 +274,22 @@ async def search_recipes(
         return []
 
 
+def get_user_favorite_ids(supabase: Client, user_id: str | None) -> set[str]:
+    """Fetch the set of recipe IDs favorited by a user.
+
+    Returns empty set if user_id is None (CLI mode, no favorites).
+    """
+    if not user_id:
+        return set()
+    result = (
+        supabase.table("favorite_recipes")
+        .select("recipe_id")
+        .eq("user_id", user_id)
+        .execute()
+    )
+    return {row["recipe_id"] for row in (result.data or [])}
+
+
 async def get_recipe_by_id(supabase: Client, recipe_id: str) -> dict | None:
     """Fetch a single recipe by its UUID.
 
@@ -449,20 +466,22 @@ def score_recipe_variety(
     meal_target: dict,
     preferred_cuisines: list[str] | None = None,
     now: datetime | None = None,
+    favorite_recipe_ids: set[str] | None = None,
 ) -> float:
-    """Multi-factor recipe score — higher is better (range 0.0–1.0).
+    """Multi-factor recipe score — higher is better.
 
-    Combines macro fit, temporal freshness, cuisine preference, and usage count
-    into a single score for ranking recipe candidates.
+    Combines macro fit, temporal freshness, cuisine preference, usage count,
+    and an additive favorite bonus for ranking recipe candidates.
 
     Args:
         recipe: Recipe dict from DB
         meal_target: Meal slot target dict with target_calories, target_protein_g, etc.
         preferred_cuisines: User's preferred cuisine types (None = no bonus)
         now: Current datetime (injectable for tests). Defaults to UTC now.
+        favorite_recipe_ids: Set of recipe IDs the user has favorited (None = no bonus).
 
     Returns:
-        Float score in [0.0, 1.0]. Higher is better.
+        Float score (base range 0.0–1.0, can exceed 1.0 with favorite bonus).
     """
     if now is None:
         now = datetime.now(timezone.utc)
@@ -497,9 +516,17 @@ def score_recipe_variety(
     usage_count = recipe.get("usage_count", 0) or 0
     usage_score = 1.0 / (1.0 + usage_count)
 
+    # Factor 5: Favorite bonus (additive, not weighted against others)
+    favorite_bonus = (
+        VARIETY_WEIGHT_FAVORITE
+        if (favorite_recipe_ids and recipe.get("id") in favorite_recipe_ids)
+        else 0.0
+    )
+
     return (
         VARIETY_WEIGHT_MACRO_FIT * macro_score
         + VARIETY_WEIGHT_FRESHNESS * freshness_score
         + VARIETY_WEIGHT_CUISINE * cuisine_score
         + VARIETY_WEIGHT_USAGE * usage_score
+        + favorite_bonus
     )

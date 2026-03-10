@@ -8,10 +8,12 @@ from unittest.mock import MagicMock
 
 from datetime import datetime, timedelta, timezone
 
+from src.nutrition.constants import VARIETY_WEIGHT_FAVORITE
 from src.nutrition.recipe_db import (
     _contains_disliked,
     count_recipes_by_meal_type,
     get_recipe_by_id,
+    get_user_favorite_ids,
     save_recipe,
     score_macro_fit,
     score_recipe_variety,
@@ -543,3 +545,80 @@ class TestScoreRecipeVariety:
         score2 = score_recipe_variety(recipe, self._target(), now=now2)
         # 2 months later → higher freshness → higher score
         assert score2 > score1
+
+
+# ---------------------------------------------------------------------------
+# Test: get_user_favorite_ids
+# ---------------------------------------------------------------------------
+
+
+class TestGetUserFavoriteIds:
+    def test_returns_set_of_ids(self):
+        """Returns set of recipe IDs for a user."""
+        mock = make_supabase_mock([{"recipe_id": "a"}, {"recipe_id": "b"}])
+        result = get_user_favorite_ids(mock, "user-1")
+        assert result == {"a", "b"}
+
+    def test_no_user_returns_empty(self):
+        """Returns empty set when user_id is None."""
+        result = get_user_favorite_ids(MagicMock(), None)
+        assert result == set()
+
+    def test_empty_string_user_returns_empty(self):
+        """Returns empty set when user_id is empty string."""
+        result = get_user_favorite_ids(MagicMock(), "")
+        assert result == set()
+
+    def test_no_favorites_returns_empty(self):
+        """Returns empty set when user has no favorites."""
+        mock = make_supabase_mock([])
+        result = get_user_favorite_ids(mock, "user-1")
+        assert result == set()
+
+
+# ---------------------------------------------------------------------------
+# Test: score_recipe_variety — favorite bonus
+# ---------------------------------------------------------------------------
+
+
+class TestScoreRecipeVarietyFavoriteBonus:
+    def _target(self):
+        return {
+            "target_calories": 600,
+            "target_protein_g": 40,
+            "target_carbs_g": 70,
+            "target_fat_g": 20,
+        }
+
+    def test_favorite_gets_bonus(self):
+        """Favorite recipes get a scoring bonus."""
+        recipe = make_recipe(recipe_id="fav-1")
+        target = self._target()
+
+        score_without = score_recipe_variety(recipe, target)
+        score_with = score_recipe_variety(recipe, target, favorite_recipe_ids={"fav-1"})
+
+        assert score_with > score_without
+        assert score_with - score_without == pytest.approx(
+            VARIETY_WEIGHT_FAVORITE, abs=0.01
+        )
+
+    def test_no_bonus_when_not_favorite(self):
+        """Non-favorite recipes are unaffected."""
+        recipe = make_recipe(recipe_id="other-1")
+        target = self._target()
+
+        score_without = score_recipe_variety(recipe, target)
+        score_with = score_recipe_variety(recipe, target, favorite_recipe_ids={"fav-1"})
+
+        assert score_with == score_without
+
+    def test_no_bonus_when_none(self):
+        """No bonus when favorite_recipe_ids is None (default)."""
+        recipe = make_recipe(recipe_id="fav-1")
+        target = self._target()
+
+        score_default = score_recipe_variety(recipe, target)
+        score_none = score_recipe_variety(recipe, target, favorite_recipe_ids=None)
+
+        assert score_default == score_none

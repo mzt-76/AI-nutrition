@@ -362,6 +362,7 @@ async def execute(**kwargs) -> str:
                 exclude_recipe_ids=used_recipe_ids,
                 custom_requests=day_custom,
                 batch_recipe_ids=batch_recipe_ids,
+                user_id=user_id,
             )
             day_result = json.loads(day_result_str)
 

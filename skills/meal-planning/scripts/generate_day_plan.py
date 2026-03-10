@@ -20,6 +20,7 @@ from src.nutrition.portion_optimizer_v2 import (
 from src.nutrition.portion_scaler import scale_recipe_to_targets
 from src.nutrition.recipe_db import (
     get_recipe_by_id,
+    get_user_favorite_ids,
     increment_usage,
     score_recipe_variety,
     search_recipes,
@@ -234,6 +235,8 @@ async def _select_recipe_for_slot(
     generate_custom_recipe_module,
     batch_recipe_id: str | None = None,
     target_macro_ratios_override: dict[str, float] | None = None,
+    user_id: str | None = None,
+    favorite_ids: set[str] | None = None,
 ) -> tuple[dict | None, bool, list[dict]]:
     """Resolve a single recipe for a meal slot — from DB or LLM fallback.
 
@@ -261,8 +264,31 @@ async def _select_recipe_for_slot(
             f"  {meal_type_display}: batch recipe {batch_recipe_id} not found, falling back"
         )
 
-    # Custom request → LLM generation
+    # Custom request → check favorites first, then LLM fallback
     if custom_request:
+        # Niveau 2: Try to match a favorite recipe by name
+        if user_id:
+            fav_result = (
+                supabase.table("favorite_recipes")
+                .select("recipe_id, recipes(*)")
+                .eq("user_id", user_id)
+                .execute()
+            )
+            if fav_result.data:
+                query_lower = custom_request.lower()
+                for fav in fav_result.data:
+                    recipe_data = fav.get("recipes")
+                    if (
+                        recipe_data
+                        and query_lower in recipe_data.get("name", "").lower()
+                    ):
+                        logger.info(
+                            f"  {meal_type_display}: favorite match '{recipe_data['name']}' "
+                            f"for custom request '{custom_request}'"
+                        )
+                        return recipe_data, False, []
+
+        # No favorite match → LLM generation
         logger.info(
             f"  {meal_type_display}: custom recipe requested '{custom_request}'"
         )
@@ -370,15 +396,25 @@ async def _select_recipe_for_slot(
 
     if candidates:
         candidates.sort(
-            key=lambda r: score_recipe_variety(r, meal_slot, preferred_cuisines),
+            key=lambda r: score_recipe_variety(
+                r, meal_slot, preferred_cuisines, favorite_recipe_ids=favorite_ids
+            ),
             reverse=True,
         )
         recipe = candidates[0]
         runner_ups = candidates[1:] if len(candidates) > 1 else []
+        fav_tag = (
+            " [FAVORI]" if (favorite_ids and recipe.get("id") in favorite_ids) else ""
+        )
+        base_score = score_recipe_variety(recipe, meal_slot, preferred_cuisines)
+        full_score = score_recipe_variety(
+            recipe, meal_slot, preferred_cuisines, favorite_recipe_ids=favorite_ids
+        )
         logger.info(
-            f"  {meal_type_display}: DB recipe '{recipe['name']}' "
+            f"  {meal_type_display}: DB recipe '{recipe['name']}'{fav_tag} "
             f"({recipe['calories_per_serving']:.0f} kcal, "
-            f"variety_score={score_recipe_variety(recipe, meal_slot, preferred_cuisines):.3f}, "
+            f"score={full_score:.3f}, base={base_score:.3f}, "
+            f"fav_bonus={full_score - base_score:.3f}, "
             f"fallback_level={fallback_level})"
         )
         return recipe, False, runner_ups
@@ -417,6 +453,8 @@ async def select_recipes(
     exclude_recipe_ids: list[str],
     custom_requests: dict,
     batch_recipe_ids: dict[str, str] | None = None,
+    user_id: str | None = None,
+    favorite_ids: set[str] | None = None,
 ) -> list[dict]:
     """Step 2: Select one recipe per meal slot with inter-meal macro compensation."""
     generate_custom_recipe_module = _import_sibling_script("generate_custom_recipe")
@@ -480,6 +518,8 @@ async def select_recipes(
                 normalize_meal_type(meal_slot.get("meal_type", ""))
             ),
             target_macro_ratios_override=adjusted_ratios,
+            user_id=user_id,
+            favorite_ids=favorite_ids,
         )
 
         if recipe:
@@ -718,6 +758,8 @@ async def repair(
     exclude_recipe_ids: list[str],
     custom_requests: dict,
     batch_recipe_ids: dict[str, str] | None = None,
+    user_id: str | None = None,
+    favorite_ids: set[str] | None = None,
 ) -> tuple[list[dict], list[dict]]:
     """Step 5: Swap the worst meal with runner-up or a new DB search.
 
@@ -823,6 +865,8 @@ async def repair(
             normalize_meal_type(meal_slot.get("meal_type", ""))
         ),
         target_macro_ratios_override=repair_ratios,
+        user_id=user_id,
+        favorite_ids=favorite_ids,
     )
 
     if recipe:
@@ -895,6 +939,8 @@ async def execute(**kwargs) -> str:
     exclude_recipe_ids = list(kwargs.get("exclude_recipe_ids", []))
     custom_requests = kwargs.get("custom_requests", {})
     batch_recipe_ids = kwargs.get("batch_recipe_ids", {})
+    user_id = kwargs.get("user_id")
+    favorite_ids = get_user_favorite_ids(supabase, user_id)
 
     # Build target macros for validation
     target_macros = {
@@ -922,6 +968,8 @@ async def execute(**kwargs) -> str:
             exclude_recipe_ids=exclude_recipe_ids,
             custom_requests=custom_requests,
             batch_recipe_ids=batch_recipe_ids or None,
+            user_id=user_id,
+            favorite_ids=favorite_ids,
         )
         t_select = (time.monotonic() - t0) * 1000
 
@@ -1052,6 +1100,8 @@ async def execute(**kwargs) -> str:
                 exclude_recipe_ids=exclude_recipe_ids,
                 custom_requests=custom_requests,
                 batch_recipe_ids=batch_recipe_ids or None,
+                user_id=user_id,
+                favorite_ids=favorite_ids,
             )
             t_repair = (time.monotonic() - t0) * 1000
 
