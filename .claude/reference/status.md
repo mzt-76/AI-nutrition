@@ -34,9 +34,13 @@
 
 ## Deferred Issues (from pre-deploy review 2026-03-07)
 
-- [ ] **M4. Sync Supabase client dans endpoints async** — `src/api.py` utilise le client sync partout, bloque l'event loop. Migrer vers client async ou `asyncio.to_thread()`. Impact: performance sous charge.
+- [x] **M4. Sync Supabase client dans endpoints async** — ✅ Migré vers `SupabaseAsyncClient`. 81 `.execute()` calls await-ifiés, 16 source files + 14 test files. `get_async_supabase_client()` dans `src/clients.py`, sync client préservé pour `scripts/`.
 - [ ] **L5. Ruff E402 — 10 imports pas en haut de fichier** — intentionnel (après `sys.path` setup). Ajouter `# noqa: E402` ou configurer ruff pour ignorer ces fichiers.
 - [ ] **L6. Mypy — 140 erreurs pre-existantes** — surtout implicit Optional et types Pydantic AI v2. Nécessite un pass dédié mypy cleanup.
+
+## Improvement Ideas
+
+- [ ] **Macro redistribution quand une recette favorite est pinned** — Quand une recette favorite est forcée dans un slot (Niveau 2), `calculate_meal_macros_distribution` devrait ajuster les cibles macro des slots restants pour compenser le profil fixe de la favorite. Actuellement le MILP optimise tous les slots contre la distribution uniforme originale, ce qui cause un drift carbs/fat quand la favorite a un profil macro atypique (ex: -24% carbs observé en test). Implémentation : après favorite lookup, soustraire les macros de la favorite des cibles journalières, redistribuer le reste sur les slots non-remplis.
 
 Rapport complet : `.claude/code-reviews/pre-deploy-review-20260307.md`
 

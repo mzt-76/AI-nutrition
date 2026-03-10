@@ -276,8 +276,8 @@ class TestStartDateDefault:
             },
         ):
             db_mock = MagicMock()
-            db_mock.table.return_value.insert.return_value.execute.return_value = (
-                MagicMock(data=[{"id": 1}])
+            db_mock.table.return_value.insert.return_value.execute = AsyncMock(
+                return_value=MagicMock(data=[{"id": 1}])
             )
 
             result_str = await generate_week_plan.execute(
@@ -338,8 +338,8 @@ class TestStartDateDefault:
             },
         ):
             db_mock = MagicMock()
-            db_mock.table.return_value.insert.return_value.execute.return_value = (
-                MagicMock(data=[{"id": 1}])
+            db_mock.table.return_value.insert.return_value.execute = AsyncMock(
+                return_value=MagicMock(data=[{"id": 1}])
             )
 
             result_str = await generate_week_plan.execute(
@@ -423,8 +423,8 @@ class TestBatchCooking:
         ):
             # Mock DB store
             db_mock = MagicMock()
-            db_mock.table.return_value.insert.return_value.execute.return_value = (
-                MagicMock(data=[{"id": 1}])
+            db_mock.table.return_value.insert.return_value.execute = AsyncMock(
+                return_value=MagicMock(data=[{"id": 1}])
             )
 
             result_str = await generate_week_plan.execute(
@@ -504,8 +504,8 @@ class TestBatchCooking:
             },
         ):
             db_mock = MagicMock()
-            db_mock.table.return_value.insert.return_value.execute.return_value = (
-                MagicMock(data=[{"id": 1}])
+            db_mock.table.return_value.insert.return_value.execute = AsyncMock(
+                return_value=MagicMock(data=[{"id": 1}])
             )
 
             await generate_week_plan.execute(
@@ -576,8 +576,8 @@ class TestBatchCooking:
             },
         ):
             db_mock = MagicMock()
-            db_mock.table.return_value.insert.return_value.execute.return_value = (
-                MagicMock(data=[{"id": 1}])
+            db_mock.table.return_value.insert.return_value.execute = AsyncMock(
+                return_value=MagicMock(data=[{"id": 1}])
             )
 
             await generate_week_plan.execute(
@@ -647,8 +647,8 @@ class TestBatchCooking:
             },
         ):
             db_mock = MagicMock()
-            db_mock.table.return_value.insert.return_value.execute.return_value = (
-                MagicMock(data=[{"id": 1}])
+            db_mock.table.return_value.insert.return_value.execute = AsyncMock(
+                return_value=MagicMock(data=[{"id": 1}])
             )
 
             await generate_week_plan.execute(
@@ -726,8 +726,8 @@ class TestBatchCooking:
             },
         ):
             db_mock = MagicMock()
-            db_mock.table.return_value.insert.return_value.execute.return_value = (
-                MagicMock(data=[{"id": 1}])
+            db_mock.table.return_value.insert.return_value.execute = AsyncMock(
+                return_value=MagicMock(data=[{"id": 1}])
             )
 
             await generate_week_plan.execute(

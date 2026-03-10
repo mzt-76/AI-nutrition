@@ -11,7 +11,7 @@ import unicodedata
 from difflib import SequenceMatcher
 
 import httpx
-from supabase import Client
+from supabase._async.client import AsyncClient as SupabaseAsyncClient
 
 logger = logging.getLogger(__name__)
 
@@ -354,7 +354,7 @@ def _pick_best_candidate(candidates: list[dict], ingredient_name: str) -> dict |
 
 
 async def search_food_local(
-    query: str, supabase: Client, max_results: int = 5
+    query: str, supabase: SupabaseAsyncClient, max_results: int = 5
 ) -> list[dict]:
     """
     Search OpenFoodFacts database using RPC function.
@@ -378,7 +378,7 @@ async def search_food_local(
         Uses PostgreSQL full-text search with trigram similarity
     """
     try:
-        result = supabase.rpc(
+        result = await supabase.rpc(
             "search_openfoodfacts",
             {"search_query": query, "max_results": max_results},
         ).execute()
@@ -482,21 +482,25 @@ async def search_food_online(query: str, max_results: int = 5) -> list[dict]:
     return products
 
 
-async def _insert_online_product(product: dict, supabase: Client) -> None:
+async def _insert_online_product(product: dict, supabase: SupabaseAsyncClient) -> None:
     """Insert an online OFF product into the local openfoodfacts_products table."""
     try:
-        supabase.table("openfoodfacts_products").upsert(
-            {
-                "code": product["code"],
-                "product_name": product["name"],
-                "product_name_fr": product["name"],
-                "calories_per_100g": product["calories_per_100g"],
-                "protein_g_per_100g": product["protein_g_per_100g"],
-                "carbs_g_per_100g": product["carbs_g_per_100g"],
-                "fat_g_per_100g": product["fat_g_per_100g"],
-            },
-            on_conflict="code",
-        ).execute()
+        await (
+            supabase.table("openfoodfacts_products")
+            .upsert(
+                {
+                    "code": product["code"],
+                    "product_name": product["name"],
+                    "product_name_fr": product["name"],
+                    "calories_per_100g": product["calories_per_100g"],
+                    "protein_g_per_100g": product["protein_g_per_100g"],
+                    "carbs_g_per_100g": product["carbs_g_per_100g"],
+                    "fat_g_per_100g": product["fat_g_per_100g"],
+                },
+                on_conflict="code",
+            )
+            .execute()
+        )
         logger.info("Inserted online OFF product '%s' into local DB", product["name"])
     except Exception as e:
         logger.warning("Failed to insert online product '%s': %s", product["name"], e)
@@ -560,7 +564,7 @@ def _passes_atwater_check(product: dict) -> bool:
 
 
 async def match_ingredient(
-    ingredient_name: str, quantity: float, unit: str, supabase: Client
+    ingredient_name: str, quantity: float, unit: str, supabase: SupabaseAsyncClient
 ) -> dict:
     """
     Match ingredient with cache-first strategy.
@@ -588,7 +592,7 @@ async def match_ingredient(
 
     # Step 1: Check cache
     try:
-        cached = (
+        cached = await (
             supabase.table("ingredient_mapping")
             .select("*")
             .eq("ingredient_name_normalized", normalized)
@@ -605,9 +609,12 @@ async def match_ingredient(
                     ingredient_name,
                 )
                 try:
-                    supabase.table("ingredient_mapping").delete().eq(
-                        "ingredient_name_normalized", normalized
-                    ).execute()
+                    await (
+                        supabase.table("ingredient_mapping")
+                        .delete()
+                        .eq("ingredient_name_normalized", normalized)
+                        .execute()
+                    )
                 except Exception as del_err:
                     logger.warning("Failed to delete bad cache entry: %s", del_err)
                 # Fall through to Step 2 (fresh search)
@@ -683,21 +690,25 @@ async def match_ingredient(
 
     # Step 5: Cache the result
     try:
-        supabase.table("ingredient_mapping").insert(
-            {
-                "ingredient_name": ingredient_name,
-                "ingredient_name_normalized": normalized,
-                "openfoodfacts_code": best["code"],
-                "openfoodfacts_name": best["name"],
-                "calories_per_100g": best["calories_per_100g"],
-                "protein_g_per_100g": best["protein_g_per_100g"],
-                "carbs_g_per_100g": best["carbs_g_per_100g"],
-                "fat_g_per_100g": best["fat_g_per_100g"],
-                "confidence_score": min(best["confidence"], 1.0),
-                "verified": False,
-                "usage_count": 1,
-            }
-        ).execute()
+        await (
+            supabase.table("ingredient_mapping")
+            .insert(
+                {
+                    "ingredient_name": ingredient_name,
+                    "ingredient_name_normalized": normalized,
+                    "openfoodfacts_code": best["code"],
+                    "openfoodfacts_name": best["name"],
+                    "calories_per_100g": best["calories_per_100g"],
+                    "protein_g_per_100g": best["protein_g_per_100g"],
+                    "carbs_g_per_100g": best["carbs_g_per_100g"],
+                    "fat_g_per_100g": best["fat_g_per_100g"],
+                    "confidence_score": min(best["confidence"], 1.0),
+                    "verified": False,
+                    "usage_count": 1,
+                }
+            )
+            .execute()
+        )
         logger.info(f"Cached match for: {ingredient_name}")
     except Exception as e:
         logger.warning(f"Failed to cache '{ingredient_name}': {e}")
@@ -726,7 +737,7 @@ async def match_ingredient(
     }
 
 
-async def off_validate_recipe(recipe: dict, supabase: Client) -> dict:
+async def off_validate_recipe(recipe: dict, supabase: SupabaseAsyncClient) -> dict:
     """Validate and enrich a recipe with real OFF nutrition data.
 
     Matches all ingredients in parallel via OpenFoodFacts, stores per-ingredient

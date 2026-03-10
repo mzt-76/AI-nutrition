@@ -32,7 +32,7 @@ async def execute(**kwargs) -> str:
 
     try:
         # 1. Fetch user targets
-        profile_resp = (
+        profile_resp = await (
             supabase.table("user_profiles")
             .select("target_calories, target_protein_g, target_carbs_g, target_fat_g")
             .eq("id", user_id)
@@ -60,7 +60,7 @@ async def execute(**kwargs) -> str:
             )
 
         # 2. Fetch all log entries for the date
-        log_resp = (
+        log_resp = await (
             supabase.table("daily_food_log")
             .select("calories, protein_g, carbs_g, fat_g, meal_type")
             .eq("user_id", user_id)

@@ -29,9 +29,9 @@ def _setup_supabase(data=None):
     mock_resp.data = data
 
     # Build a recursive chain: every method call returns the same chain object
-    # and .execute() returns mock_resp.
+    # and .execute() returns an AsyncMock (async supabase client).
     chain = MagicMock()
-    chain.execute.return_value = mock_resp
+    chain.execute = AsyncMock(return_value=mock_resp)
 
     for method in (
         "select",
@@ -230,7 +230,7 @@ class TestDailyLogUpdate:
         ownership_resp = MagicMock()
         ownership_resp.data = [{"user_id": USER_ID}]
         ownership_chain = MagicMock()
-        ownership_chain.execute.return_value = ownership_resp
+        ownership_chain.execute = AsyncMock(return_value=ownership_resp)
         select_chain = MagicMock()
         select_chain.eq.return_value = MagicMock()
         select_chain.eq.return_value.limit.return_value = ownership_chain
@@ -240,7 +240,7 @@ class TestDailyLogUpdate:
         update_resp = MagicMock()
         update_resp.data = [updated]
         update_eq = MagicMock()
-        update_eq.execute.return_value = update_resp
+        update_eq.execute = AsyncMock(return_value=update_resp)
         update_chain = MagicMock()
         update_chain.eq.return_value = update_eq
         table_mock.update.return_value = update_chain
@@ -274,13 +274,15 @@ class TestDailyLogUpdate:
             call_count["n"] += 1
             chain = MagicMock()
             resp = ownership_resp if call_count["n"] == 1 else qty_resp
-            chain.eq.return_value.limit.return_value.execute.return_value = resp
+            chain.eq.return_value.limit.return_value.execute = AsyncMock(
+                return_value=resp
+            )
             return chain
 
         table_mock = MagicMock()
         table_mock.select.side_effect = select_side_effect
-        table_mock.update.return_value.eq.return_value.execute.return_value = (
-            update_resp
+        table_mock.update.return_value.eq.return_value.execute = AsyncMock(
+            return_value=update_resp
         )
         api_module.supabase.table.return_value = table_mock
 
@@ -510,7 +512,7 @@ class TestShoppingListUpdate:
         ownership_resp = MagicMock()
         ownership_resp.data = [{"user_id": USER_ID}]
         ownership_chain = MagicMock()
-        ownership_chain.execute.return_value = ownership_resp
+        ownership_chain.execute = AsyncMock(return_value=ownership_resp)
         select_chain = MagicMock()
         select_chain.eq.return_value = MagicMock()
         select_chain.eq.return_value.limit.return_value = ownership_chain
@@ -520,7 +522,7 @@ class TestShoppingListUpdate:
         update_resp = MagicMock()
         update_resp.data = [{"id": "sl1", "title": "Updated", "items": []}]
         update_eq = MagicMock()
-        update_eq.execute.return_value = update_resp
+        update_eq.execute = AsyncMock(return_value=update_resp)
         update_chain = MagicMock()
         update_chain.eq.return_value = update_eq
         table_mock.update.return_value = update_chain

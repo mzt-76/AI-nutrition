@@ -3,7 +3,7 @@
 Deterministic tests with mocked Supabase client. No LLM calls.
 """
 
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -50,7 +50,9 @@ class TestCheckRateLimit:
         mock_response = MagicMock()
         mock_response.count = 3
 
-        mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.return_value = mock_response
+        mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute = AsyncMock(
+            return_value=mock_response
+        )
 
         allowed, msg = await check_rate_limit(mock_supabase, "user1", per_minute=10)
         assert allowed is True
@@ -63,7 +65,9 @@ class TestCheckRateLimit:
         mock_response = MagicMock()
         mock_response.count = 15
 
-        mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.return_value = mock_response
+        mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute = AsyncMock(
+            return_value=mock_response
+        )
 
         allowed, msg = await check_rate_limit(mock_supabase, "user1", per_minute=10)
         assert allowed is False
@@ -79,10 +83,12 @@ class TestCheckRateLimit:
         day_resp = MagicMock()
         day_resp.count = 100
 
-        mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute.side_effect = [
-            minute_resp,
-            day_resp,
-        ]
+        mock_supabase.table.return_value.select.return_value.eq.return_value.gte.return_value.execute = AsyncMock(
+            side_effect=[
+                minute_resp,
+                day_resp,
+            ]
+        )
 
         allowed, msg = await check_rate_limit(
             mock_supabase, "user1", per_minute=10, per_day=100
@@ -108,8 +114,8 @@ class TestStoreMessage:
     async def test_inserts_basic_message(self):
         """Should insert a message with type and content."""
         mock_supabase = MagicMock()
-        mock_supabase.table.return_value.insert.return_value.execute.return_value = (
-            MagicMock(data=[{"id": 1}])
+        mock_supabase.table.return_value.insert.return_value.execute = AsyncMock(
+            return_value=MagicMock(data=[{"id": 1}])
         )
 
         await store_message(
@@ -129,8 +135,8 @@ class TestStoreMessage:
     async def test_includes_message_data_when_provided(self):
         """Should include message_data as decoded string."""
         mock_supabase = MagicMock()
-        mock_supabase.table.return_value.insert.return_value.execute.return_value = (
-            MagicMock(data=[{"id": 1}])
+        mock_supabase.table.return_value.insert.return_value.execute = AsyncMock(
+            return_value=MagicMock(data=[{"id": 1}])
         )
 
         await store_message(
@@ -178,8 +184,8 @@ class TestStoreRequest:
     async def test_stores_request_data(self):
         """Should insert request with id, user_id, query, and timestamp."""
         mock_supabase = MagicMock()
-        mock_supabase.table.return_value.insert.return_value.execute.return_value = (
-            MagicMock(data=[{"id": "req1"}])
+        mock_supabase.table.return_value.insert.return_value.execute = AsyncMock(
+            return_value=MagicMock(data=[{"id": "req1"}])
         )
 
         await store_request(mock_supabase, "req1", "user1", "What is protein?")

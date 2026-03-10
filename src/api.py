@@ -52,7 +52,7 @@ from src.nutrition.openfoodfacts_client import (
 from pydantic_ai.messages import PartDeltaEvent, PartStartEvent, TextPartDelta
 
 from src.agent import agent, create_agent_deps, get_model
-from src.clients import get_async_memory_client, get_supabase_client
+from src.clients import get_async_memory_client, get_async_supabase_client
 from src.ui_components import extract_ui_components
 from src.db_utils import (
     check_rate_limit,
@@ -112,7 +112,7 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
     if missing:
         raise RuntimeError(f"Missing required env vars: {', '.join(missing)}")
 
-    supabase = get_supabase_client()
+    supabase = get_async_supabase_client()
 
     # Title agent uses MEM0_LLM_CHOICE (cheap/fast model for 4-6 word titles).
     # We pass model_name directly to avoid mutating os.environ (race condition).
@@ -378,7 +378,7 @@ async def list_conversations(
     """List conversations for a user."""
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
-    response = (
+    response = await (
         supabase.table("conversations")
         .select("id, session_id, title, created_at, updated_at")
         .eq("user_id", user_id)
@@ -409,8 +409,12 @@ async def agent_endpoint(
 
         # Validate file attachments (defense in depth)
         _ALLOWED_MIME_TYPES = {
-            "image/jpeg", "image/png", "image/gif", "image/webp",
-            "text/plain", "application/pdf",
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp",
+            "text/plain",
+            "application/pdf",
         }
         if request.files:
             if len(request.files) > 5:
@@ -619,7 +623,7 @@ async def get_meal_plan(
     _validate_uuid(plan_id)
 
     user_id = auth_user["id"]
-    result = (
+    result = await (
         supabase.table("meal_plans").select("*").eq("id", plan_id).limit(1).execute()
     )
 
@@ -641,7 +645,7 @@ async def list_meal_plans(
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    result = (
+    result = await (
         supabase.table("meal_plans")
         .select(
             "id, user_id, week_start, target_calories_daily, target_protein_g, target_carbs_g, target_fat_g, notes, created_at"
@@ -663,7 +667,7 @@ async def delete_meal_plan(
     _validate_uuid(plan_id)
 
     user_id = auth_user["id"]
-    result = (
+    result = await (
         supabase.table("meal_plans")
         .select("id, user_id")
         .eq("id", plan_id)
@@ -676,7 +680,7 @@ async def delete_meal_plan(
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     try:
-        supabase.table("meal_plans").delete().eq("id", plan_id).execute()
+        await supabase.table("meal_plans").delete().eq("id", plan_id).execute()
     except Exception as e:
         logger.error(f"Erreur suppression plan repas {plan_id}: {e}", exc_info=True)
         raise HTTPException(
@@ -693,7 +697,7 @@ async def delete_conversation(
     """Delete a conversation and its messages (owner only)."""
     _validate_session_id(session_id)
     user_id = auth_user["id"]
-    result = (
+    result = await (
         supabase.table("conversations")
         .select("session_id, user_id")
         .eq("session_id", session_id)
@@ -706,8 +710,13 @@ async def delete_conversation(
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     try:
-        supabase.table("messages").delete().eq("session_id", session_id).execute()
-        supabase.table("conversations").delete().eq("session_id", session_id).execute()
+        await supabase.table("messages").delete().eq("session_id", session_id).execute()
+        await (
+            supabase.table("conversations")
+            .delete()
+            .eq("session_id", session_id)
+            .execute()
+        )
     except Exception as e:
         logger.error(
             f"Erreur suppression conversation {session_id}: {e}", exc_info=True
@@ -759,7 +768,7 @@ async def get_daily_log(
             status_code=400, detail="Format de date invalide (AAAA-MM-JJ attendu)"
         )
 
-    result = (
+    result = await (
         supabase.table("daily_food_log")
         .select("*")
         .eq("user_id", user_id)
@@ -781,7 +790,7 @@ async def create_daily_log(
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     row = body.model_dump(exclude_none=True)
-    result = supabase.table("daily_food_log").insert(row).execute()
+    result = await supabase.table("daily_food_log").insert(row).execute()
 
     if not result.data:
         raise HTTPException(status_code=500, detail="Impossible de créer l'entrée")
@@ -798,7 +807,7 @@ async def update_daily_log(
     _validate_uuid(entry_id)
 
     # Verify ownership (fetch quantity/unit too for potential macro recalc)
-    existing = (
+    existing = await (
         supabase.table("daily_food_log")
         .select("user_id, quantity, unit")
         .eq("id", entry_id)
@@ -830,7 +839,7 @@ async def update_daily_log(
         updates["fat_g"] = round(macros["fat_g"], 1)
 
     updates["updated_at"] = datetime.now(timezone.utc).isoformat()
-    result = (
+    result = await (
         supabase.table("daily_food_log").update(updates).eq("id", entry_id).execute()
     )
 
@@ -850,7 +859,7 @@ async def delete_daily_log(
     _validate_uuid(entry_id)
 
     # Verify ownership
-    existing = (
+    existing = await (
         supabase.table("daily_food_log")
         .select("user_id")
         .eq("id", entry_id)
@@ -863,7 +872,7 @@ async def delete_daily_log(
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     try:
-        supabase.table("daily_food_log").delete().eq("id", entry_id).execute()
+        await supabase.table("daily_food_log").delete().eq("id", entry_id).execute()
     except Exception as e:
         logger.error(
             f"Erreur suppression entrée journal {entry_id}: {e}", exc_info=True
@@ -888,7 +897,7 @@ async def list_favorites(
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    result = (
+    result = await (
         supabase.table("favorite_recipes")
         .select("*, recipes(*)")
         .eq("user_id", user_id)
@@ -908,7 +917,7 @@ async def add_favorite(
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     # Return existing if already favorited (unique constraint on user_id + recipe_id)
-    existing = (
+    existing = await (
         supabase.table("favorite_recipes")
         .select("*")
         .eq("user_id", body.user_id)
@@ -920,7 +929,7 @@ async def add_favorite(
         return existing.data[0]
 
     row = body.model_dump(exclude_none=True)
-    result = supabase.table("favorite_recipes").insert(row).execute()
+    result = await supabase.table("favorite_recipes").insert(row).execute()
 
     if not result.data:
         raise HTTPException(status_code=500, detail="Impossible d'ajouter le favori")
@@ -935,7 +944,7 @@ async def remove_favorite(
     """Remove a recipe from favorites."""
     _validate_uuid(favorite_id)
 
-    existing = (
+    existing = await (
         supabase.table("favorite_recipes")
         .select("user_id")
         .eq("id", favorite_id)
@@ -948,7 +957,9 @@ async def remove_favorite(
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     try:
-        supabase.table("favorite_recipes").delete().eq("id", favorite_id).execute()
+        await (
+            supabase.table("favorite_recipes").delete().eq("id", favorite_id).execute()
+        )
     except Exception as e:
         logger.error(f"Erreur suppression favori {favorite_id}: {e}", exc_info=True)
         raise HTTPException(
@@ -966,7 +977,7 @@ async def update_favorite(
     """Update a favorite's notes."""
     _validate_uuid(favorite_id)
 
-    existing = (
+    existing = await (
         supabase.table("favorite_recipes")
         .select("user_id")
         .eq("id", favorite_id)
@@ -978,7 +989,7 @@ async def update_favorite(
     if existing.data[0].get("user_id") != auth_user["id"]:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    result = (
+    result = await (
         supabase.table("favorite_recipes")
         .update({"notes": body.notes})
         .eq("id", favorite_id)
@@ -1001,7 +1012,7 @@ async def check_favorite(
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    result = (
+    result = await (
         supabase.table("favorite_recipes")
         .select("id, notes")
         .eq("user_id", user_id)
@@ -1034,7 +1045,7 @@ async def upsert_recipe(
     meal_type_norm = body.meal_type.lower().replace("é", "e").replace("î", "i")
 
     # Check for existing recipe with same normalized name and meal_type
-    existing = (
+    existing = await (
         supabase.table("recipes")
         .select("*")
         .eq("name_normalized", name_norm)
@@ -1059,7 +1070,7 @@ async def upsert_recipe(
         "source": "user_validated",
     }
 
-    result = supabase.table("recipes").insert(row).execute()
+    result = await supabase.table("recipes").insert(row).execute()
     if not result.data:
         raise HTTPException(status_code=500, detail="Impossible de créer la recette")
     return result.data[0]
@@ -1073,7 +1084,7 @@ async def get_recipe(
     """Fetch a single recipe by ID."""
     _validate_uuid(recipe_id)
 
-    result = (
+    result = await (
         supabase.table("recipes").select("*").eq("id", recipe_id).limit(1).execute()
     )
     if not result.data:
@@ -1095,7 +1106,7 @@ async def list_shopping_lists(
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
-    result = (
+    result = await (
         supabase.table("shopping_lists")
         .select("*")
         .eq("user_id", user_id)
@@ -1127,7 +1138,7 @@ async def create_shopping_list(
     }
     if body.meal_plan_id:
         _validate_uuid(body.meal_plan_id)
-        plan = (
+        plan = await (
             supabase.table("meal_plans")
             .select("user_id")
             .eq("id", body.meal_plan_id)
@@ -1140,7 +1151,7 @@ async def create_shopping_list(
             )
         row["meal_plan_id"] = body.meal_plan_id
 
-    result = supabase.table("shopping_lists").insert(row).execute()
+    result = await supabase.table("shopping_lists").insert(row).execute()
     if not result.data:
         raise HTTPException(
             status_code=500,
@@ -1157,7 +1168,7 @@ async def get_shopping_list(
     """Get a single shopping list with items."""
     _validate_uuid(list_id)
 
-    result = (
+    result = await (
         supabase.table("shopping_lists")
         .select("*")
         .eq("id", list_id)
@@ -1181,7 +1192,7 @@ async def update_shopping_list(
     """Update a shopping list (e.g., check off items, rename)."""
     _validate_uuid(list_id)
 
-    existing = (
+    existing = await (
         supabase.table("shopping_lists")
         .select("user_id")
         .eq("id", list_id)
@@ -1202,7 +1213,7 @@ async def update_shopping_list(
         raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
 
     updates["updated_at"] = datetime.now(timezone.utc).isoformat()
-    result = (
+    result = await (
         supabase.table("shopping_lists").update(updates).eq("id", list_id).execute()
     )
 
@@ -1221,7 +1232,7 @@ async def delete_shopping_list(
     """Delete a shopping list."""
     _validate_uuid(list_id)
 
-    existing = (
+    existing = await (
         supabase.table("shopping_lists")
         .select("user_id")
         .eq("id", list_id)
@@ -1234,7 +1245,7 @@ async def delete_shopping_list(
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     try:
-        supabase.table("shopping_lists").delete().eq("id", list_id).execute()
+        await supabase.table("shopping_lists").delete().eq("id", list_id).execute()
     except Exception as e:
         logger.error(f"Erreur suppression liste courses {list_id}: {e}", exc_info=True)
         raise HTTPException(
@@ -1295,7 +1306,7 @@ async def recalculate_profile(
 
     # Persist to user_profiles
     try:
-        db_result = (
+        db_result = await (
             supabase.table("user_profiles")
             .update(
                 {

@@ -36,7 +36,7 @@ async def execute(**kwargs) -> str:
         query_embedding = response.data[0].embedding
 
         # Query Supabase vectorstore
-        result = supabase.rpc(
+        result = await supabase.rpc(
             "match_documents",
             {
                 "query_embedding": query_embedding,

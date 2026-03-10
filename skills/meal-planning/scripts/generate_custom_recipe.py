@@ -278,7 +278,7 @@ async def execute(**kwargs) -> str:
                     from src.nutrition.recipe_db import normalize_ingredient_name
 
                     name_norm = normalize_ingredient_name(recipe_to_save["name"])
-                    existing = (
+                    existing = await (
                         supabase.table("recipes")
                         .select("id")
                         .eq("name_normalized", name_norm)

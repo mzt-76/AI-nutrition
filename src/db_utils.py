@@ -14,13 +14,13 @@ from typing import Any
 
 from pydantic_ai import Agent
 from pydantic_ai.messages import ModelMessage, ModelMessagesTypeAdapter
-from supabase import Client
+from supabase._async.client import AsyncClient as SupabaseAsyncClient
 
 logger = logging.getLogger(__name__)
 
 
 async def fetch_conversation_history(
-    supabase: Client, session_id: str, limit: int = 10
+    supabase: SupabaseAsyncClient, session_id: str, limit: int = 10
 ) -> list[dict[str, Any]]:
     """Fetch the most recent conversation history for a session.
 
@@ -35,7 +35,7 @@ async def fetch_conversation_history(
     Raises:
         Exception: On database errors (caller handles)
     """
-    response = (
+    response = await (
         supabase.table("messages")
         .select("*")
         .eq("session_id", session_id)
@@ -49,7 +49,7 @@ async def fetch_conversation_history(
 
 
 async def create_conversation(
-    supabase: Client, user_id: str, session_id: str
+    supabase: SupabaseAsyncClient, user_id: str, session_id: str
 ) -> dict[str, Any]:
     """Create a new conversation record in the database.
 
@@ -64,7 +64,7 @@ async def create_conversation(
     Raises:
         ValueError: If creation fails
     """
-    response = (
+    response = await (
         supabase.table("conversations")
         .insert(
             {
@@ -82,7 +82,7 @@ async def create_conversation(
 
 
 async def update_conversation_title(
-    supabase: Client, session_id: str, title: str
+    supabase: SupabaseAsyncClient, session_id: str, title: str
 ) -> dict[str, Any]:
     """Update the title of a conversation.
 
@@ -97,7 +97,7 @@ async def update_conversation_title(
     Raises:
         ValueError: If update fails
     """
-    response = (
+    response = await (
         supabase.table("conversations")
         .update({"title": title})
         .eq("session_id", session_id)
@@ -148,7 +148,7 @@ async def generate_conversation_title(title_agent: Agent, query: str) -> str:
 
 
 async def store_message(
-    supabase: Client,
+    supabase: SupabaseAsyncClient,
     session_id: str,
     message_type: str,
     content: str,
@@ -181,7 +181,7 @@ async def store_message(
     if message_data:
         insert_data["message_data"] = message_data.decode("utf-8")
 
-    supabase.table("messages").insert(insert_data).execute()
+    await supabase.table("messages").insert(insert_data).execute()
 
 
 def convert_history_to_pydantic_format(
@@ -213,7 +213,7 @@ def convert_history_to_pydantic_format(
 
 
 async def check_rate_limit(
-    supabase: Client,
+    supabase: SupabaseAsyncClient,
     user_id: str,
     per_minute: int = 10,
     per_day: int = 100,
@@ -237,7 +237,7 @@ async def check_rate_limit(
         )
 
         # Per-minute check
-        minute_resp = (
+        minute_resp = await (
             supabase.table("requests")
             .select("id", count="exact")
             .eq("user_id", user_id)
@@ -252,7 +252,7 @@ async def check_rate_limit(
             )
 
         # Daily check
-        day_resp = (
+        day_resp = await (
             supabase.table("requests")
             .select("id", count="exact")
             .eq("user_id", user_id)
@@ -273,7 +273,7 @@ async def check_rate_limit(
 
 
 async def store_request(
-    supabase: Client, request_id: str, user_id: str, query: str
+    supabase: SupabaseAsyncClient, request_id: str, user_id: str, query: str
 ) -> None:
     """Store a request in the requests table for rate limiting.
 
@@ -284,13 +284,17 @@ async def store_request(
         query: User's query
     """
     try:
-        supabase.table("requests").insert(
-            {
-                "id": request_id,
-                "user_id": user_id,
-                "user_query": query,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        ).execute()
+        await (
+            supabase.table("requests")
+            .insert(
+                {
+                    "id": request_id,
+                    "user_id": user_id,
+                    "user_query": query,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+            .execute()
+        )
     except Exception as e:
         logger.error(f"Error storing request: {e}")

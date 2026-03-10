@@ -23,12 +23,14 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from supabase import Client
+from supabase._async.client import AsyncClient as SupabaseAsyncClient
 
 logger = logging.getLogger(__name__)
 
 
-async def fetch_my_profile_tool(supabase: Client, user_id: str | None = None) -> str:
+async def fetch_my_profile_tool(
+    supabase: SupabaseAsyncClient, user_id: str | None = None
+) -> str:
     """
     Fetch user profile from Supabase user_profiles table.
 
@@ -54,7 +56,7 @@ async def fetch_my_profile_tool(supabase: Client, user_id: str | None = None) ->
             )
 
         logger.info(f"Fetching user profile for user_id={user_id}")
-        response = (
+        response = await (
             supabase.table("user_profiles")
             .select("*")
             .eq("id", user_id)
@@ -109,7 +111,7 @@ async def fetch_my_profile_tool(supabase: Client, user_id: str | None = None) ->
 
 
 async def update_my_profile_tool(
-    supabase: Client,
+    supabase: SupabaseAsyncClient,
     user_id: str | None = None,
     age: int | None = None,
     gender: str | None = None,
@@ -299,7 +301,7 @@ async def update_my_profile_tool(
                 }
             )
 
-        response = (
+        response = await (
             supabase.table("user_profiles")
             .update(update_data)
             .eq("id", user_id)

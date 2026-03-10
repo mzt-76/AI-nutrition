@@ -34,12 +34,12 @@ def mock_supabase():
     """Mock Supabase client with insert and select chains."""
     client = MagicMock()
     table_mock = MagicMock()
-    table_mock.insert.return_value.execute.return_value = MagicMock(
-        data=[{"id": "abc"}]
+    table_mock.insert.return_value.execute = AsyncMock(
+        return_value=MagicMock(data=[{"id": "abc"}])
     )
     # select().eq().eq().eq().ilike().execute() returns no existing entry (new insert path)
-    table_mock.select.return_value.eq.return_value.eq.return_value.eq.return_value.ilike.return_value.execute.return_value = MagicMock(
-        data=[]
+    table_mock.select.return_value.eq.return_value.eq.return_value.eq.return_value.ilike.return_value.execute = AsyncMock(
+        return_value=MagicMock(data=[])
     )
     client.table.return_value = table_mock
     return client
@@ -181,11 +181,11 @@ async def test_log_food_entries_updates_existing():
     client = MagicMock()
     table_mock = MagicMock()
     # select chain returns an existing entry
-    table_mock.select.return_value.eq.return_value.eq.return_value.eq.return_value.ilike.return_value.execute.return_value = MagicMock(
-        data=[{"id": "existing-id-1"}]
+    table_mock.select.return_value.eq.return_value.eq.return_value.eq.return_value.ilike.return_value.execute = AsyncMock(
+        return_value=MagicMock(data=[{"id": "existing-id-1"}])
     )
-    table_mock.update.return_value.eq.return_value.execute.return_value = MagicMock(
-        data=[{"id": "existing-id-1"}]
+    table_mock.update.return_value.eq.return_value.execute = AsyncMock(
+        return_value=MagicMock(data=[{"id": "existing-id-1"}])
     )
     client.table.return_value = table_mock
 
@@ -218,11 +218,15 @@ async def test_log_food_entries_entry_id_update():
     client = MagicMock()
     table_mock = MagicMock()
     # select().eq().single().execute() returns existing entry
-    table_mock.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(
-        data={"quantity": 200, "unit": "g", "user_id": "user-123"}
+    table_mock.select.return_value.eq.return_value.single.return_value.execute = (
+        AsyncMock(
+            return_value=MagicMock(
+                data={"quantity": 200, "unit": "g", "user_id": "user-123"}
+            )
+        )
     )
-    table_mock.update.return_value.eq.return_value.execute.return_value = MagicMock(
-        data=[{"id": "entry-abc"}]
+    table_mock.update.return_value.eq.return_value.execute = AsyncMock(
+        return_value=MagicMock(data=[{"id": "entry-abc"}])
     )
     client.table.return_value = table_mock
 
@@ -255,8 +259,12 @@ async def test_log_food_entries_entry_id_no_match():
     """When entry_id update can't match ingredient, return NO_MATCH error."""
     client = MagicMock()
     table_mock = MagicMock()
-    table_mock.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(
-        data={"quantity": 100, "unit": "g", "user_id": "user-123"}
+    table_mock.select.return_value.eq.return_value.single.return_value.execute = (
+        AsyncMock(
+            return_value=MagicMock(
+                data={"quantity": 100, "unit": "g", "user_id": "user-123"}
+            )
+        )
     )
     client.table.return_value = table_mock
 
@@ -288,8 +296,12 @@ async def test_log_food_entries_entry_id_forbidden():
     """When entry_id belongs to different user, return FORBIDDEN error."""
     client = MagicMock()
     table_mock = MagicMock()
-    table_mock.select.return_value.eq.return_value.single.return_value.execute.return_value = MagicMock(
-        data={"quantity": 100, "unit": "g", "user_id": "other-user"}
+    table_mock.select.return_value.eq.return_value.single.return_value.execute = (
+        AsyncMock(
+            return_value=MagicMock(
+                data={"quantity": 100, "unit": "g", "user_id": "other-user"}
+            )
+        )
     )
     client.table.return_value = table_mock
 

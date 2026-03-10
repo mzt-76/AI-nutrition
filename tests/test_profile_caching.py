@@ -11,7 +11,7 @@ import importlib.util
 import json
 from pathlib import Path
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 from src.tools import update_my_profile_tool
 
@@ -45,7 +45,7 @@ def _make_supabase_mock(updated_profile: dict | None = None) -> MagicMock:
     result.data = [updated_profile] if updated_profile else []
 
     chain = mock.table.return_value
-    chain.update.return_value.eq.return_value.execute.return_value = result
+    chain.update.return_value.eq.return_value.execute = AsyncMock(return_value=result)
     return mock
 
 
@@ -190,8 +190,8 @@ class TestCalculateNutritionalNeedsAutoPersist:
         execute = _load_calc_execute()
 
         mock_sb = MagicMock()
-        mock_sb.table.return_value.update.return_value.eq.return_value.execute.side_effect = Exception(
-            "DB connection lost"
+        mock_sb.table.return_value.update.return_value.eq.return_value.execute = (
+            AsyncMock(side_effect=Exception("DB connection lost"))
         )
 
         result_json = await execute(

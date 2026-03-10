@@ -7,7 +7,7 @@ import importlib.util
 import json
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -36,13 +36,13 @@ def _mock_supabase(
     client = MagicMock()
 
     profile_table = MagicMock()
-    profile_table.select.return_value.eq.return_value.execute.return_value = MagicMock(
-        data=profile_data
+    profile_table.select.return_value.eq.return_value.execute = AsyncMock(
+        return_value=MagicMock(data=profile_data)
     )
 
     log_table = MagicMock()
-    log_table.select.return_value.eq.return_value.eq.return_value.execute.return_value = MagicMock(
-        data=log_data
+    log_table.select.return_value.eq.return_value.eq.return_value.execute = AsyncMock(
+        return_value=MagicMock(data=log_data)
     )
 
     def table_router(name: str) -> MagicMock:

@@ -269,7 +269,7 @@ async def _select_recipe_for_slot(
     if custom_request:
         # Niveau 2: Try to match a favorite recipe by name
         if user_id:
-            fav_result = (
+            fav_result = await (
                 supabase.table("favorite_recipes")
                 .select("recipe_id, recipes(*)")
                 .eq("user_id", user_id)
@@ -949,7 +949,7 @@ async def execute(**kwargs) -> str:
     custom_requests = kwargs.get("custom_requests", {})
     batch_recipe_ids = kwargs.get("batch_recipe_ids", {})
     user_id = kwargs.get("user_id")
-    favorite_ids = get_user_favorite_ids(supabase, user_id)
+    favorite_ids = await get_user_favorite_ids(supabase, user_id)
 
     # Build target macros for validation
     target_macros = {

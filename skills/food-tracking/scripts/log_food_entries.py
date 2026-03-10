@@ -91,7 +91,7 @@ async def execute(**kwargs) -> str:
             return json.dumps({"error": "No food name provided", "code": "EMPTY_NAME"})
 
         # Fetch existing entry for quantity/unit
-        existing = (
+        existing = await (
             supabase.table("daily_food_log")
             .select("quantity, unit, user_id")
             .eq("id", entry_id)
@@ -124,7 +124,7 @@ async def execute(**kwargs) -> str:
             "carbs_g": round(macros.get("carbs_g", 0), 1),
             "fat_g": round(macros.get("fat_g", 0), 1),
         }
-        supabase.table("daily_food_log").update(update_fields).eq(
+        await supabase.table("daily_food_log").update(update_fields).eq(
             "id", entry_id
         ).execute()
 
@@ -186,7 +186,7 @@ async def execute(**kwargs) -> str:
             }
 
             # Check if this food already exists for the same user/date/meal
-            existing = (
+            existing = await (
                 supabase.table("daily_food_log")
                 .select("id")
                 .eq("user_id", user_id)
@@ -200,11 +200,11 @@ async def execute(**kwargs) -> str:
                 # Update existing entry instead of creating a duplicate
                 entry_id = existing.data[0]["id"]
                 update_fields = {k: v for k, v in row.items() if k != "user_id"}
-                supabase.table("daily_food_log").update(update_fields).eq(
+                await supabase.table("daily_food_log").update(update_fields).eq(
                     "id", entry_id
                 ).execute()
             else:
-                supabase.table("daily_food_log").insert(row).execute()
+                await supabase.table("daily_food_log").insert(row).execute()
 
             total_calories += cal
             total_protein += prot

@@ -16,7 +16,7 @@ async def calculate_nutritional_needs(...) -> dict:
 
 @dataclass
 class AgentDeps:
-    supabase: Client
+    supabase: SupabaseAsyncClient  # from supabase._async.client
 
 # Variables: snake_case                # Constants: UPPER_SNAKE_CASE
 target_calories = 3168                  MIN_CALORIES_WOMEN = 1200

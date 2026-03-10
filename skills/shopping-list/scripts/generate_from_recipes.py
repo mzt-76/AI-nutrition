@@ -62,7 +62,7 @@ async def execute(**kwargs) -> str:
         )
 
         # Step 2: Fetch recipes from DB
-        response = (
+        response = await (
             supabase.table("recipes")
             .select("id, name, ingredients")
             .in_("id", recipe_ids)
@@ -137,7 +137,7 @@ async def execute(**kwargs) -> str:
 
         if user_id and flat_items:
             try:
-                insert_result = (
+                insert_result = await (
                     supabase.table("shopping_lists")
                     .insert(
                         {

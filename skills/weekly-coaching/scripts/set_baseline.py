@@ -110,7 +110,7 @@ async def execute(**kwargs) -> str:
                 baseline_data[field] = value
 
         # Check if baseline already exists for this user
-        existing = (
+        existing = await (
             supabase.table("weekly_feedback")
             .select("id")
             .eq("user_id", user_id)
@@ -121,12 +121,12 @@ async def execute(**kwargs) -> str:
 
         if existing.data:
             # Update existing baseline
-            supabase.table("weekly_feedback").update(baseline_data).eq(
+            await supabase.table("weekly_feedback").update(baseline_data).eq(
                 "id", existing.data[0]["id"]
             ).execute()
         else:
             # Insert new baseline
-            supabase.table("weekly_feedback").insert(baseline_data).execute()
+            await supabase.table("weekly_feedback").insert(baseline_data).execute()
 
         logger.info(f"Baseline recorded for user {user_id}: {weight_kg}kg")
 

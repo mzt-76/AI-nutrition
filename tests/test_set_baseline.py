@@ -8,7 +8,7 @@ storage. Also verifies baseline exclusion from historical queries.
 import importlib.util
 import json
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -40,19 +40,21 @@ def _make_supabase_mock(existing_baseline: dict | None = None) -> MagicMock:
 
     # Chain: table().select().eq().eq().limit().execute()
     select_chain = MagicMock()
-    select_chain.execute.return_value = MagicMock(
-        data=[existing_baseline] if existing_baseline else []
+    select_chain.execute = AsyncMock(
+        return_value=MagicMock(data=[existing_baseline] if existing_baseline else [])
     )
     table_mock.select.return_value.eq.return_value.eq.return_value.limit.return_value = select_chain
 
     # Chain: table().insert().execute()
     insert_chain = MagicMock()
-    insert_chain.execute.return_value = MagicMock(data=[{"id": "new-uuid"}])
+    insert_chain.execute = AsyncMock(return_value=MagicMock(data=[{"id": "new-uuid"}]))
     table_mock.insert.return_value = insert_chain
 
     # Chain: table().update().eq().execute()
     update_chain = MagicMock()
-    update_chain.execute.return_value = MagicMock(data=[{"id": "existing-uuid"}])
+    update_chain.execute = AsyncMock(
+        return_value=MagicMock(data=[{"id": "existing-uuid"}])
+    )
     table_mock.update.return_value.eq.return_value = update_chain
 
     return mock

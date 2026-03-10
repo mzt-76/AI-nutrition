@@ -11,7 +11,7 @@ import logging
 import random
 from datetime import datetime, timezone
 
-from supabase import Client
+from supabase._async.client import AsyncClient as SupabaseAsyncClient
 
 from src.nutrition.constants import (
     DEFAULT_MACRO_RATIO_TOLERANCE,
@@ -81,7 +81,7 @@ def _contains_disliked(text: str, disliked: str) -> bool:
 
 
 async def search_recipes(
-    supabase: Client,
+    supabase: SupabaseAsyncClient,
     meal_type: str,
     exclude_allergens: list[str] | None = None,
     exclude_recipe_ids: list[str] | None = None,
@@ -161,7 +161,9 @@ async def search_recipes(
             + len(exclude_recipe_ids or [])
             + FETCH_LIMIT_PADDING
         )
-        response = query.order("created_at", desc=False).limit(fetch_limit).execute()
+        response = (
+            await query.order("created_at", desc=False).limit(fetch_limit).execute()
+        )
         results = response.data or []
 
         # Python-side filtering: allergens (zero tolerance)
@@ -274,14 +276,16 @@ async def search_recipes(
         return []
 
 
-def get_user_favorite_ids(supabase: Client, user_id: str | None) -> set[str]:
+async def get_user_favorite_ids(
+    supabase: SupabaseAsyncClient, user_id: str | None
+) -> set[str]:
     """Fetch the set of recipe IDs favorited by a user.
 
     Returns empty set if user_id is None (CLI mode, no favorites).
     """
     if not user_id:
         return set()
-    result = (
+    result = await (
         supabase.table("favorite_recipes")
         .select("recipe_id")
         .eq("user_id", user_id)
@@ -290,7 +294,9 @@ def get_user_favorite_ids(supabase: Client, user_id: str | None) -> set[str]:
     return {row["recipe_id"] for row in (result.data or [])}
 
 
-async def get_recipe_by_id(supabase: Client, recipe_id: str) -> dict | None:
+async def get_recipe_by_id(
+    supabase: SupabaseAsyncClient, recipe_id: str
+) -> dict | None:
     """Fetch a single recipe by its UUID.
 
     Args:
@@ -307,7 +313,11 @@ async def get_recipe_by_id(supabase: Client, recipe_id: str) -> dict | None:
     """
     try:
         response = (
-            supabase.table("recipes").select("*").eq("id", recipe_id).limit(1).execute()
+            await supabase.table("recipes")
+            .select("*")
+            .eq("id", recipe_id)
+            .limit(1)
+            .execute()
         )
         if response.data:
             return response.data[0]
@@ -317,7 +327,7 @@ async def get_recipe_by_id(supabase: Client, recipe_id: str) -> dict | None:
         return None
 
 
-async def save_recipe(supabase: Client, recipe: dict) -> dict:
+async def save_recipe(supabase: SupabaseAsyncClient, recipe: dict) -> dict:
     """Save a new recipe to the database.
 
     Normalizes the name before saving for deduplication.
@@ -360,7 +370,7 @@ async def save_recipe(supabase: Client, recipe: dict) -> dict:
 
     logger.info(f"Saving recipe: {recipe['name']} (meal_type={recipe['meal_type']})")
 
-    response = supabase.table("recipes").insert(recipe_to_save).execute()
+    response = await supabase.table("recipes").insert(recipe_to_save).execute()
 
     if not response.data:
         raise Exception(f"Failed to insert recipe: {recipe['name']}")
@@ -370,7 +380,7 @@ async def save_recipe(supabase: Client, recipe: dict) -> dict:
     return saved
 
 
-async def increment_usage(supabase: Client, recipe_id: str) -> None:
+async def increment_usage(supabase: SupabaseAsyncClient, recipe_id: str) -> None:
     """Increment usage_count for a recipe via Postgres RPC (single round-trip).
 
     Args:
@@ -381,13 +391,15 @@ async def increment_usage(supabase: Client, recipe_id: str) -> None:
         >>> await increment_usage(supabase, "some-uuid")
     """
     try:
-        supabase.rpc("increment_recipe_usage", {"p_recipe_id": recipe_id}).execute()
+        await supabase.rpc(
+            "increment_recipe_usage", {"p_recipe_id": recipe_id}
+        ).execute()
         logger.debug(f"Recipe {recipe_id} usage incremented via RPC")
     except Exception as e:
         logger.error(f"Error incrementing usage for {recipe_id}: {e}", exc_info=True)
 
 
-async def count_recipes_by_meal_type(supabase: Client) -> dict:
+async def count_recipes_by_meal_type(supabase: SupabaseAsyncClient) -> dict:
     """Return count of recipes per meal_type for coverage check.
 
     Uses a single DB query and groups in Python — avoids 4 round-trips.
@@ -408,7 +420,7 @@ async def count_recipes_by_meal_type(supabase: Client) -> dict:
     counts = {mt: 0 for mt in meal_types}
 
     try:
-        response = supabase.table("recipes").select("meal_type").execute()
+        response = await supabase.table("recipes").select("meal_type").execute()
         for row in response.data or []:
             mt = row.get("meal_type", "")
             if mt in counts:

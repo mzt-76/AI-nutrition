@@ -458,7 +458,7 @@ async def execute(**kwargs) -> str:
         if user_id:
             meal_plan_record["user_id"] = user_id
 
-        db_response = supabase.table("meal_plans").insert(meal_plan_record).execute()
+        db_response = await supabase.table("meal_plans").insert(meal_plan_record).execute()
 
         if db_response.data:
             meal_plan_id = db_response.data[0].get("id", 0)

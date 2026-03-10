@@ -50,9 +50,11 @@ def _make_supabase_mock(profile: dict | None = None) -> MagicMock:
     result.data = [profile] if profile else []
 
     chain = mock.table.return_value
-    chain.select.return_value.eq.return_value.limit.return_value.execute.return_value = result
-    chain.update.return_value.eq.return_value.execute.return_value = result
-    chain.insert.return_value.execute.return_value = result
+    chain.select.return_value.eq.return_value.limit.return_value.execute = AsyncMock(
+        return_value=result
+    )
+    chain.update.return_value.eq.return_value.execute = AsyncMock(return_value=result)
+    chain.insert.return_value.execute = AsyncMock(return_value=result)
     return mock
 
 

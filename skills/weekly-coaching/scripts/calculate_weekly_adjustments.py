@@ -89,7 +89,7 @@ async def execute(**kwargs) -> str:
         # Step 2: Fetch current profile
         if not user_id:
             return json.dumps({"error": "No user_id provided", "code": "NO_USER_ID"})
-        profile_response = (
+        profile_response = await (
             supabase.table("user_profiles")
             .select("*")
             .eq("id", user_id)
@@ -108,7 +108,7 @@ async def execute(**kwargs) -> str:
         feedback_query = supabase.table("weekly_feedback").select("*")
         if user_id:
             feedback_query = feedback_query.eq("user_id", user_id)
-        history_response = (
+        history_response = await (
             feedback_query.gt("week_number", 0)
             .order("week_start_date", desc=True)
             .limit(4)
@@ -121,7 +121,7 @@ async def execute(**kwargs) -> str:
         learning_query = supabase.table("user_learning_profile").select("*")
         if user_id:
             learning_query = learning_query.eq("user_id", user_id)
-        learning_response = learning_query.limit(1).execute()
+        learning_response = await learning_query.limit(1).execute()
         learning_profile = learning_response.data[0] if learning_response.data else {}
         logger.info(
             f"Learning profile loaded: {learning_profile.get('weeks_of_data', 0)} weeks of data"
@@ -257,7 +257,7 @@ async def execute(**kwargs) -> str:
         if user_id:
             storage_data["user_id"] = user_id
 
-        supabase.table("weekly_feedback").insert(storage_data).execute()
+        await supabase.table("weekly_feedback").insert(storage_data).execute()
         logger.info("Weekly feedback stored in database")
 
         # Step 11: Update learning profile
@@ -270,7 +270,7 @@ async def execute(**kwargs) -> str:
                 "updated_at": datetime.now().isoformat(),
             }
             try:
-                supabase.table("user_learning_profile").update(update_data).eq(
+                await supabase.table("user_learning_profile").update(update_data).eq(
                     "id", learning_profile["id"]
                 ).execute()
                 logger.info(f"Learning profile updated: {weeks_data} weeks of data")
@@ -287,7 +287,7 @@ async def execute(**kwargs) -> str:
                 }
                 if user_id:
                     upsert_data["user_id"] = user_id
-                supabase.table("user_learning_profile").upsert(upsert_data).execute()
+                await supabase.table("user_learning_profile").upsert(upsert_data).execute()
                 logger.info("New learning profile created")
             except Exception as e:
                 logger.warning(f"Could not create learning profile: {e}")

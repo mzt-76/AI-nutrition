@@ -4,7 +4,7 @@ Tests use mocked Supabase client — no real DB connections.
 """
 
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 from datetime import datetime, timedelta, timezone
 
@@ -33,23 +33,22 @@ def make_supabase_mock(data: list[dict], count: int | None = None):
     execute_result.data = data
     execute_result.count = count
 
+    async_execute = AsyncMock(return_value=execute_result)
+
     # Chain: .table().select().eq().order().limit().execute()
-    mock.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
-    mock.table.return_value.select.return_value.eq.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
-    mock.table.return_value.select.return_value.eq.return_value.limit.return_value.execute.return_value = execute_result
+    mock.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value.execute = async_execute
+    mock.table.return_value.select.return_value.eq.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute = async_execute
+    mock.table.return_value.select.return_value.eq.return_value.limit.return_value.execute = async_execute
     # Chain for .in_() (dejeuner/diner unified pool)
-    mock.table.return_value.select.return_value.in_.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
-    mock.table.return_value.select.return_value.in_.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
-    mock.table.return_value.select.return_value.in_.return_value.eq.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
-    mock.table.return_value.select.return_value.in_.return_value.eq.return_value.lte.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
-    mock.table.return_value.select.return_value.in_.return_value.eq.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute.return_value = execute_result
-    mock.table.return_value.insert.return_value.execute.return_value = execute_result
-    mock.table.return_value.update.return_value.eq.return_value.execute.return_value = (
-        execute_result
-    )
-    mock.table.return_value.select.return_value.eq.return_value.execute.return_value = (
-        execute_result
-    )
+    mock.table.return_value.select.return_value.in_.return_value.order.return_value.limit.return_value.execute = async_execute
+    mock.table.return_value.select.return_value.in_.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute = async_execute
+    mock.table.return_value.select.return_value.in_.return_value.eq.return_value.order.return_value.limit.return_value.execute = async_execute
+    mock.table.return_value.select.return_value.in_.return_value.eq.return_value.lte.return_value.order.return_value.limit.return_value.execute = async_execute
+    mock.table.return_value.select.return_value.in_.return_value.eq.return_value.lte.return_value.gte.return_value.lte.return_value.order.return_value.limit.return_value.execute = async_execute
+    mock.table.return_value.insert.return_value.execute = async_execute
+    mock.table.return_value.update.return_value.eq.return_value.execute = async_execute
+    mock.table.return_value.select.return_value.eq.return_value.execute = async_execute
+    mock.table.return_value.select.return_value.execute = async_execute
 
     return mock
 
@@ -344,7 +343,9 @@ async def test_save_recipe_normalizes_name():
     execute_result.data = [
         {"id": "uuid", **recipe, "name_normalized": "omelette proteinee"}
     ]
-    mock.table.return_value.insert.return_value.execute.return_value = execute_result
+    mock.table.return_value.insert.return_value.execute = AsyncMock(
+        return_value=execute_result
+    )
 
     await save_recipe(mock, recipe)
     # Verify insert was called (name_normalized was passed)
@@ -372,7 +373,9 @@ async def test_count_recipes_by_meal_type():
         + [{"meal_type": "diner"}] * 32
         + [{"meal_type": "collation"}] * 15
     )
-    mock.table.return_value.select.return_value.execute.return_value = execute_result
+    mock.table.return_value.select.return_value.execute = AsyncMock(
+        return_value=execute_result
+    )
 
     counts = await count_recipes_by_meal_type(mock)
 
@@ -553,26 +556,30 @@ class TestScoreRecipeVariety:
 
 
 class TestGetUserFavoriteIds:
-    def test_returns_set_of_ids(self):
+    @pytest.mark.asyncio
+    async def test_returns_set_of_ids(self):
         """Returns set of recipe IDs for a user."""
         mock = make_supabase_mock([{"recipe_id": "a"}, {"recipe_id": "b"}])
-        result = get_user_favorite_ids(mock, "user-1")
+        result = await get_user_favorite_ids(mock, "user-1")
         assert result == {"a", "b"}
 
-    def test_no_user_returns_empty(self):
+    @pytest.mark.asyncio
+    async def test_no_user_returns_empty(self):
         """Returns empty set when user_id is None."""
-        result = get_user_favorite_ids(MagicMock(), None)
+        result = await get_user_favorite_ids(MagicMock(), None)
         assert result == set()
 
-    def test_empty_string_user_returns_empty(self):
+    @pytest.mark.asyncio
+    async def test_empty_string_user_returns_empty(self):
         """Returns empty set when user_id is empty string."""
-        result = get_user_favorite_ids(MagicMock(), "")
+        result = await get_user_favorite_ids(MagicMock(), "")
         assert result == set()
 
-    def test_no_favorites_returns_empty(self):
+    @pytest.mark.asyncio
+    async def test_no_favorites_returns_empty(self):
         """Returns empty set when user has no favorites."""
         mock = make_supabase_mock([])
-        result = get_user_favorite_ids(mock, "user-1")
+        result = await get_user_favorite_ids(mock, "user-1")
         assert result == set()
 
 

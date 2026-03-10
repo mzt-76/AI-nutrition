@@ -31,11 +31,11 @@ import logging
 from anthropic import AsyncAnthropic
 from httpx import AsyncClient
 from openai import AsyncOpenAI
-from supabase import Client
+from supabase._async.client import AsyncClient as SupabaseAsyncClient
 
 from src.prompt import AGENT_SYSTEM_PROMPT
 from src.clients import (
-    get_supabase_client,
+    get_async_supabase_client,
     get_openai_client,
     get_embedding_client,
     get_http_client,
@@ -171,7 +171,7 @@ class AgentDeps:
         anthropic_client: Anthropic client for skill-level LLM calls (Claude Sonnet 4.5)
     """
 
-    supabase: Client
+    supabase: SupabaseAsyncClient
     openai_client: AsyncOpenAI
     embedding_client: AsyncOpenAI
     http_client: AsyncClient
@@ -248,7 +248,17 @@ async def run_skill_script(
     ctx: RunContext[AgentDeps],
     skill_name: str,
     script_name: str,
-    parameters: dict[str, str | int | float | bool | list[str | int | float] | dict[str, str | int | float] | None] | None = None,
+    parameters: dict[
+        str,
+        str
+        | int
+        | float
+        | bool
+        | list[str | int | float]
+        | dict[str, str | int | float]
+        | None,
+    ]
+    | None = None,
 ) -> str:
     """Execute a script from a skill's scripts/ folder.
 
@@ -350,10 +360,24 @@ async def update_my_profile(
     """
     logger.info("Tool called: update_my_profile")
     all_fields = [
-        age, gender, weight_kg, height_cm, activity_level, goals,
-        allergies, diet_type, disliked_foods, favorite_foods,
-        max_prep_time, preferred_cuisines, bmr, tdee,
-        target_calories, target_protein_g, target_carbs_g, target_fat_g,
+        age,
+        gender,
+        weight_kg,
+        height_cm,
+        activity_level,
+        goals,
+        allergies,
+        diet_type,
+        disliked_foods,
+        favorite_foods,
+        max_prep_time,
+        preferred_cuisines,
+        bmr,
+        tdee,
+        target_calories,
+        target_protein_g,
+        target_carbs_g,
+        target_fat_g,
     ]
     if all(v is None for v in all_fields):
         return "Aucun champ à mettre à jour. Précise ce que tu veux modifier."
@@ -454,7 +478,7 @@ def _get_shared_clients() -> dict[str, Any]:
     if _shared_clients is None:
         logger.info("Initializing shared clients (first request)...")
         _shared_clients = {
-            "supabase": get_supabase_client(),
+            "supabase": get_async_supabase_client(),
             "openai_client": get_openai_client(),
             "embedding_client": get_embedding_client(),
             "http_client": get_http_client(),

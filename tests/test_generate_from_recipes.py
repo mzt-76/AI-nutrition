@@ -6,7 +6,7 @@ Tests the script with mock Supabase client — no real DB or LLM needed.
 import importlib.util
 import json
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -25,14 +25,16 @@ def _mock_supabase(recipes: list[dict] | None = None) -> MagicMock:
     result = MagicMock()
     result.data = recipes if recipes is not None else []
 
-    sb.table.return_value.select.return_value.in_.return_value.execute.return_value = (
-        result
+    sb.table.return_value.select.return_value.in_.return_value.execute = AsyncMock(
+        return_value=result
     )
 
     # Mock insert for shopping_lists
     insert_result = MagicMock()
     insert_result.data = [{"id": "shopping-list-uuid-123"}]
-    sb.table.return_value.insert.return_value.execute.return_value = insert_result
+    sb.table.return_value.insert.return_value.execute = AsyncMock(
+        return_value=insert_result
+    )
 
     return sb
 

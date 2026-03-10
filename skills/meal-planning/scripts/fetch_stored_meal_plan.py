@@ -77,7 +77,7 @@ async def execute(**kwargs) -> str:
         query = supabase.table("meal_plans").select("*").eq("week_start", week_start)
         if user_id:
             query = query.eq("user_id", user_id)
-        meal_plan_response = query.order("created_at", desc=True).limit(1).execute()
+        meal_plan_response = await query.order("created_at", desc=True).limit(1).execute()
 
         if not meal_plan_response.data:
             return json.dumps(

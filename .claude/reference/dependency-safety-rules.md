@@ -128,17 +128,24 @@ async def get_response():
 
 ### Pattern Standard pour Mock Supabase dans les Tests
 
+**Important:** Supabase utilise `AsyncClient` — `.execute()` est async et doit être mocké avec `AsyncMock`.
+
 ```python
+from unittest.mock import AsyncMock, MagicMock
+
 def _make_supabase_mock(profile: dict | None = None) -> MagicMock:
     mock = MagicMock()
     result = MagicMock()
     result.data = [profile] if profile else []
+    async_execute = AsyncMock(return_value=result)
     chain = mock.table.return_value
-    chain.select.return_value.limit.return_value.execute.return_value = result
-    chain.update.return_value.eq.return_value.execute.return_value = result
-    chain.insert.return_value.execute.return_value = result
+    chain.select.return_value.limit.return_value.execute = async_execute
+    chain.update.return_value.eq.return_value.execute = async_execute
+    chain.insert.return_value.execute = async_execute
     return mock
 ```
+
+**Règle:** Les méthodes chaînées (`.table()`, `.select()`, `.eq()`) restent `MagicMock`. Seul `.execute()` est `AsyncMock`.
 
 ---
 

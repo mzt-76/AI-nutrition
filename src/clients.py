@@ -13,6 +13,7 @@ This module creates and configures clients for:
 from openai import AsyncOpenAI
 from anthropic import AsyncAnthropic
 from supabase import create_client, Client
+from supabase._async.client import AsyncClient as SupabaseAsyncClient
 from httpx import AsyncClient
 from mem0 import AsyncMemory, Memory
 from pathlib import Path
@@ -116,6 +117,21 @@ def get_supabase_client() -> Client:
     logger.info(f"Initializing Supabase client for: {url}")
 
     return create_client(url, key)
+
+
+def get_async_supabase_client() -> SupabaseAsyncClient:
+    """Create and return an async Supabase client (sync construction).
+
+    AsyncClient.__init__ is synchronous — only .execute() is async.
+    This allows _get_shared_clients() to remain sync while providing
+    a client whose queries can be properly awaited.
+    """
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_SERVICE_KEY")
+    if not url or not key:
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_KEY must be set")
+    logger.info(f"Initializing async Supabase client for: {url}")
+    return SupabaseAsyncClient(url, key)
 
 
 def get_http_client() -> AsyncClient:

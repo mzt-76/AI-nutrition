@@ -9,7 +9,7 @@ Tests:
 
 import pytest
 
-from src.clients import get_supabase_client
+from src.clients import get_async_supabase_client
 from src.nutrition.openfoodfacts_client import (
     _calorie_density_plausible,
     _get_ingredient_category,
@@ -339,7 +339,7 @@ async def test_search_food_local(ingredient, should_match):
         - Common ingredients should match with confidence >= 0.5
         - Fake ingredients should not match or have low confidence
     """
-    supabase = get_supabase_client()
+    supabase = get_async_supabase_client()
     results = await search_food_local(ingredient, supabase)
 
     if should_match:
@@ -359,7 +359,7 @@ async def test_search_food_local(ingredient, should_match):
 @pytest.mark.asyncio
 async def test_match_ingredient_basic():
     """Test basic ingredient matching with nutrition calculation."""
-    supabase = get_supabase_client()
+    supabase = get_async_supabase_client()
 
     # Test with a common ingredient
     result = await match_ingredient("poulet", 150, "g", supabase)
@@ -385,14 +385,17 @@ async def test_match_ingredient_cache():
         - Second call: cache hit, retrieve from cache
         - Cache hit should have usage_count incremented
     """
-    supabase = get_supabase_client()
+    supabase = get_async_supabase_client()
     # Use a real ingredient that will match confidently
     test_ingredient = "poulet_cache_test"
 
     # Clean up any existing cache entry
-    supabase.table("ingredient_mapping").delete().eq(
-        "ingredient_name", test_ingredient
-    ).execute()
+    await (
+        supabase.table("ingredient_mapping")
+        .delete()
+        .eq("ingredient_name", test_ingredient)
+        .execute()
+    )
 
     # First call - should be cache miss
     result1 = await match_ingredient(test_ingredient, 100, "g", supabase)
@@ -412,15 +415,18 @@ async def test_match_ingredient_cache():
     assert result1["protein_g"] == result2["protein_g"]
 
     # Clean up
-    supabase.table("ingredient_mapping").delete().eq(
-        "ingredient_name", test_ingredient
-    ).execute()
+    await (
+        supabase.table("ingredient_mapping")
+        .delete()
+        .eq("ingredient_name", test_ingredient)
+        .execute()
+    )
 
 
 @pytest.mark.asyncio
 async def test_match_ingredient_no_match():
     """Test behavior when no confident match is found."""
-    supabase = get_supabase_client()
+    supabase = get_async_supabase_client()
 
     result = await match_ingredient("fake_ingredient_xyz_999", 100, "g", supabase)
 
@@ -435,7 +441,7 @@ async def test_match_ingredient_no_match():
 @pytest.mark.asyncio
 async def test_match_ingredient_quantity_scaling():
     """Test nutrition values scale correctly with quantity."""
-    supabase = get_supabase_client()
+    supabase = get_async_supabase_client()
 
     # 100g baseline
     result_100g = await match_ingredient("poulet", 100, "g", supabase)
