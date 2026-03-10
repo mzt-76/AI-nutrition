@@ -309,6 +309,10 @@ class FavoriteCreate(BaseModel):
     notes: str | None = None
 
 
+class FavoriteUpdate(BaseModel):
+    notes: str | None = Field(None, max_length=500)
+
+
 class RecipeCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     meal_type: str = Field(..., min_length=1, max_length=50)
@@ -947,6 +951,40 @@ async def remove_favorite(
     return {"status": "deleted"}
 
 
+@app.patch("/api/favorites/{favorite_id}")
+async def update_favorite(
+    favorite_id: str,
+    body: FavoriteUpdate,
+    auth_user: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    """Update a favorite's notes."""
+    _validate_uuid(favorite_id)
+
+    existing = (
+        supabase.table("favorite_recipes")
+        .select("user_id")
+        .eq("id", favorite_id)
+        .limit(1)
+        .execute()
+    )
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Favori introuvable")
+    if existing.data[0].get("user_id") != auth_user["id"]:
+        raise HTTPException(status_code=403, detail="Accès non autorisé")
+
+    result = (
+        supabase.table("favorite_recipes")
+        .update({"notes": body.notes})
+        .eq("id", favorite_id)
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(
+            status_code=500, detail="Erreur lors de la mise à jour du favori"
+        )
+    return result.data[0]
+
+
 @app.get("/api/favorites/check")
 async def check_favorite(
     user_id: str,
@@ -959,15 +997,19 @@ async def check_favorite(
 
     result = (
         supabase.table("favorite_recipes")
-        .select("id")
+        .select("id, notes")
         .eq("user_id", user_id)
         .eq("recipe_id", recipe_id)
         .limit(1)
         .execute()
     )
     if result.data:
-        return {"is_favorite": True, "favorite_id": result.data[0]["id"]}
-    return {"is_favorite": False, "favorite_id": None}
+        return {
+            "is_favorite": True,
+            "favorite_id": result.data[0]["id"],
+            "notes": result.data[0].get("notes"),
+        }
+    return {"is_favorite": False, "favorite_id": None, "notes": None}
 
 
 # =============================================================================

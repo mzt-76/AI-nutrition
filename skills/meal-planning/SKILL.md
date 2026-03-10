@@ -56,15 +56,28 @@ category: planning
 # Plan par défaut (1 jour)
 run_skill_script("meal-planning", "generate_week_plan", {})
 
-# Plan 7 jours avec préférence globale
+# Plan 7 jours avec préférence globale (même plat TOUS les jours)
 run_skill_script("meal-planning", "generate_week_plan", {
     "num_days": 7,
     "meal_preferences": {"petit-dejeuner": "omelette aux oeufs et épinards"}
 })
 
-# Plan avec demande par jour
+# Plan avec demande pour un JOUR + REPAS spécifique (méthode recommandée)
 run_skill_script("meal-planning", "generate_week_plan", {
-    "notes": "risotto mardi, pas de poisson vendredi"
+    "num_days": 3,
+    "custom_requests": {
+        "Mardi": {"dejeuner": "poulet ratatouille pommes de terre"},
+        "Mercredi": {"diner": "saumon grillé avec légumes"}
+    }
+})
+
+# Combiné : préférence globale + override par jour
+run_skill_script("meal-planning", "generate_week_plan", {
+    "num_days": 5,
+    "meal_preferences": {"petit-dejeuner": "porridge protéiné"},
+    "custom_requests": {
+        "Jeudi": {"dejeuner": "risotto aux champignons"}
+    }
 })
 
 # Recette sur demande
@@ -84,10 +97,11 @@ run_skill_script("meal-planning", "fetch_stored_meal_plan", {"week_start": "2026
 | Param | Type | Défaut | Description |
 |-------|------|--------|-------------|
 | `num_days` | int | 1 | Nombre de jours. 7 uniquement si demandé |
-| `meal_preferences` | dict | {} | Clé = slug DB (`petit-dejeuner`, `dejeuner`, `diner`, `collation`), valeur = description |
+| `meal_preferences` | dict | {} | Préférences **globales** (tous les jours). Clé = slug DB (`petit-dejeuner`, `dejeuner`, `diner`, `collation`), valeur = description du plat |
+| `custom_requests` | dict | {} | Demandes **par jour spécifique**. Clé = jour FR (`Lundi`, `Mardi`…), valeur = dict `{meal_type_slug: description}`. Prioritaire sur `meal_preferences` |
 | `vary_breakfast` | bool | false | true si l'utilisateur veut varier le petit-déj |
 | `batch_days` | int | - | Jours consécutifs avec même plat (batch cooking) |
-| `notes` | str | - | Demandes par jour ("risotto mardi, pas de poisson vendredi") |
+| `notes` | str | - | Texte libre, parsé automatiquement en `custom_requests` (legacy — préférer `custom_requests` structuré) |
 | `meal_structure` | str | auto | NE PAS spécifier sauf demande explicite |
 
 ## Paramètres generate_custom_recipe
@@ -99,9 +113,21 @@ run_skill_script("meal-planning", "fetch_stored_meal_plan", {"week_start": "2026
 
 ## Conversion préférences utilisateur
 
+### Préférence globale (tous les jours) → `meal_preferences`
 - "omelette le matin" → `meal_preferences: {"petit-dejeuner": "omelette aux oeufs"}`
 - "du poisson le soir" → `meal_preferences: {"diner": "plat à base de poisson"}`
 - "go" / "par défaut" → `{}` (défauts automatiques)
+
+### Demande pour un jour précis → `custom_requests`
+- "mardi midi poulet ratatouille" → `custom_requests: {"Mardi": {"dejeuner": "poulet ratatouille"}}`
+- "jeudi soir saumon grillé" → `custom_requests: {"Jeudi": {"diner": "saumon grillé"}}`
+- "samedi matin pancakes" → `custom_requests: {"Samedi": {"petit-dejeuner": "pancakes protéinés"}}`
+- "demain midi poulet grillé" → `custom_requests: {"Demain": {"dejeuner": "poulet grillé"}}` (résolu automatiquement)
+
+**Règle** : dès qu'un jour est nommé + un repas + un plat → utiliser `custom_requests`, PAS `meal_preferences`.
+**Clés jour** : `Lundi`, `Mardi`, `Mercredi`, `Jeudi`, `Vendredi`, `Samedi`, `Dimanche` (majuscule initiale). Aussi accepté : `Demain`, `Aujourd'hui`, `Après-demain` (résolu automatiquement).
+**Clés repas** : `petit-dejeuner`, `dejeuner`, `diner`, `collation` (slugs DB, sans accents).
+**Mots-clés repas** : "matin/petit-déj" → `petit-dejeuner`, "midi/déjeuner" → `dejeuner`, "soir/dîner" → `diner`, "collation/goûter" → `collation`.
 
 ## Présentation du résultat — FORMAT OBLIGATOIRE
 

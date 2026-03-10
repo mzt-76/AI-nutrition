@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Heart, Clock, UtensilsCrossed, Loader2 } from 'lucide-react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { Heart, Clock, UtensilsCrossed, Loader2, StickyNote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/drawer';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
-import { fetchRecipe, upsertRecipe, addFavorite, removeFavorite, checkFavorite } from '@/lib/api';
+import { fetchRecipe, upsertRecipe, addFavorite, removeFavorite, checkFavorite, updateFavoriteNotes } from '@/lib/api';
 import type { Recipe } from '@/types/database.types';
 import { logger } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
@@ -59,6 +59,12 @@ export function RecipeDetailDrawer({
   const [recipeId, setRecipeId] = useState<string | null>(propRecipeId ?? null);
   const [toggling, setToggling] = useState(false);
 
+  // Notes state
+  const [notes, setNotes] = useState('');
+  const [savedNotes, setSavedNotes] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
+  const notesTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Load recipe data when drawer opens
   useEffect(() => {
     if (!open) return;
@@ -68,6 +74,8 @@ export function RecipeDetailDrawer({
     setRecipeId(propRecipeId ?? null);
     setIsFavorite(false);
     setFavoriteId(null);
+    setNotes('');
+    setSavedNotes('');
 
     if (propRecipeId) {
       // Mode B: fetch from API
@@ -90,6 +98,8 @@ export function RecipeDetailDrawer({
             if (!cancelled) {
               setIsFavorite(res.is_favorite);
               setFavoriteId(res.favorite_id);
+              setNotes(res.notes ?? '');
+              setSavedNotes(res.notes ?? '');
             }
           })
           .catch(() => {});
@@ -170,6 +180,36 @@ export function RecipeDetailDrawer({
       setToggling(false);
     }
   }, [userId, toggling, isFavorite, favoriteId, recipeId, mealData, onFavoriteChange]);
+
+  // Auto-save notes with debounce (1s after last keystroke)
+  const handleNotesChange = useCallback(
+    (value: string) => {
+      setNotes(value);
+      if (!favoriteId) return;
+
+      if (notesTimerRef.current) clearTimeout(notesTimerRef.current);
+      notesTimerRef.current = setTimeout(async () => {
+        if (!favoriteId) return;
+        setSavingNotes(true);
+        try {
+          await updateFavoriteNotes(favoriteId, value || null);
+          setSavedNotes(value);
+        } catch (err) {
+          logger.error('Failed to save notes:', err);
+        } finally {
+          setSavingNotes(false);
+        }
+      }, 1000);
+    },
+    [favoriteId],
+  );
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (notesTimerRef.current) clearTimeout(notesTimerRef.current);
+    };
+  }, []);
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -260,6 +300,39 @@ export function RecipeDetailDrawer({
                     Préparation
                   </h4>
                   <p className="text-sm text-gray-500 italic">Aucune instruction disponible.</p>
+                </div>
+              )}
+
+              {/* Notes (only for favorites) */}
+              {isFavorite && favoriteId && (
+                <div>
+                  <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                    <StickyNote className="h-3 w-3" />
+                    Notes personnelles
+                    {savingNotes && (
+                      <span className="text-[10px] text-emerald-400/60 font-normal normal-case ml-auto">
+                        Sauvegarde...
+                      </span>
+                    )}
+                    {!savingNotes && notes !== savedNotes && (
+                      <span className="text-[10px] text-gray-500 font-normal normal-case ml-auto">
+                        Non sauvegardé
+                      </span>
+                    )}
+                    {!savingNotes && notes === savedNotes && notes.length > 0 && (
+                      <span className="text-[10px] text-emerald-400/40 font-normal normal-case ml-auto">
+                        Sauvegardé
+                      </span>
+                    )}
+                  </h4>
+                  <textarea
+                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-lg p-3 text-sm text-gray-300 placeholder:text-gray-600 resize-none focus:outline-none focus:border-emerald-500/30 transition-colors"
+                    rows={3}
+                    maxLength={500}
+                    placeholder="Ex: j'ai ajouté du citron, c'était top..."
+                    value={notes}
+                    onChange={(e) => handleNotesChange(e.target.value)}
+                  />
                 </div>
               )}
             </div>

@@ -9,6 +9,7 @@ Source: Refactored from monolithic generate_day_plan.py
 import importlib.util
 import json
 import logging
+import re
 import time
 from pathlib import Path
 
@@ -275,13 +276,21 @@ async def _select_recipe_for_slot(
                 .execute()
             )
             if fav_result.data:
-                query_lower = custom_request.lower()
+                # Normalize: lowercase, strip punctuation for fuzzy matching
+                query_words = set(
+                    re.sub(r"[^\w\s]", "", custom_request.lower()).split()
+                )
                 for fav in fav_result.data:
                     recipe_data = fav.get("recipes")
-                    if (
-                        recipe_data
-                        and query_lower in recipe_data.get("name", "").lower()
-                    ):
+                    if not recipe_data:
+                        continue
+                    name_words = set(
+                        re.sub(
+                            r"[^\w\s]", "", recipe_data.get("name", "").lower()
+                        ).split()
+                    )
+                    # Match if all query words appear in the recipe name
+                    if query_words and query_words.issubset(name_words):
                         logger.info(
                             f"  {meal_type_display}: favorite match '{recipe_data['name']}' "
                             f"for custom request '{custom_request}'"

@@ -350,10 +350,19 @@ export const addFavorite = (
 export const removeFavorite = (favoriteId: string): Promise<{ status: string }> =>
   apiFetch(`/api/favorites/${favoriteId}`, { method: 'DELETE' });
 
+export const updateFavoriteNotes = (
+  favoriteId: string,
+  notes: string | null,
+): Promise<FavoriteRecipe> =>
+  apiFetch(`/api/favorites/${favoriteId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ notes }),
+  });
+
 export const checkFavorite = (
   userId: string,
   recipeId: string,
-): Promise<{ is_favorite: boolean; favorite_id: string | null }> =>
+): Promise<{ is_favorite: boolean; favorite_id: string | null; notes: string | null }> =>
   apiFetch(`/api/favorites/check?${new URLSearchParams({ user_id: userId, recipe_id: recipeId })}`);
 
 // =============================================================================

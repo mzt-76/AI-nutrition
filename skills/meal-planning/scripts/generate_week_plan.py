@@ -230,6 +230,7 @@ async def execute(**kwargs) -> str:
     batch_days = int(kwargs.get("batch_days") or 0) or None
     vary_breakfast = bool(kwargs.get("vary_breakfast", False))
     meal_preferences: dict[str, str] = kwargs.get("meal_preferences") or {}
+    explicit_custom_requests: dict = kwargs.get("custom_requests") or {}
 
     try:
         # Step 1: Validate meal structure (if explicitly provided)
@@ -309,10 +310,40 @@ async def execute(**kwargs) -> str:
         meal_targets = meal_macros_distribution["meals"]
         logger.info(f"Meal distribution: {len(meal_targets)} meals/day")
 
-        # Step 6: Parse notes into per-day custom recipe requests
+        # Step 6: Build per-day custom recipe requests
+        # Explicit custom_requests param takes priority over notes-parsed ones
         custom_requests = _parse_custom_requests(notes) if notes else {}
+        for day_name, day_reqs in explicit_custom_requests.items():
+            if day_name not in custom_requests:
+                custom_requests[day_name] = {}
+            custom_requests[day_name].update(day_reqs)
+
+        # Normalize relative day names ("Demain", "Aujourd'hui") to actual day names
+        _RELATIVE_MAP = {
+            "aujourd'hui": 0,
+            "aujourdhui": 0,
+            "demain": 1,
+            "après-demain": 2,
+            "apres-demain": 2,
+            "après demain": 2,
+            "apres demain": 2,
+        }
+        normalized: dict = {}
+        for key, reqs in custom_requests.items():
+            offset = _RELATIVE_MAP.get(key.lower().strip())
+            if offset is not None:
+                actual_day = _DAY_NAMES[(start_dt + timedelta(days=offset)).weekday()]
+                logger.info(f"Normalized custom_requests key '{key}' → '{actual_day}'")
+                if actual_day not in normalized:
+                    normalized[actual_day] = {}
+                normalized[actual_day].update(reqs)
+            else:
+                if key not in normalized:
+                    normalized[key] = {}
+                normalized[key].update(reqs)
+        custom_requests = normalized
         if custom_requests:
-            logger.info(f"Custom recipe requests: {list(custom_requests.keys())}")
+            logger.info(f"Custom recipe requests: {custom_requests}")
         if meal_preferences:
             logger.info(f"Meal preferences (all days): {meal_preferences}")
 
