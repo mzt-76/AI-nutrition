@@ -33,7 +33,6 @@ Pre-calculated expected values (Mifflin-St Jeor):
 """
 
 import json
-import re
 from dataclasses import dataclass, field
 
 import pytest
@@ -48,6 +47,8 @@ from pydantic_evals.evaluators import (
 
 from src.agent import agent, create_agent_deps
 
+
+TEST_USER_ID = "5745fc58-9c75-48b1-bc79-12855a8c6021"
 
 # --- Test persona (single source of truth) ---
 TEST_USER_PROFILE = {
@@ -245,7 +246,7 @@ class ToolWasCalled(Evaluator):
 # --- Task function ---
 async def _run_agent(message: str) -> AgentResult:
     """Run the agent with real Haiku 4.5 and return text + tool calls."""
-    deps = create_agent_deps()
+    deps = create_agent_deps(user_id=TEST_USER_ID)
     result = await agent.run(message, deps=deps)
     tool_calls = []
     for msg in result.all_messages():
@@ -291,7 +292,14 @@ def scenario_1_multi_allergen_meal_plan() -> Dataset:
                         evaluation_name="zero_allergens",
                     ),
                     ContainsAnyOf(
-                        options=["repas", "dejeuner", "diner", "déjeuner", "dîner", "petit-dejeuner"],
+                        options=[
+                            "repas",
+                            "dejeuner",
+                            "diner",
+                            "déjeuner",
+                            "dîner",
+                            "petit-dejeuner",
+                        ],
                         evaluation_name="has_meal_types",
                     ),
                 ),
@@ -331,7 +339,13 @@ def scenario_2_multi_allergen_recipe() -> Dataset:
                         evaluation_name="zero_allergen_ingredients",
                     ),
                     ContainsAnyOf(
-                        options=["proteine", "protéine", "protein", "protéines", "proteines"],
+                        options=[
+                            "proteine",
+                            "protéine",
+                            "protein",
+                            "protéines",
+                            "proteines",
+                        ],
                         evaluation_name="mentions_protein",
                     ),
                 ),

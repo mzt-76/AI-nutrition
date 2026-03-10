@@ -4,6 +4,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+_UUID_PATTERN = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+
 
 class FileAttachment(BaseModel):
     model_config = {"populate_by_name": True}
@@ -14,17 +16,15 @@ class FileAttachment(BaseModel):
 
 class AgentRequest(BaseModel):
     query: str = Field(max_length=5000)
-    user_id: str = Field(
-        pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-    )
-    request_id: str
+    user_id: str = Field(pattern=_UUID_PATTERN)
+    request_id: str = Field(pattern=_UUID_PATTERN)
     session_id: str = ""
     files: list[FileAttachment] | None = None
     ephemeral: bool = False  # skip conversation/message storage (e.g. quick-add)
 
 
 class DailyLogCreate(BaseModel):
-    user_id: str
+    user_id: str = Field(pattern=_UUID_PATTERN)
     log_date: str | None = None
     meal_type: str
     food_name: str
@@ -35,7 +35,7 @@ class DailyLogCreate(BaseModel):
     carbs_g: float = 0
     fat_g: float = 0
     source: str = "openfoodfacts"
-    meal_plan_id: str | None = None
+    meal_plan_id: str | None = Field(default=None, pattern=_UUID_PATTERN)
 
 
 class DailyLogUpdate(BaseModel):
@@ -50,8 +50,8 @@ class DailyLogUpdate(BaseModel):
 
 
 class FavoriteCreate(BaseModel):
-    user_id: str
-    recipe_id: str
+    user_id: str = Field(pattern=_UUID_PATTERN)
+    recipe_id: str = Field(pattern=_UUID_PATTERN)
     notes: str | None = None
 
 
@@ -89,8 +89,8 @@ class ShoppingListItemModel(BaseModel):
 
 
 class ShoppingListCreate(BaseModel):
-    user_id: str
-    meal_plan_id: str | None = None
+    user_id: str = Field(pattern=_UUID_PATTERN)
+    meal_plan_id: str | None = Field(default=None, pattern=_UUID_PATTERN)
     title: str
     items: list[ShoppingListItemModel]
 

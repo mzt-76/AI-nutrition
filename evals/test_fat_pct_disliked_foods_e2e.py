@@ -56,6 +56,8 @@ from pydantic_evals.evaluators import (
 from src.agent import agent, create_agent_deps
 
 
+TEST_USER_ID = "5745fc58-9c75-48b1-bc79-12855a8c6021"
+
 # --- Test persona (single source of truth) ---
 TEST_USER_PROFILE = {
     "age": 24,
@@ -280,7 +282,7 @@ class ToolCalledWithArgs(Evaluator):
 # --- Task function ---
 async def _run_agent(message: str) -> AgentResult:
     """Run the agent with real Haiku 4.5 and return text + tool calls."""
-    deps = create_agent_deps()
+    deps = create_agent_deps(user_id=TEST_USER_ID)
     result = await agent.run(message, deps=deps)
     tool_calls = []
     for msg in result.all_messages():

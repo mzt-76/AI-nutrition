@@ -3,346 +3,145 @@ name: project-audit
 description: >
   Audit complet du codebase avant deploiement. Analyse tout le code sur 6 dimensions
   (simplicite, modularite, efficacite, securite, correctitude, conformite aux standards)
-  via 4 agents paralleles specialises + consolidation. Produit un rapport detaille et un
-  plan de fixes compatible /execute.
+  via une equipe de 4 agents coordonnes (Agent Teams) qui se cross-review mutuellement.
+  Produit un rapport detaille et un plan de fixes compatible /execute.
   Triggers: "audit", "code review complet", "pre-deployment review", "check code quality",
   "find all issues", "audit complet", "revue de code", "analyse du projet"
 ---
 
-# Project Audit — Audit complet du codebase
+# Project Audit — Agent Teams Edition
 
-## Overview
+Audit exhaustif via 4 teammates specialises qui communiquent entre eux, cross-review leurs findings, et produisent un rapport consolide dans `.claude/audits/`.
 
-Audit exhaustif du codebase via 4 agents paralleles specialises (Backend, Security, Frontend, Architecture) suivi d'une consolidation. Produit un rapport d'audit dans `.claude/audits/` et un plan de fixes compatible `/execute`.
+**Prerequisite**: `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in settings.
 
 ---
 
-## Workflow — 6 Phases
+## Phase 1: Context Gathering
 
-### Phase 1: Context Gathering
+Gather project context before creating the team:
 
-Before launching agents, gather project context:
-
-1. **Read project rules**: Read `CLAUDE.md` to internalize all rules (the 13 rules are the audit checklist)
-2. **Read constants**: Read `src/nutrition/constants.py` to know what magic numbers should reference
-3. **Project stats**: Run `find src/ -name '*.py' | xargs wc -l`, `find frontend/src -name '*.ts' -o -name '*.tsx' | xargs wc -l` for size overview
-4. **Pre-flight linters**: Run these in parallel and capture output (do NOT fix, just collect):
+1. **Read project rules**: Read `CLAUDE.md` (the 13 rules are the audit checklist)
+2. **Read constants**: Read `src/nutrition/constants.py` for magic number references
+3. **Project stats**: `find src/ -name '*.py' | xargs wc -l` + `find frontend/src -name '*.ts' -o -name '*.tsx' | xargs wc -l`
+4. **Pre-flight linters** (parallel, do NOT fix — just collect):
    - `ruff check src/ scripts/ skills/ 2>&1 | tail -30`
    - `mypy src/ 2>&1 | tail -30`
    - `cd frontend && npx tsc --noEmit 2>&1 | tail -30`
+5. **Create working directory**: `mkdir -p .claude/audits/wip`
 
-Save all outputs — they feed into agent prompts.
-
----
-
-### Phase 2: Launch 4 Parallel Agents
-
-Launch ALL 4 agents simultaneously using the Agent tool with `run_in_background: true`. Each agent is `subagent_type: "Explore"` with `mode: "bypassPermissions"`.
-
-**CRITICAL**: Send all 4 Agent tool calls in a SINGLE message so they run in parallel.
-
-Each agent receives:
-- The project rules from CLAUDE.md (summarized)
-- The linter outputs from Phase 1
-- Their specific scope and focus areas
-- The standardized finding format (below)
-
-#### Standardized Finding Format (shared by all agents)
-
-Every finding MUST use this exact format:
-```
-### Finding N
-- **severity**: critical | high | medium | low
-- **category**: simplicity | modularity | efficiency | security | correctness | standards
-- **file**: path/to/file.py
-- **lines**: 42-58
-- **title**: One-line summary
-- **what**: What is wrong (2-3 sentences, specific)
-- **why**: Why it matters — user impact, maintainability, security
-- **evidence**: Code snippet or command output proving the issue
-- **suggested_fix**: Concrete description of the fix
-- **confidence**: verified | probable | needs-testing
-```
+Save all outputs — they feed into teammate prompts.
 
 ---
 
-#### Agent A — Backend & Logic
+## Phase 2: Create Team & Assign Scan Tasks
 
-**Scope**: `src/`, `skills/*/scripts/`, `scripts/`
-**Focus**: Correctitude, simplicite, efficacite, types
+Create an agent team with 4 specialized teammates. Each teammate scans its scope and writes findings to a shared file.
 
-**Prompt template** (adapt with Phase 1 context):
+**Team creation prompt** (adapt with Phase 1 context):
 
 ```
-You are Agent A — Backend & Logic auditor for a Python nutrition assistant.
+Create an agent team called "audit" with 4 teammates:
 
-SCOPE: Read and analyze ALL files in src/, skills/*/scripts/, and scripts/
+1. "backend" — Backend & Logic auditor
+   Scope: src/, skills/*/scripts/, scripts/
+   [Insert prompt from references/agent-prompts.md, filled with linter outputs]
 
-DIMENSIONS (check each):
-1. CORRECTNESS: Logic bugs, edge cases, race conditions, wrong calculations
-2. SIMPLICITY: Over-engineering, unnecessary abstractions, dead code paths
-3. EFFICIENCY: N+1 queries, redundant DB calls, blocking I/O in async, memory leaks
-4. TYPES: Missing type hints, bare `dict` in agent tool params (must be precise like dict[str, int])
+2. "security" — Security & Data auditor
+   Scope: src/api.py, src/tools.py, src/db_utils.py, sql/, auth
+   [Insert prompt from references/agent-prompts.md, filled with linter outputs]
 
-PROJECT-SPECIFIC CHECKS:
-- src/agent.py must have exactly 6 tools (rule 6)
-- Skill scripts must NOT reimplement logic from src/nutrition/ — they import it (rule 7)
-- Magic numbers must come from src/nutrition/constants.py, not hardcoded inline (rule 7b)
-- scripts/ must NOT import anthropic, openai, or any LLM client (rule 10)
-- Safety constraints (MIN_CALORIES_WOMEN=1200, MIN_CALORIES_MEN=1500, ALLERGEN_ZERO_TOLERANCE=True) must never be bypassed (rule 3)
-- Agent tool parameters must use precise types, not bare dict (rule 2)
+3. "frontend" — Frontend & UX auditor
+   Scope: frontend/src/
+   [Insert prompt from references/agent-prompts.md, filled with linter outputs]
 
-LINTER OUTPUT (already collected):
-{ruff_output}
-{mypy_output}
+4. "standards" — Architecture & Standards auditor
+   Scope: tests/, evals/, config files, cross-cutting
+   [Insert prompt from references/agent-prompts.md, filled with linter outputs]
 
-Read every Python file in scope. For each finding, use the standardized format.
-Return ONLY your findings, numbered sequentially. No preamble, no summary.
+Each teammate writes findings to .claude/audits/wip/{name}-findings.md then messages me when done.
 ```
+
+Read `references/agent-prompts.md` for the full prompt templates with dimensions, project rules, and finding format.
+
+**Review methodology reference**: Each teammate should read `.claude/commands/validation/code-review-claude-code.md` for the shared review methodology — 8 analysis dimensions (logic, security, performance, quality, tests, breaking changes, standards, AI-specific patterns), severity rubric, and verification requirements. This ensures all teammates use the same quality bar and verification standards.
+
+**Wait for all 4 teammates to report scan complete before proceeding.**
 
 ---
 
-#### Agent B — Security & Data
+## Phase 3: Cross-Review
 
-**Scope**: `src/api.py`, `src/tools.py`, `src/db_utils.py`, `sql/`, auth flows, `.env` handling
-**Focus**: Securite, input validation, RLS, secrets
+This is the key advantage over isolated subagents. Each teammate reads 2 other teammates' findings and validates them.
 
-**Prompt template**:
+**Review assignments** (minimize overlap, maximize cross-domain insight):
 
-```
-You are Agent B — Security & Data auditor for a Python/FastAPI nutrition assistant with Supabase backend.
+| Reviewer | Reviews findings from |
+|----------|----------------------|
+| backend | security, standards |
+| security | backend, frontend |
+| frontend | standards, security |
+| standards | backend, frontend |
 
-SCOPE: Focus on src/api.py, src/tools.py, src/db_utils.py, sql/ migrations, and any auth-related code. Also scan all files for secrets/credentials.
+**Message each teammate** with the cross-review prompt from `references/agent-prompts.md`. Each writes their review to `.claude/audits/wip/{name}-review.md`.
 
-DIMENSIONS (check each):
-1. SECURITY: Injection (SQL, command, XSS), auth bypass, CORS misconfiguration, exposed secrets
-2. INPUT VALIDATION: Missing Pydantic models on API endpoints, unsanitized user input, missing UUID validation
-3. DATA INTEGRITY: Missing RLS policies, unprotected DB operations, race conditions on shared state
-4. SECRETS: Hardcoded API keys, tokens in code, .env files committed, secrets in logs
+The cross-review catches:
+- **Duplicates**: Same issue found by 2 agents → merge, note both found it
+- **Compounds**: Bug + missing test at same location → elevate severity
+- **Disagreements**: One agent says correct, another says bug → investigate
+- **Blind spots**: Security implications of logic bugs, type issues enabling injection
 
-PROJECT-SPECIFIC CHECKS:
-- All user text must go through sanitize_user_text() (existing pattern)
-- UUID validation on all user_id parameters
-- RLS policies on all Supabase tables
-- No secrets in code or logs (check for print/logging statements with sensitive data)
-- API endpoints must validate JWT and extract user_id
-- Safety constraints never bypassed by user input (rule 3)
-- Rate limiting (Semaphore(5) pattern) in place for external API calls
-
-LINTER OUTPUT:
-{ruff_output}
-
-Read every file in scope. For each finding, use the standardized format.
-Return ONLY your findings, numbered sequentially. No preamble, no summary.
-```
+**Wait for all 4 reviews before proceeding.**
 
 ---
 
-#### Agent C — Frontend & UX
+## Phase 4: Consolidation (Lead)
 
-**Scope**: `frontend/src/`
-**Focus**: Types, hooks correctness, render efficiency, modularity
+Read ALL 8 files from `.claude/audits/wip/` (4 findings + 4 reviews). Consolidate:
 
-**Prompt template**:
-
-```
-You are Agent C — Frontend & UX auditor for a React 18 + TypeScript 5 + Vite application.
-
-SCOPE: Read and analyze ALL files in frontend/src/
-
-DIMENSIONS (check each):
-1. TYPES: Any use of `any` type (rule 2 — zero tolerance), missing Zod validation, type mismatches with backend
-2. CORRECTNESS: React hooks violations (deps arrays), stale closures, missing error boundaries, broken conditional rendering
-3. EFFICIENCY: Unnecessary re-renders, missing React.memo/useMemo/useCallback where needed, large bundle imports
-4. MODULARITY: God components (>200 lines), duplicated logic across components, prop drilling >3 levels
-
-PROJECT-SPECIFIC CHECKS:
-- No `any` type anywhere (rule 2 — strict)
-- Zod validates all UI component props before rendering (generative UI pattern)
-- database.types.ts must match actual Supabase schema
-- No lovable-tagger (was removed from project)
-- French localization consistent (no English strings in UI)
-
-TSC OUTPUT:
-{tsc_output}
-
-IMPORTANT: For any finding that involves UI/design changes (layout, styling, visual), the suggested_fix MUST say: "Run /frontend-design first to design the solution before implementing" (per CLAUDE.md rule 13).
-
-Read every file in scope. For each finding, use the standardized format.
-Return ONLY your findings, numbered sequentially. No preamble, no summary.
-```
+1. **Merge** all findings into one list
+2. **Apply cross-review verdicts**:
+   - `agree` → keep finding, note cross-validated (higher confidence)
+   - `disagree` → investigate, keep only if evidence supports it
+   - `duplicate-of-mine-N` → merge into single finding, note both agents
+   - `compounds-with-mine-N` → create compound finding, elevate severity
+3. **Re-score severity** using rubric from `references/templates.md`
+4. **Sort**: Critical > High > Medium > Low, then by blast radius
 
 ---
 
-#### Agent D — Architecture & Standards
+## Phase 5: Write Report
 
-**Scope**: Entire project, `tests/`, `evals/`, config files
-**Focus**: Conformite CLAUDE.md, DRY, dead code, test quality, dependencies
+Read `references/templates.md` for the full report template.
 
-**Prompt template**:
-
-```
-You are Agent D — Architecture & Standards auditor for a Python/React nutrition assistant.
-
-SCOPE: Read project structure, tests/, evals/, config files (pyproject.toml, tsconfig, etc.), and cross-cut across all code.
-
-DIMENSIONS (check each):
-1. STANDARDS CONFORMITY: Check ALL 13 rules in CLAUDE.md — flag every violation
-2. DRY: Duplicated logic across files, copy-pasted code blocks, redundant utilities
-3. DEAD CODE: Unused imports, unreachable branches, commented-out code, unused files
-4. TEST QUALITY: Missing tests for calculation functions (rule 8), tests/ vs evals/ separation (rule 11), eval files missing TEST_USER_PROFILE constant (rule 11)
-5. DEPENDENCIES: Outdated packages, unused dependencies, missing from requirements
-
-PROJECT-SPECIFIC CHECKS:
-- src/prompt.py stays generic — no skill-specific logic (rule 12)
-- tests/ = deterministic only, evals/ = real LLM (rule 11)
-- Every eval file has TEST_USER_PROFILE constant with ALL required fields (rule 11)
-- Skill scripts use async def execute(**kwargs) -> str pattern
-- No backward-compatibility hacks (unused _vars, re-exports, "# removed" comments)
-- Import style: always use src. prefix (e.g., from src.agent import agent)
-
-ALL LINTER OUTPUTS:
-{ruff_output}
-{mypy_output}
-{tsc_output}
-
-Read broadly across the project. For each finding, use the standardized format.
-Return ONLY your findings, numbered sequentially. No preamble, no summary.
-```
+Write to `.claude/audits/audit-{YYYY-MM-DD-HHmm}.md`. Include:
+- Executive summary with stats and overall health assessment
+- Issues-by-category matrix table
+- Top 3 cross-cutting patterns (systemic issues across files/agents)
+- All detailed findings sorted by severity
+- Recommendations (immediate / short-term / long-term)
 
 ---
 
-### Phase 3: Consolidation
+## Phase 6: Generate Fix Plan
 
-After ALL 4 agents complete, consolidate their findings:
+Write `.agents/plans/project-audit-fixes.md` using template from `references/templates.md`.
 
-1. **Merge**: Collect all findings from agents A, B, C, D into one list
-2. **Dedup**: If 2 findings refer to the same file within <10 lines and same category, merge them (keep the more detailed one, note both agents found it)
-3. **Cross-reference**: If one agent found a bug and another noted missing tests at the same location, create a compound finding with elevated severity
-4. **Final severity** using this rubric:
-   - **Critical** = security vulnerability, data loss, safety constraint bypass, crash in core flows
-   - **High** = logic bugs, race conditions, type safety in agent tools, N+1 queries, `any` in TypeScript
-   - **Medium** = DRY violations, complexity, test gaps, standards violations, non-critical error handling
-   - **Low** = style, naming, micro-optimizations, doc gaps
-5. **Sort**: Critical > High > Medium > Low, then by blast radius (number of files/users affected)
+Rules:
+- Each task = one file, one atomic fix
+- Frontend UI tasks include: `PREREQUISITE: Run /frontend-design first`
+- VALIDATE = specific test command
+- Low-severity → NOTES section only
 
 ---
 
-### Phase 4: Write Audit Report
+## Phase 7: Cleanup & Summary
 
-Create directory if needed: `mkdir -p .claude/audits`
-
-Write report to `.claude/audits/audit-{YYYY-MM-DD-HHmm}.md` with this structure:
-
-```markdown
-# Audit Report — {date}
-
-## Executive Summary
-
-- **Files analyzed**: X Python files, Y TypeScript files
-- **Total findings**: N (C critical, H high, M medium, L low)
-- **Top concern**: [one sentence describing the most impactful pattern]
-- **Overall health**: [Good | Needs Attention | Requires Immediate Action]
-
-## Issues by Category
-
-| Category | Critical | High | Medium | Low | Total |
-|----------|----------|------|--------|-----|-------|
-| Security | | | | | |
-| Correctness | | | | | |
-| Simplicity | | | | | |
-| Modularity | | | | | |
-| Efficiency | | | | | |
-| Standards | | | | | |
-| **Total** | | | | | |
-
-## Cross-Cutting Patterns
-
-### Pattern 1: [name]
-[Description of systemic pattern seen across multiple files/agents]
-
-### Pattern 2: [name]
-...
-
-### Pattern 3: [name]
-...
-
-## Detailed Findings
-
-### Critical
-
-[Each finding with full detail from the standardized format]
-
-### High
-
-[...]
-
-### Medium
-
-[...]
-
-### Low
-
-[...]
-
-## Recommendations
-
-### Immediate (before deploy)
-- [Critical + High fixes that block deployment]
-
-### Short-term (first sprint post-deploy)
-- [Medium fixes that improve quality]
-
-### Long-term (backlog)
-- [Low items and architectural improvements]
-```
-
----
-
-### Phase 5: Generate Fix Plan
-
-Write `.agents/plans/project-audit-fixes.md` in `/execute`-compatible format:
-
-```markdown
-# Plan: Project Audit Fixes
-
-## Context
-Auto-generated from audit report .claude/audits/audit-{timestamp}.md
-
-## Phase 1 — Critical Fixes
-### Task 1.1: [title from finding]
-- ACTION: Edit `{file}`
-- IMPLEMENT: {suggested_fix from finding}
-- VALIDATE: {appropriate test command}
-
-### Task 1.2: ...
-
-## Phase 2 — High-Priority Fixes
-### Task 2.1: ...
-[same format]
-
-## Phase 3 — Medium-Priority Fixes
-### Task 3.1: ...
-[same format]
-
-## NOTES — Low-Priority (no tasks, just awareness)
-- [Low findings listed as bullet points for reference]
-```
-
-**Special rules for the fix plan:**
-- Each task must be atomic (one file, one fix)
-- Frontend UI/design tasks MUST include: `PREREQUISITE: Run /frontend-design to design the solution first`
-- VALIDATE should reference specific test commands or manual checks
-- Low-severity items go in NOTES only, not as tasks
-
----
-
-### Phase 6: Summary to User
-
-After writing both files, present to the user:
-
-1. The executive summary (from the report)
-2. The issues-by-category table
-3. The top 3 cross-cutting patterns
-4. Path to the full report and fix plan
-5. Instruction: "Run `/execute .agents/plans/project-audit-fixes.md` to start fixing issues"
+1. **Clean up team**: `Clean up the team` (removes shared resources)
+2. **Remove wip files**: `rm -rf .claude/audits/wip/`
+3. **Present to user**:
+   - Executive summary
+   - Issues-by-category table
+   - Top 3 cross-cutting patterns
+   - Path to full report and fix plan
+   - Instruction: "Run `/execute .agents/plans/project-audit-fixes.md` to start fixing"

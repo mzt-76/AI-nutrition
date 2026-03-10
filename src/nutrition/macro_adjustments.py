@@ -266,7 +266,9 @@ def select_complement_food(
 
 
 def adjust_meal_plan_macros(
-    meal_plan: dict, target_totals: dict[str, float], user_allergens: list[str] = None
+    meal_plan: dict,
+    target_totals: dict[str, float],
+    user_allergens: list[str] | None = None,
 ) -> dict:
     """
     Post-process meal plan to ensure macro accuracy via complement foods.

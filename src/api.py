@@ -920,6 +920,7 @@ async def check_favorite(
     auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Check if a recipe is already favorited by a user."""
+    _validate_uuid(recipe_id)
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
@@ -1382,6 +1383,9 @@ async def _stream_agent_response(
     if title_task:
         try:
             conversation_title = await title_task
+            conversation_title = sanitize_user_text(
+                conversation_title, 100, "conversation_title"
+            )
             await update_conversation_title(supabase, session_id, conversation_title)
         except Exception as e:
             logger.error(f"Error processing title: {e}")

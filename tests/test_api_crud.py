@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-USER_ID = "user-abc-123"
-OTHER_USER_ID = "user-other-456"
+USER_ID = "00000000-0000-0000-0000-aaaaaaaaaaaa"
+OTHER_USER_ID = "00000000-0000-0000-0000-bbbbbbbbbbbb"
 ENTRY_UUID = "00000000-0000-0000-0000-000000000001"
 FAV_UUID = "00000000-0000-0000-0000-000000000002"
 SL_UUID = "00000000-0000-0000-0000-000000000003"
@@ -394,7 +394,7 @@ class TestFavoritesList:
             {
                 "id": "f1",
                 "user_id": USER_ID,
-                "recipe_id": "r1",
+                "recipe_id": "00000000-0000-0000-0000-cccccccccccc",
                 "recipes": {"name": "Poulet"},
             }
         ]
@@ -413,20 +413,20 @@ class TestFavoritesCreate:
     """Tests for POST /api/favorites."""
 
     def test_adds_favorite(self, auth_client):
-        created = {"id": "f-new", "user_id": USER_ID, "recipe_id": "r1"}
+        created = {"id": "f-new", "user_id": USER_ID, "recipe_id": "00000000-0000-0000-0000-cccccccccccc"}
         _setup_supabase(data=[created])
 
         resp = auth_client.post(
             "/api/favorites",
-            json={"user_id": USER_ID, "recipe_id": "r1"},
+            json={"user_id": USER_ID, "recipe_id": "00000000-0000-0000-0000-cccccccccccc"},
         )
         assert resp.status_code == 200
-        assert resp.json()["recipe_id"] == "r1"
+        assert resp.json()["recipe_id"] == "00000000-0000-0000-0000-cccccccccccc"
 
     def test_wrong_user_returns_403(self, auth_client):
         resp = auth_client.post(
             "/api/favorites",
-            json={"user_id": OTHER_USER_ID, "recipe_id": "r1"},
+            json={"user_id": OTHER_USER_ID, "recipe_id": "00000000-0000-0000-0000-cccccccccccc"},
         )
         assert resp.status_code == 403
 

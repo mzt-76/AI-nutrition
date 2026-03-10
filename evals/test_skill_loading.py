@@ -11,7 +11,6 @@ from pathlib import Path
 import pytest
 from pydantic_evals import Case, Dataset
 from pydantic_evals.evaluators import (
-    Contains,
     Evaluator,
     EvaluationReason,
     EvaluatorContext,
@@ -93,7 +92,9 @@ class DoesNotContain(Evaluator):
     def evaluate(self, ctx: EvaluatorContext) -> EvaluationReason:
         output = str(ctx.output)
         if self.substring not in output:
-            return EvaluationReason(value=True, reason=f"'{self.substring}' absent (good)")
+            return EvaluationReason(
+                value=True, reason=f"'{self.substring}' absent (good)"
+            )
         return EvaluationReason(
             value=False,
             reason=f"'{self.substring}' unexpectedly found in output",
@@ -110,7 +111,9 @@ class MinLength(Evaluator):
     def evaluate(self, ctx: EvaluatorContext) -> EvaluationReason:
         length = len(str(ctx.output))
         if length >= self.min_chars:
-            return EvaluationReason(value=True, reason=f"{length} chars >= {self.min_chars}")
+            return EvaluationReason(
+                value=True, reason=f"{length} chars >= {self.min_chars}"
+            )
         return EvaluationReason(
             value=False,
             reason=f"Output too short: {length} chars < {self.min_chars}",
@@ -140,7 +143,9 @@ class IsError(Evaluator):
         output = str(ctx.output)
         if "Error" in output:
             return EvaluationReason(value=True, reason="Got expected error")
-        return EvaluationReason(value=False, reason=f"Expected error, got: {output[:100]}")
+        return EvaluationReason(
+            value=False, reason=f"Expected error, got: {output[:100]}"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -163,7 +168,9 @@ async def _read_file_task(inputs: dict) -> str:
 async def _list_files_task(inputs: dict) -> str:
     """Task: list files in a skill directory."""
     ctx = _make_ctx()
-    return await list_skill_files(ctx, inputs["skill_name"], inputs.get("directory", ""))
+    return await list_skill_files(
+        ctx, inputs["skill_name"], inputs.get("directory", "")
+    )
 
 
 async def _discover_skills_task(inputs: dict) -> dict:
@@ -226,8 +233,14 @@ def skill_error_handling_dataset() -> Dataset:
             ),
             Case(
                 name="read_file_missing_file",
-                inputs={"skill_name": "meal-planning", "file_path": "references/missing.md"},
-                evaluators=(IsError(), ContainsSubstring(substring="not found", case_sensitive=False)),
+                inputs={
+                    "skill_name": "meal-planning",
+                    "file_path": "references/missing.md",
+                },
+                evaluators=(
+                    IsError(),
+                    ContainsSubstring(substring="not found", case_sensitive=False),
+                ),
             ),
             Case(
                 name="read_file_directory_traversal",
@@ -327,7 +340,11 @@ def skill_discovery_dataset() -> Dataset:
         evaluation_name: str | None = field(default=None)
 
         def evaluate(self, ctx: EvaluatorContext) -> EvaluationReason:
-            names = set(ctx.output.get("names", [])) if isinstance(ctx.output, dict) else set()
+            names = (
+                set(ctx.output.get("names", []))
+                if isinstance(ctx.output, dict)
+                else set()
+            )
             missing = set(self.expected) - names
             if not missing:
                 return EvaluationReason(value=True, reason="All expected skills found")
@@ -338,10 +355,16 @@ def skill_discovery_dataset() -> Dataset:
         evaluation_name: str | None = field(default=None)
 
         def evaluate(self, ctx: EvaluatorContext) -> EvaluationReason:
-            prompt = ctx.output.get("metadata_prompt", "") if isinstance(ctx.output, dict) else ""
+            prompt = (
+                ctx.output.get("metadata_prompt", "")
+                if isinstance(ctx.output, dict)
+                else ""
+            )
             missing = [s for s in EXPECTED_SKILLS if f"**{s}**" not in prompt]
             if not missing:
-                return EvaluationReason(value=True, reason="All skills in metadata prompt")
+                return EvaluationReason(
+                    value=True, reason="All skills in metadata prompt"
+                )
             return EvaluationReason(
                 value=False,
                 reason=f"Missing from metadata prompt: {missing}",

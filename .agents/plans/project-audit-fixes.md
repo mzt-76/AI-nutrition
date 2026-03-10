@@ -1,114 +1,100 @@
-# Plan: Project Audit Fixes (2026-03-10 v2)
+# Plan: Project Audit Fixes (2026-03-10 v3)
 
 ## Context
-Auto-generated from audit report `.claude/audits/audit-2026-03-10-2000.md`.
-Supersedes the previous audit fix plan. Previous fixes (sanitize_user_text, Literal gender, implicit Optional, bare dict/list, MIME type, safety constants) have been verified as already completed.
+Auto-generated from audit report `.claude/audits/audit-2026-03-10-1600.md`.
+Supersedes previous audit fix plans.
 
----
+## Phase 1 — Critical Fixes
 
-## Phase 1 -- High-Priority Fixes
-
-### Task 1.1: Move MACRO_TOLERANCE constants to constants.py
-- ACTION: Edit `src/nutrition/constants.py`, `src/nutrition/validators.py`, `skills/meal-planning/scripts/generate_day_plan.py`
-- IMPLEMENT:
-  - Add new section "MACRO TOLERANCES" to `constants.py` with:
-    - `MACRO_TOLERANCE_PROTEIN = 0.05`
-    - `MACRO_TOLERANCE_FAT = 0.10`
-    - `MACRO_TOLERANCE_CALORIES = 0.10`
-    - `MACRO_TOLERANCE_CARBS = 0.20`
-  - In `validators.py`, remove the 4 constant definitions (lines 119-122). Import from constants.py.
-  - In `generate_day_plan.py`, update import from `src.nutrition.validators` to `src.nutrition.constants`
-- VALIDATE: `pytest tests/test_generate_day_plan.py tests/test_validators.py -x`
-
-### Task 1.2: Create RLS migration for conversations and messages
-- ACTION: Create `sql/14_rls_conversations_messages.sql`
-- IMPLEMENT:
-  - Enable RLS on `conversations` and `messages` tables
-  - `conversations`: SELECT/INSERT/UPDATE by `auth.uid() = user_id`
-  - `messages`: SELECT/INSERT via session_id ownership (join to conversations or parse user_id from session_id format `{user_id}~{random}`)
-  - Deny direct DELETE (API handles it with service key)
-- NOTE: Verify current RLS state in Supabase console first. If already applied, this just version-controls it.
-- VALIDATE: Test frontend conversations list and message loading still work
-
-### Task 1.3: Create RLS migration for food log, favorites, shopping lists
-- ACTION: Create `sql/15_rls_food_favorites_shopping.sql`
-- IMPLEMENT:
-  - Enable RLS on `daily_food_log`, `favorite_recipes`, `shopping_lists`
-  - All: SELECT/INSERT/UPDATE/DELETE by `auth.uid() = user_id`
-  - Admin override: SELECT for `is_admin()`
-- NOTE: Same as 1.2 -- verify current state in Supabase console first.
-- VALIDATE: Test frontend tracking and favorites tabs still work
-
-### Task 1.4: Extract API models to separate file
-- ACTION: Create `src/api_models.py`, edit `src/api.py`
-- IMPLEMENT:
-  - Move all Pydantic models (FileAttachment, AgentRequest, DailyLogCreate, DailyLogUpdate, FavoriteCreate, FavoriteUpdate, RecipeCreate, RecalculateRequest, ShoppingListItemModel, ShoppingListCreate, ShoppingListUpdate) to `src/api_models.py`
-  - Update imports in `src/api.py`
-- VALIDATE: `pytest tests/test_api.py tests/test_api_crud.py -x && ruff check src/`
-
----
-
-## Phase 2 -- Medium-Priority Fixes
-
-### Task 2.1: Update legacy typing imports in skill_loader.py
-- ACTION: Edit `src/skill_loader.py`
-- IMPLEMENT: Replace `Dict[str, SkillMetadata]` with `dict[str, SkillMetadata]`, `List[SkillMetadata]` with `list[SkillMetadata]`, `Optional[SkillMetadata]` with `SkillMetadata | None`. Remove `from typing import Dict, List, Optional`.
-- VALIDATE: `ruff check src/skill_loader.py && pytest tests/test_skill_loader.py -x`
-
-### Task 2.2: Update legacy typing in calculations.py
-- ACTION: Edit `src/nutrition/calculations.py`
-- IMPLEMENT: Replace `Dict[str, int]` with `dict[str, int]`. Change `from typing import Dict, Literal` to `from typing import Literal`.
-- VALIDATE: `pytest tests/ -k "calc" -x`
-
-### Task 2.3: Update legacy typing in macro_adjustments.py
-- ACTION: Edit `src/nutrition/macro_adjustments.py`
-- IMPLEMENT: Replace all `Dict[`, `List[` with `dict[`, `list[`. Remove unused typing imports.
-- VALIDATE: `pytest tests/test_adjustments.py -x`
-
-### Task 2.4: Move FAT_PCT_OF_TOTAL to constants.py
-- ACTION: Edit `src/nutrition/constants.py`, `src/nutrition/calculations.py`
-- IMPLEMENT: Add `FAT_PCT_OF_TOTAL: dict[str, float]` to constants.py. Import in calculations.py.
-- VALIDATE: `pytest tests/ -k "calc" -x`
-
-### Task 2.5: Add calorie_tolerance parameter to validate_meal_plan_macros
-- ACTION: Edit `src/nutrition/validators.py`
-- IMPLEMENT: Add `calorie_tolerance: float = 0.10` parameter. Replace `carbs_tolerance` usage for calorie bounds (line 505-506) with `calorie_tolerance`.
-- VALIDATE: `pytest tests/test_validators.py -x`
-
-### Task 2.6: Clean up fetchMessages unused parameter
-- ACTION: Edit `frontend/src/lib/api.ts`, callers
-- IMPLEMENT: Remove `_user_id` parameter from `fetchMessages`. Update callers in MessageHandling.tsx and useConversations.ts.
-- NOTE: Only after verifying RLS is configured on messages table.
+### Task 1.1: Validate MealCard props with Zod in MessageItem callback
+- ACTION: Edit `frontend/src/components/chat/MessageItem.tsx`
+- IMPLEMENT: In handleMealClick, validate comp.props using the MealCard Zod schema before casting. Return early if validation fails.
 - VALIDATE: `cd frontend && npx tsc --noEmit`
 
-### Task 2.7: Fix structure validation to check all meals
-- ACTION: Edit `src/nutrition/validators.py`
-- IMPLEMENT: In `validate_meal_plan_structure()` (line 621-623), replace single-meal check with loop over all meals. Change `meal = meals[0]` to `for meal_idx, meal in enumerate(meals):`.
-- VALIDATE: `pytest tests/test_validators.py -x`
+### Task 1.2: Sanitize conversation title before DB storage
+- ACTION: Edit `src/api.py`
+- IMPLEMENT: Add `conversation_title = sanitize_user_text(conversation_title, 100, "conversation_title")` before `update_conversation_title()` around line 1385.
+- VALIDATE: `pytest tests/ -k "conversation" -x`
 
-### Task 2.8: Remove committed venv from RAG_Pipeline
-- ACTION: Edit `.gitignore`, run git rm
-- IMPLEMENT: Add `src/RAG_Pipeline/venv/` to `.gitignore`. Run `git rm -r --cached src/RAG_Pipeline/venv/`.
-- NOTE: Verify RAG_Pipeline has requirements.txt first.
-- VALIDATE: `git status` shows venv removed from tracking
+### Task 1.3: Add UUID validation to /api/favorites/check
+- ACTION: Edit `src/api.py`
+- IMPLEMENT: Add `_validate_uuid(recipe_id)` after auth check in `check_favorite()`, before the Supabase query.
+- VALIDATE: `pytest tests/ -k "favorite" -x`
 
----
+## Phase 2 — High-Priority Fixes
 
-## NOTES -- Low-Priority (no dedicated tasks)
+### Task 2.1: Fix type annotations in feedback_extraction.py
+- ACTION: Edit `src/nutrition/feedback_extraction.py`
+- IMPLEMENT: (1) Add explicit type annotation for result dict at line 259. (2) Change energy_level/hunger_level to `tuple[str, float] | None`. (3) Initialize mood_indicators and stress_indicators as `list[str] = []`.
+- VALIDATE: `mypy src/nutrition/feedback_extraction.py`
 
-- **L1**: `validators.py` -- `find_worst_meal()` is a scoring function, not validation. Consider moving to `meal_planning.py` during next refactor.
-- **L2**: `validators.py` -- `validate_allergens()` reimplements `matches_allergen()` logic. DRY refactor when touching allergen code.
-- **L3**: `clients.py:47` -- `import logging` placed after constant definition. Move to top imports.
-- **L4**: 4 eval files may be missing `TEST_USER_PROFILE`. Check `test_agent_e2e.py`, `test_meal_pipeline_e2e.py`, `test_milp_optimizer_e2e.py`, `test_skill_scripts.py`.
+### Task 2.2: Fix implicit Optional in macro_adjustments.py
+- ACTION: Edit `src/nutrition/macro_adjustments.py`
+- IMPLEMENT: Change `user_allergens: list[str] = None` to `user_allergens: list[str] | None = None`.
+- VALIDATE: `mypy src/nutrition/macro_adjustments.py`
 
----
+### Task 2.3: Add TEST_USER_PROFILE to eval files
+- ACTION: Edit `evals/test_agent_e2e.py`, `evals/test_calorie_floor_e2e.py`, `evals/test_fat_pct_disliked_foods_e2e.py`, `evals/test_multi_allergen_safety_e2e.py`, `evals/test_weight_loss_macros_e2e.py`
+- IMPLEMENT: Add module-level TEST_USER_PROFILE constant with ALL required fields matching the inline persona.
+- VALIDATE: `grep -l "TEST_USER_PROFILE" evals/*.py | wc -l` should match number of eval files
 
-## Completed (from previous audit, verified)
+### Task 2.4: Pass user_id to create_agent_deps in eval files
+- ACTION: Edit `evals/test_agent_e2e.py`, `evals/test_calorie_floor_e2e.py`, `evals/test_fat_pct_disliked_foods_e2e.py`, `evals/test_multi_allergen_safety_e2e.py`
+- IMPLEMENT: Add TEST_USER_ID constant and pass `user_id=TEST_USER_ID` to all `create_agent_deps()` calls.
+- VALIDATE: Run one eval to verify profile is correctly loaded
 
-- sanitize_user_text() created and applied at API boundary
-- RecalculateRequest.gender changed to Literal["male", "female"]
-- agent.py implicit Optional parameters fixed to T | None = None
-- run_skill_script parameters use precise types (not bare dict/list)
-- MIME type validation changed to exact set match
-- Safety constants (MIN_CALORIES_*) centralized in constants.py
-- skill-creator removed from _VALID_SKILLS
+### Task 2.5: Extract SettingsModal sub-components
+- ACTION: Edit `frontend/src/components/sidebar/SettingsModal.tsx`
+- PREREQUISITE: Run /frontend-design to design the solution first
+- IMPLEMENT: Extract ProfileSection, NutritionTargetSection, DietPreferencesSection. Move recalculation logic to custom hook.
+- VALIDATE: `cd frontend && npx tsc --noEmit` + visual test desktop/mobile
+
+### Task 2.6: Add Fragment key to ComponentRenderer zone map
+- ACTION: Edit `frontend/src/components/generative-ui/ComponentRenderer.tsx`
+- IMPLEMENT: Wrap inner zoneComponents.map in `<React.Fragment key={zone}>`.
+- VALIDATE: `cd frontend && npx tsc --noEmit`
+
+## Phase 3 — Medium-Priority Fixes
+
+### Task 3.1: Add UUID validation to Pydantic models
+- ACTION: Edit `src/api_models.py`
+- IMPLEMENT: Add `Field(pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")` to user_id in DailyLogCreate, FavoriteCreate, ShoppingListCreate. Same for request_id, recipe_id, meal_plan_id.
+- VALIDATE: `pytest tests/ -k "api" -x`
+
+### Task 3.2: Add UUID validation to query parameters
+- ACTION: Edit `src/api.py`
+- IMPLEMENT: Change `user_id: str` to `user_id: str = Query(..., pattern=...)` for /conversations, /meal-plans, /daily-log, /favorites endpoints.
+- VALIDATE: `pytest tests/ -k "api" -x`
+
+### Task 3.3: Replace regex ArgsJson parsing with json.loads
+- ACTION: Edit `src/api.py`
+- IMPLEMENT: Replace regex parsing with `json.loads()` or structured attribute access.
+- VALIDATE: `mypy src/api.py` + manual test of agent streaming
+
+### Task 3.4: Move hardcoded tolerances to constants.py
+- ACTION: Edit `src/nutrition/constants.py` and `skills/meal-planning/scripts/generate_day_plan.py`
+- IMPLEMENT: Add MACRO_RATIO_TOLERANCE_STRICT=0.20 and MACRO_RATIO_TOLERANCE_WIDE=0.50 to constants.py. Import in generate_day_plan.py.
+- VALIDATE: `pytest tests/ -k "meal" -x`
+
+### Task 3.5: Fix DayPlanCard React key
+- ACTION: Edit `frontend/src/components/generative-ui/components/DayPlanCard.tsx`
+- IMPLEMENT: Replace index-based key with stable key using recipe_name + meal_type.
+- VALIDATE: `cd frontend && npx tsc --noEmit`
+
+### Task 3.6: Remove unused imports in eval files
+- ACTION: Edit `evals/test_multi_allergen_safety_e2e.py` (remove `import re`), `evals/test_skill_loading.py` (remove `Contains`)
+- VALIDATE: `ruff check evals/`
+
+### Task 3.7: Add division guard in adjustments.py
+- ACTION: Edit `src/nutrition/adjustments.py`
+- IMPLEMENT: Guard before line 153: `if weight_start_kg <= 0: weight_change_percent = 0.0`.
+- VALIDATE: `pytest tests/ -k "adjustment" -x`
+
+## NOTES — Low-Priority (awareness only)
+- VARIETY_WEIGHT_FAVORITE additive bonus lacks bounds doc in score_recipe_variety()
+- minute_resp.count in db_utils.py:247 typed as Any, works but could use explicit cast
+- get_model() in agent.py doesn't distinguish "no API key" from "invalid key" errors
+- Env var validation in api.py:118-124 could use Pydantic Settings
+- ChatLayout useEffect for isGeneratingResponse could be computed directly
+- Global vars in api.py:100-102 typed as Any, should be precise union types
+- agent.py mypy union-attr errors — type narrowing needed for None checks

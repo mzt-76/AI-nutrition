@@ -200,6 +200,14 @@ MACRO_TOLERANCE_CALORIES = 0.10  # ±10% — calories must be close
 MACRO_TOLERANCE_CARBS = 0.20  # ±20% — carbs are adjustment variable
 
 # =============================================================================
+# RECIPE SEARCH MACRO RATIO TOLERANCES -- used by generate_day_plan.py
+# =============================================================================
+# Two-phase recipe search: strict first, then widen if not enough recipes found.
+
+MACRO_RATIO_TOLERANCE_STRICT = 0.20  # ±20% — first pass, tight match
+MACRO_RATIO_TOLERANCE_WIDE = 0.50  # ±50% — fallback when strict yields too few
+
+# =============================================================================
 # FAT PERCENTAGE OF TOTAL CALORIES -- used by calculations.py -> calculate_macros()
 # =============================================================================
 # Goal-dependent fat allocation as fraction of total daily calories.

@@ -5,7 +5,10 @@ validates explicit metrics provided by the user. It handles incomplete feedback
 gracefully and provides clear error messages for validation failures.
 """
 
+from __future__ import annotations
+
 import logging
+from typing import TypedDict
 
 logger = logging.getLogger(__name__)
 
@@ -231,7 +234,17 @@ def validate_feedback_metrics(feedback: dict) -> dict:
     return feedback
 
 
-def extract_feedback_from_text(text: str) -> dict:
+class FeedbackSignals(TypedDict):
+    """Typed structure for extracted feedback signals."""
+
+    energy_level: tuple[str, float] | None
+    hunger_level: tuple[str, float] | None
+    mood_indicators: list[str]
+    stress_indicators: list[str]
+    notes: str
+
+
+def extract_feedback_from_text(text: str) -> FeedbackSignals:
     """
     Extract implicit feedback signals from conversational text.
 
@@ -242,7 +255,7 @@ def extract_feedback_from_text(text: str) -> dict:
         text: Free-text user feedback (e.g., "This week I felt pretty tired Friday")
 
     Returns:
-        Dict with detected signals:
+        FeedbackSignals with detected signals:
         {
             "energy_level": ("medium", 0.7),  # (value, confidence)
             "hunger_level": ("low", 0.6),
@@ -256,7 +269,7 @@ def extract_feedback_from_text(text: str) -> dict:
         ("medium", 0.7)
     """
     text_lower = text.lower()
-    result = {
+    result: FeedbackSignals = {
         "energy_level": None,
         "hunger_level": None,
         "mood_indicators": [],

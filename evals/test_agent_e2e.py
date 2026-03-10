@@ -48,6 +48,8 @@ from src.agent import agent, create_agent_deps
 # Test persona — single source of truth
 # ---------------------------------------------------------------------------
 
+TEST_USER_ID = "5745fc58-9c75-48b1-bc79-12855a8c6021"
+
 TEST_USER_PROFILE = {
     "age": 24,
     "gender": "male",
@@ -60,12 +62,20 @@ TEST_USER_PROFILE = {
 }
 
 # Pre-calculated targets (verified with src.nutrition.calculations)
-EXPECTED_TDEE = 2666          # kcal/day
-EXPECTED_TARGET = 2966        # kcal/day (TDEE + 300 surplus)
-EXPECTED_PROTEIN_MIN = 138    # g/day (1.6 g/kg × 86)
-EXPECTED_PROTEIN_MAX = 189    # g/day (2.2 g/kg × 86)
+EXPECTED_TDEE = 2666  # kcal/day
+EXPECTED_TARGET = 2966  # kcal/day (TDEE + 300 surplus)
+EXPECTED_PROTEIN_MIN = 138  # g/day (1.6 g/kg × 86)
+EXPECTED_PROTEIN_MAX = 189  # g/day (2.2 g/kg × 86)
 
-FRENCH_DAY_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+FRENCH_DAY_NAMES = [
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+    "Dimanche",
+]
 
 
 # ---------------------------------------------------------------------------
@@ -90,7 +100,10 @@ class NumberInRange(Evaluator):
         text = str(ctx.output)
         # Strip markdown formatting so **2664** or `2664` are matched correctly
         clean = re.sub(r"[*_`#|]", "", text)
-        numbers = [float(n.replace(",", ".")) for n in re.findall(r"\b\d{3,5}(?:[.,]\d+)?\b", clean)]
+        numbers = [
+            float(n.replace(",", "."))
+            for n in re.findall(r"\b\d{3,5}(?:[.,]\d+)?\b", clean)
+        ]
         in_range = [n for n in numbers if self.min_val <= n <= self.max_val]
         if in_range:
             return EvaluationReason(
@@ -162,7 +175,9 @@ class ResponseMinLength(Evaluator):
     def evaluate(self, ctx: EvaluatorContext) -> EvaluationReason:
         length = len(str(ctx.output))
         if length >= self.min_chars:
-            return EvaluationReason(value=True, reason=f"{length} chars ≥ {self.min_chars}")
+            return EvaluationReason(
+                value=True, reason=f"{length} chars ≥ {self.min_chars}"
+            )
         return EvaluationReason(
             value=False, reason=f"Response too short: {length} chars < {self.min_chars}"
         )
@@ -179,9 +194,7 @@ class ContainsAllDays(Evaluator):
         missing = [day for day in FRENCH_DAY_NAMES if day not in text]
         if not missing:
             return EvaluationReason(value=True, reason="All 7 days present")
-        return EvaluationReason(
-            value=False, reason=f"Missing days: {missing}"
-        )
+        return EvaluationReason(value=False, reason=f"Missing days: {missing}")
 
 
 @dataclass
@@ -199,9 +212,12 @@ class MentionsSkill(Evaluator):
         text = str(ctx.output).lower()
         found = [kw for kw in self.keywords if kw.lower() in text]
         if found:
-            return EvaluationReason(value=True, reason=f"Domain keywords found: {found}")
+            return EvaluationReason(
+                value=True, reason=f"Domain keywords found: {found}"
+            )
         return EvaluationReason(
-            value=False, reason=f"None of {self.keywords} found — skill may not have been called"
+            value=False,
+            reason=f"None of {self.keywords} found — skill may not have been called",
         )
 
 
@@ -212,7 +228,7 @@ class MentionsSkill(Evaluator):
 
 async def _run_agent(message: str) -> str:
     """Run the agent with real Haiku 4.5 and return its text response."""
-    deps = create_agent_deps()
+    deps = create_agent_deps(user_id=TEST_USER_ID)
     result = await agent.run(message, deps=deps)
     return result.output
 
@@ -245,7 +261,11 @@ def scenario_1_nutrition_dataset() -> Dataset:
                     # Agent should mention calorie target with surplus
                     NumberInRange(min_val=2800, max_val=3200, label="Calorie target"),
                     # Agent should mention protein recommendation
-                    NumberInRange(min_val=EXPECTED_PROTEIN_MIN, max_val=EXPECTED_PROTEIN_MAX, label="Protein"),
+                    NumberInRange(
+                        min_val=EXPECTED_PROTEIN_MIN,
+                        max_val=EXPECTED_PROTEIN_MAX,
+                        label="Protein",
+                    ),
                 ),
             ),
         ],
@@ -282,12 +302,19 @@ def scenario_2_meal_plan_dataset() -> Dataset:
                     # Verify meal plan content keywords are mentioned (DB store confirmation)
                     ContainsAnyOf(options=["plan", "semaine", "jour", "repas", "kcal"]),
                     # Should include collation (auto-detected for ≥2500 kcal target)
-                    ContainsAnyOf(options=[
-                        "collation", "Collation", "pré-training",
-                        "pre-training", "snack",
-                    ]),
+                    ContainsAnyOf(
+                        options=[
+                            "collation",
+                            "Collation",
+                            "pré-training",
+                            "pre-training",
+                            "snack",
+                        ]
+                    ),
                     # Verify next steps offered — broad prefixes catch past tense (génér*)
-                    ContainsAnyOf(options=["courses", "génér", "d'autres", "souhait", "veux-tu"]),
+                    ContainsAnyOf(
+                        options=["courses", "génér", "d'autres", "souhait", "veux-tu"]
+                    ),
                 ),
             ),
         ],
@@ -318,7 +345,14 @@ def scenario_3_custom_recipe_dataset() -> Dataset:
                     NoRefusal(),
                     ResponseMinLength(min_chars=150),
                     ContainsAnyOf(options=["saumon", "salmon"]),
-                    MentionsSkill(keywords=["recette", "ingrédients", "préparation", "instructions"]),
+                    MentionsSkill(
+                        keywords=[
+                            "recette",
+                            "ingrédients",
+                            "préparation",
+                            "instructions",
+                        ]
+                    ),
                 ),
             ),
             Case(
@@ -362,8 +396,18 @@ def scenario_4_knowledge_dataset() -> Dataset:
                     NoRefusal(),
                     ResponseMinLength(min_chars=100),
                     # Should mention protein per kg range (1.6 to 2.2 g/kg)
-                    ContainsAnyOf(options=["1.6", "1,6", "2.2", "2,2", "g/kg", "par kilo"]),
-                    MentionsSkill(keywords=["protéine", "muscle", "synthèse", "recherche", "étude"]),
+                    ContainsAnyOf(
+                        options=["1.6", "1,6", "2.2", "2,2", "g/kg", "par kilo"]
+                    ),
+                    MentionsSkill(
+                        keywords=[
+                            "protéine",
+                            "muscle",
+                            "synthèse",
+                            "recherche",
+                            "étude",
+                        ]
+                    ),
                 ),
             ),
             Case(
@@ -408,7 +452,9 @@ def scenario_5_coaching_dataset() -> Dataset:
                     NoRefusal(),
                     ResponseMinLength(min_chars=150),
                     # Agent should detect hunger as a concern
-                    ContainsAnyOf(options=["faim", "hunger", "calories", "augmenter", "ajuster"]),
+                    ContainsAnyOf(
+                        options=["faim", "hunger", "calories", "augmenter", "ajuster"]
+                    ),
                     # Should mention an adjusted calorie target
                     NumberInRange(min_val=2800, max_val=3400, label="Adjusted target"),
                 ),
@@ -424,7 +470,15 @@ def scenario_5_coaching_dataset() -> Dataset:
                 evaluators=(
                     NoRefusal(),
                     ResponseMinLength(min_chars=100),
-                    ContainsAnyOf(options=["bien", "bonne", "continue", "maintenir", "progression"]),
+                    ContainsAnyOf(
+                        options=[
+                            "bien",
+                            "bonne",
+                            "continue",
+                            "maintenir",
+                            "progression",
+                        ]
+                    ),
                 ),
             ),
         ],
@@ -461,10 +515,16 @@ def scenario_6_one_day_plan_dataset() -> Dataset:
                     # Should show at least one day (Lundi by default)
                     ContainsAnyOf(options=FRENCH_DAY_NAMES),
                     # Should include a collation/snack (auto-detected for ≥2500 kcal)
-                    ContainsAnyOf(options=[
-                        "collation", "Collation", "pré-training",
-                        "pre-training", "snack", "Snack",
-                    ]),
+                    ContainsAnyOf(
+                        options=[
+                            "collation",
+                            "Collation",
+                            "pré-training",
+                            "pre-training",
+                            "snack",
+                            "Snack",
+                        ]
+                    ),
                     # Calories should be in the target range (±15%)
                     NumberInRange(
                         min_val=EXPECTED_TARGET * 0.85,
@@ -478,15 +538,27 @@ def scenario_6_one_day_plan_dataset() -> Dataset:
                         label="Daily protein",
                     ),
                     # Should mention meal plan content
-                    MentionsSkill(keywords=[
-                        "recette", "ingrédients", "repas", "petit-déjeuner",
-                        "déjeuner", "dîner",
-                    ]),
+                    MentionsSkill(
+                        keywords=[
+                            "recette",
+                            "ingrédients",
+                            "repas",
+                            "petit-déjeuner",
+                            "déjeuner",
+                            "dîner",
+                        ]
+                    ),
                     # Should offer next steps (more days or shopping list)
-                    ContainsAnyOf(options=[
-                        "courses", "génér", "d'autres", "souhait",
-                        "veux-tu", "liste",
-                    ]),
+                    ContainsAnyOf(
+                        options=[
+                            "courses",
+                            "génér",
+                            "d'autres",
+                            "souhait",
+                            "veux-tu",
+                            "liste",
+                        ]
+                    ),
                 ),
             ),
         ],

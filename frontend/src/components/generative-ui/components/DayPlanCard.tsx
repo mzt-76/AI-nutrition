@@ -14,7 +14,7 @@ export const DayPlanCard = memo(function DayPlanCard({ day_name, meals, totals, 
       <div className="space-y-3 mb-3">
         {meals.map((meal, idx) => (
           <MealCard
-            key={`${meal.meal_type}-${idx}`}
+            key={`${meal.meal_type}-${meal.recipe_name}`}
             {...meal}
             onClick={onMealClick ? () => onMealClick(idx) : undefined}
           />

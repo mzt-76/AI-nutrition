@@ -59,26 +59,30 @@ export function ComponentRenderer({ components, onAction, onMealClick }: Compone
       {ZONE_ORDER.map(zone => {
         const zoneComponents = grouped.get(zone);
         if (!zoneComponents?.length) return null;
-        return zoneComponents.map(comp => {
-          const Component = COMPONENT_CATALOG[comp.component];
-          if (!Component) {
-            logger.warn(`Unknown UI component: ${comp.component}`);
-            return null;
-          }
-          const validatedProps = validateComponentProps(comp.component, comp.props);
-          if (!validatedProps) {
-            return null;
-          }
-          const extraProps: Record<string, unknown> = { onAction };
-          if (comp.component === 'MealCard' && onMealClick) {
-            extraProps.onClick = () => onMealClick(comp);
-          }
-          return (
-            <div key={comp.id} className={getZoneClassName(zone)}>
-              <Component {...validatedProps} {...extraProps} />
-            </div>
-          );
-        });
+        return (
+          <React.Fragment key={zone}>
+            {zoneComponents.map(comp => {
+              const Component = COMPONENT_CATALOG[comp.component];
+              if (!Component) {
+                logger.warn(`Unknown UI component: ${comp.component}`);
+                return null;
+              }
+              const validatedProps = validateComponentProps(comp.component, comp.props);
+              if (!validatedProps) {
+                return null;
+              }
+              const extraProps: Record<string, unknown> = { onAction };
+              if (comp.component === 'MealCard' && onMealClick) {
+                extraProps.onClick = () => onMealClick(comp);
+              }
+              return (
+                <div key={comp.id} className={getZoneClassName(zone)}>
+                  <Component {...validatedProps} {...extraProps} />
+                </div>
+              );
+            })}
+          </React.Fragment>
+        );
       })}
     </div>
   );

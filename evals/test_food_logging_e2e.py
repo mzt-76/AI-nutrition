@@ -268,7 +268,10 @@ class ScriptParamsMealType(Evaluator):
             meals = params.get("meals", [])
             if isinstance(meals, list):
                 for meal in meals:
-                    if isinstance(meal, dict) and meal.get("meal_type") in self.expected_types:
+                    if (
+                        isinstance(meal, dict)
+                        and meal.get("meal_type") in self.expected_types
+                    ):
                         return EvaluationReason(
                             value=True,
                             reason=f"meal_type='{meal['meal_type']}' found in meals wrapper, matches {self.expected_types}",
@@ -276,7 +279,10 @@ class ScriptParamsMealType(Evaluator):
             # Fallback: check meal_type inside individual items (LLM drift)
             items = _extract_items(params)
             for item in items:
-                if isinstance(item, dict) and item.get("meal_type") in self.expected_types:
+                if (
+                    isinstance(item, dict)
+                    and item.get("meal_type") in self.expected_types
+                ):
                     return EvaluationReason(
                         value=True,
                         reason=f"meal_type='{item['meal_type']}' found in item (drift), matches {self.expected_types}",
@@ -449,7 +455,11 @@ def scenario_3_meal_type_inference() -> Dataset:
                     ),
                     # Should set meal_type to petit-dejeuner
                     ScriptParamsMealType(
-                        expected_types=["petit-dejeuner", "petit_dejeuner", "breakfast"],
+                        expected_types=[
+                            "petit-dejeuner",
+                            "petit_dejeuner",
+                            "breakfast",
+                        ],
                         evaluation_name="infers_breakfast_meal_type",
                     ),
                     # Should extract >= 2 items (oeufs + pain)

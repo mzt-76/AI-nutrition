@@ -15,6 +15,8 @@ from pathlib import Path
 
 from src.nutrition.constants import (
     DEFAULT_PREP_TIME_MINUTES,
+    MACRO_RATIO_TOLERANCE_STRICT,
+    MACRO_RATIO_TOLERANCE_WIDE,
     MACRO_TOLERANCE_CALORIES,
     MACRO_TOLERANCE_CARBS,
     MACRO_TOLERANCE_FAT,
@@ -54,10 +56,6 @@ LLM_FALLBACK_WARN_THRESHOLD = 0.5
 # Recipe selection calorie range: target/DIVISOR to target*MULTIPLIER
 CALORIE_RANGE_MIN_DIVISOR = 3
 CALORIE_RANGE_MAX_MULTIPLIER = 2
-
-# Macro ratio tolerance for recipe search (attempt 1 = strict, attempt 2 = wide)
-MACRO_RATIO_TOLERANCE_STRICT = 0.20
-MACRO_RATIO_TOLERANCE_WIDE = 0.50
 
 # Project root for sibling script imports
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent

@@ -150,7 +150,10 @@ def analyze_weight_trend(
         ISSN Position Stand (2017): Protein for muscle gain during hypertrophy
     """
     weight_change_kg = weight_end_kg - weight_start_kg
-    weight_change_percent = (weight_change_kg / weight_start_kg) * 100
+    if weight_start_kg <= 0:
+        weight_change_percent = 0.0
+    else:
+        weight_change_percent = (weight_change_kg / weight_start_kg) * 100
 
     # Select target range based on goal
     goal_targets = {

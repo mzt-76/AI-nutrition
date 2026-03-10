@@ -13,6 +13,7 @@ import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { cn } from '@/lib/utils';
 import { safeWriteClipboard } from '@/lib/clipboard';
 import { ComponentRenderer } from '@/components/generative-ui/ComponentRenderer';
+import { validateComponentProps } from '@/components/generative-ui/validateProps';
 import type { MealDataFromPlan } from '@/components/recipes/RecipeDetailDrawer';
 import { UIComponentBlock } from '@/types/generative-ui.types';
 import { logger } from '@/lib/logger';
@@ -38,19 +39,24 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
 
   const handleMealClick = useCallback((comp: UIComponentBlock) => {
     if (!onMealClick) return;
-    const p = comp.props;
-    const macros = (p.macros ?? {}) as { protein_g?: number; carbs_g?: number; fat_g?: number };
+    const validated = validateComponentProps('MealCard', comp.props);
+    if (!validated) {
+      logger.warn('MealCard props validation failed in handleMealClick');
+      return;
+    }
+    const p = validated;
+    const macros = p.macros as { protein_g: number; carbs_g: number; fat_g: number };
     onMealClick({
-      name: (p.recipe_name as string) ?? '',
-      meal_type: (p.meal_type as string) ?? '',
-      ingredients: ((p.ingredients as string[]) ?? []),
+      name: p.recipe_name as string,
+      meal_type: p.meal_type as string,
+      ingredients: (p.ingredients as string[]) ?? [],
       instructions: (p.instructions as string) ?? undefined,
       prep_time_minutes: (p.prep_time as number) ?? undefined,
       nutrition: {
-        calories: (p.calories as number) ?? 0,
-        protein_g: macros.protein_g ?? 0,
-        carbs_g: macros.carbs_g ?? 0,
-        fat_g: macros.fat_g ?? 0,
+        calories: p.calories as number,
+        protein_g: macros.protein_g,
+        carbs_g: macros.carbs_g,
+        fat_g: macros.fat_g,
       },
     });
   }, [onMealClick]);

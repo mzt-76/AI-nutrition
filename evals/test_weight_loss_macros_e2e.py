@@ -69,8 +69,8 @@ TEST_USER_PROFILE = {
 EXPECTED_BMR = 1290
 EXPECTED_TDEE = 2000
 EXPECTED_TARGET = 1600  # TDEE - 400
-EXPECTED_FAT_MIN = 35   # tolerant lower bound
-EXPECTED_FAT_MAX = 55   # tolerant upper bound
+EXPECTED_FAT_MIN = 35  # tolerant lower bound
+EXPECTED_FAT_MAX = 55  # tolerant upper bound
 EXPECTED_PROTEIN_MIN = 130  # tolerant lower bound
 EXPECTED_PROTEIN_MAX = 200  # tolerant upper bound
 
@@ -343,7 +343,14 @@ def scenario_2_weight_loss_meal_plan() -> Dataset:
                         evaluation_name="skill_script_called",
                     ),
                     ContainsAnyOf(
-                        options=["repas", "dejeuner", "diner", "petit-dejeuner", "déjeuner", "dîner"],
+                        options=[
+                            "repas",
+                            "dejeuner",
+                            "diner",
+                            "petit-dejeuner",
+                            "déjeuner",
+                            "dîner",
+                        ],
                         evaluation_name="has_meal_types",
                     ),
                 ),

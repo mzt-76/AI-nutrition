@@ -85,7 +85,7 @@ class TestAgentEndpoint:
                 json={
                     "query": "Hello",
                     "user_id": "00000000-0000-0000-0000-000000000001",
-                    "request_id": "req1",
+                    "request_id": "00000000-0000-0000-0000-000000000099",
                     "session_id": "user1~existing",
                 },
             )
@@ -125,7 +125,7 @@ class TestAgentEndpoint:
                 json={
                     "query": "Hello",
                     "user_id": "00000000-0000-0000-0000-000000000001",
-                    "request_id": "req1",
+                    "request_id": "00000000-0000-0000-0000-000000000099",
                     "session_id": "user1~existing",
                 },
             )
@@ -150,7 +150,7 @@ class TestAgentEndpoint:
             json={
                 "query": "Hello",
                 "user_id": "00000000-0000-0000-0000-000000000099",
-                "request_id": "req1",
+                "request_id": "00000000-0000-0000-0000-000000000099",
                 "session_id": "test~session",
             },
         )
@@ -175,7 +175,7 @@ class TestAgentEndpoint:
             json={
                 "query": "Hello",
                 "user_id": "cli_user",
-                "request_id": "req1",
+                "request_id": "00000000-0000-0000-0000-000000000099",
                 "session_id": "cli~session",
             },
         )
