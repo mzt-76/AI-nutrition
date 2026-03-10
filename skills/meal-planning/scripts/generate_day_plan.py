@@ -12,7 +12,10 @@ import logging
 import time
 from pathlib import Path
 
-from src.nutrition.portion_optimizer import apply_scale_factor, optimize_day_portions
+from src.nutrition.portion_optimizer_v2 import (
+    apply_ingredient_scale_factors,
+    optimize_day_portions_v2,
+)
 from src.nutrition.portion_scaler import scale_recipe_to_targets
 from src.nutrition.recipe_db import (
     get_recipe_by_id,
@@ -583,11 +586,11 @@ def scale_portions(assignments: list[dict]) -> list[dict]:
             assignments[i]["meal_slot"].get("target_calories", 600) for i in lp_indices
         ]
         try:
-            factors = optimize_day_portions(
+            ingredient_factors = optimize_day_portions_v2(
                 lp_recipes, daily_targets, per_meal_targets=per_meal_targets
             )
             for i, idx in enumerate(lp_indices):
-                lp_scale_factors[idx] = factors[i]
+                lp_scale_factors[idx] = ingredient_factors[i]
         except Exception as e:
             logger.error(
                 f"LP optimizer failed: {e}, using uniform scaling", exc_info=True
@@ -610,7 +613,7 @@ def scale_portions(assignments: list[dict]) -> list[dict]:
 
         try:
             if i in lp_scale_factors:
-                scaled = apply_scale_factor(recipe, lp_scale_factors[i])
+                scaled = apply_ingredient_scale_factors(recipe, lp_scale_factors[i])
             elif i in fallback_scaled:
                 scaled = fallback_scaled[i]
             else:

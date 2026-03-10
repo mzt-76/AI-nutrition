@@ -22,10 +22,6 @@ from src.nutrition.macro_adjustments import (
     needs_adjustment,
 )
 from src.nutrition.quantity_rounding import round_quantity_smart  # noqa: F401 — re-exported
-from src.nutrition.fat_rebalancer import (  # noqa: F401 — re-exported
-    rebalance_high_fat_day as _rebalance_high_fat_day,
-    FAT_SURPLUS_THRESHOLD,
-)
 
 logger = logging.getLogger(__name__)
 
