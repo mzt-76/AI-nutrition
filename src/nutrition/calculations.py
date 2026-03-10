@@ -10,10 +10,11 @@ References:
 - Helms et al. (2014): Evidence-based recommendations for contest prep
 """
 
-from typing import Dict, Literal
+from typing import Literal
 import logging
 
 from src.nutrition.constants import (
+    FAT_PCT_OF_TOTAL,
     MIN_FAT_G_PER_KG,
     PROTEIN_INTERMEDIATE_MUSCLE_GAIN,
     PROTEIN_INTERMEDIATE_WEIGHT_LOSS,
@@ -129,8 +130,8 @@ def calculate_tdee(bmr: int, activity_level: str) -> int:
 def infer_goals_from_context(
     activities: list[str] | None = None,
     context: str | None = None,
-    explicit_goals: Dict[str, int] | None = None,
-) -> Dict[str, int]:
+    explicit_goals: dict[str, int] | None = None,
+) -> dict[str, int]:
     """
     Infer user goals from activities and context using keyword matching.
 
@@ -292,7 +293,7 @@ def calculate_macros(
     protein_g: int,
     goal_type: str = "muscle_gain",
     weight_kg: float | None = None,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     """
     Calculate carb and fat targets based on calories and protein.
 
@@ -323,15 +324,6 @@ def calculate_macros(
     PROTEIN_KCAL = 4
     CARB_KCAL = 4
     FAT_KCAL = 9
-
-    # Fat as % of TOTAL calories (goal-dependent, 20-25% range)
-    # Ref: ISSN recommends 20-35%; lower end preserves carb budget
-    FAT_PCT_OF_TOTAL = {
-        "muscle_gain": 0.25,  # 25% — balanced fat for hormonal health + training fuel (acceptable range: 20-30%)
-        "weight_loss": 0.25,  # 25% — higher fat for satiety during deficit
-        "maintenance": 0.25,  # 25% — balanced
-        "performance": 0.20,  # 20% — maximize carbs for endurance
-    }
 
     fat_pct = FAT_PCT_OF_TOTAL.get(goal_type, 0.25)
     fat_g = round((target_calories * fat_pct) / FAT_KCAL)

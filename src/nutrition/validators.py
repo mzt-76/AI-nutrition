@@ -114,15 +114,6 @@ ALLERGEN_FALSE_POSITIVES = {
 
 
 # ---------------------------------------------------------------------------
-# Macro tolerance constants (used by validate_day in generate_day_plan)
-# ---------------------------------------------------------------------------
-MACRO_TOLERANCE_PROTEIN = 0.05  # tight — protein must hit target
-MACRO_TOLERANCE_FAT = 0.10  # tight — fat must hit target
-MACRO_TOLERANCE_CALORIES = 0.10  # calories must be close
-MACRO_TOLERANCE_CARBS = 0.20  # flexible — carbs are adjustment variable
-
-
-# ---------------------------------------------------------------------------
 # Prompt injection sanitisation
 # ---------------------------------------------------------------------------
 _INJECTION_PATTERNS = re.compile(
@@ -452,6 +443,7 @@ def validate_meal_plan_macros(
     protein_tolerance: float = 0.05,
     carbs_tolerance: float = 0.10,
     fat_tolerance: float = 0.10,
+    calorie_tolerance: float = 0.10,
 ) -> dict:
     """
     Validate all days in a meal plan have macros within tolerance.
@@ -467,6 +459,7 @@ def validate_meal_plan_macros(
         protein_tolerance: Tolerance for protein (default 5%)
         carbs_tolerance: Tolerance for carbs (default 10%)
         fat_tolerance: Tolerance for fat (default 10%)
+        calorie_tolerance: Tolerance for calories (default 10%)
 
     Returns:
         Dict with validation result:
@@ -501,9 +494,9 @@ def validate_meal_plan_macros(
         # Validate each macro with appropriate tolerance
         day_violations = []
 
-        # Calories (use carbs tolerance)
-        cal_lower = target_calories * (1 - carbs_tolerance)
-        cal_upper = target_calories * (1 + carbs_tolerance)
+        # Calories
+        cal_lower = target_calories * (1 - calorie_tolerance)
+        cal_upper = target_calories * (1 + calorie_tolerance)
         actual_cal = normalized_totals["calories"]
         if not (cal_lower <= actual_cal <= cal_upper):
             dev = ((actual_cal - target_calories) / target_calories) * 100
@@ -618,34 +611,38 @@ def validate_meal_plan_structure(
             elif len(day["meals"]) == 0:
                 missing_fields.append(f"days[{day_idx}].meals (empty array)")
             else:
-                # Validate each meal structure (sample first meal only for performance)
+                # Validate every meal structure
                 meals = day["meals"]
-                meal = meals[0]
-                required_meal_fields = [
-                    "meal_type",
-                    "recipe_name",
-                    "ingredients",
-                ]
+                for meal_idx, meal in enumerate(meals):
+                    required_meal_fields = [
+                        "meal_type",
+                        "recipe_name",
+                        "ingredients",
+                    ]
 
-                # nutrition is optional when using FatSecret (added after generation)
-                if require_nutrition:
-                    required_meal_fields.append("nutrition")
+                    # nutrition is optional when using FatSecret (added after generation)
+                    if require_nutrition:
+                        required_meal_fields.append("nutrition")
 
-                for field in required_meal_fields:
-                    if field not in meal:
-                        missing_fields.append(f"days[{day_idx}].meals[0].{field}")
+                    for field in required_meal_fields:
+                        if field not in meal:
+                            missing_fields.append(
+                                f"days[{day_idx}].meals[{meal_idx}].{field}"
+                            )
 
-                # Validate ingredients array
-                if "ingredients" in meal and not isinstance(meal["ingredients"], list):
-                    missing_fields.append(
-                        f"days[{day_idx}].meals[0].ingredients (must be list)"
-                    )
+                    # Validate ingredients array
+                    if "ingredients" in meal and not isinstance(
+                        meal["ingredients"], list
+                    ):
+                        missing_fields.append(
+                            f"days[{day_idx}].meals[{meal_idx}].ingredients (must be list)"
+                        )
 
-                # Validate nutrition object
-                if "nutrition" in meal and not isinstance(meal["nutrition"], dict):
-                    missing_fields.append(
-                        f"days[{day_idx}].meals[0].nutrition (must be dict)"
-                    )
+                    # Validate nutrition object
+                    if "nutrition" in meal and not isinstance(meal["nutrition"], dict):
+                        missing_fields.append(
+                            f"days[{day_idx}].meals[{meal_idx}].nutrition (must be dict)"
+                        )
 
     valid = len(missing_fields) == 0
 
@@ -760,6 +757,7 @@ def validate_meal_plan_complete(
         protein_tolerance=protein_tolerance,
         carbs_tolerance=other_tolerance,
         fat_tolerance=other_tolerance,
+        calorie_tolerance=other_tolerance,
     )
     validations["macros"] = macro_result
 

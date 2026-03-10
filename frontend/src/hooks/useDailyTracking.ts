@@ -135,6 +135,13 @@ export function useDailyTracking() {
     return () => clearTimeout(t);
   }, [refreshEntries]);
 
+  // Listen for cross-component tracking updates (e.g. food logged via chat)
+  useEffect(() => {
+    const handler = () => refreshEntries(true);
+    window.addEventListener('tracking-updated', handler);
+    return () => window.removeEventListener('tracking-updated', handler);
+  }, [refreshEntries]);
+
   // Cache the full plan detail so we only fetch once (not on every date change)
   const [cachedPlanDetail, setCachedPlanDetail] = useState<MealPlanDetail | null>(null);
 

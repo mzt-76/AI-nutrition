@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import yaml
 from pydantic import BaseModel, Field
@@ -31,16 +30,16 @@ class SkillLoader:
             skills_dir: Directory containing skill folders
         """
         self.skills_dir = skills_dir
-        self.skills: Dict[str, SkillMetadata] = {}
+        self.skills: dict[str, SkillMetadata] = {}
 
-    def discover_skills(self) -> List[SkillMetadata]:
+    def discover_skills(self) -> list[SkillMetadata]:
         """
         Scan skills directory and extract metadata from all SKILL.md files.
 
         Returns:
             List of discovered skill metadata
         """
-        discovered: List[SkillMetadata] = []
+        discovered: list[SkillMetadata] = []
 
         if not self.skills_dir.exists():
             logger.warning(f"skills_directory_missing: path={self.skills_dir}")
@@ -76,7 +75,7 @@ class SkillLoader:
         if not self.skills:
             return "Aucun skill disponible."
 
-        lines: List[str] = []
+        lines: list[str] = []
         for skill in self.skills.values():
             lines.append(f"- **{skill.name}**: {skill.description}")
 
@@ -84,7 +83,7 @@ class SkillLoader:
 
     def _parse_skill_metadata(
         self, skill_md: Path, skill_dir: Path
-    ) -> Optional[SkillMetadata]:
+    ) -> SkillMetadata | None:
         """
         Extract YAML frontmatter from SKILL.md.
 

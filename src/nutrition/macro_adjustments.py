@@ -11,7 +11,7 @@ References:
 """
 
 import logging
-from typing import Dict, List, Literal
+from typing import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -107,8 +107,8 @@ COMPLEMENT_FOODS = [
 
 
 def calculate_macro_deficit(
-    actual_totals: Dict[str, float], target_totals: Dict[str, float]
-) -> Dict[str, float]:
+    actual_totals: dict[str, float], target_totals: dict[str, float]
+) -> dict[str, float]:
     """
     Calculate deficit between actual and target macros.
 
@@ -139,8 +139,8 @@ def calculate_macro_deficit(
 
 
 def needs_adjustment(
-    deficit: Dict[str, float], target_totals: Dict[str, float]
-) -> Dict[str, bool]:
+    deficit: dict[str, float], target_totals: dict[str, float]
+) -> dict[str, bool]:
     """
     Determine which macros need adjustment based on tolerance thresholds.
 
@@ -179,10 +179,10 @@ def needs_adjustment(
 
 
 def select_complement_food(
-    deficit: Dict[str, float],
-    user_allergens: List[str],
+    deficit: dict[str, float],
+    user_allergens: list[str],
     timing_preference: Literal["collation", "meal", "any"] = "any",
-) -> Dict | None:
+) -> dict | None:
     """
     Select optimal complement food based on deficit and allergen constraints.
 
@@ -232,7 +232,7 @@ def select_complement_food(
             safe_foods = timing_filtered
 
     # Score foods based on deficit priorities
-    def score_food(food: Dict) -> float:
+    def score_food(food: dict) -> float:
         """Higher score = better fit for deficit."""
         nutrition = food["nutrition"]
 
@@ -266,8 +266,8 @@ def select_complement_food(
 
 
 def adjust_meal_plan_macros(
-    meal_plan: Dict, target_totals: Dict[str, float], user_allergens: List[str] = None
-) -> Dict:
+    meal_plan: dict, target_totals: dict[str, float], user_allergens: list[str] = None
+) -> dict:
     """
     Post-process meal plan to ensure macro accuracy via complement foods.
 
@@ -378,7 +378,7 @@ def adjust_meal_plan_macros(
 
 
 def generate_adjustment_summary(
-    meal_plan: Dict, target_totals: Dict[str, float]
+    meal_plan: dict, target_totals: dict[str, float]
 ) -> str:
     """
     Generate user-friendly summary of macro adjustments made.

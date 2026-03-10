@@ -187,6 +187,32 @@ DISCRETE_UNITS: set[str] = {
 }
 
 # =============================================================================
+# MACRO TOLERANCES -- used by validators.py -> validate_daily_macros()
+#   and generate_day_plan.py -> validate_day()
+# =============================================================================
+# Different macros get different tolerances reflecting nutritional priorities.
+# Protein and fat are tighter (critical for body composition and hormonal health).
+# Carbs are the flexible adjustment variable.
+
+MACRO_TOLERANCE_PROTEIN = 0.05  # ±5% — protein must hit target
+MACRO_TOLERANCE_FAT = 0.10  # ±10% — fat must hit target
+MACRO_TOLERANCE_CALORIES = 0.10  # ±10% — calories must be close
+MACRO_TOLERANCE_CARBS = 0.20  # ±20% — carbs are adjustment variable
+
+# =============================================================================
+# FAT PERCENTAGE OF TOTAL CALORIES -- used by calculations.py -> calculate_macros()
+# =============================================================================
+# Goal-dependent fat allocation as fraction of total daily calories.
+# Ref: ISSN recommends 20-35%; lower end preserves carb budget for training.
+
+FAT_PCT_OF_TOTAL: dict[str, float] = {
+    "muscle_gain": 0.25,  # 25% — balanced fat for hormonal health + training fuel
+    "weight_loss": 0.25,  # 25% — higher fat for satiety during deficit
+    "maintenance": 0.25,  # 25% — balanced
+    "performance": 0.20,  # 20% — maximize carbs for endurance
+}
+
+# =============================================================================
 # SAFETY CONSTRAINTS -- hardcoded, never bypass (CLAUDE.md rule 3)
 # =============================================================================
 # Absolute minimum daily calorie intake to prevent metabolic harm.

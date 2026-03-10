@@ -16,7 +16,7 @@ import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from uuid import UUID as _UUID
-from typing import Any, Literal
+from typing import Any
 
 from dotenv import load_dotenv
 import httpx
@@ -28,8 +28,19 @@ from pathlib import Path
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request as StarletteRequest
 from starlette.responses import Response as StarletteResponse
-from pydantic import BaseModel, Field
 from pydantic_ai import Agent, BinaryContent
+
+from src.api_models import (
+    AgentRequest,
+    DailyLogCreate,
+    DailyLogUpdate,
+    FavoriteCreate,
+    FavoriteUpdate,
+    RecalculateRequest,
+    RecipeCreate,
+    ShoppingListCreate,
+    ShoppingListUpdate,
+)
 
 from src.nutrition.calculations import (
     ACTIVITY_MULTIPLIERS,
@@ -257,106 +268,6 @@ def _validate_session_id(value: str) -> None:
     """Raise 400 if session_id is empty or suspiciously long."""
     if not value or len(value) > 60:
         raise HTTPException(status_code=400, detail="Format de session_id invalide")
-
-
-# =============================================================================
-# Request / Response models
-# =============================================================================
-
-
-class FileAttachment(BaseModel):
-    model_config = {"populate_by_name": True}
-    file_name: str = Field(alias="fileName")
-    content: str  # Base64 encoded
-    mime_type: str = Field(alias="mimeType")
-
-
-class AgentRequest(BaseModel):
-    query: str = Field(max_length=5000)
-    user_id: str = Field(
-        pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-    )
-    request_id: str
-    session_id: str = ""
-    files: list[FileAttachment] | None = None
-    ephemeral: bool = False  # skip conversation/message storage (e.g. quick-add)
-
-
-class DailyLogCreate(BaseModel):
-    user_id: str
-    log_date: str | None = None
-    meal_type: str
-    food_name: str
-    quantity: float = 1
-    unit: str = "portion"
-    calories: float = 0
-    protein_g: float = 0
-    carbs_g: float = 0
-    fat_g: float = 0
-    source: str = "openfoodfacts"
-    meal_plan_id: str | None = None
-
-
-class DailyLogUpdate(BaseModel):
-    meal_type: str | None = None
-    food_name: str | None = None
-    quantity: float | None = None
-    unit: str | None = None
-    calories: float | None = None
-    protein_g: float | None = None
-    carbs_g: float | None = None
-    fat_g: float | None = None
-
-
-class FavoriteCreate(BaseModel):
-    user_id: str
-    recipe_id: str
-    notes: str | None = None
-
-
-class FavoriteUpdate(BaseModel):
-    notes: str | None = Field(None, max_length=500)
-
-
-class RecipeCreate(BaseModel):
-    name: str = Field(..., min_length=1, max_length=200)
-    meal_type: str = Field(..., min_length=1, max_length=50)
-    ingredients: list[dict[str, Any]] = Field(..., max_length=50)
-    instructions: str = Field(default="", max_length=5000)
-    prep_time_minutes: int = Field(default=30, ge=1, le=480)
-    calories_per_serving: float = Field(..., ge=0, le=5000)
-    protein_g_per_serving: float = Field(..., ge=0, le=500)
-    carbs_g_per_serving: float = Field(..., ge=0, le=500)
-    fat_g_per_serving: float = Field(..., ge=0, le=500)
-
-
-class RecalculateRequest(BaseModel):
-    age: int
-    gender: Literal["male", "female"]
-    weight_kg: float
-    height_cm: int
-    activity_level: str
-    goals: dict[str, int] | None = None
-
-
-class ShoppingListItemModel(BaseModel):
-    name: str
-    quantity: float = 0
-    unit: str = ""
-    category: str = "other"
-    checked: bool = False
-
-
-class ShoppingListCreate(BaseModel):
-    user_id: str
-    meal_plan_id: str | None = None
-    title: str
-    items: list[ShoppingListItemModel]
-
-
-class ShoppingListUpdate(BaseModel):
-    title: str | None = None
-    items: list[ShoppingListItemModel] | None = None
 
 
 # =============================================================================
@@ -1378,6 +1289,7 @@ async def _stream_agent_response(
     if binary_contents:
         agent_input = [sanitized_query, *binary_contents]
 
+    skills_used: list[str] = []
     try:
         async with agent.iter(
             agent_input,
@@ -1405,6 +1317,32 @@ async def _stream_agent_response(
                                     json.dumps({"text": full_response}).encode("utf-8")
                                     + b"\n"
                                 )
+
+        # Detect which skills were used (for frontend cache invalidation)
+        try:
+            for msg in run.result.all_messages():
+                if hasattr(msg, "parts"):
+                    for part in msg.parts:
+                        if (
+                            hasattr(part, "tool_name")
+                            and part.tool_name == "run_skill_script"
+                            and hasattr(part, "args")
+                        ):
+                            if isinstance(part.args, dict):
+                                skill = part.args.get("skill_name", "")
+                            else:
+                                # args might be ArgsJson — try parsing
+                                import re as _re
+
+                                m = _re.search(
+                                    r'"skill_name"\s*:\s*"([^"]+)"',
+                                    str(part.args),
+                                )
+                                skill = m.group(1) if m else ""
+                            if skill and skill not in skills_used:
+                                skills_used.append(skill)
+        except Exception:
+            pass  # Non-critical — don't break streaming for this
 
         # Extract UI components from agent response
         cleaned_text, ui_components = extract_ui_components(full_response)
@@ -1457,6 +1395,8 @@ async def _stream_agent_response(
         final_data["conversation_title"] = conversation_title
     if ui_components:
         final_data["ui_components"] = ui_components
+    if skills_used:
+        final_data["skills_used"] = skills_used
 
     yield json.dumps(final_data).encode("utf-8") + b"\n"
 

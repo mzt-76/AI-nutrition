@@ -9,7 +9,7 @@ import { TRACKING_POLL_DELAYS } from '@/lib/constants';
 
 interface TrackingInputProps {
   dateStr: string;
-  onEntryCreated: () => Promise<void>;
+  onEntryCreated: (silent?: boolean) => Promise<void>;
 }
 
 export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
@@ -68,7 +68,7 @@ export function TrackingInput({ dateStr, onEntryCreated }: TrackingInputProps) {
       const poll = () => {
         if (attempt >= delays.length) return;
         pollTimerRef.current = setTimeout(() => {
-          onEntryCreated().catch(err => logger.error('Polling refresh failed:', err));
+          onEntryCreated(true).catch(err => logger.error('Polling refresh failed:', err));
           attempt++;
           poll();
         }, delays[attempt]);

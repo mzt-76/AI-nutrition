@@ -206,6 +206,16 @@ export const useMessageHandling = ({
               finalizeNewConversation(chunk.session_id, aiMessageId);
             }
 
+            // Notify other components that data changed based on skills used
+            if (chunk.skills_used?.length) {
+              if (chunk.skills_used.includes('food-tracking')) {
+                window.dispatchEvent(new CustomEvent('tracking-updated'));
+              }
+              if (chunk.skills_used.includes('meal-planning')) {
+                queryClient.invalidateQueries({ queryKey: ['meal-plans'] });
+              }
+            }
+
             setLoading(false);
           }
         },
@@ -306,7 +316,7 @@ export const useMessageHandling = ({
       // This prevents the loading indicator from flashing
       
       // This just fetches messages from the database, it doesn't call the webhook API
-      const data = await fetchMessages(conversation.session_id, user.id);
+      const data = await fetchMessages(conversation.session_id);
       if (isMounted.current) {
         setMessages(data);
         // Write to React Query cache so tab switches restore instantly

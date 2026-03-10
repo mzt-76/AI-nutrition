@@ -45,6 +45,7 @@ interface StreamingChunk {
   complete?: boolean;
   conversation_title?: string;
   error?: string;
+  skills_used?: string[];
   // Generative UI fields
   type?: string;
   component?: string;
@@ -98,6 +99,7 @@ async function parseNDJSONStream(
           complete: true,
           session_id: finalSessionId,
           conversation_title: finalTitle,
+          skills_used: chunk.skills_used,
         });
         return 'complete';
       }
@@ -457,7 +459,7 @@ export const fetchConversations = async (user_id: string) => {
   }
 };
 
-export const fetchMessages = async (session_id: string, _user_id: string) => {
+export const fetchMessages = async (session_id: string) => {
   try {
     // Updated query approach - instead of using computed_session_user_id, query directly by session_id
     // This avoids the UUID format issue

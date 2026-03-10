@@ -64,6 +64,7 @@ htmlcov/
 # Google Drive Credentials
 src/RAG_Pipeline/Google_Drive/credentials.json
 src/RAG_Pipeline/Google_Drive/token.json
+src/RAG_Pipeline/venv/
 
 # Temporary files
 *.tmp

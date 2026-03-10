@@ -13,7 +13,13 @@ import re
 import time
 from pathlib import Path
 
-from src.nutrition.constants import DEFAULT_PREP_TIME_MINUTES
+from src.nutrition.constants import (
+    DEFAULT_PREP_TIME_MINUTES,
+    MACRO_TOLERANCE_CALORIES,
+    MACRO_TOLERANCE_CARBS,
+    MACRO_TOLERANCE_FAT,
+    MACRO_TOLERANCE_PROTEIN,
+)
 from src.nutrition.portion_optimizer_v2 import (
     apply_ingredient_scale_factors,
     optimize_day_portions_v2,
@@ -28,10 +34,6 @@ from src.nutrition.recipe_db import (
 )
 from src.nutrition.meal_type_utils import normalize_meal_type
 from src.nutrition.validators import (
-    MACRO_TOLERANCE_CALORIES,
-    MACRO_TOLERANCE_CARBS,
-    MACRO_TOLERANCE_FAT,
-    MACRO_TOLERANCE_PROTEIN,
     find_worst_meal,
     validate_allergens,
     validate_daily_macros,

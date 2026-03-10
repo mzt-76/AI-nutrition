@@ -254,7 +254,7 @@ async def run_skill_script(
         | int
         | float
         | bool
-        | list[str | int | float]
+        | list[str | int | float | dict[str, str | int | float]]
         | dict[str, str | int | float]
         | None,
     ]

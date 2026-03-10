@@ -10,6 +10,9 @@ This module creates and configures clients for:
 - Anthropic (Claude Sonnet 4.5 for skill-level LLM calls)
 """
 
+import logging
+import os
+
 from openai import AsyncOpenAI
 from anthropic import AsyncAnthropic
 from supabase import create_client, Client
@@ -18,7 +21,6 @@ from httpx import AsyncClient
 from mem0 import AsyncMemory, Memory
 from pathlib import Path
 from dotenv import load_dotenv
-import os
 
 # Shared prompt for mem0 fact extraction — used by both sync and async clients.
 CUSTOM_FACT_PROMPT = """You are a Personal Information Organizer for a nutrition coaching app.
@@ -44,7 +46,6 @@ Each fact must be a simple sentence string, NOT a dict/object.
 Example output: {"facts": ["allergique aux arachides", "fait du sport le mardi et jeudi"]}
 If nothing qualifies, return {"facts": []}.
 """
-import logging
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
