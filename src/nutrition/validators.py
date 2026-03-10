@@ -439,8 +439,6 @@ def validate_daily_macros(
 
     if not valid:
         logger.warning(f"Macro validation issues: {violations}")
-    else:
-        logger.info("✅ Daily macros within tolerance")
 
     return {"valid": valid, "violations": violations}
 

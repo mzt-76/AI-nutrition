@@ -205,21 +205,35 @@ async def search_recipes(
             excluded_set = set(exclude_recipe_ids)
             results = [r for r in results if r.get("id") not in excluded_set]
 
-        # Python-side filtering: macro-profile (protein-only — LP solver handles fat/carbs)
+        # Python-side filtering: macro-profile (protein + fat ratios)
+        # Protein and fat are filtered because LP solver can scale portions but
+        # cannot change a recipe's macro RATIOS — a high-fat recipe stays high-fat.
+        # Carbs are left flexible as the adjustment variable.
         if target_macro_ratios and results:
             target_prot_ratio = target_macro_ratios.get("protein_ratio")
+            target_fat_ratio = target_macro_ratios.get("fat_ratio")
             macro_filtered = []
             for r in results:
                 cal = r.get("calories_per_serving", 0) or 0
                 if cal <= 0:
                     macro_filtered.append(r)
                     continue
-                protein_g = r.get("protein_g_per_serving", 0) or 0
-                recipe_prot_ratio = (protein_g * 4) / cal
                 skip = False
+                # Protein ratio check
                 if target_prot_ratio and target_prot_ratio > 0:
+                    protein_g = r.get("protein_g_per_serving", 0) or 0
+                    recipe_prot_ratio = (protein_g * 4) / cal
                     if (
                         abs(recipe_prot_ratio - target_prot_ratio) / target_prot_ratio
+                        > macro_ratio_tolerance
+                    ):
+                        skip = True
+                # Fat ratio check
+                if not skip and target_fat_ratio and target_fat_ratio > 0:
+                    fat_g = r.get("fat_g_per_serving", 0) or 0
+                    recipe_fat_ratio = (fat_g * 9) / cal
+                    if (
+                        abs(recipe_fat_ratio - target_fat_ratio) / target_fat_ratio
                         > macro_ratio_tolerance
                     ):
                         skip = True

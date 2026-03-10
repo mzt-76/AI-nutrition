@@ -686,6 +686,9 @@ def validate_day(
         + fat_check.get("violations", [])
     )
 
+    if not all_violations:
+        logger.info("✅ Daily macros within tolerance")
+
     return {
         "valid": len(all_violations) == 0,
         "violations": all_violations,
