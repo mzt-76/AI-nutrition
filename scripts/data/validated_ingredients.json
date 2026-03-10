@@ -1,0 +1,8002 @@
+[
+ {
+  "name": "2 oeufs brouillés",
+  "off_name": "Oeufs Brouillés",
+  "cal": 148.0,
+  "prot": 11.0,
+  "fat": 10.0,
+  "carbs": 1.6
+ },
+ {
+  "name": "Abricots secs",
+  "off_name": "Abricots secs",
+  "cal": 283.0,
+  "prot": 3.4,
+  "fat": 0.5,
+  "carbs": 62.6
+ },
+ {
+  "name": "agneau",
+  "off_name": "Agneau  Pascal",
+  "cal": 422.0,
+  "prot": 5.7,
+  "fat": 19.0,
+  "carbs": 59.0
+ },
+ {
+  "name": "Ail",
+  "off_name": "Ail",
+  "cal": 77.0,
+  "prot": 4.1,
+  "fat": 0.0,
+  "carbs": 13.0
+ },
+ {
+  "name": "Ail frais",
+  "off_name": "Aïoli frais",
+  "cal": 678.0,
+  "prot": 1.4,
+  "fat": 74.0,
+  "carbs": 0.8
+ },
+ {
+  "name": "Ail haché",
+  "off_name": "Ail haché",
+  "cal": 126.0,
+  "prot": 4.1,
+  "fat": 4.1,
+  "carbs": 15.5
+ },
+ {
+  "name": "All purpose flour",
+  "off_name": "All Purpose Flour, White",
+  "cal": 366.67,
+  "prot": 13.33,
+  "fat": 1.33,
+  "carbs": 73.33
+ },
+ {
+  "name": "Almond butter",
+  "off_name": "Almond Butter 100%",
+  "cal": 650.0,
+  "prot": 25.0,
+  "fat": 56.0,
+  "carbs": 6.5
+ },
+ {
+  "name": "almond milk",
+  "off_name": "Almond milk",
+  "cal": 13.0,
+  "prot": 0.28,
+  "fat": 1.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "almonds",
+  "off_name": "Almonds",
+  "cal": 616.0,
+  "prot": 21.1,
+  "fat": 53.0,
+  "carbs": 10.0
+ },
+ {
+  "name": "Amandes",
+  "off_name": "Amandes",
+  "cal": 645.0,
+  "prot": 21.1,
+  "fat": 49.9,
+  "carbs": 21.5
+ },
+ {
+  "name": "Amandes décortiquées",
+  "off_name": "Amandes decortiquees",
+  "cal": 645.0,
+  "prot": 21.1,
+  "fat": 49.9,
+  "carbs": 21.5
+ },
+ {
+  "name": "Amandes effilées",
+  "off_name": "Amandes Effilées",
+  "cal": 623.0,
+  "prot": 22.0,
+  "fat": 55.0,
+  "carbs": 4.0
+ },
+ {
+  "name": "Amandes entières",
+  "off_name": "Amandes entieres",
+  "cal": 560.0,
+  "prot": 25.0,
+  "fat": 53.4,
+  "carbs": 1.5
+ },
+ {
+  "name": "Anchois à l'huile",
+  "off_name": "Filet d anchois a l’huile",
+  "cal": 182.0,
+  "prot": 26.4,
+  "fat": 8.4,
+  "carbs": 0.1
+ },
+ {
+  "name": "anchovy fillet",
+  "off_name": "Anchovy fillets",
+  "cal": 157.0,
+  "prot": 19.0,
+  "fat": 9.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Aneth",
+  "off_name": "Aneth (frais, corrigé)",
+  "cal": 43.0,
+  "prot": 3.5,
+  "fat": 1.1,
+  "carbs": 7.0
+ },
+ {
+  "name": "apple",
+  "off_name": "apple",
+  "cal": 19.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 4.8
+ },
+ {
+  "name": "apple sauce",
+  "off_name": "Fruitsations",
+  "cal": 110.0,
+  "prot": 0.2,
+  "fat": 0.0,
+  "carbs": 29.0
+ },
+ {
+  "name": "Apples",
+  "off_name": "Apple",
+  "cal": 170.0,
+  "prot": 3.9,
+  "fat": 8.0,
+  "carbs": 22.0
+ },
+ {
+  "name": "Apricot",
+  "off_name": "Apricot",
+  "cal": 515.0,
+  "prot": 5.8,
+  "fat": 27.5,
+  "carbs": 61.7
+ },
+ {
+  "name": "Apricots",
+  "off_name": "Apricot",
+  "cal": 515.0,
+  "prot": 5.8,
+  "fat": 27.5,
+  "carbs": 61.7
+ },
+ {
+  "name": "arborio rice",
+  "off_name": "Arborio Rice",
+  "cal": 348.0,
+  "prot": 6.5,
+  "fat": 1.0,
+  "carbs": 79.0
+ },
+ {
+  "name": "asparagus",
+  "off_name": "Green Asparagus",
+  "cal": 22.0,
+  "prot": 2.4,
+  "fat": 0.2,
+  "carbs": 4.1
+ },
+ {
+  "name": "Asperges vertes",
+  "off_name": "Asperges vertes",
+  "cal": 12.0,
+  "prot": 0.9,
+  "fat": 0.5,
+  "carbs": 1.5
+ },
+ {
+  "name": "aubergines",
+  "off_name": "aubergines",
+  "cal": 155.0,
+  "prot": 5.3,
+  "fat": 13.0,
+  "carbs": 3.1
+ },
+ {
+  "name": "avocado",
+  "off_name": "Avocado",
+  "cal": 166.91,
+  "prot": 2.21,
+  "fat": 15.44,
+  "carbs": 8.82
+ },
+ {
+  "name": "Avocat",
+  "off_name": "Avocat",
+  "cal": 199.0,
+  "prot": 1.9,
+  "fat": 19.5,
+  "carbs": 1.8
+ },
+ {
+  "name": "Avocat mûr",
+  "off_name": "Avocat",
+  "cal": 199.0,
+  "prot": 1.9,
+  "fat": 19.5,
+  "carbs": 1.8
+ },
+ {
+  "name": "avoine",
+  "off_name": "Avoine",
+  "cal": 43.0,
+  "prot": 0.5,
+  "fat": 1.2,
+  "carbs": 7.2
+ },
+ {
+  "name": "Açaí puree",
+  "off_name": "Puree",
+  "cal": 124.0,
+  "prot": 2.1,
+  "fat": 5.0,
+  "carbs": 16.4
+ },
+ {
+  "name": "açaí surgelé",
+  "off_name": "Ail surgelé",
+  "cal": 76.0,
+  "prot": 5.0,
+  "fat": 4.5,
+  "carbs": 3.2
+ },
+ {
+  "name": "Baby Aubergine",
+  "off_name": "Aubergine",
+  "cal": 173.0,
+  "prot": 4.13,
+  "fat": 13.66,
+  "carbs": 28.0
+ },
+ {
+  "name": "Baby New Potatoes",
+  "off_name": "Herby Baby Potatoes",
+  "cal": 106.0,
+  "prot": 2.2,
+  "fat": 3.0,
+  "carbs": 16.5
+ },
+ {
+  "name": "baby plum tomatoes",
+  "off_name": "Tesco BAby plum tomatoes",
+  "cal": 395.0,
+  "prot": 8.6,
+  "fat": 7.5,
+  "carbs": 67.0
+ },
+ {
+  "name": "Bacon",
+  "off_name": "Bacon",
+  "cal": 116.0,
+  "prot": 23.0,
+  "fat": 2.3,
+  "carbs": 0.7
+ },
+ {
+  "name": "Bacon lardon",
+  "off_name": "Lardon",
+  "cal": 271.0,
+  "prot": 13.0,
+  "fat": 22.3,
+  "carbs": 4.6
+ },
+ {
+  "name": "Baguette",
+  "off_name": "Baguette",
+  "cal": 269.0,
+  "prot": 8.2,
+  "fat": 1.5,
+  "carbs": 54.0
+ },
+ {
+  "name": "Baguette fraîche",
+  "off_name": "Baguette",
+  "cal": 269.0,
+  "prot": 8.2,
+  "fat": 1.5,
+  "carbs": 54.0
+ },
+ {
+  "name": "Baies fraîches (fraises, myrtilles)",
+  "off_name": "Myrtilles fraiches",
+  "cal": 60.0,
+  "prot": 0.2,
+  "fat": 0.2,
+  "carbs": 11.6
+ },
+ {
+  "name": "Baies fraîches (myrtilles)",
+  "off_name": "Myrtilles fraiches",
+  "cal": 60.0,
+  "prot": 0.2,
+  "fat": 0.2,
+  "carbs": 11.6
+ },
+ {
+  "name": "Baked Beans",
+  "off_name": "Baked Beans",
+  "cal": 106.0,
+  "prot": 3.8,
+  "fat": 0.5,
+  "carbs": 18.4
+ },
+ {
+  "name": "baking powder",
+  "off_name": "Levure chimique",
+  "cal": 86.0,
+  "prot": 0.1,
+  "fat": 0.1,
+  "carbs": 21.4
+ },
+ {
+  "name": "Balsamic vinegar",
+  "off_name": "Balsamic Vinegar",
+  "cal": 49.0,
+  "prot": 0.3,
+  "fat": 0.0,
+  "carbs": 13.4
+ },
+ {
+  "name": "banana",
+  "off_name": "Bananas",
+  "cal": 89.0,
+  "prot": 1.09,
+  "fat": 0.33,
+  "carbs": 22.84
+ },
+ {
+  "name": "Bananas",
+  "off_name": "Bananas",
+  "cal": 86.0,
+  "prot": 1.1,
+  "fat": 0.0,
+  "carbs": 19.6
+ },
+ {
+  "name": "Banane",
+  "off_name": "Banane",
+  "cal": 97.0,
+  "prot": 1.2,
+  "fat": 0.2,
+  "carbs": 21.0
+ },
+ {
+  "name": "Banane fraîche",
+  "off_name": "Banane Fraise",
+  "cal": 38.0,
+  "prot": 0.1,
+  "fat": 0.1,
+  "carbs": 9.2
+ },
+ {
+  "name": "Banane mûre",
+  "off_name": "Banane",
+  "cal": 291.0,
+  "prot": 0.4,
+  "fat": 0.5,
+  "carbs": 73.0
+ },
+ {
+  "name": "Barbeque Sauce",
+  "off_name": "Barbeque sauces & rubs",
+  "cal": 194.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 44.44
+ },
+ {
+  "name": "basil",
+  "off_name": "Mr.Basil",
+  "cal": 18.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 4.7
+ },
+ {
+  "name": "Basil pesto",
+  "off_name": "Pesto basilic",
+  "cal": 458.0,
+  "prot": 3.4,
+  "fat": 47.0,
+  "carbs": 4.7
+ },
+ {
+  "name": "Basilic frais",
+  "off_name": "Basilic frais",
+  "cal": 309.0,
+  "prot": 2.5,
+  "fat": 31.0,
+  "carbs": 2.9
+ },
+ {
+  "name": "basmati rice",
+  "off_name": "Basmati Rice",
+  "cal": 121.0,
+  "prot": 3.54,
+  "fat": 0.38,
+  "carbs": 25.22
+ },
+ {
+  "name": "beef",
+  "off_name": "Beef",
+  "cal": 118.0,
+  "prot": 22.62,
+  "fat": 2.9,
+  "carbs": 0.3
+ },
+ {
+  "name": "beef broth",
+  "off_name": "Beef broth",
+  "cal": 44.0,
+  "prot": 1.9,
+  "fat": 0.5,
+  "carbs": 7.6
+ },
+ {
+  "name": "beef chunks",
+  "off_name": "Chunks",
+  "cal": 507.0,
+  "prot": 8.4,
+  "fat": 25.9,
+  "carbs": 58.5
+ },
+ {
+  "name": "Beef Fillet",
+  "off_name": "Fillet",
+  "cal": 1.0,
+  "prot": 54.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "beef sirloin",
+  "off_name": "Beef Sirloin Steak",
+  "cal": 133.93,
+  "prot": 22.32,
+  "fat": 4.46,
+  "carbs": 0.0
+ },
+ {
+  "name": "beef steak",
+  "off_name": "Beef stew",
+  "cal": 85.0,
+  "prot": 4.24,
+  "fat": 4.24,
+  "carbs": 7.2
+ },
+ {
+  "name": "beef stew meat",
+  "off_name": "Beef stew",
+  "cal": 85.0,
+  "prot": 4.24,
+  "fat": 4.24,
+  "carbs": 7.2
+ },
+ {
+  "name": "beef strips",
+  "off_name": "Beef",
+  "cal": 118.0,
+  "prot": 22.62,
+  "fat": 2.9,
+  "carbs": 0.3
+ },
+ {
+  "name": "Beef tomatoes",
+  "off_name": "Tomatoes on the vine",
+  "cal": 20.0,
+  "prot": 0.7,
+  "fat": 0.3,
+  "carbs": 3.1
+ },
+ {
+  "name": "Beetroot",
+  "off_name": "Beetroot",
+  "cal": 43.0,
+  "prot": 2.3,
+  "fat": 0.1,
+  "carbs": 7.2
+ },
+ {
+  "name": "bell pepper",
+  "off_name": "Bell Peppers",
+  "cal": 26.0,
+  "prot": 0.99,
+  "fat": 0.3,
+  "carbs": 6.03
+ },
+ {
+  "name": "berries",
+  "off_name": "Berries",
+  "cal": 350.0,
+  "prot": 1.1,
+  "fat": 0.5,
+  "carbs": 86.0
+ },
+ {
+  "name": "Beurre",
+  "off_name": "Beurre",
+  "cal": 744.0,
+  "prot": 0.6,
+  "fat": 82.1,
+  "carbs": 5.0
+ },
+ {
+  "name": "Beurre d'amande",
+  "off_name": "Beurre d amandes",
+  "cal": 628.0,
+  "prot": 22.0,
+  "fat": 53.0,
+  "carbs": 9.7
+ },
+ {
+  "name": "Beurre d'amande naturel",
+  "off_name": "Amande nature",
+  "cal": 39.0,
+  "prot": 1.6,
+  "fat": 3.1,
+  "carbs": 0.6
+ },
+ {
+  "name": "Beurre de cacahuète",
+  "off_name": "Beurre de Cacahuete",
+  "cal": 622.0,
+  "prot": 30.0,
+  "fat": 51.0,
+  "carbs": 8.6
+ },
+ {
+  "name": "Beurre de cacahuète naturel",
+  "off_name": "Beurre de cacao naturel",
+  "cal": 900.0,
+  "prot": 0.0,
+  "fat": 100.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "beurre de noisette",
+  "off_name": "Beurre bio de noisettes",
+  "cal": 708.0,
+  "prot": 16.83,
+  "fat": 62.9,
+  "carbs": 18.69
+ },
+ {
+  "name": "Beurre demi-sel",
+  "off_name": "Beurre demi-sel",
+  "cal": 727.0,
+  "prot": 0.7,
+  "fat": 80.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Beurre doux",
+  "off_name": "Beurre doux",
+  "cal": 744.0,
+  "prot": 0.6,
+  "fat": 82.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Bicarbonate Of Soda",
+  "off_name": "Bicarbonate",
+  "cal": 1.0,
+  "prot": 0.1,
+  "fat": 0.0,
+  "carbs": 0.2
+ },
+ {
+  "name": "Biryani masala",
+  "off_name": "Épices Biryani Masala",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 0.0,
+  "carbs": 3.0
+ },
+ {
+  "name": "bière",
+  "off_name": "Biere",
+  "cal": 21.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 4.4
+ },
+ {
+  "name": "black beans",
+  "off_name": "Black beans",
+  "cal": 100.0,
+  "prot": 6.8,
+  "fat": 0.6,
+  "carbs": 13.0
+ },
+ {
+  "name": "Black Pudding",
+  "off_name": "Pudding",
+  "cal": 345.0,
+  "prot": 0.4,
+  "fat": 0.1,
+  "carbs": 85.6
+ },
+ {
+  "name": "Blackberries",
+  "off_name": "Sweet Blackberries",
+  "cal": 346.0,
+  "prot": 3.0,
+  "fat": 0.0,
+  "carbs": 84.0
+ },
+ {
+  "name": "Blanc d'œuf",
+  "off_name": "Blanc d'oeuf",
+  "cal": 45.0,
+  "prot": 10.0,
+  "fat": 0.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Blanc de dinde",
+  "off_name": "Blanc de Dinde",
+  "cal": 104.0,
+  "prot": 22.0,
+  "fat": 1.3,
+  "carbs": 1.0
+ },
+ {
+  "name": "Blanc de dinde en tranches",
+  "off_name": "Blanc de dinde 6 tranches",
+  "cal": 100.0,
+  "prot": 22.0,
+  "fat": 0.9,
+  "carbs": 1.0
+ },
+ {
+  "name": "Blanc de poulet",
+  "off_name": "Blanc De Poulet",
+  "cal": 101.0,
+  "prot": 21.0,
+  "fat": 1.7,
+  "carbs": 0.9
+ },
+ {
+  "name": "Blanc de poulet cuit",
+  "off_name": "Blanc de poulet cuit au four",
+  "cal": 98.0,
+  "prot": 21.5,
+  "fat": 0.5,
+  "carbs": 1.3
+ },
+ {
+  "name": "Blancs d'œuf",
+  "off_name": "Blancs d’oeufs",
+  "cal": 47.0,
+  "prot": 10.7,
+  "fat": 0.1,
+  "carbs": 0.8
+ },
+ {
+  "name": "Blancs d'œufs",
+  "off_name": "Blancs d’oeufs",
+  "cal": 47.0,
+  "prot": 10.7,
+  "fat": 0.1,
+  "carbs": 0.8
+ },
+ {
+  "name": "blancs de poulet",
+  "off_name": "Blancs de Poulet",
+  "cal": 104.0,
+  "prot": 23.0,
+  "fat": 1.3,
+  "carbs": 0.0
+ },
+ {
+  "name": "blueberries",
+  "off_name": "Blueberries",
+  "cal": 60.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 11.0
+ },
+ {
+  "name": "boeuf",
+  "off_name": "boeuf",
+  "cal": 119.0,
+  "prot": 20.0,
+  "fat": 4.3,
+  "carbs": 0.5
+ },
+ {
+  "name": "boeuf (paleron)",
+  "off_name": "Paleron de boeuf",
+  "cal": 164.0,
+  "prot": 21.0,
+  "fat": 8.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "boeuf haché",
+  "off_name": "Boeuf haché",
+  "cal": 208.0,
+  "prot": 16.2,
+  "fat": 15.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "boeuf haché 5%",
+  "off_name": "Boeuf haché",
+  "cal": 208.0,
+  "prot": 16.2,
+  "fat": 15.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Bouillon Cubes",
+  "off_name": "Bouillon Cubes Persil",
+  "cal": 404.0,
+  "prot": 3.8,
+  "fat": 32.81,
+  "carbs": 22.1
+ },
+ {
+  "name": "bouillon de boeuf",
+  "off_name": "Bouillon de Bœuf",
+  "cal": 241.0,
+  "prot": 11.4,
+  "fat": 3.6,
+  "carbs": 36.7
+ },
+ {
+  "name": "Bouillon de légumes (cube)",
+  "off_name": "Bouillon cube de légumes",
+  "cal": 7.0,
+  "prot": 0.5,
+  "fat": 0.5,
+  "carbs": 0.6
+ },
+ {
+  "name": "Bouillon de poule",
+  "off_name": "Bouillon de Poule",
+  "cal": 6.0,
+  "prot": 0.12,
+  "fat": 0.42,
+  "carbs": 0.44
+ },
+ {
+  "name": "Bouillon de volaille",
+  "off_name": "Bouillon de volaille",
+  "cal": 238.0,
+  "prot": 14.5,
+  "fat": 8.36,
+  "carbs": 15.1
+ },
+ {
+  "name": "Boulgour",
+  "off_name": "Boulgour",
+  "cal": 329.0,
+  "prot": 12.5,
+  "fat": 1.8,
+  "carbs": 62.0
+ },
+ {
+  "name": "Bouquet Garni",
+  "off_name": "Bouquet garni",
+  "cal": 145.0,
+  "prot": 1.8,
+  "fat": 4.0,
+  "carbs": 24.5
+ },
+ {
+  "name": "Bramley Apples",
+  "off_name": "Bramley apple pie",
+  "cal": 275.0,
+  "prot": 3.2,
+  "fat": 10.9,
+  "carbs": 39.9
+ },
+ {
+  "name": "Bread",
+  "off_name": "Bread",
+  "cal": 238.0,
+  "prot": 8.0,
+  "fat": 2.0,
+  "carbs": 45.6
+ },
+ {
+  "name": "Bread Flour",
+  "off_name": "Bread flour enriched",
+  "cal": 354.84,
+  "prot": 12.9,
+  "fat": 0.0,
+  "carbs": 74.19
+ },
+ {
+  "name": "Breadcrumbs",
+  "off_name": "Bread Crumbs",
+  "cal": 350.0,
+  "prot": 12.4,
+  "fat": 1.4,
+  "carbs": 69.7
+ },
+ {
+  "name": "Brioche",
+  "off_name": "Panccioccolato con gocce al cioccolato",
+  "cal": 354.0,
+  "prot": 7.8,
+  "fat": 12.3,
+  "carbs": 52.0
+ },
+ {
+  "name": "Broad Beans",
+  "off_name": "Soy broad beans",
+  "cal": 440.0,
+  "prot": 20.4,
+  "fat": 17.4,
+  "carbs": 46.5
+ },
+ {
+  "name": "broccoli",
+  "off_name": "Broccoli",
+  "cal": 26.0,
+  "prot": 3.0,
+  "fat": 0.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "Brocoli",
+  "off_name": "Brocoli",
+  "cal": 28.0,
+  "prot": 2.1,
+  "fat": 0.5,
+  "carbs": 2.8
+ },
+ {
+  "name": "Brocoli frais",
+  "off_name": "Brocoli",
+  "cal": 24.0,
+  "prot": 1.6,
+  "fat": 0.0,
+  "carbs": 3.5
+ },
+ {
+  "name": "Brocolis",
+  "off_name": "Brocolis",
+  "cal": 29.0,
+  "prot": 2.1,
+  "fat": 0.5,
+  "carbs": 2.8
+ },
+ {
+  "name": "brown rice",
+  "off_name": "Brown Rice",
+  "cal": 348.0,
+  "prot": 6.6,
+  "fat": 3.0,
+  "carbs": 72.0
+ },
+ {
+  "name": "Brown Sugar",
+  "off_name": "Brown Sugar",
+  "cal": 399.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 99.7
+ },
+ {
+  "name": "Brussels Sprouts",
+  "off_name": "Brussels",
+  "cal": 481.0,
+  "prot": 6.41,
+  "fat": 22.4,
+  "carbs": 64.1
+ },
+ {
+  "name": "Buckwheat flour",
+  "off_name": "Buckwheat",
+  "cal": 360.0,
+  "prot": 13.0,
+  "fat": 2.0,
+  "carbs": 72.0
+ },
+ {
+  "name": "bulgur",
+  "off_name": "Bulgur",
+  "cal": 110.0,
+  "prot": 2.6,
+  "fat": 4.1,
+  "carbs": 14.7
+ },
+ {
+  "name": "Bun",
+  "off_name": "Buns",
+  "cal": 289.0,
+  "prot": 9.7,
+  "fat": 5.0,
+  "carbs": 50.0
+ },
+ {
+  "name": "Buns",
+  "off_name": "Buns",
+  "cal": 289.0,
+  "prot": 9.7,
+  "fat": 5.0,
+  "carbs": 50.0
+ },
+ {
+  "name": "burger bun",
+  "off_name": "Burger Bun",
+  "cal": 302.0,
+  "prot": 2.7,
+  "fat": 10.7,
+  "carbs": 46.2
+ },
+ {
+  "name": "butter",
+  "off_name": "Butter",
+  "cal": 717.0,
+  "prot": 0.85,
+  "fat": 81.11,
+  "carbs": 0.06
+ },
+ {
+  "name": "Butter Beans",
+  "off_name": "Butter beans",
+  "cal": 108.0,
+  "prot": 7.3,
+  "fat": 0.6,
+  "carbs": 15.6
+ },
+ {
+  "name": "Butternut",
+  "off_name": "BUTTERNUT bio",
+  "cal": 45.0,
+  "prot": 1.0,
+  "fat": 0.1,
+  "carbs": 11.7
+ },
+ {
+  "name": "Butternut Squash",
+  "off_name": "Butternut Squash Soup",
+  "cal": 33.0,
+  "prot": 0.6,
+  "fat": 0.8,
+  "carbs": 5.3
+ },
+ {
+  "name": "béchamel",
+  "off_name": "Béchamel",
+  "cal": 129.0,
+  "prot": 3.0,
+  "fat": 10.0,
+  "carbs": 6.8
+ },
+ {
+  "name": "Bœuf haché 5%",
+  "off_name": "Boeuf haché",
+  "cal": 208.0,
+  "prot": 16.2,
+  "fat": 15.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Bœuf haché frais",
+  "off_name": "Boeuf haché",
+  "cal": 208.0,
+  "prot": 16.2,
+  "fat": 15.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "cabbage",
+  "off_name": "Red cabbage",
+  "cal": 38.0,
+  "prot": 1.25,
+  "fat": 0.0,
+  "carbs": 7.5
+ },
+ {
+  "name": "Cacahuètes",
+  "off_name": "Cacahuètes",
+  "cal": 394.0,
+  "prot": 7.5,
+  "fat": 28.0,
+  "carbs": 28.0
+ },
+ {
+  "name": "Cacahuètes concassées",
+  "off_name": "Cacahuètes",
+  "cal": 588.0,
+  "prot": 25.0,
+  "fat": 46.0,
+  "carbs": 14.0
+ },
+ {
+  "name": "cacao",
+  "off_name": "Cacao",
+  "cal": 370.0,
+  "prot": 13.0,
+  "fat": 6.0,
+  "carbs": 57.0
+ },
+ {
+  "name": "Cacao en poudre",
+  "off_name": "Cacao en poudre",
+  "cal": 386.0,
+  "prot": 22.0,
+  "fat": 21.0,
+  "carbs": 12.0
+ },
+ {
+  "name": "Cacao powder",
+  "off_name": "Cacao Powder",
+  "cal": 416.67,
+  "prot": 33.33,
+  "fat": 8.67,
+  "carbs": 50.0
+ },
+ {
+  "name": "caesar dressing",
+  "off_name": "Caesar Dressing",
+  "cal": 393.0,
+  "prot": 1.0,
+  "fat": 40.9,
+  "carbs": 4.9
+ },
+ {
+  "name": "cajun",
+  "off_name": "Cajun Trail Mix",
+  "cal": 566.67,
+  "prot": 16.67,
+  "fat": 36.67,
+  "carbs": 43.33
+ },
+ {
+  "name": "canned chickpeas",
+  "off_name": "Chickpeas",
+  "cal": 123.0,
+  "prot": 6.3,
+  "fat": 2.5,
+  "carbs": 15.8
+ },
+ {
+  "name": "Cannelle",
+  "off_name": "Cannelle",
+  "cal": 518.0,
+  "prot": 7.0,
+  "fat": 35.6,
+  "carbs": 35.9
+ },
+ {
+  "name": "Cannelle en poudre",
+  "off_name": "Cannelle en poudre",
+  "cal": 1.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Cannelle moulue",
+  "off_name": "Cannelle Moulue",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Cannellini Beans",
+  "off_name": "Cannellini beans",
+  "cal": 108.0,
+  "prot": 7.0,
+  "fat": 0.4,
+  "carbs": 15.2
+ },
+ {
+  "name": "Carotte",
+  "off_name": "Carotte (fraîche, corrigé)",
+  "cal": 41.0,
+  "prot": 0.9,
+  "fat": 0.2,
+  "carbs": 7.6
+ },
+ {
+  "name": "Carottes",
+  "off_name": "Carottes",
+  "cal": 36.0,
+  "prot": 0.8,
+  "fat": 0.26,
+  "carbs": 6.6
+ },
+ {
+  "name": "carottes râpées",
+  "off_name": "Carottes rapees",
+  "cal": 72.0,
+  "prot": 0.8,
+  "fat": 4.0,
+  "carbs": 6.8
+ },
+ {
+  "name": "carrot",
+  "off_name": "Carrots",
+  "cal": 41.0,
+  "prot": 0.93,
+  "fat": 0.24,
+  "carbs": 9.58
+ },
+ {
+  "name": "carrots",
+  "off_name": "Petits pois et carottes (extra fins)",
+  "cal": 44.0,
+  "prot": 2.5,
+  "fat": 0.5,
+  "carbs": 5.5
+ },
+ {
+  "name": "Carré de chocolat noir 70%",
+  "off_name": "Carré chocolat noir 70%",
+  "cal": 549.0,
+  "prot": 8.1,
+  "fat": 41.0,
+  "carbs": 31.0
+ },
+ {
+  "name": "cashew nuts",
+  "off_name": "Cashew Nuts",
+  "cal": 583.0,
+  "prot": 18.0,
+  "fat": 44.0,
+  "carbs": 27.0
+ },
+ {
+  "name": "cashews",
+  "off_name": "cashews",
+  "cal": 618.0,
+  "prot": 20.0,
+  "fat": 45.0,
+  "carbs": 23.0
+ },
+ {
+  "name": "Cayenne Pepper",
+  "off_name": "Beef Bar Cayenne Pepper",
+  "cal": 368.0,
+  "prot": 46.7,
+  "fat": 8.9,
+  "carbs": 26.5
+ },
+ {
+  "name": "celery",
+  "off_name": "Celeri",
+  "cal": 234.0,
+  "prot": 1.4,
+  "fat": 23.0,
+  "carbs": 4.3
+ },
+ {
+  "name": "Celery Salt",
+  "off_name": "Celery salad",
+  "cal": 50.0,
+  "prot": 1.0,
+  "fat": 0.0,
+  "carbs": 11.0
+ },
+ {
+  "name": "cereal bar",
+  "off_name": "Cereal bar",
+  "cal": 321.0,
+  "prot": 6.9,
+  "fat": 10.0,
+  "carbs": 57.0
+ },
+ {
+  "name": "Challots",
+  "off_name": "Hallots",
+  "cal": 346.0,
+  "prot": 12.01,
+  "fat": 9.9,
+  "carbs": 57.6
+ },
+ {
+  "name": "Champignons",
+  "off_name": "Champignons",
+  "cal": 13.0,
+  "prot": 2.5,
+  "fat": 0.2,
+  "carbs": 0.3
+ },
+ {
+  "name": "Champignons de Paris",
+  "off_name": "Champignons de Paris",
+  "cal": 22.0,
+  "prot": 3.1,
+  "fat": 0.0,
+  "carbs": 1.1
+ },
+ {
+  "name": "Chapelure",
+  "off_name": "Chapelure",
+  "cal": 393.0,
+  "prot": 12.0,
+  "fat": 5.52,
+  "carbs": 71.0
+ },
+ {
+  "name": "cheddar cheese",
+  "off_name": "Cheddar Cheese",
+  "cal": 290.0,
+  "prot": 16.0,
+  "fat": 24.0,
+  "carbs": 1.7
+ },
+ {
+  "name": "cheese",
+  "off_name": "Cheese",
+  "cal": 381.0,
+  "prot": 24.4,
+  "fat": 31.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "cherry tomatoes",
+  "off_name": "Tomate cerise",
+  "cal": 24.6,
+  "prot": 1.64,
+  "fat": 0.0,
+  "carbs": 4.92
+ },
+ {
+  "name": "chia seeds",
+  "off_name": "Chia Seeds",
+  "cal": 533.0,
+  "prot": 16.7,
+  "fat": 33.3,
+  "carbs": 36.7
+ },
+ {
+  "name": "Chicken Bouillon Powder",
+  "off_name": "Bouillon powder",
+  "cal": 241.0,
+  "prot": 9.6,
+  "fat": 8.4,
+  "carbs": 30.6
+ },
+ {
+  "name": "chicken breast",
+  "off_name": "Chicken Breast",
+  "cal": 195.0,
+  "prot": 29.55,
+  "fat": 7.72,
+  "carbs": 0.0
+ },
+ {
+  "name": "Chicken Breasts",
+  "off_name": "Chicken Breast",
+  "cal": 100.0,
+  "prot": 22.0,
+  "fat": 1.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "Chicken broth",
+  "off_name": "Bouillon (poulet)",
+  "cal": 4.0,
+  "prot": 0.4,
+  "fat": 0.0,
+  "carbs": 0.4
+ },
+ {
+  "name": "Chicken Legs",
+  "off_name": "Chicken",
+  "cal": 274.0,
+  "prot": 6.0,
+  "fat": 10.2,
+  "carbs": 49.6
+ },
+ {
+  "name": "Chicken Stock Cube",
+  "off_name": "chicken stock cubes",
+  "cal": 284.0,
+  "prot": 3.3,
+  "fat": 15.3,
+  "carbs": 32.9
+ },
+ {
+  "name": "chicken thigh",
+  "off_name": "Chicken",
+  "cal": 274.0,
+  "prot": 6.0,
+  "fat": 10.2,
+  "carbs": 49.6
+ },
+ {
+  "name": "Chicken thighs",
+  "off_name": "Chicken",
+  "cal": 274.0,
+  "prot": 6.0,
+  "fat": 10.2,
+  "carbs": 49.6
+ },
+ {
+  "name": "Chicken Wings",
+  "off_name": "Chicken Wings",
+  "cal": 215.0,
+  "prot": 21.0,
+  "fat": 14.0,
+  "carbs": 1.8
+ },
+ {
+  "name": "chickpeas",
+  "off_name": "Chickpeas",
+  "cal": 126.0,
+  "prot": 6.4,
+  "fat": 1.9,
+  "carbs": 17.7
+ },
+ {
+  "name": "Chili flakes",
+  "off_name": "FLAKES",
+  "cal": 390.0,
+  "prot": 4.88,
+  "fat": 0.0,
+  "carbs": 90.2
+ },
+ {
+  "name": "chili powder",
+  "off_name": "Chilli Powder Mild",
+  "cal": 295.0,
+  "prot": 13.6,
+  "fat": 9.9,
+  "carbs": 20.9
+ },
+ {
+  "name": "Chilli Powder",
+  "off_name": "Chilli Powder Mild",
+  "cal": 295.0,
+  "prot": 13.6,
+  "fat": 9.9,
+  "carbs": 20.9
+ },
+ {
+  "name": "Chilli Sauce",
+  "off_name": "Chilli sauce",
+  "cal": 41.0,
+  "prot": 0.9,
+  "fat": 0.6,
+  "carbs": 7.2
+ },
+ {
+  "name": "Chimichurri sauce",
+  "off_name": "Chimichurri Steak sauce",
+  "cal": 266.7,
+  "prot": 0.0,
+  "fat": 26.7,
+  "carbs": 0.0
+ },
+ {
+  "name": "Chinese Broccoli",
+  "off_name": "Broccoli",
+  "cal": 26.0,
+  "prot": 3.0,
+  "fat": 0.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "Chives",
+  "off_name": "Chives",
+  "cal": 174.0,
+  "prot": 3.6,
+  "fat": 16.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "chocolat noir",
+  "off_name": "Chocolat noir",
+  "cal": 515.0,
+  "prot": 5.5,
+  "fat": 29.8,
+  "carbs": 52.6
+ },
+ {
+  "name": "Chocolat noir (70% cacao)",
+  "off_name": "Chocolat noir (70% de cacao)",
+  "cal": 577.0,
+  "prot": 8.3,
+  "fat": 42.0,
+  "carbs": 36.0
+ },
+ {
+  "name": "Chocolat noir 70%",
+  "off_name": "Chocolat noir 70%",
+  "cal": 557.0,
+  "prot": 7.5,
+  "fat": 41.5,
+  "carbs": 32.2
+ },
+ {
+  "name": "Chocolat noir 85%",
+  "off_name": "Chocolat noir 85%",
+  "cal": 636.0,
+  "prot": 8.8,
+  "fat": 56.0,
+  "carbs": 19.0
+ },
+ {
+  "name": "chocolate protein powder",
+  "off_name": "Protein+ chocolate",
+  "cal": 346.0,
+  "prot": 31.0,
+  "fat": 7.0,
+  "carbs": 31.0
+ },
+ {
+  "name": "chopped tomatoes",
+  "off_name": "Chopped tomatoes",
+  "cal": 23.0,
+  "prot": 1.3,
+  "fat": 0.2,
+  "carbs": 3.6
+ },
+ {
+  "name": "chorizo",
+  "off_name": "Chorizo",
+  "cal": 354.0,
+  "prot": 25.0,
+  "fat": 26.4,
+  "carbs": 4.2
+ },
+ {
+  "name": "chou chinois",
+  "off_name": "Chou chinois braise",
+  "cal": 52.0,
+  "prot": 1.6,
+  "fat": 2.0,
+  "carbs": 5.2
+ },
+ {
+  "name": "chou rouge",
+  "off_name": "Chou rouge",
+  "cal": 29.0,
+  "prot": 1.34,
+  "fat": 0.19,
+  "carbs": 4.5
+ },
+ {
+  "name": "Chou-fleur",
+  "off_name": "Chou-fleur",
+  "cal": 29.0,
+  "prot": 1.61,
+  "fat": 0.31,
+  "carbs": 3.75
+ },
+ {
+  "name": "Ciboulette",
+  "off_name": "Ciboulette",
+  "cal": 30.0,
+  "prot": 2.7,
+  "fat": 0.5,
+  "carbs": 2.5
+ },
+ {
+  "name": "Ciboulette fraîche",
+  "off_name": "Ciboulette",
+  "cal": 25.0,
+  "prot": 2.8,
+  "fat": 0.7,
+  "carbs": 1.8
+ },
+ {
+  "name": "Cider",
+  "off_name": "Cider",
+  "cal": 485.0,
+  "prot": 8.1,
+  "fat": 22.5,
+  "carbs": 65.8
+ },
+ {
+  "name": "Cider Vinegar",
+  "off_name": "Sea Salt & Cider Vinegar",
+  "cal": 502.0,
+  "prot": 6.5,
+  "fat": 27.2,
+  "carbs": 54.5
+ },
+ {
+  "name": "cinnamon",
+  "off_name": "Cinnamon city",
+  "cal": 357.0,
+  "prot": 7.0,
+  "fat": 14.3,
+  "carbs": 51.6
+ },
+ {
+  "name": "Citron",
+  "off_name": "Citron",
+  "cal": 10.0,
+  "prot": 3.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "citron confit",
+  "off_name": "Citron confit",
+  "cal": 33.0,
+  "prot": 0.7,
+  "fat": 0.0,
+  "carbs": 7.5
+ },
+ {
+  "name": "Clear Honey",
+  "off_name": "Clear Honey",
+  "cal": 326.0,
+  "prot": 0.5,
+  "fat": 0.1,
+  "carbs": 81.0
+ },
+ {
+  "name": "Clotted Cream",
+  "off_name": "Clotted cream fudge",
+  "cal": 444.0,
+  "prot": 0.6,
+  "fat": 14.2,
+  "carbs": 78.2
+ },
+ {
+  "name": "clove",
+  "off_name": "Clover 1Kg",
+  "cal": 587.0,
+  "prot": 0.7,
+  "fat": 64.5,
+  "carbs": 1.0
+ },
+ {
+  "name": "coco sugar",
+  "off_name": "Coconut sugar",
+  "cal": 357.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 86.0
+ },
+ {
+  "name": "cocoa powder",
+  "off_name": "cocoa powder",
+  "cal": 218.0,
+  "prot": 0.0,
+  "fat": 10.0,
+  "carbs": 32.0
+ },
+ {
+  "name": "Coconut Cream",
+  "off_name": "Coconut cream",
+  "cal": 204.0,
+  "prot": 0.62,
+  "fat": 21.2,
+  "carbs": 2.25
+ },
+ {
+  "name": "Coconut flakes",
+  "off_name": "Flocons de Noix de Coco",
+  "cal": 708.0,
+  "prot": 7.3,
+  "fat": 69.1,
+  "carbs": 8.5
+ },
+ {
+  "name": "Coconut flour",
+  "off_name": "Coconut Flour",
+  "cal": 422.0,
+  "prot": 18.0,
+  "fat": 12.0,
+  "carbs": 54.0
+ },
+ {
+  "name": "coconut milk",
+  "off_name": "Lait de Coco",
+  "cal": 186.0,
+  "prot": 1.5,
+  "fat": 18.0,
+  "carbs": 3.5
+ },
+ {
+  "name": "coconut oil",
+  "off_name": "Coconut oil",
+  "cal": 862.0,
+  "prot": 0.0,
+  "fat": 100.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "coconut water",
+  "off_name": "Coconut water",
+  "cal": 14.0,
+  "prot": 0.1,
+  "fat": 0.0,
+  "carbs": 3.4
+ },
+ {
+  "name": "Cod",
+  "off_name": "Cod filet",
+  "cal": 218.0,
+  "prot": 11.9,
+  "fat": 10.4,
+  "carbs": 18.8
+ },
+ {
+  "name": "cod fillet",
+  "off_name": "Cod filet",
+  "cal": 218.0,
+  "prot": 11.9,
+  "fat": 10.4,
+  "carbs": 18.8
+ },
+ {
+  "name": "cod fish",
+  "off_name": "Fish",
+  "cal": 495.0,
+  "prot": 8.0,
+  "fat": 25.0,
+  "carbs": 58.0
+ },
+ {
+  "name": "Cold Water",
+  "off_name": "Coco Water",
+  "cal": 21.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 5.0
+ },
+ {
+  "name": "Compote de pomme sans sucre",
+  "off_name": "Compote De Pomme Sans Sucre Ajouté",
+  "cal": 86.0,
+  "prot": 0.4,
+  "fat": 0.4,
+  "carbs": 18.9
+ },
+ {
+  "name": "Compote de pommes",
+  "off_name": "Compote de pommes",
+  "cal": 69.0,
+  "prot": 0.5,
+  "fat": 0.5,
+  "carbs": 16.0
+ },
+ {
+  "name": "comté",
+  "off_name": "Comté",
+  "cal": 410.0,
+  "prot": 26.0,
+  "fat": 34.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Concentré de tomate",
+  "off_name": "Concentré de tomate",
+  "cal": 104.0,
+  "prot": 4.7,
+  "fat": 0.7,
+  "carbs": 18.0
+ },
+ {
+  "name": "Concombre",
+  "off_name": "Concombre",
+  "cal": 15.0,
+  "prot": 0.7,
+  "fat": 0.1,
+  "carbs": 3.6
+ },
+ {
+  "name": "Confiture de fraises",
+  "off_name": "Confiture de fraises",
+  "cal": 240.0,
+  "prot": 0.3,
+  "fat": 0.1,
+  "carbs": 59.0
+ },
+ {
+  "name": "Cooked Beetroot",
+  "off_name": "Cooked Beetroot in Natural Juice",
+  "cal": 42.0,
+  "prot": 1.4,
+  "fat": 0.5,
+  "carbs": 7.2
+ },
+ {
+  "name": "cookie",
+  "off_name": "Cookie",
+  "cal": 395.0,
+  "prot": 4.64,
+  "fat": 16.25,
+  "carbs": 54.45
+ },
+ {
+  "name": "coriander",
+  "off_name": "Tesco Carrot Coriander Soup 600G",
+  "cal": 33.0,
+  "prot": 0.6,
+  "fat": 1.6,
+  "carbs": 2.9
+ },
+ {
+  "name": "Coriandre fraîche",
+  "off_name": "Coriandre",
+  "cal": 23.0,
+  "prot": 2.13,
+  "fat": 0.5,
+  "carbs": 3.67
+ },
+ {
+  "name": "Coriandre moulue",
+  "off_name": "Coriandre",
+  "cal": 69.0,
+  "prot": 3.3,
+  "fat": 4.8,
+  "carbs": 0.6
+ },
+ {
+  "name": "Corn kernels",
+  "off_name": "Grains de Maïs Entiers",
+  "cal": 48.0,
+  "prot": 0.8,
+  "fat": 0.8,
+  "carbs": 10.4
+ },
+ {
+  "name": "corn tortillas",
+  "off_name": "Fiesta Wrap Corn Tortillas X8",
+  "cal": 315.0,
+  "prot": 8.25,
+  "fat": 8.0,
+  "carbs": 52.5
+ },
+ {
+  "name": "Cornichons",
+  "off_name": "Cornichons",
+  "cal": 25.0,
+  "prot": 0.9,
+  "fat": 0.5,
+  "carbs": 3.4
+ },
+ {
+  "name": "Cornstarch",
+  "off_name": "CornStars",
+  "cal": 406.0,
+  "prot": 7.7,
+  "fat": 6.2,
+  "carbs": 77.0
+ },
+ {
+  "name": "cottage cheese",
+  "off_name": "4% Cottage Cheese",
+  "cal": 97.35,
+  "prot": 10.62,
+  "fat": 4.42,
+  "carbs": 4.42
+ },
+ {
+  "name": "Courge butternut",
+  "off_name": "Courge butternut carottes muscade",
+  "cal": 51.0,
+  "prot": 1.1,
+  "fat": 1.7,
+  "carbs": 6.9
+ },
+ {
+  "name": "Courgette",
+  "off_name": "Courgette",
+  "cal": 18.0,
+  "prot": 1.3,
+  "fat": 0.3,
+  "carbs": 2.5
+ },
+ {
+  "name": "Courgettes",
+  "off_name": "Courgettes",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "couscous",
+  "off_name": "Couscous",
+  "cal": 346.0,
+  "prot": 11.0,
+  "fat": 1.2,
+  "carbs": 71.0
+ },
+ {
+  "name": "Couscous complet",
+  "off_name": "Couscous complet",
+  "cal": 359.0,
+  "prot": 13.5,
+  "fat": 2.0,
+  "carbs": 68.5
+ },
+ {
+  "name": "Coussins de chocolat noir 70%",
+  "off_name": "Noix de coco - Chocolat noir 70%",
+  "cal": 550.0,
+  "prot": 6.2,
+  "fat": 41.5,
+  "carbs": 33.5
+ },
+ {
+  "name": "Crackers de seigle",
+  "off_name": "Crackers de seigle complet bio",
+  "cal": 350.0,
+  "prot": 10.3,
+  "fat": 1.8,
+  "carbs": 65.8
+ },
+ {
+  "name": "Cranberries séchées",
+  "off_name": "Cranberries séchées",
+  "cal": 309.0,
+  "prot": 0.1,
+  "fat": 1.5,
+  "carbs": 71.0
+ },
+ {
+  "name": "Cranberry",
+  "off_name": "Cranberry",
+  "cal": 40.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 10.0
+ },
+ {
+  "name": "cream",
+  "off_name": "Creamy",
+  "cal": 459.0,
+  "prot": 4.1,
+  "fat": 20.0,
+  "carbs": 65.0
+ },
+ {
+  "name": "cream cheese",
+  "off_name": "Cream  cheese",
+  "cal": 225.0,
+  "prot": 7.0,
+  "fat": 20.0,
+  "carbs": 4.0
+ },
+ {
+  "name": "crevettes",
+  "off_name": "Crevettes",
+  "cal": 104.0,
+  "prot": 23.0,
+  "fat": 1.29,
+  "carbs": 0.1
+ },
+ {
+  "name": "Crevettes décortiquées",
+  "off_name": "Crevettes décortiquées",
+  "cal": 86.0,
+  "prot": 19.0,
+  "fat": 0.5,
+  "carbs": 1.0
+ },
+ {
+  "name": "croutons",
+  "off_name": "Croutons",
+  "cal": 528.0,
+  "prot": 7.8,
+  "fat": 30.0,
+  "carbs": 55.0
+ },
+ {
+  "name": "crème",
+  "off_name": "Crème",
+  "cal": 345.0,
+  "prot": 2.3,
+  "fat": 36.0,
+  "carbs": 3.0
+ },
+ {
+  "name": "Crème de coco",
+  "off_name": "Crème de coco",
+  "cal": 213.0,
+  "prot": 1.0,
+  "fat": 21.5,
+  "carbs": 2.4
+ },
+ {
+  "name": "crème fraîche",
+  "off_name": "Creme Fraiche",
+  "cal": 292.0,
+  "prot": 2.2,
+  "fat": 30.0,
+  "carbs": 3.3
+ },
+ {
+  "name": "Crème fraîche légère",
+  "off_name": "Crème Fraîche Légère",
+  "cal": 165.0,
+  "prot": 2.8,
+  "fat": 14.6,
+  "carbs": 5.6
+ },
+ {
+  "name": "Crème fraîche épaisse",
+  "off_name": "Creme fraiche epaisse",
+  "cal": 287.0,
+  "prot": 2.0,
+  "fat": 30.0,
+  "carbs": 2.2
+ },
+ {
+  "name": "Crème légère",
+  "off_name": "Crème légère",
+  "cal": 140.0,
+  "prot": 3.0,
+  "fat": 12.0,
+  "carbs": 4.4
+ },
+ {
+  "name": "Cubed Feta cheese",
+  "off_name": "Feta Cheese PDO",
+  "cal": 310.0,
+  "prot": 17.0,
+  "fat": 26.0,
+  "carbs": 2.1
+ },
+ {
+  "name": "Cucumbers",
+  "off_name": "Hot Dill Cucumbers",
+  "cal": 15.0,
+  "prot": 0.8,
+  "fat": 0.2,
+  "carbs": 2.6
+ },
+ {
+  "name": "Cuisse de poulet",
+  "off_name": "CUISSE DE POULET",
+  "cal": 198.0,
+  "prot": 18.0,
+  "fat": 14.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "cuisses de poulet",
+  "off_name": "Cuisses de poulet",
+  "cal": 198.0,
+  "prot": 18.0,
+  "fat": 14.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "cumin",
+  "off_name": "Cumin",
+  "cal": 429.0,
+  "prot": 17.8,
+  "fat": 22.3,
+  "carbs": 34.0
+ },
+ {
+  "name": "Cumin en poudre",
+  "off_name": "Cumin Poudre",
+  "cal": 375.0,
+  "prot": 17.8,
+  "fat": 22.0,
+  "carbs": 33.7
+ },
+ {
+  "name": "Curry",
+  "off_name": "Curry",
+  "cal": 298.0,
+  "prot": 15.1,
+  "fat": 12.1,
+  "carbs": 32.0
+ },
+ {
+  "name": "Curry en poudre",
+  "off_name": "Curry en poudre",
+  "cal": 325.0,
+  "prot": 13.0,
+  "fat": 14.0,
+  "carbs": 25.0
+ },
+ {
+  "name": "curry paste",
+  "off_name": "Curry Paste",
+  "cal": 165.0,
+  "prot": 5.8,
+  "fat": 2.1,
+  "carbs": 24.6
+ },
+ {
+  "name": "curry powder",
+  "off_name": "Medium curry powder",
+  "cal": 284.0,
+  "prot": 12.9,
+  "fat": 11.4,
+  "carbs": 18.0
+ },
+ {
+  "name": "curry sauce",
+  "off_name": "Sauce Curry",
+  "cal": 95.0,
+  "prot": 1.0,
+  "fat": 4.5,
+  "carbs": 12.0
+ },
+ {
+  "name": "Céleri",
+  "off_name": "Celeri",
+  "cal": 234.0,
+  "prot": 1.4,
+  "fat": 23.0,
+  "carbs": 4.3
+ },
+ {
+  "name": "céréales",
+  "off_name": "Céréales",
+  "cal": 375.0,
+  "prot": 8.0,
+  "fat": 1.0,
+  "carbs": 82.0
+ },
+ {
+  "name": "Dark Brown Sugar",
+  "off_name": "Dark brown soft sugar",
+  "cal": 400.0,
+  "prot": 0.1,
+  "fat": 0.0,
+  "carbs": 100.0
+ },
+ {
+  "name": "dark chocolate",
+  "off_name": "Dark Chocolate",
+  "cal": 525.0,
+  "prot": 6.4,
+  "fat": 31.0,
+  "carbs": 50.0
+ },
+ {
+  "name": "dark chocolate chips",
+  "off_name": "Dark chocolate",
+  "cal": 534.0,
+  "prot": 6.3,
+  "fat": 35.0,
+  "carbs": 42.0
+ },
+ {
+  "name": "dates",
+  "off_name": "Dates",
+  "cal": 120.0,
+  "prot": 1.0,
+  "fat": 0.0,
+  "carbs": 31.0
+ },
+ {
+  "name": "Dattes",
+  "off_name": "Dattes",
+  "cal": 329.0,
+  "prot": 2.4,
+  "fat": 0.5,
+  "carbs": 75.0
+ },
+ {
+  "name": "Dattes Medjool",
+  "off_name": "Dattes Medjool",
+  "cal": 287.0,
+  "prot": 2.5,
+  "fat": 0.1,
+  "carbs": 69.0
+ },
+ {
+  "name": "Diced Tomatoes",
+  "off_name": "Tomates en dés",
+  "cal": 20.0,
+  "prot": 0.8,
+  "fat": 0.0,
+  "carbs": 4.8
+ },
+ {
+  "name": "Dill",
+  "off_name": "Dill Chips",
+  "cal": 20.0,
+  "prot": 0.3,
+  "fat": 0.1,
+  "carbs": 3.4
+ },
+ {
+  "name": "dinde hachée",
+  "off_name": "Haché de Dinde",
+  "cal": 161.0,
+  "prot": 17.0,
+  "fat": 9.8,
+  "carbs": 0.7
+ },
+ {
+  "name": "Double Cream",
+  "off_name": "Double cream",
+  "cal": 445.0,
+  "prot": 1.7,
+  "fat": 47.5,
+  "carbs": 2.6
+ },
+ {
+  "name": "dried apricots",
+  "off_name": "Dried apricots",
+  "cal": 241.0,
+  "prot": 3.4,
+  "fat": 0.5,
+  "carbs": 63.0
+ },
+ {
+  "name": "dried cranberries",
+  "off_name": "Dried Cranberries",
+  "cal": 329.0,
+  "prot": 0.35,
+  "fat": 0.93,
+  "carbs": 79.8
+ },
+ {
+  "name": "dried dates",
+  "off_name": "Dried Date",
+  "cal": 180.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 32.0
+ },
+ {
+  "name": "dried fruits",
+  "off_name": "Drink Fruits",
+  "cal": 18.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 4.6
+ },
+ {
+  "name": "Dried Oregano",
+  "off_name": "Oregano",
+  "cal": 420.0,
+  "prot": 8.8,
+  "fat": 14.9,
+  "carbs": 62.75
+ },
+ {
+  "name": "Dried white beans",
+  "off_name": "White Beans",
+  "cal": 76.0,
+  "prot": 5.4,
+  "fat": 0.5,
+  "carbs": 15.1
+ },
+ {
+  "name": "Duck Sauce",
+  "off_name": "Peking duck sauce",
+  "cal": 248.0,
+  "prot": 2.6,
+  "fat": 6.4,
+  "carbs": 43.0
+ },
+ {
+  "name": "Eau",
+  "off_name": "Eau",
+  "cal": 0.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Eau de fleur d'oranger",
+  "off_name": "Eau florale de fleur d'oranger",
+  "cal": 1.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Eau ou lait écrémé",
+  "off_name": "Lait écrémé",
+  "cal": 32.0,
+  "prot": 3.3,
+  "fat": 0.5,
+  "carbs": 4.8
+ },
+ {
+  "name": "Edamame",
+  "off_name": "Edamame",
+  "cal": 140.0,
+  "prot": 10.0,
+  "fat": 5.9,
+  "carbs": 11.4
+ },
+ {
+  "name": "Edamame surgelé",
+  "off_name": "Edamame salés surgelés",
+  "cal": 154.0,
+  "prot": 12.0,
+  "fat": 5.4,
+  "carbs": 14.0
+ },
+ {
+  "name": "edamames",
+  "off_name": "Edamame",
+  "cal": 515.0,
+  "prot": 6.7,
+  "fat": 51.0,
+  "carbs": 7.4
+ },
+ {
+  "name": "egg",
+  "off_name": "Egg",
+  "cal": 142.0,
+  "prot": 12.4,
+  "fat": 10.1,
+  "carbs": 0.3
+ },
+ {
+  "name": "Egg White",
+  "off_name": "Egg White powder",
+  "cal": 336.0,
+  "prot": 78.0,
+  "fat": 0.3,
+  "carbs": 5.3
+ },
+ {
+  "name": "eggplant",
+  "off_name": "Eggplant Dip",
+  "cal": 84.0,
+  "prot": 2.0,
+  "fat": 4.0,
+  "carbs": 10.0
+ },
+ {
+  "name": "eggs",
+  "off_name": "Eggs",
+  "cal": 140.0,
+  "prot": 12.0,
+  "fat": 10.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Emmental râpé",
+  "off_name": "Emmental râpé",
+  "cal": 369.0,
+  "prot": 27.0,
+  "fat": 29.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Enchilada sauce",
+  "off_name": "Sauce enchiladas",
+  "cal": 75.0,
+  "prot": 1.7,
+  "fat": 3.7,
+  "carbs": 8.5
+ },
+ {
+  "name": "English Muffins",
+  "off_name": "English muffins",
+  "cal": 228.0,
+  "prot": 8.77,
+  "fat": 2.63,
+  "carbs": 43.86
+ },
+ {
+  "name": "English Mustard",
+  "off_name": "English Mustard",
+  "cal": 194.0,
+  "prot": 11.0,
+  "fat": 10.0,
+  "carbs": 11.0
+ },
+ {
+  "name": "Escalope de dinde",
+  "off_name": "Escalope de Dinde",
+  "cal": 108.0,
+  "prot": 24.0,
+  "fat": 1.3,
+  "carbs": 0.0
+ },
+ {
+  "name": "Escalope de poulet",
+  "off_name": "Escalope De Poulet",
+  "cal": 223.0,
+  "prot": 15.0,
+  "fat": 11.0,
+  "carbs": 16.0
+ },
+ {
+  "name": "Escalope de veau",
+  "off_name": "Escalope de veau",
+  "cal": 108.0,
+  "prot": 18.3,
+  "fat": 3.4,
+  "carbs": 1.4
+ },
+ {
+  "name": "Extra Virgin Olive Oil",
+  "off_name": "Extra Virgin Olive Oil",
+  "cal": 824.0,
+  "prot": 0.0,
+  "fat": 91.6,
+  "carbs": 0.0
+ },
+ {
+  "name": "Extrait de vanille",
+  "off_name": "Extrait de vanille",
+  "cal": 284.0,
+  "prot": 0.5,
+  "fat": 0.5,
+  "carbs": 73.0
+ },
+ {
+  "name": "fajita seasoning",
+  "off_name": "Fajita seasoning mix",
+  "cal": 271.0,
+  "prot": 14.0,
+  "fat": 4.3,
+  "carbs": 37.0
+ },
+ {
+  "name": "Falafel",
+  "off_name": "Falafel",
+  "cal": 213.0,
+  "prot": 9.0,
+  "fat": 7.4,
+  "carbs": 23.0
+ },
+ {
+  "name": "farfalle",
+  "off_name": "Farfalle",
+  "cal": 358.0,
+  "prot": 0.0,
+  "fat": 2.0,
+  "carbs": 72.0
+ },
+ {
+  "name": "Farine",
+  "off_name": "Farine",
+  "cal": 337.0,
+  "prot": 10.0,
+  "fat": 0.9,
+  "carbs": 71.0
+ },
+ {
+  "name": "farine avec levure",
+  "off_name": "Farine Avec Levure",
+  "cal": 350.0,
+  "prot": 10.7,
+  "fat": 1.3,
+  "carbs": 72.3
+ },
+ {
+  "name": "Farine blanche",
+  "off_name": "Farine blanche",
+  "cal": 388.0,
+  "prot": 14.1,
+  "fat": 3.6,
+  "carbs": 73.2
+ },
+ {
+  "name": "Farine complète",
+  "off_name": "Farine complète",
+  "cal": 339.0,
+  "prot": 11.4,
+  "fat": 1.5,
+  "carbs": 66.0
+ },
+ {
+  "name": "Farine de blé",
+  "off_name": "Farine de blé",
+  "cal": 345.0,
+  "prot": 10.0,
+  "fat": 1.3,
+  "carbs": 72.0
+ },
+ {
+  "name": "Farine de blé complet",
+  "off_name": "Farine De Blé Complète",
+  "cal": 343.0,
+  "prot": 12.5,
+  "fat": 1.3,
+  "carbs": 67.2
+ },
+ {
+  "name": "Farine de pois chiches",
+  "off_name": "Farine de Pois Chiches",
+  "cal": 405.0,
+  "prot": 21.3,
+  "fat": 4.8,
+  "carbs": 61.8
+ },
+ {
+  "name": "Farine de sarrasin",
+  "off_name": "Farine de Sarrasin",
+  "cal": 347.0,
+  "prot": 12.6,
+  "fat": 3.1,
+  "carbs": 63.7
+ },
+ {
+  "name": "fat-free cottage cheese",
+  "off_name": "Kassler",
+  "cal": 75.3,
+  "prot": 13.3,
+  "fat": 1.6,
+  "carbs": 1.67
+ },
+ {
+  "name": "Fenouil",
+  "off_name": "Fenouil émincé",
+  "cal": 15.0,
+  "prot": 1.0,
+  "fat": 0.2,
+  "carbs": 1.6
+ },
+ {
+  "name": "Feta",
+  "off_name": "Feta",
+  "cal": 312.0,
+  "prot": 17.6,
+  "fat": 20.0,
+  "carbs": 0.2
+ },
+ {
+  "name": "feta cheese",
+  "off_name": "Feta cheese pdo",
+  "cal": 271.0,
+  "prot": 17.5,
+  "fat": 21.2,
+  "carbs": 2.4
+ },
+ {
+  "name": "Fettuccine",
+  "off_name": "Fettuccine",
+  "cal": 366.0,
+  "prot": 11.0,
+  "fat": 11.0,
+  "carbs": 74.0
+ },
+ {
+  "name": "Feuilles de salade mélangée",
+  "off_name": "Salade Mélangée",
+  "cal": 18.0,
+  "prot": 0.9,
+  "fat": 0.5,
+  "carbs": 1.6
+ },
+ {
+  "name": "Figs",
+  "off_name": "Figs",
+  "cal": 257.0,
+  "prot": 3.3,
+  "fat": 0.9,
+  "carbs": 54.1
+ },
+ {
+  "name": "Figues fraîches ou séchées",
+  "off_name": "Figues Sechees",
+  "cal": 264.0,
+  "prot": 3.0,
+  "fat": 0.9,
+  "carbs": 54.0
+ },
+ {
+  "name": "figues sèches",
+  "off_name": "Figues Sèches",
+  "cal": 294.0,
+  "prot": 3.3,
+  "fat": 2.6,
+  "carbs": 58.0
+ },
+ {
+  "name": "Figues séchées",
+  "off_name": "Figues séchées",
+  "cal": 249.0,
+  "prot": 3.8,
+  "fat": 0.9,
+  "carbs": 63.9
+ },
+ {
+  "name": "Filet de bœuf",
+  "off_name": "Filet de boeuf",
+  "cal": 188.0,
+  "prot": 19.0,
+  "fat": 12.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Filet de cabillaud",
+  "off_name": "Filet de Cabillaud",
+  "cal": 77.0,
+  "prot": 18.0,
+  "fat": 0.7,
+  "carbs": 0.0
+ },
+ {
+  "name": "Filet de colin",
+  "off_name": "Filet de colin",
+  "cal": 96.0,
+  "prot": 11.0,
+  "fat": 4.4,
+  "carbs": 2.7
+ },
+ {
+  "name": "Filet de daurade",
+  "off_name": "Filet de daurade fumée marinée à l'aneth",
+  "cal": 138.0,
+  "prot": 23.0,
+  "fat": 5.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Filet de dorade",
+  "off_name": "Filet de dorade-sébaste",
+  "cal": 93.0,
+  "prot": 17.0,
+  "fat": 2.6,
+  "carbs": 0.8
+ },
+ {
+  "name": "Filet de lieu noir",
+  "off_name": "Filet de lieu noir",
+  "cal": 81.0,
+  "prot": 19.0,
+  "fat": 0.7,
+  "carbs": 0.0
+ },
+ {
+  "name": "Filet de merlu",
+  "off_name": "Filet de merlu",
+  "cal": 112.0,
+  "prot": 22.0,
+  "fat": 2.3,
+  "carbs": 0.9
+ },
+ {
+  "name": "Filet de poulet",
+  "off_name": "Filet de poulet",
+  "cal": 104.0,
+  "prot": 23.0,
+  "fat": 1.3,
+  "carbs": 0.0
+ },
+ {
+  "name": "Filet de poulet fermier",
+  "off_name": "Filet de poulet fermier blanc",
+  "cal": 112.0,
+  "prot": 25.0,
+  "fat": 1.3,
+  "carbs": 0.0
+ },
+ {
+  "name": "Filet de poulet maigre",
+  "off_name": "Filet de poulet",
+  "cal": 111.0,
+  "prot": 19.0,
+  "fat": 2.8,
+  "carbs": 1.8
+ },
+ {
+  "name": "Filet de poulet sans peau",
+  "off_name": "Filet de poulet",
+  "cal": 111.0,
+  "prot": 19.0,
+  "fat": 2.8,
+  "carbs": 1.8
+ },
+ {
+  "name": "Filet de saumon",
+  "off_name": "Filet de saumon",
+  "cal": 198.0,
+  "prot": 20.0,
+  "fat": 12.9,
+  "carbs": 0.5
+ },
+ {
+  "name": "Filet de saumon frais",
+  "off_name": "Filet de saumon",
+  "cal": 147.0,
+  "prot": 7.2,
+  "fat": 6.3,
+  "carbs": 15.0
+ },
+ {
+  "name": "Filet de tilapia",
+  "off_name": "Filet de tilapia",
+  "cal": 91.0,
+  "prot": 17.0,
+  "fat": 2.7,
+  "carbs": 0.0
+ },
+ {
+  "name": "Filet de truite",
+  "off_name": "Filet de truite",
+  "cal": 136.0,
+  "prot": 19.0,
+  "fat": 6.0,
+  "carbs": 1.4
+ },
+ {
+  "name": "Filet mignon de porc",
+  "off_name": "Filet mignon de porc",
+  "cal": 120.0,
+  "prot": 23.0,
+  "fat": 3.1,
+  "carbs": 0.5
+ },
+ {
+  "name": "Filets de poulet",
+  "off_name": "FILETS DE POULET",
+  "cal": 109.0,
+  "prot": 23.0,
+  "fat": 1.8,
+  "carbs": 0.3
+ },
+ {
+  "name": "Fine Yellow Cornmeal",
+  "off_name": "Yellow Corn meal",
+  "cal": 340.0,
+  "prot": 8.0,
+  "fat": 0.0,
+  "carbs": 79.0
+ },
+ {
+  "name": "fish fillet",
+  "off_name": "Fish filet",
+  "cal": 229.0,
+  "prot": 13.3,
+  "fat": 3.9,
+  "carbs": 34.6
+ },
+ {
+  "name": "Fish Stock",
+  "off_name": "Fish Stick",
+  "cal": 196.0,
+  "prot": 13.0,
+  "fat": 9.0,
+  "carbs": 15.0
+ },
+ {
+  "name": "fleur de sel",
+  "off_name": "Fleur de sel",
+  "cal": 3.0,
+  "prot": 5.0,
+  "fat": 3.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "Flocons d'avoine",
+  "off_name": "Flocons d'avoine",
+  "cal": 375.0,
+  "prot": 11.0,
+  "fat": 8.0,
+  "carbs": 60.0
+ },
+ {
+  "name": "Flocons d'avoine complets",
+  "off_name": "Flocons d'Avoine Complets",
+  "cal": 366.0,
+  "prot": 12.5,
+  "fat": 6.6,
+  "carbs": 58.7
+ },
+ {
+  "name": "Flocons d'avoine complète",
+  "off_name": "Flocons d'avoine complete",
+  "cal": 372.0,
+  "prot": 14.0,
+  "fat": 7.0,
+  "carbs": 59.0
+ },
+ {
+  "name": "Flocons d'avoine mixés",
+  "off_name": "Flocons d'avoine",
+  "cal": 367.0,
+  "prot": 14.2,
+  "fat": 6.51,
+  "carbs": 57.9
+ },
+ {
+  "name": "Flocons de piment rouge",
+  "off_name": "Pâte de Piment Rouge",
+  "cal": 48.0,
+  "prot": 2.4,
+  "fat": 0.8,
+  "carbs": 7.7
+ },
+ {
+  "name": "flour tortilla",
+  "off_name": "Tortilla",
+  "cal": 310.0,
+  "prot": 8.5,
+  "fat": 6.9,
+  "carbs": 52.0
+ },
+ {
+  "name": "Floury Potatoes",
+  "off_name": "Potatoes",
+  "cal": 142.0,
+  "prot": 2.5,
+  "fat": 5.2,
+  "carbs": 20.0
+ },
+ {
+  "name": "Fraises",
+  "off_name": "Fraises",
+  "cal": 38.6,
+  "prot": 0.63,
+  "fat": 0.5,
+  "carbs": 6.03
+ },
+ {
+  "name": "Fraises frais",
+  "off_name": "Fraises",
+  "cal": 231.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 57.0
+ },
+ {
+  "name": "Fraises fraîches",
+  "off_name": "Fraises",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Fraises surgelées",
+  "off_name": "Fraises surgelées",
+  "cal": 31.0,
+  "prot": 0.7,
+  "fat": 0.5,
+  "carbs": 6.2
+ },
+ {
+  "name": "Freekeh",
+  "off_name": "Freekeh",
+  "cal": 323.0,
+  "prot": 9.62,
+  "fat": 2.25,
+  "carbs": 55.8
+ },
+ {
+  "name": "fresh fruit",
+  "off_name": "Fruit",
+  "cal": 34.0,
+  "prot": 1.2,
+  "fat": 0.0,
+  "carbs": 8.6
+ },
+ {
+  "name": "fresh spinach",
+  "off_name": "State Garden Fresh Spinach",
+  "cal": 21.1,
+  "prot": 2.11,
+  "fat": 0.32,
+  "carbs": 3.16
+ },
+ {
+  "name": "Fries",
+  "off_name": "Friesen futter",
+  "cal": 493.0,
+  "prot": 0.0,
+  "fat": 34.2,
+  "carbs": 36.8
+ },
+ {
+  "name": "fromage",
+  "off_name": "Fromage",
+  "cal": 287.0,
+  "prot": 18.0,
+  "fat": 23.0,
+  "carbs": 2.1
+ },
+ {
+  "name": "Fromage blanc 0%",
+  "off_name": "Fromage blanc 0%",
+  "cal": 51.0,
+  "prot": 6.8,
+  "fat": 0.5,
+  "carbs": 5.3
+ },
+ {
+  "name": "Fromage blanc 0% ou 3,2%",
+  "off_name": "Fromage blanc 3,2%",
+  "cal": 76.9,
+  "prot": 7.86,
+  "fat": 3.2,
+  "carbs": 3.46
+ },
+ {
+  "name": "Fromage blanc 20% MG",
+  "off_name": "Fromage Blanc 20%",
+  "cal": 66.0,
+  "prot": 6.4,
+  "fat": 2.8,
+  "carbs": 5.1
+ },
+ {
+  "name": "Fromage blanc 3%",
+  "off_name": "Fromage blanc 3.3%",
+  "cal": 77.0,
+  "prot": 8.5,
+  "fat": 3.3,
+  "carbs": 3.2
+ },
+ {
+  "name": "Fromage blanc 3,2% MG",
+  "off_name": "Fromage blanc 3,2% MG",
+  "cal": 75.0,
+  "prot": 7.7,
+  "fat": 3.2,
+  "carbs": 3.9
+ },
+ {
+  "name": "Fromage blanc nature",
+  "off_name": "Fromage blanc nature",
+  "cal": 70.0,
+  "prot": 6.3,
+  "fat": 3.0,
+  "carbs": 4.5
+ },
+ {
+  "name": "Fromage de chèvre",
+  "off_name": "Fromage de Chèvre",
+  "cal": 158.0,
+  "prot": 9.6,
+  "fat": 12.0,
+  "carbs": 3.0
+ },
+ {
+  "name": "Fromage Emmental",
+  "off_name": "Fromage emmental",
+  "cal": 380.0,
+  "prot": 27.0,
+  "fat": 30.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Fromage emmental râpé",
+  "off_name": "Fromage Râpé 50 % Emmental",
+  "cal": 384.0,
+  "prot": 27.0,
+  "fat": 29.0,
+  "carbs": 3.0
+ },
+ {
+  "name": "Fromage feta",
+  "off_name": "fromage feta",
+  "cal": 262.0,
+  "prot": 10.0,
+  "fat": 24.0,
+  "carbs": 1.5
+ },
+ {
+  "name": "Fromage frais",
+  "off_name": "Fromage Frais",
+  "cal": 46.0,
+  "prot": 8.0,
+  "fat": 0.0,
+  "carbs": 3.5
+ },
+ {
+  "name": "Fromage râpé",
+  "off_name": "Fromage râpé",
+  "cal": 345.0,
+  "prot": 34.0,
+  "fat": 23.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Fromage râpé (emmental)",
+  "off_name": "Fromage Râpé 50 % Emmental",
+  "cal": 384.0,
+  "prot": 27.0,
+  "fat": 29.0,
+  "carbs": 3.0
+ },
+ {
+  "name": "frozen berries",
+  "off_name": "Berries",
+  "cal": 350.0,
+  "prot": 1.1,
+  "fat": 0.5,
+  "carbs": 86.0
+ },
+ {
+  "name": "frozen exotic fruits",
+  "off_name": "Fruits exotique",
+  "cal": 20.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 4.6
+ },
+ {
+  "name": "frozen mixed berries",
+  "off_name": "Sirop grenadine",
+  "cal": 330.0,
+  "prot": 0.5,
+  "fat": 0.5,
+  "carbs": 82.4
+ },
+ {
+  "name": "Fruits rouges",
+  "off_name": "Fruits rouges",
+  "cal": 221.0,
+  "prot": 0.8,
+  "fat": 0.0,
+  "carbs": 52.0
+ },
+ {
+  "name": "Fruits rouges mélangés",
+  "off_name": "Mélange fruits rouges",
+  "cal": 310.0,
+  "prot": 4.8,
+  "fat": 1.5,
+  "carbs": 66.8
+ },
+ {
+  "name": "Fruits rouges mélangés (fraises, myrtilles, framboises)",
+  "off_name": "Fruits rouges Myrtilles, mûres, cassis, framboises",
+  "cal": 45.0,
+  "prot": 0.9,
+  "fat": 0.3,
+  "carbs": 7.8
+ },
+ {
+  "name": "Fruits rouges surgelés",
+  "off_name": "Fruits surgelés",
+  "cal": 50.0,
+  "prot": 0.7,
+  "fat": 0.1,
+  "carbs": 10.8
+ },
+ {
+  "name": "Fruits rouges surgelés (fraises, framboises, myrtilles)",
+  "off_name": "Fruits rouges Myrtilles, mûres, cassis, framboises",
+  "cal": 45.0,
+  "prot": 0.9,
+  "fat": 0.3,
+  "carbs": 7.8
+ },
+ {
+  "name": "Full fat sour cream",
+  "off_name": "sour cream",
+  "cal": 148.0,
+  "prot": 8.6,
+  "fat": 10.4,
+  "carbs": 5.0
+ },
+ {
+  "name": "Full fat yogurt",
+  "off_name": "Fat free yogurt",
+  "cal": 47.1,
+  "prot": 2.94,
+  "fat": 0.0,
+  "carbs": 8.82
+ },
+ {
+  "name": "Galettes de riz",
+  "off_name": "Galettes de Riz",
+  "cal": 338.0,
+  "prot": 1.2,
+  "fat": 0.4,
+  "carbs": 82.4
+ },
+ {
+  "name": "Galettes de riz soufflé",
+  "off_name": "Galettes de riz soufflé",
+  "cal": 381.0,
+  "prot": 7.4,
+  "fat": 3.1,
+  "carbs": 79.0
+ },
+ {
+  "name": "Garam masala",
+  "off_name": "Garam massala",
+  "cal": 312.0,
+  "prot": 12.7,
+  "fat": 13.5,
+  "carbs": 38.3
+ },
+ {
+  "name": "garlic",
+  "off_name": "Garlic",
+  "cal": 144.0,
+  "prot": 5.0,
+  "fat": 0.0,
+  "carbs": 30.0
+ },
+ {
+  "name": "Garlic Bulb",
+  "off_name": "Garlic",
+  "cal": 144.0,
+  "prot": 5.0,
+  "fat": 0.0,
+  "carbs": 30.0
+ },
+ {
+  "name": "Garlic sauce",
+  "off_name": "Garlic sauce",
+  "cal": 371.0,
+  "prot": 1.9,
+  "fat": 35.0,
+  "carbs": 11.0
+ },
+ {
+  "name": "German Sausages",
+  "off_name": "Sausages",
+  "cal": 121.0,
+  "prot": 6.6,
+  "fat": 4.6,
+  "carbs": 11.4
+ },
+ {
+  "name": "Germes de soja",
+  "off_name": "Germes Soja 500gr",
+  "cal": 25.0,
+  "prot": 3.0,
+  "fat": 0.1,
+  "carbs": 2.9
+ },
+ {
+  "name": "Ghee",
+  "off_name": "Ghee",
+  "cal": 898.0,
+  "prot": 0.0,
+  "fat": 99.8,
+  "carbs": 0.0
+ },
+ {
+  "name": "Gingembre",
+  "off_name": "Gingembre",
+  "cal": 358.0,
+  "prot": 0.3,
+  "fat": 0.1,
+  "carbs": 87.6
+ },
+ {
+  "name": "Gingembre frais",
+  "off_name": "Ti'Frais gingembre",
+  "cal": 182.0,
+  "prot": 12.0,
+  "fat": 14.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "Gingembre frais râpé",
+  "off_name": "Ti'Frais gingembre",
+  "cal": 182.0,
+  "prot": 12.0,
+  "fat": 14.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "ginger",
+  "off_name": "Ginger",
+  "cal": 49.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 11.9
+ },
+ {
+  "name": "Ginger Cordial",
+  "off_name": "Ginger Cordial",
+  "cal": 17.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 4.5
+ },
+ {
+  "name": "Ginger garlic paste",
+  "off_name": "Ginger&garlic paste",
+  "cal": 94.0,
+  "prot": 3.0,
+  "fat": 1.8,
+  "carbs": 18.0
+ },
+ {
+  "name": "Ginger paste",
+  "off_name": "Ginger paste",
+  "cal": 24.0,
+  "prot": 0.0,
+  "fat": 1.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "Goats Cheese",
+  "off_name": "Goats cheese",
+  "cal": 345.0,
+  "prot": 8.3,
+  "fat": 20.3,
+  "carbs": 31.1
+ },
+ {
+  "name": "Gouda cheese",
+  "off_name": "Gouda cheese",
+  "cal": 360.0,
+  "prot": 22.8,
+  "fat": 29.9,
+  "carbs": 0.1
+ },
+ {
+  "name": "gousse d'ail",
+  "off_name": "Gousses d'ail",
+  "cal": 86.0,
+  "prot": 3.1,
+  "fat": 5.6,
+  "carbs": 3.9
+ },
+ {
+  "name": "Graines de chia",
+  "off_name": "Graines de chia",
+  "cal": 363.0,
+  "prot": 18.0,
+  "fat": 31.0,
+  "carbs": 5.0
+ },
+ {
+  "name": "graines de courge",
+  "off_name": "Graines de courge",
+  "cal": 570.0,
+  "prot": 36.4,
+  "fat": 45.2,
+  "carbs": 1.2
+ },
+ {
+  "name": "Graines de lin",
+  "off_name": "Graines De Lin",
+  "cal": 483.0,
+  "prot": 29.0,
+  "fat": 31.0,
+  "carbs": 5.9
+ },
+ {
+  "name": "Graines de sésame",
+  "off_name": "Graines de sesame",
+  "cal": 572.0,
+  "prot": 21.0,
+  "fat": 50.0,
+  "carbs": 10.0
+ },
+ {
+  "name": "Graines de tournesol",
+  "off_name": "Graines de tournesol",
+  "cal": 517.0,
+  "prot": 24.1,
+  "fat": 33.1,
+  "carbs": 26.0
+ },
+ {
+  "name": "granola",
+  "off_name": "Granola",
+  "cal": 499.0,
+  "prot": 7.1,
+  "fat": 24.0,
+  "carbs": 62.0
+ },
+ {
+  "name": "granola bar",
+  "off_name": "Granola bar",
+  "cal": 408.0,
+  "prot": 8.3,
+  "fat": 15.4,
+  "carbs": 59.7
+ },
+ {
+  "name": "Granola nature",
+  "off_name": "Gourmet Granola Nature",
+  "cal": 440.0,
+  "prot": 12.0,
+  "fat": 14.0,
+  "carbs": 70.0
+ },
+ {
+  "name": "Granola sans miel",
+  "off_name": "Granola Miele",
+  "cal": 429.97,
+  "prot": 8.7,
+  "fat": 13.2,
+  "carbs": 65.0
+ },
+ {
+  "name": "Granola sans noix",
+  "off_name": "Granola sans Gluten",
+  "cal": 437.0,
+  "prot": 9.2,
+  "fat": 22.1,
+  "carbs": 48.9
+ },
+ {
+  "name": "Grape Tomatoes",
+  "off_name": "Tomatoes on the vine",
+  "cal": 20.0,
+  "prot": 0.7,
+  "fat": 0.3,
+  "carbs": 3.1
+ },
+ {
+  "name": "Grapes",
+  "off_name": "Fanta Grapes",
+  "cal": 34.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 8.4
+ },
+ {
+  "name": "greek yogurt",
+  "off_name": "Greek yogurt",
+  "cal": 82.4,
+  "prot": 9.41,
+  "fat": 3.53,
+  "carbs": 4.12
+ },
+ {
+  "name": "Greek yogurt 0%",
+  "off_name": "Joghurt",
+  "cal": 130.0,
+  "prot": 3.6,
+  "fat": 10.0,
+  "carbs": 4.4
+ },
+ {
+  "name": "green beans",
+  "off_name": "Fine green beans",
+  "cal": 105.0,
+  "prot": 2.63,
+  "fat": 6.14,
+  "carbs": 10.53
+ },
+ {
+  "name": "Green Chilli",
+  "off_name": "Green chilli peppers",
+  "cal": 164.0,
+  "prot": 6.1,
+  "fat": 13.4,
+  "carbs": 2.5
+ },
+ {
+  "name": "Green Olives",
+  "off_name": "Green olives",
+  "cal": 418.0,
+  "prot": 11.3,
+  "fat": 9.2,
+  "carbs": 70.7
+ },
+ {
+  "name": "green onions",
+  "off_name": "Onions",
+  "cal": 473.0,
+  "prot": 6.2,
+  "fat": 21.0,
+  "carbs": 63.0
+ },
+ {
+  "name": "green red lentils",
+  "off_name": "Green Lentils",
+  "cal": 331.0,
+  "prot": 24.0,
+  "fat": 1.9,
+  "carbs": 50.0
+ },
+ {
+  "name": "Green Salsa",
+  "off_name": "Green salade",
+  "cal": 107.0,
+  "prot": 7.2,
+  "fat": 4.3,
+  "carbs": 9.1
+ },
+ {
+  "name": "Grilled chicken",
+  "off_name": "Grilled Chicken Sandwich",
+  "cal": 229.0,
+  "prot": 12.9,
+  "fat": 8.8,
+  "carbs": 23.9
+ },
+ {
+  "name": "grilled vegetables",
+  "off_name": "Nouilles vegetables",
+  "cal": 460.0,
+  "prot": 10.0,
+  "fat": 17.0,
+  "carbs": 66.0
+ },
+ {
+  "name": "ground beef",
+  "off_name": "Ground Beef Patties",
+  "cal": 258.93,
+  "prot": 16.96,
+  "fat": 20.54,
+  "carbs": 0.0
+ },
+ {
+  "name": "Ground Ginger",
+  "off_name": "Ginger",
+  "cal": 49.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 11.9
+ },
+ {
+  "name": "Gruyere cheese",
+  "off_name": "Gruyère",
+  "cal": 405.0,
+  "prot": 27.0,
+  "fat": 33.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Gruyère",
+  "off_name": "Gruyère",
+  "cal": 376.0,
+  "prot": 27.0,
+  "fat": 29.5,
+  "carbs": 0.5
+ },
+ {
+  "name": "Gruyère râpé",
+  "off_name": "Gruyère Râpé",
+  "cal": 405.0,
+  "prot": 27.0,
+  "fat": 33.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Haddock",
+  "off_name": "Haddock",
+  "cal": 81.0,
+  "prot": 19.0,
+  "fat": 0.6,
+  "carbs": 0.0
+ },
+ {
+  "name": "halloumi",
+  "off_name": "Halloumi",
+  "cal": 279.0,
+  "prot": 18.9,
+  "fat": 21.7,
+  "carbs": 1.2
+ },
+ {
+  "name": "Hard Taco Shells",
+  "off_name": "Taco Shells",
+  "cal": 481.0,
+  "prot": 7.41,
+  "fat": 22.2,
+  "carbs": 63.0
+ },
+ {
+  "name": "Haricot Beans",
+  "off_name": "Haricot",
+  "cal": 84.0,
+  "prot": 4.9,
+  "fat": 0.2,
+  "carbs": 13.8
+ },
+ {
+  "name": "Haricots blancs",
+  "off_name": "Haricots blancs",
+  "cal": 296.0,
+  "prot": 21.0,
+  "fat": 1.8,
+  "carbs": 40.0
+ },
+ {
+  "name": "haricots noirs",
+  "off_name": "Haricots noirs",
+  "cal": 87.0,
+  "prot": 7.6,
+  "fat": 0.5,
+  "carbs": 10.0
+ },
+ {
+  "name": "Haricots noirs cuits",
+  "off_name": "Haricots noirs cuits",
+  "cal": 75.0,
+  "prot": 5.8,
+  "fat": 0.5,
+  "carbs": 9.0
+ },
+ {
+  "name": "haricots rouges",
+  "off_name": "Haricots rouges",
+  "cal": 296.0,
+  "prot": 21.0,
+  "fat": 1.8,
+  "carbs": 40.0
+ },
+ {
+  "name": "Haricots rouges cuits",
+  "off_name": "Haricot rouge cuits",
+  "cal": 79.0,
+  "prot": 6.0,
+  "fat": 0.6,
+  "carbs": 8.5
+ },
+ {
+  "name": "Haricots verts",
+  "off_name": "Haricots verts",
+  "cal": 41.2,
+  "prot": 1.18,
+  "fat": 0.0,
+  "carbs": 7.06
+ },
+ {
+  "name": "Harissa",
+  "off_name": "Harissa",
+  "cal": 95.0,
+  "prot": 1.7,
+  "fat": 5.9,
+  "carbs": 8.8
+ },
+ {
+  "name": "Harissa Spice",
+  "off_name": "Harissa",
+  "cal": 171.0,
+  "prot": 5.0,
+  "fat": 8.5,
+  "carbs": 14.3
+ },
+ {
+  "name": "Herbes de Provence",
+  "off_name": "Herbes de Provence",
+  "cal": 1.0,
+  "prot": 0.0,
+  "fat": 0.5,
+  "carbs": 0.0
+ },
+ {
+  "name": "Herbes de Provence séchées",
+  "off_name": "Sel & herbes de provence",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Herbs de Provence",
+  "off_name": "Herbes de Provence",
+  "cal": 1.0,
+  "prot": 0.0,
+  "fat": 0.5,
+  "carbs": 0.0
+ },
+ {
+  "name": "honey",
+  "off_name": "Honey",
+  "cal": 304.0,
+  "prot": 0.3,
+  "fat": 0.0,
+  "carbs": 82.4
+ },
+ {
+  "name": "Hot Chilli Powder",
+  "off_name": "Chilli Powder Mild",
+  "cal": 295.0,
+  "prot": 13.6,
+  "fat": 9.9,
+  "carbs": 20.9
+ },
+ {
+  "name": "Hot Smoked Flaked Salmon",
+  "off_name": "Smoked salmon",
+  "cal": 218.0,
+  "prot": 23.2,
+  "fat": 12.5,
+  "carbs": 0.0
+ },
+ {
+  "name": "Hotsauce",
+  "off_name": "Hot sauce",
+  "cal": 8.0,
+  "prot": 0.45,
+  "fat": 0.2,
+  "carbs": 1.25
+ },
+ {
+  "name": "Houmous",
+  "off_name": "Houmous",
+  "cal": 365.0,
+  "prot": 7.8,
+  "fat": 31.0,
+  "carbs": 9.7
+ },
+ {
+  "name": "Huile d'arachide",
+  "off_name": "Huile d'arachide",
+  "cal": 900.0,
+  "prot": 0.0,
+  "fat": 100.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Huile d'olive",
+  "off_name": "Huile d'olive",
+  "cal": 821.0,
+  "prot": 0.0,
+  "fat": 91.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Huile d'olive extra vierge",
+  "off_name": "Huile d'Olive vierge extra",
+  "cal": 824.0,
+  "prot": 0.0,
+  "fat": 91.6,
+  "carbs": 0.0
+ },
+ {
+  "name": "Huile d'olive extra-vierge",
+  "off_name": "Huile d'olive extra-vierge",
+  "cal": 824.0,
+  "prot": 0.0,
+  "fat": 91.6,
+  "carbs": 0.0
+ },
+ {
+  "name": "Huile d'olive vierge extra",
+  "off_name": "Huile d'olive vierge extra",
+  "cal": 823.0,
+  "prot": 0.0,
+  "fat": 91.5,
+  "carbs": 0.0
+ },
+ {
+  "name": "Huile de coco",
+  "off_name": "Huile de coco",
+  "cal": 822.0,
+  "prot": 0.0,
+  "fat": 93.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Huile de coco ou beurre",
+  "off_name": "Beurre de Coco",
+  "cal": 699.0,
+  "prot": 7.1,
+  "fat": 67.3,
+  "carbs": 9.6
+ },
+ {
+  "name": "Huile de sésame",
+  "off_name": "Huile de Sésame",
+  "cal": 900.0,
+  "prot": 0.0,
+  "fat": 100.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Huile de tournesol",
+  "off_name": "Huile de tournesol",
+  "cal": 900.0,
+  "prot": 0.0,
+  "fat": 100.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "huile végétale",
+  "off_name": "Huile végétale",
+  "cal": 900.0,
+  "prot": 0.0,
+  "fat": 100.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "hummus",
+  "off_name": "Hummus",
+  "cal": 183.0,
+  "prot": 7.4,
+  "fat": 12.0,
+  "carbs": 8.0
+ },
+ {
+  "name": "Iceberg Lettuce",
+  "off_name": "Sandwich iceberg lettuce",
+  "cal": 14.0,
+  "prot": 0.7,
+  "fat": 0.3,
+  "carbs": 1.9
+ },
+ {
+  "name": "Jalapeno",
+  "off_name": "Jalapeños",
+  "cal": 216.0,
+  "prot": 4.3,
+  "fat": 11.0,
+  "carbs": 24.0
+ },
+ {
+  "name": "Jambon blanc",
+  "off_name": "Jambon blanc",
+  "cal": 110.0,
+  "prot": 21.5,
+  "fat": 2.4,
+  "carbs": 0.6
+ },
+ {
+  "name": "Jambon blanc tranché",
+  "off_name": "Jambon blanc tranche",
+  "cal": 114.0,
+  "prot": 21.0,
+  "fat": 3.0,
+  "carbs": 0.6
+ },
+ {
+  "name": "Jambon de Paris",
+  "off_name": "Jambon de paris",
+  "cal": 109.0,
+  "prot": 20.9,
+  "fat": 2.4,
+  "carbs": 0.5
+ },
+ {
+  "name": "Jambon de pays en tranches",
+  "off_name": "Jambon De Pays 10 Tranches",
+  "cal": 230.0,
+  "prot": 29.0,
+  "fat": 13.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Jambon fumé",
+  "off_name": "Jambon fumé",
+  "cal": 167.0,
+  "prot": 18.7,
+  "fat": 9.4,
+  "carbs": 1.9
+ },
+ {
+  "name": "jamón ibérico",
+  "off_name": "Jamón De Cebo Ibérico",
+  "cal": 343.0,
+  "prot": 31.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "jasmine rice",
+  "off_name": "Thai Jasmine Rice",
+  "cal": 330.0,
+  "prot": 7.1,
+  "fat": 1.6,
+  "carbs": 78.9
+ },
+ {
+  "name": "Jaune d'œuf",
+  "off_name": "Jaune d'œuf",
+  "cal": 325.0,
+  "prot": 14.0,
+  "fat": 30.0,
+  "carbs": 0.4
+ },
+ {
+  "name": "Jus d'orange frais",
+  "off_name": "Jus d orange frais",
+  "cal": 226.0,
+  "prot": 7.2,
+  "fat": 1.1,
+  "carbs": 43.0
+ },
+ {
+  "name": "Jus de citron",
+  "off_name": "Jus de Citron",
+  "cal": 29.0,
+  "prot": 0.7,
+  "fat": 0.1,
+  "carbs": 6.2
+ },
+ {
+  "name": "Jus de citron frais",
+  "off_name": "Jus de citron",
+  "cal": 30.0,
+  "prot": 0.5,
+  "fat": 0.0,
+  "carbs": 6.8
+ },
+ {
+  "name": "Kabanos Sausages",
+  "off_name": "Sausages",
+  "cal": 121.0,
+  "prot": 6.6,
+  "fat": 4.6,
+  "carbs": 11.4
+ },
+ {
+  "name": "kidney beans",
+  "off_name": "Red kidney beans",
+  "cal": 100.0,
+  "prot": 8.2,
+  "fat": 0.5,
+  "carbs": 15.7
+ },
+ {
+  "name": "King Prawns",
+  "off_name": "King Prawns",
+  "cal": 56.0,
+  "prot": 15.0,
+  "fat": 0.9,
+  "carbs": 0.0
+ },
+ {
+  "name": "Kiwi",
+  "off_name": "Kiwi",
+  "cal": 79.0,
+  "prot": 1.02,
+  "fat": 0.28,
+  "carbs": 15.8
+ },
+ {
+  "name": "kéfir",
+  "off_name": "Kefir",
+  "cal": 53.0,
+  "prot": 3.8,
+  "fat": 1.5,
+  "carbs": 5.5
+ },
+ {
+  "name": "Lait",
+  "off_name": "Lait",
+  "cal": 46.0,
+  "prot": 3.2,
+  "fat": 1.6,
+  "carbs": 4.8
+ },
+ {
+  "name": "Lait d'amande",
+  "off_name": "Lait d'Amande",
+  "cal": 64.0,
+  "prot": 1.7,
+  "fat": 4.1,
+  "carbs": 4.9
+ },
+ {
+  "name": "Lait d'avoine",
+  "off_name": "Lait d’avoine bio",
+  "cal": 45.0,
+  "prot": 0.5,
+  "fat": 1.5,
+  "carbs": 7.0
+ },
+ {
+  "name": "Lait de coco",
+  "off_name": "Lait de coco",
+  "cal": 206.0,
+  "prot": 2.0,
+  "fat": 21.0,
+  "carbs": 2.1
+ },
+ {
+  "name": "lait de coco light",
+  "off_name": "Lait de coco light",
+  "cal": 77.2,
+  "prot": 0.8,
+  "fat": 8.0,
+  "carbs": 0.7
+ },
+ {
+  "name": "Lait de soja",
+  "off_name": "Lait de soja",
+  "cal": 27.0,
+  "prot": 2.8,
+  "fat": 1.6,
+  "carbs": 2.0
+ },
+ {
+  "name": "Lait demi-écrémé",
+  "off_name": "Lait Demi-Écrémé",
+  "cal": 46.0,
+  "prot": 3.2,
+  "fat": 1.5,
+  "carbs": 4.8
+ },
+ {
+  "name": "Lait demi-écrémé (smoothie)",
+  "off_name": "Lait demi écrémé",
+  "cal": 47.0,
+  "prot": 3.2,
+  "fat": 1.6,
+  "carbs": 4.9
+ },
+ {
+  "name": "Lait entier",
+  "off_name": "Lait entier",
+  "cal": 65.0,
+  "prot": 3.2,
+  "fat": 3.6,
+  "carbs": 4.9
+ },
+ {
+  "name": "Laitue",
+  "off_name": "Laitue",
+  "cal": 15.0,
+  "prot": 0.9,
+  "fat": 0.14,
+  "carbs": 1.97
+ },
+ {
+  "name": "Laitue romaine",
+  "off_name": "Laitue romaine",
+  "cal": 17.0,
+  "prot": 1.2,
+  "fat": 0.3,
+  "carbs": 3.3
+ },
+ {
+  "name": "Laitue verte",
+  "off_name": "Laitue",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Lamb Mince",
+  "off_name": "Mince",
+  "cal": 103.0,
+  "prot": 16.0,
+  "fat": 1.7,
+  "carbs": 2.6
+ },
+ {
+  "name": "Lard",
+  "off_name": "Lard",
+  "cal": 293.0,
+  "prot": 1.3,
+  "fat": 25.0,
+  "carbs": 2.2
+ },
+ {
+  "name": "lardons",
+  "off_name": "Lardons",
+  "cal": 337.0,
+  "prot": 18.0,
+  "fat": 29.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Lasagna sheets",
+  "off_name": "Lasagne sheets",
+  "cal": 366.0,
+  "prot": 14.0,
+  "fat": 3.0,
+  "carbs": 68.0
+ },
+ {
+  "name": "Lasagne Sheets",
+  "off_name": "Lasagne sheets",
+  "cal": 366.0,
+  "prot": 14.0,
+  "fat": 3.0,
+  "carbs": 68.0
+ },
+ {
+  "name": "Lean Minced Steak",
+  "off_name": "Lean beef steak mince",
+  "cal": 132.0,
+  "prot": 22.0,
+  "fat": 4.9,
+  "carbs": 0.5
+ },
+ {
+  "name": "Lemon zest",
+  "off_name": "Zero Lemon",
+  "cal": 1.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Lemongrass",
+  "off_name": "Lemongrass",
+  "cal": 310.0,
+  "prot": 0.5,
+  "fat": 0.0,
+  "carbs": 77.5
+ },
+ {
+  "name": "Lemongrass Stalks",
+  "off_name": "Lemongrass",
+  "cal": 310.0,
+  "prot": 0.5,
+  "fat": 0.0,
+  "carbs": 77.5
+ },
+ {
+  "name": "Lemons",
+  "off_name": "Lemon",
+  "cal": 19.2,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 4.4
+ },
+ {
+  "name": "Lentilles corail",
+  "off_name": "Lentilles corail",
+  "cal": 343.0,
+  "prot": 24.0,
+  "fat": 1.7,
+  "carbs": 50.0
+ },
+ {
+  "name": "Lentilles vertes",
+  "off_name": "Lentilles vertes",
+  "cal": 325.0,
+  "prot": 25.8,
+  "fat": 1.8,
+  "carbs": 44.2
+ },
+ {
+  "name": "Lentilles vertes cuites",
+  "off_name": "Lentilles Vertes",
+  "cal": 331.0,
+  "prot": 24.0,
+  "fat": 1.2,
+  "carbs": 50.4
+ },
+ {
+  "name": "Levure chimique",
+  "off_name": "Levure chimique",
+  "cal": 287.0,
+  "prot": 48.0,
+  "fat": 0.0,
+  "carbs": 15.0
+ },
+ {
+  "name": "Levure nutritionnelle",
+  "off_name": "Flocons de levure nutritionnelle",
+  "cal": 321.0,
+  "prot": 31.1,
+  "fat": 5.0,
+  "carbs": 29.5
+ },
+ {
+  "name": "lime",
+  "off_name": "Lime",
+  "cal": 27.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 6.0
+ },
+ {
+  "name": "Lime juice",
+  "off_name": "Orange & Lime Juice",
+  "cal": 43.0,
+  "prot": 0.7,
+  "fat": 0.0,
+  "carbs": 9.1
+ },
+ {
+  "name": "Linguine Pasta",
+  "off_name": "Pasta Linguine",
+  "cal": 363.0,
+  "prot": 12.0,
+  "fat": 1.5,
+  "carbs": 74.0
+ },
+ {
+  "name": "low-fat cottage cheese",
+  "off_name": "Cottage cheese",
+  "cal": 104.0,
+  "prot": 10.3,
+  "fat": 6.0,
+  "carbs": 2.2
+ },
+ {
+  "name": "low-fat milk",
+  "off_name": "Low Fat Milk",
+  "cal": 47.0,
+  "prot": 3.5,
+  "fat": 1.5,
+  "carbs": 4.8
+ },
+ {
+  "name": "macaroni",
+  "off_name": "Macaroni",
+  "cal": 361.0,
+  "prot": 12.0,
+  "fat": 2.0,
+  "carbs": 72.0
+ },
+ {
+  "name": "Madras Paste",
+  "off_name": "Madras Spice Paste",
+  "cal": 279.0,
+  "prot": 4.4,
+  "fat": 23.1,
+  "carbs": 7.0
+ },
+ {
+  "name": "Malt Vinegar",
+  "off_name": "Malt Vinegar",
+  "cal": 14.0,
+  "prot": 0.58,
+  "fat": 0.4,
+  "carbs": 1.8
+ },
+ {
+  "name": "manchego",
+  "off_name": "Manchego",
+  "cal": 456.0,
+  "prot": 24.0,
+  "fat": 39.8,
+  "carbs": 1.6
+ },
+ {
+  "name": "mango",
+  "off_name": "MANGO",
+  "cal": 56.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 14.0
+ },
+ {
+  "name": "Mangue",
+  "off_name": "Mangue",
+  "cal": 67.0,
+  "prot": 0.7,
+  "fat": 0.5,
+  "carbs": 15.3
+ },
+ {
+  "name": "mangue surgelée",
+  "off_name": "Mangue surgelée",
+  "cal": 65.0,
+  "prot": 0.6,
+  "fat": 0.3,
+  "carbs": 13.7
+ },
+ {
+  "name": "maple syrup",
+  "off_name": "Pure sirop d'érable Bio",
+  "cal": 349.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 87.2
+ },
+ {
+  "name": "Matcha powder",
+  "off_name": "Matcha Green Tea Powder",
+  "cal": 372.0,
+  "prot": 28.9,
+  "fat": 4.0,
+  "carbs": 55.1
+ },
+ {
+  "name": "mayonnaise",
+  "off_name": "Mayonnaise",
+  "cal": 646.0,
+  "prot": 0.9,
+  "fat": 70.0,
+  "carbs": 2.8
+ },
+ {
+  "name": "maïs",
+  "off_name": "Maïs",
+  "cal": 73.0,
+  "prot": 2.7,
+  "fat": 1.4,
+  "carbs": 11.0
+ },
+ {
+  "name": "melon",
+  "off_name": "Melon",
+  "cal": 38.0,
+  "prot": 0.8,
+  "fat": 0.0,
+  "carbs": 8.2
+ },
+ {
+  "name": "Menthe fraîche",
+  "off_name": "Menthe fraîche",
+  "cal": 384.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 96.0
+ },
+ {
+  "name": "Miel",
+  "off_name": "Miel",
+  "cal": 320.0,
+  "prot": 0.5,
+  "fat": 0.5,
+  "carbs": 79.0
+ },
+ {
+  "name": "Miel d'acacia",
+  "off_name": "Miel d'Acacia",
+  "cal": 304.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 82.0
+ },
+ {
+  "name": "Miel de fleurs",
+  "off_name": "Miel de fleurs",
+  "cal": 320.0,
+  "prot": 1.0,
+  "fat": 0.0,
+  "carbs": 78.0
+ },
+ {
+  "name": "Miel liquide",
+  "off_name": "Miel liquide",
+  "cal": 321.0,
+  "prot": 0.3,
+  "fat": 0.0,
+  "carbs": 80.0
+ },
+ {
+  "name": "milk",
+  "off_name": "Lait soummam",
+  "cal": 45.0,
+  "prot": 3.0,
+  "fat": 1.5,
+  "carbs": 4.8
+ },
+ {
+  "name": "minced beef",
+  "off_name": "British beef mince",
+  "cal": 168.0,
+  "prot": 31.3,
+  "fat": 4.7,
+  "carbs": 1.0
+ },
+ {
+  "name": "Minced Garlic",
+  "off_name": "Minced Garlic",
+  "cal": 258.0,
+  "prot": 4.7,
+  "fat": 16.0,
+  "carbs": 22.0
+ },
+ {
+  "name": "mint",
+  "off_name": "Chocolat menthe",
+  "cal": 456.0,
+  "prot": 3.5,
+  "fat": 17.0,
+  "carbs": 70.0
+ },
+ {
+  "name": "Mirin",
+  "off_name": "Mirin Sweet Rice Seasoning",
+  "cal": 218.0,
+  "prot": 0.1,
+  "fat": 0.5,
+  "carbs": 55.0
+ },
+ {
+  "name": "Miso",
+  "off_name": "Miso",
+  "cal": 145.0,
+  "prot": 9.7,
+  "fat": 6.7,
+  "carbs": 9.0
+ },
+ {
+  "name": "mixed berries",
+  "off_name": "Mixed Berries",
+  "cal": 50.0,
+  "prot": 0.71,
+  "fat": 0.0,
+  "carbs": 11.43
+ },
+ {
+  "name": "mixed dried fruits",
+  "off_name": "Alaska Seelachs",
+  "cal": 274.0,
+  "prot": 3.2,
+  "fat": 1.5,
+  "carbs": 47.1
+ },
+ {
+  "name": "mixed fresh fruits",
+  "off_name": "Mixed fruit",
+  "cal": 94.0,
+  "prot": 1.3,
+  "fat": 3.0,
+  "carbs": 10.5
+ },
+ {
+  "name": "mixed fruits",
+  "off_name": "Mixed fruit",
+  "cal": 301.0,
+  "prot": 2.3,
+  "fat": 0.4,
+  "carbs": 69.5
+ },
+ {
+  "name": "mixed nuts",
+  "off_name": "Mixed Nuts",
+  "cal": 644.0,
+  "prot": 16.0,
+  "fat": 62.0,
+  "carbs": 6.3
+ },
+ {
+  "name": "mixed seeds",
+  "off_name": "Mixed seeds",
+  "cal": 592.0,
+  "prot": 21.9,
+  "fat": 49.7,
+  "carbs": 9.1
+ },
+ {
+  "name": "mixed vegetables",
+  "off_name": "Mixed vegetables",
+  "cal": 38.0,
+  "prot": 2.1,
+  "fat": 0.3,
+  "carbs": 5.0
+ },
+ {
+  "name": "Molasses",
+  "off_name": "Molasses",
+  "cal": 422.22,
+  "prot": 6.67,
+  "fat": 13.33,
+  "carbs": 64.44
+ },
+ {
+  "name": "morue dessalée",
+  "off_name": "Morue déssalée",
+  "cal": 62.0,
+  "prot": 15.0,
+  "fat": 0.4,
+  "carbs": 0.0
+ },
+ {
+  "name": "Moutarde",
+  "off_name": "Moutarde",
+  "cal": 149.0,
+  "prot": 7.2,
+  "fat": 11.0,
+  "carbs": 1.8
+ },
+ {
+  "name": "Moutarde de Dijon",
+  "off_name": "Moutarde de Dijon",
+  "cal": 155.0,
+  "prot": 8.3,
+  "fat": 11.1,
+  "carbs": 5.6
+ },
+ {
+  "name": "mozzarella",
+  "off_name": "Mozzarella",
+  "cal": 245.0,
+  "prot": 18.0,
+  "fat": 19.0,
+  "carbs": 1.5
+ },
+ {
+  "name": "Mozzarella Balls",
+  "off_name": "Mozzarella ball",
+  "cal": 300.0,
+  "prot": 23.33,
+  "fat": 16.66,
+  "carbs": 6.66
+ },
+ {
+  "name": "mozzarella cheese",
+  "off_name": "Mozzarella Cheese Ravioli",
+  "cal": 292.0,
+  "prot": 12.5,
+  "fat": 14.2,
+  "carbs": 26.7
+ },
+ {
+  "name": "muesli",
+  "off_name": "Muesli",
+  "cal": 195.0,
+  "prot": 4.1,
+  "fat": 6.5,
+  "carbs": 28.0
+ },
+ {
+  "name": "Muesli sans noix",
+  "off_name": "Muesli noix",
+  "cal": 395.0,
+  "prot": 11.0,
+  "fat": 12.0,
+  "carbs": 56.0
+ },
+ {
+  "name": "Muesli sans sucre",
+  "off_name": "Muesli sans sucre ajouté",
+  "cal": 378.0,
+  "prot": 12.33,
+  "fat": 8.87,
+  "carbs": 57.1
+ },
+ {
+  "name": "muffin anglais",
+  "off_name": "Muffins Anglais",
+  "cal": 228.0,
+  "prot": 10.52,
+  "fat": 0.88,
+  "carbs": 44.0
+ },
+ {
+  "name": "Muscade",
+  "off_name": "Muscade",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Muscovado Sugar",
+  "off_name": "Dark Muscovado Sugar",
+  "cal": 381.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 95.3
+ },
+ {
+  "name": "mushrooms",
+  "off_name": "Sour mushrooms",
+  "cal": 361.0,
+  "prot": 4.9,
+  "fat": 0.1,
+  "carbs": 86.0
+ },
+ {
+  "name": "mustard",
+  "off_name": "Mustard",
+  "cal": 95.0,
+  "prot": 2.2,
+  "fat": 4.7,
+  "carbs": 10.0
+ },
+ {
+  "name": "Mustard Powder",
+  "off_name": "Colman's Mustard",
+  "cal": 555.0,
+  "prot": 29.0,
+  "fat": 42.0,
+  "carbs": 12.0
+ },
+ {
+  "name": "Mustard Seeds",
+  "off_name": "Mustard",
+  "cal": 95.0,
+  "prot": 2.2,
+  "fat": 4.7,
+  "carbs": 10.0
+ },
+ {
+  "name": "Myrtilles",
+  "off_name": "Myrtilles",
+  "cal": 51.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 11.0
+ },
+ {
+  "name": "Myrtilles frais",
+  "off_name": "Myrtilles fraiches",
+  "cal": 60.0,
+  "prot": 0.2,
+  "fat": 0.2,
+  "carbs": 11.6
+ },
+ {
+  "name": "Myrtilles fraîches",
+  "off_name": "Myrtilles fraiches",
+  "cal": 60.0,
+  "prot": 0.2,
+  "fat": 0.2,
+  "carbs": 11.6
+ },
+ {
+  "name": "Mélange de fruits rouges frais (fraises, myrtilles, framboises)",
+  "off_name": "Fruits rouges Myrtilles, mûres, cassis, framboises",
+  "cal": 45.0,
+  "prot": 0.9,
+  "fat": 0.3,
+  "carbs": 7.8
+ },
+ {
+  "name": "Mélange de noix (amandes, noisettes, noix de cajou)",
+  "off_name": "Mélange apéritif noix de cajou noisettes amandes",
+  "cal": 648.0,
+  "prot": 19.0,
+  "fat": 56.0,
+  "carbs": 11.0
+ },
+ {
+  "name": "Mélange de noix (amandes, noix, noisettes)",
+  "off_name": "Mélanges coques: amandes, noix, noisettes",
+  "cal": 672.0,
+  "prot": 22.4,
+  "fat": 60.07,
+  "carbs": 5.9
+ },
+ {
+  "name": "Naan Bread",
+  "off_name": "Naan Breads",
+  "cal": 255.0,
+  "prot": 7.5,
+  "fat": 3.4,
+  "carbs": 47.0
+ },
+ {
+  "name": "Natural Yoghurt",
+  "off_name": "Natural Yogurt",
+  "cal": 83.0,
+  "prot": 5.2,
+  "fat": 3.8,
+  "carbs": 6.8
+ },
+ {
+  "name": "New Potatoes",
+  "off_name": "Potatoes",
+  "cal": 142.0,
+  "prot": 2.5,
+  "fat": 5.2,
+  "carbs": 20.0
+ },
+ {
+  "name": "Noisettes",
+  "off_name": "Noisettes",
+  "cal": 667.0,
+  "prot": 12.0,
+  "fat": 62.0,
+  "carbs": 11.0
+ },
+ {
+  "name": "Noix",
+  "off_name": "Noix",
+  "cal": 698.0,
+  "prot": 14.0,
+  "fat": 65.0,
+  "carbs": 8.6
+ },
+ {
+  "name": "Noix (cerneaux)",
+  "off_name": "Cerneaux de noix",
+  "cal": 688.0,
+  "prot": 14.7,
+  "fat": 63.8,
+  "carbs": 10.8
+ },
+ {
+  "name": "Noix de cajou",
+  "off_name": "Noix de Cajou",
+  "cal": 553.0,
+  "prot": 18.0,
+  "fat": 44.0,
+  "carbs": 30.0
+ },
+ {
+  "name": "Noix de coco râpée",
+  "off_name": "Noix de coco râpée",
+  "cal": 670.0,
+  "prot": 6.9,
+  "fat": 64.5,
+  "carbs": 7.4
+ },
+ {
+  "name": "Noix de Grenoble",
+  "off_name": "Noix de Grenoble",
+  "cal": 688.0,
+  "prot": 14.7,
+  "fat": 63.8,
+  "carbs": 10.8
+ },
+ {
+  "name": "Noix de muscade",
+  "off_name": "Noix De Muscade Entières",
+  "cal": 2.0,
+  "prot": 1.4,
+  "fat": 2.0,
+  "carbs": 2.6
+ },
+ {
+  "name": "Noix décortiquées",
+  "off_name": "Noix décortiquées",
+  "cal": 684.0,
+  "prot": 17.0,
+  "fat": 63.0,
+  "carbs": 11.0
+ },
+ {
+  "name": "Noix mélangées",
+  "off_name": "Noix Mélangées",
+  "cal": 636.0,
+  "prot": 26.0,
+  "fat": 53.0,
+  "carbs": 9.9
+ },
+ {
+  "name": "Nouilles complètes sèches",
+  "off_name": "Nouilles Complètes",
+  "cal": 335.0,
+  "prot": 12.5,
+  "fat": 2.1,
+  "carbs": 62.0
+ },
+ {
+  "name": "Nouilles de riz",
+  "off_name": "Nouilles de riz",
+  "cal": 354.0,
+  "prot": 5.15,
+  "fat": 0.49,
+  "carbs": 82.2
+ },
+ {
+  "name": "Nouilles soba",
+  "off_name": "Nouilles SOBA",
+  "cal": 345.0,
+  "prot": 14.8,
+  "fat": 0.82,
+  "carbs": 84.6
+ },
+ {
+  "name": "Nutmeg",
+  "off_name": "Nutmeg and Hive",
+  "cal": 80.0,
+  "prot": 6.9,
+  "fat": 1.8,
+  "carbs": 9.6
+ },
+ {
+  "name": "nuts",
+  "off_name": "Nuts",
+  "cal": 434.0,
+  "prot": 9.7,
+  "fat": 18.5,
+  "carbs": 54.2
+ },
+ {
+  "name": "Oat bran",
+  "off_name": "Gruau (son D'avoine )",
+  "cal": 400.0,
+  "prot": 15.0,
+  "fat": 7.5,
+  "carbs": 65.0
+ },
+ {
+  "name": "oat milk",
+  "off_name": "Oat milk",
+  "cal": 76.0,
+  "prot": 1.0,
+  "fat": 2.7,
+  "carbs": 10.9
+ },
+ {
+  "name": "oatmeal",
+  "off_name": "Oatmeal",
+  "cal": 362.0,
+  "prot": 14.0,
+  "fat": 7.5,
+  "carbs": 54.0
+ },
+ {
+  "name": "oats",
+  "off_name": "Oats",
+  "cal": 389.0,
+  "prot": 16.89,
+  "fat": 6.9,
+  "carbs": 66.27
+ },
+ {
+  "name": "oeuf",
+  "off_name": "Oeuf",
+  "cal": 145.0,
+  "prot": 12.3,
+  "fat": 10.3,
+  "carbs": 0.7
+ },
+ {
+  "name": "oeufs",
+  "off_name": "Œufs",
+  "cal": 145.0,
+  "prot": 12.3,
+  "fat": 10.3,
+  "carbs": 0.7
+ },
+ {
+  "name": "oeufs brouilles",
+  "off_name": "Oeufs Brouillés",
+  "cal": 148.0,
+  "prot": 11.0,
+  "fat": 10.0,
+  "carbs": 1.6
+ },
+ {
+  "name": "Oignon",
+  "off_name": "Oignon",
+  "cal": 34.0,
+  "prot": 1.4,
+  "fat": 0.2,
+  "carbs": 5.7
+ },
+ {
+  "name": "Oignon blanc",
+  "off_name": "Oignons Blanc",
+  "cal": 23.0,
+  "prot": 1.0,
+  "fat": 0.5,
+  "carbs": 3.5
+ },
+ {
+  "name": "Oignon jaune",
+  "off_name": "Oignon jaune grappe",
+  "cal": 39.0,
+  "prot": 1.1,
+  "fat": 0.62,
+  "carbs": 6.25
+ },
+ {
+  "name": "Oignon rouge",
+  "off_name": "Oignon rouge",
+  "cal": 1.0,
+  "prot": 0.0,
+  "fat": 1.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "oignons rouges",
+  "off_name": "Oignons rouges",
+  "cal": 19.0,
+  "prot": 0.9,
+  "fat": 0.1,
+  "carbs": 2.7
+ },
+ {
+  "name": "olive oil",
+  "off_name": "Olive Oil",
+  "cal": 884.0,
+  "prot": 0.0,
+  "fat": 100.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Olives",
+  "off_name": "Olives",
+  "cal": 157.0,
+  "prot": 1.6,
+  "fat": 15.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "Olives noires",
+  "off_name": "Olives noires",
+  "cal": 313.0,
+  "prot": 2.1,
+  "fat": 31.7,
+  "carbs": 0.2
+ },
+ {
+  "name": "Olives noires dénoyautées",
+  "off_name": "Olives Noires dénoyautées",
+  "cal": 125.0,
+  "prot": 0.5,
+  "fat": 13.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "olives vertes",
+  "off_name": "Olives vertes",
+  "cal": 247.0,
+  "prot": 4.0,
+  "fat": 23.8,
+  "carbs": 3.5
+ },
+ {
+  "name": "Olives vertes dénoyautées",
+  "off_name": "Olives vertes dénoyautées",
+  "cal": 145.0,
+  "prot": 1.0,
+  "fat": 14.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "onion",
+  "off_name": "Onions",
+  "cal": 42.0,
+  "prot": 0.92,
+  "fat": 0.08,
+  "carbs": 10.11
+ },
+ {
+  "name": "onions",
+  "off_name": "Onions",
+  "cal": 473.0,
+  "prot": 6.2,
+  "fat": 21.0,
+  "carbs": 63.0
+ },
+ {
+  "name": "orange",
+  "off_name": "ORANGE",
+  "cal": 45.0,
+  "prot": 0.7,
+  "fat": 0.2,
+  "carbs": 9.2
+ },
+ {
+  "name": "orange juice",
+  "off_name": "Orange Juice",
+  "cal": 44.0,
+  "prot": 0.7,
+  "fat": 0.5,
+  "carbs": 9.1
+ },
+ {
+  "name": "Oranges",
+  "off_name": "Oranges",
+  "cal": 130.0,
+  "prot": 0.7,
+  "fat": 0.5,
+  "carbs": 31.0
+ },
+ {
+  "name": "Orge perlé",
+  "off_name": "Orge perlé",
+  "cal": 350.0,
+  "prot": 10.4,
+  "fat": 1.4,
+  "carbs": 71.0
+ },
+ {
+  "name": "origan",
+  "off_name": "Origan",
+  "cal": 4.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Origan séché",
+  "off_name": "Origan",
+  "cal": 4.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Oyster Sauce",
+  "off_name": "Oyster sauce",
+  "cal": 115.0,
+  "prot": 2.4,
+  "fat": 0.1,
+  "carbs": 25.8
+ },
+ {
+  "name": "Paccheri Pasta",
+  "off_name": "Paccheri",
+  "cal": 357.0,
+  "prot": 12.0,
+  "fat": 1.5,
+  "carbs": 72.0
+ },
+ {
+  "name": "Paella rice",
+  "off_name": "Riz Paëlla",
+  "cal": 166.0,
+  "prot": 4.9,
+  "fat": 4.2,
+  "carbs": 26.6
+ },
+ {
+  "name": "pain",
+  "off_name": "Pain",
+  "cal": 297.0,
+  "prot": 11.0,
+  "fat": 1.1,
+  "carbs": 58.0
+ },
+ {
+  "name": "Pain au levain",
+  "off_name": "Pain au Levain",
+  "cal": 225.0,
+  "prot": 6.8,
+  "fat": 1.3,
+  "carbs": 49.1
+ },
+ {
+  "name": "pain brioché",
+  "off_name": "Pain brioche",
+  "cal": 265.0,
+  "prot": 7.8,
+  "fat": 7.5,
+  "carbs": 41.0
+ },
+ {
+  "name": "Pain complet",
+  "off_name": "Pain complet",
+  "cal": 264.0,
+  "prot": 11.0,
+  "fat": 1.4,
+  "carbs": 48.0
+ },
+ {
+  "name": "Pain complet (tranches)",
+  "off_name": "Pain Complet Tranches",
+  "cal": 265.0,
+  "prot": 8.1,
+  "fat": 7.8,
+  "carbs": 37.6
+ },
+ {
+  "name": "Pain complet grillé",
+  "off_name": "Pain Grillé Blé Complet",
+  "cal": 387.0,
+  "prot": 11.0,
+  "fat": 4.0,
+  "carbs": 72.0
+ },
+ {
+  "name": "Pain complet ou aux céréales",
+  "off_name": "Pain Complet aux Céréales",
+  "cal": 262.0,
+  "prot": 21.9,
+  "fat": 12.9,
+  "carbs": 7.5
+ },
+ {
+  "name": "Pain de campagne",
+  "off_name": "Pain de campagne",
+  "cal": 288.0,
+  "prot": 10.8,
+  "fat": 1.0,
+  "carbs": 58.7
+ },
+ {
+  "name": "Pain de campagne au levain",
+  "off_name": "Pain De Campagne Au Levain",
+  "cal": 251.0,
+  "prot": 10.0,
+  "fat": 0.8,
+  "carbs": 49.0
+ },
+ {
+  "name": "Pain de mie",
+  "off_name": "Pain de mie",
+  "cal": 290.0,
+  "prot": 7.6,
+  "fat": 5.7,
+  "carbs": 50.0
+ },
+ {
+  "name": "Pain de mie complet",
+  "off_name": "Pain de mie complet",
+  "cal": 261.0,
+  "prot": 8.8,
+  "fat": 4.4,
+  "carbs": 44.0
+ },
+ {
+  "name": "Pain de mie épais",
+  "off_name": "Pain de mie",
+  "cal": 280.0,
+  "prot": 7.1,
+  "fat": 5.1,
+  "carbs": 49.9
+ },
+ {
+  "name": "Pain de seigle",
+  "off_name": "Pain de seigle",
+  "cal": 218.0,
+  "prot": 6.6,
+  "fat": 1.3,
+  "carbs": 45.0
+ },
+ {
+  "name": "Pain pita",
+  "off_name": "Pain pita",
+  "cal": 245.0,
+  "prot": 8.4,
+  "fat": 1.0,
+  "carbs": 48.5
+ },
+ {
+  "name": "Palm Sugar",
+  "off_name": "Palmyra Sugar",
+  "cal": 383.0,
+  "prot": 0.4,
+  "fat": 0.0,
+  "carbs": 95.0
+ },
+ {
+  "name": "pancake mix",
+  "off_name": "pancake mix",
+  "cal": 358.0,
+  "prot": 8.3,
+  "fat": 2.9,
+  "carbs": 72.8
+ },
+ {
+  "name": "Paprika",
+  "off_name": "Paprika",
+  "cal": 539.0,
+  "prot": 5.8,
+  "fat": 33.1,
+  "carbs": 53.0
+ },
+ {
+  "name": "Paprika douce",
+  "off_name": "Paprika doux",
+  "cal": 317.0,
+  "prot": 15.0,
+  "fat": 13.0,
+  "carbs": 35.0
+ },
+ {
+  "name": "Paprika doux",
+  "off_name": "Paprika Doux",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Paprika fumé",
+  "off_name": "Tuc paprika",
+  "cal": 495.0,
+  "prot": 7.8,
+  "fat": 23.0,
+  "carbs": 63.0
+ },
+ {
+  "name": "Paprika fumée",
+  "off_name": "Paprika",
+  "cal": 31.0,
+  "prot": 0.8,
+  "fat": 0.2,
+  "carbs": 5.1
+ },
+ {
+  "name": "Parma ham",
+  "off_name": "Prosciutto di Parma DOP",
+  "cal": 249.0,
+  "prot": 28.0,
+  "fat": 15.0,
+  "carbs": 0.5
+ },
+ {
+  "name": "Parmesan",
+  "off_name": "Parmesan",
+  "cal": 392.0,
+  "prot": 33.0,
+  "fat": 28.4,
+  "carbs": 0.0
+ },
+ {
+  "name": "parmesan cheese",
+  "off_name": "Parmesan Cheese",
+  "cal": 392.0,
+  "prot": 33.0,
+  "fat": 28.4,
+  "carbs": 0.0
+ },
+ {
+  "name": "Parmesan râpé",
+  "off_name": "Parmesan rapé",
+  "cal": 402.0,
+  "prot": 32.0,
+  "fat": 30.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Passata",
+  "off_name": "Passata",
+  "cal": 30.0,
+  "prot": 1.6,
+  "fat": 0.1,
+  "carbs": 5.1
+ },
+ {
+  "name": "pasta",
+  "off_name": "Pasta",
+  "cal": 352.0,
+  "prot": 13.0,
+  "fat": 1.5,
+  "carbs": 70.0
+ },
+ {
+  "name": "Patate douce",
+  "off_name": "Patate Douce",
+  "cal": 51.0,
+  "prot": 0.9,
+  "fat": 0.3,
+  "carbs": 10.5
+ },
+ {
+  "name": "Pavé de boeuf (rumsteak ou faux-filet)",
+  "off_name": "Faux-filet de bœuf",
+  "cal": 148.0,
+  "prot": 22.0,
+  "fat": 6.7,
+  "carbs": 0.0
+ },
+ {
+  "name": "Pavé de saumon",
+  "off_name": "Pavé de saumon",
+  "cal": 197.0,
+  "prot": 20.0,
+  "fat": 13.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Pavé de saumon frais",
+  "off_name": "Pavé de saumon frais",
+  "cal": 180.0,
+  "prot": 19.0,
+  "fat": 11.0,
+  "carbs": 0.9
+ },
+ {
+  "name": "Pavé de thon frais",
+  "off_name": "Pavé de saumon frais",
+  "cal": 180.0,
+  "prot": 19.0,
+  "fat": 11.0,
+  "carbs": 0.9
+ },
+ {
+  "name": "peanut butter",
+  "off_name": "Peanut Butter",
+  "cal": 588.0,
+  "prot": 25.09,
+  "fat": 50.39,
+  "carbs": 19.56
+ },
+ {
+  "name": "Peanut Oil",
+  "off_name": "Peanut",
+  "cal": 524.0,
+  "prot": 9.8,
+  "fat": 26.0,
+  "carbs": 59.0
+ },
+ {
+  "name": "Peanuts",
+  "off_name": "peanuts",
+  "cal": 613.33,
+  "prot": 27.0,
+  "fat": 50.0,
+  "carbs": 17.33
+ },
+ {
+  "name": "Pear",
+  "off_name": "Pear",
+  "cal": 46.0,
+  "prot": 0.1,
+  "fat": 0.1,
+  "carbs": 11.4
+ },
+ {
+  "name": "peas",
+  "off_name": "Peas",
+  "cal": 83.8,
+  "prot": 5.5,
+  "fat": 0.75,
+  "carbs": 11.2
+ },
+ {
+  "name": "Pecan nuts",
+  "off_name": "Noix de Pécan",
+  "cal": 725.0,
+  "prot": 11.5,
+  "fat": 71.4,
+  "carbs": 4.2
+ },
+ {
+  "name": "pecorino",
+  "off_name": "Pecorino",
+  "cal": 413.0,
+  "prot": 29.0,
+  "fat": 33.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Persil",
+  "off_name": "Persil",
+  "cal": 76.0,
+  "prot": 3.9,
+  "fat": 4.4,
+  "carbs": 3.2
+ },
+ {
+  "name": "Persil frais",
+  "off_name": "Persil frais (corrigé)",
+  "cal": 36.0,
+  "prot": 3.0,
+  "fat": 0.8,
+  "carbs": 5.0
+ },
+ {
+  "name": "Persil frais ciselé",
+  "off_name": "Persil finement ciselé",
+  "cal": 35.0,
+  "prot": 4.0,
+  "fat": 0.5,
+  "carbs": 2.8
+ },
+ {
+  "name": "Persil plat frais",
+  "off_name": "Persil plat",
+  "cal": 73.0,
+  "prot": 3.8,
+  "fat": 3.8,
+  "carbs": 3.4
+ },
+ {
+  "name": "pesto",
+  "off_name": "Pesto",
+  "cal": 240.0,
+  "prot": 4.1,
+  "fat": 24.1,
+  "carbs": 2.9
+ },
+ {
+  "name": "pesto sauce",
+  "off_name": "Sauce Pesto",
+  "cal": 585.0,
+  "prot": 3.8,
+  "fat": 61.0,
+  "carbs": 3.9
+ },
+ {
+  "name": "Petits pois",
+  "off_name": "Petits pois",
+  "cal": 68.0,
+  "prot": 6.3,
+  "fat": 0.7,
+  "carbs": 5.4
+ },
+ {
+  "name": "pickles",
+  "off_name": "Pickles",
+  "cal": 58.0,
+  "prot": 0.8,
+  "fat": 1.6,
+  "carbs": 7.5
+ },
+ {
+  "name": "pignons de pin",
+  "off_name": "Pignons de pin",
+  "cal": 715.0,
+  "prot": 14.0,
+  "fat": 68.0,
+  "carbs": 9.4
+ },
+ {
+  "name": "Pilchards",
+  "off_name": "Pilchards",
+  "cal": 166.0,
+  "prot": 18.0,
+  "fat": 9.5,
+  "carbs": 1.8
+ },
+ {
+  "name": "piment",
+  "off_name": "Piment",
+  "cal": 92.0,
+  "prot": 1.3,
+  "fat": 5.0,
+  "carbs": 9.0
+ },
+ {
+  "name": "Piment d'Espelette",
+  "off_name": "Piment d’espelette",
+  "cal": 34.0,
+  "prot": 3.8,
+  "fat": 2.1,
+  "carbs": 0.5
+ },
+ {
+  "name": "Piment doux",
+  "off_name": "Piment Doux",
+  "cal": 2.0,
+  "prot": 0.1,
+  "fat": 0.1,
+  "carbs": 0.1
+ },
+ {
+  "name": "piment en poudre",
+  "off_name": "Piment d'Espelette en poudre",
+  "cal": 340.0,
+  "prot": 14.0,
+  "fat": 11.0,
+  "carbs": 28.0
+ },
+ {
+  "name": "Piment rouge frais",
+  "off_name": "Piment rouge",
+  "cal": 4.0,
+  "prot": 12.0,
+  "fat": 17.0,
+  "carbs": 29.0
+ },
+ {
+  "name": "Pine nuts",
+  "off_name": "Pine Nuts",
+  "cal": 697.0,
+  "prot": 14.0,
+  "fat": 68.6,
+  "carbs": 4.0
+ },
+ {
+  "name": "pineapple",
+  "off_name": "Pineapple",
+  "cal": 52.0,
+  "prot": 0.0,
+  "fat": 0.5,
+  "carbs": 11.0
+ },
+ {
+  "name": "pistaches",
+  "off_name": "Pistaches",
+  "cal": 578.0,
+  "prot": 7.6,
+  "fat": 39.4,
+  "carbs": 48.5
+ },
+ {
+  "name": "Pistaches décortiquées non salées",
+  "off_name": "Pistaches décortiquées non salées",
+  "cal": 557.0,
+  "prot": 20.6,
+  "fat": 44.44,
+  "carbs": 27.97
+ },
+ {
+  "name": "Pistaches non salées",
+  "off_name": "Pistaches non salées",
+  "cal": 615.0,
+  "prot": 27.0,
+  "fat": 47.0,
+  "carbs": 18.0
+ },
+ {
+  "name": "Pistachios",
+  "off_name": "Pistachios",
+  "cal": 590.0,
+  "prot": 21.0,
+  "fat": 46.0,
+  "carbs": 28.0
+ },
+ {
+  "name": "Pita Bread",
+  "off_name": "Pita bread",
+  "cal": 246.0,
+  "prot": 7.7,
+  "fat": 1.2,
+  "carbs": 50.0
+ },
+ {
+  "name": "pitted black olives",
+  "off_name": "Pitted black olives in brine",
+  "cal": 133.0,
+  "prot": 0.5,
+  "fat": 13.6,
+  "carbs": 0.0
+ },
+ {
+  "name": "pizza dough",
+  "off_name": "Vivagel Pizza Dough",
+  "cal": 352.0,
+  "prot": 5.5,
+  "fat": 17.7,
+  "carbs": 42.1
+ },
+ {
+  "name": "plain yogurt",
+  "off_name": "Plain yogurt",
+  "cal": 82.4,
+  "prot": 5.29,
+  "fat": 3.53,
+  "carbs": 7.65
+ },
+ {
+  "name": "Plum Tomatoes",
+  "off_name": "Whole Plum Tomatoes",
+  "cal": 22.0,
+  "prot": 0.8,
+  "fat": 0.1,
+  "carbs": 4.2
+ },
+ {
+  "name": "Poire",
+  "off_name": "Poire",
+  "cal": 90.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 20.0
+ },
+ {
+  "name": "Poireau",
+  "off_name": "Poireau",
+  "cal": 34.0,
+  "prot": 0.9,
+  "fat": 1.4,
+  "carbs": 4.0
+ },
+ {
+  "name": "Pois chiches",
+  "off_name": "Pois chiches",
+  "cal": 130.0,
+  "prot": 6.9,
+  "fat": 1.8,
+  "carbs": 18.9
+ },
+ {
+  "name": "pois chiches cuits",
+  "off_name": "Pois chiches cuits",
+  "cal": 106.0,
+  "prot": 5.9,
+  "fat": 2.6,
+  "carbs": 12.0
+ },
+ {
+  "name": "Poitrine de poulet",
+  "off_name": "Poitrine de poulet",
+  "cal": 98.0,
+  "prot": 19.0,
+  "fat": 2.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Poitrine de poulet sans peau",
+  "off_name": "Poitrine de poulet",
+  "cal": 98.0,
+  "prot": 19.0,
+  "fat": 2.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Poivre",
+  "off_name": "Pavé poivre",
+  "cal": 362.0,
+  "prot": 24.0,
+  "fat": 29.0,
+  "carbs": 1.3
+ },
+ {
+  "name": "Poivre noir",
+  "off_name": "Poivre noir",
+  "cal": 1.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Poivre noir moulu",
+  "off_name": "Poivre noir moulu",
+  "cal": 284.0,
+  "prot": 11.0,
+  "fat": 3.5,
+  "carbs": 52.0
+ },
+ {
+  "name": "Poivron jaune",
+  "off_name": "Poivrons",
+  "cal": 35.0,
+  "prot": 0.8,
+  "fat": 1.5,
+  "carbs": 3.2
+ },
+ {
+  "name": "Poivron rouge",
+  "off_name": "Poivron rouge",
+  "cal": 29.0,
+  "prot": 1.0,
+  "fat": 0.6,
+  "carbs": 4.0
+ },
+ {
+  "name": "poivrons",
+  "off_name": "Poivrons",
+  "cal": 35.0,
+  "prot": 0.8,
+  "fat": 1.5,
+  "carbs": 3.2
+ },
+ {
+  "name": "poivrons rouges",
+  "off_name": "Poivrons Rouges Doux",
+  "cal": 32.0,
+  "prot": 1.2,
+  "fat": 0.5,
+  "carbs": 5.2
+ },
+ {
+  "name": "Pomegranate Molasses",
+  "off_name": "Pomegranate molasses",
+  "cal": 296.0,
+  "prot": 9.0,
+  "fat": 0.64,
+  "carbs": 66.0
+ },
+ {
+  "name": "Pomme",
+  "off_name": "Pomme (fraîche, corrigé)",
+  "cal": 52.0,
+  "prot": 0.3,
+  "fat": 0.2,
+  "carbs": 11.4
+ },
+ {
+  "name": "Pomme de terre",
+  "off_name": "Pomme de terre",
+  "cal": 77.0,
+  "prot": 1.8,
+  "fat": 0.34,
+  "carbs": 16.7
+ },
+ {
+  "name": "Pommes",
+  "off_name": "Pommes",
+  "cal": 62.0,
+  "prot": 0.5,
+  "fat": 0.5,
+  "carbs": 13.8
+ },
+ {
+  "name": "Pommes de terre",
+  "off_name": "Pommes de Terre",
+  "cal": 66.0,
+  "prot": 1.4,
+  "fat": 0.3,
+  "carbs": 15.0
+ },
+ {
+  "name": "Pommes de terre grenaille",
+  "off_name": "Pommes de terre grenaille",
+  "cal": 153.0,
+  "prot": 2.9,
+  "fat": 5.8,
+  "carbs": 21.2
+ },
+ {
+  "name": "porc",
+  "off_name": "Porc",
+  "cal": 168.0,
+  "prot": 20.0,
+  "fat": 9.0,
+  "carbs": 0.1
+ },
+ {
+  "name": "Pork Back Ribs",
+  "off_name": "BBQ RIBS PORK",
+  "cal": 247.0,
+  "prot": 19.3,
+  "fat": 13.9,
+  "carbs": 11.3
+ },
+ {
+  "name": "potato",
+  "off_name": "Potato",
+  "cal": 104.0,
+  "prot": 1.66,
+  "fat": 2.4,
+  "carbs": 19.36
+ },
+ {
+  "name": "potatoes",
+  "off_name": "Potatoes",
+  "cal": 142.0,
+  "prot": 2.5,
+  "fat": 5.2,
+  "carbs": 20.0
+ },
+ {
+  "name": "Potiron",
+  "off_name": "Potiron",
+  "cal": 38.0,
+  "prot": 0.3,
+  "fat": 1.3,
+  "carbs": 6.2
+ },
+ {
+  "name": "Poudre d'açaï",
+  "off_name": "Poudre d'Acai",
+  "cal": 599.0,
+  "prot": 9.8,
+  "fat": 54.0,
+  "carbs": 5.0
+ },
+ {
+  "name": "Poudre de cacao",
+  "off_name": "Poudre de cacao",
+  "cal": 413.0,
+  "prot": 26.3,
+  "fat": 11.4,
+  "carbs": 48.9
+ },
+ {
+  "name": "Poudre de cacao non sucrée",
+  "off_name": "Poudre de Cacao non sucrée",
+  "cal": 332.0,
+  "prot": 22.3,
+  "fat": 21.0,
+  "carbs": 12.4
+ },
+ {
+  "name": "Poudre de protéine whey vanille",
+  "off_name": "Whey proteine Vanille",
+  "cal": 366.0,
+  "prot": 75.92,
+  "fat": 5.12,
+  "carbs": 3.89
+ },
+ {
+  "name": "Poudre de whey protéine vanille",
+  "off_name": "Whey proteine Vanille",
+  "cal": 366.0,
+  "prot": 75.92,
+  "fat": 5.12,
+  "carbs": 3.89
+ },
+ {
+  "name": "poulet",
+  "off_name": "Poulet",
+  "cal": 179.0,
+  "prot": 20.0,
+  "fat": 10.9,
+  "carbs": 0.0
+ },
+ {
+  "name": "Poulet (filet)",
+  "off_name": "Filet poulet",
+  "cal": 165.0,
+  "prot": 24.0,
+  "fat": 5.8,
+  "carbs": 0.1
+ },
+ {
+  "name": "Poulet blanc (filet)",
+  "off_name": "Filets poulet blanc",
+  "cal": 111.0,
+  "prot": 23.0,
+  "fat": 2.1,
+  "carbs": 0.0
+ },
+ {
+  "name": "poulet cuit",
+  "off_name": "Poulet cuit",
+  "cal": 165.0,
+  "prot": 23.0,
+  "fat": 8.1,
+  "carbs": 0.0
+ },
+ {
+  "name": "Poulet filet (maigre)",
+  "off_name": "Filet poulet",
+  "cal": 165.0,
+  "prot": 24.0,
+  "fat": 5.8,
+  "carbs": 0.1
+ },
+ {
+  "name": "poulet grillé",
+  "off_name": "Poulet à griller",
+  "cal": 184.0,
+  "prot": 20.0,
+  "fat": 12.0,
+  "carbs": 0.1
+ },
+ {
+  "name": "Poulet maigre (filet)",
+  "off_name": "Filet poulet",
+  "cal": 122.0,
+  "prot": 24.0,
+  "fat": 1.8,
+  "carbs": 0.0
+ },
+ {
+  "name": "poulet rôti",
+  "off_name": "Fulka Roti",
+  "cal": 229.41,
+  "prot": 7.06,
+  "fat": 6.18,
+  "carbs": 40.59
+ },
+ {
+  "name": "Pretzels",
+  "off_name": "Pretzels",
+  "cal": 387.0,
+  "prot": 11.6,
+  "fat": 4.4,
+  "carbs": 78.5
+ },
+ {
+  "name": "prosciutto",
+  "off_name": "Prosciutto",
+  "cal": 218.0,
+  "prot": 12.0,
+  "fat": 6.0,
+  "carbs": 28.0
+ },
+ {
+  "name": "protein bar",
+  "off_name": "Protein Bar",
+  "cal": 373.0,
+  "prot": 35.0,
+  "fat": 8.5,
+  "carbs": 40.0
+ },
+ {
+  "name": "protein powder",
+  "off_name": "protein powder",
+  "cal": 160.0,
+  "prot": 30.0,
+  "fat": 2.5,
+  "carbs": 4.0
+ },
+ {
+  "name": "Protéine de pois",
+  "off_name": "Protéine de Pois",
+  "cal": 410.0,
+  "prot": 60.0,
+  "fat": 7.0,
+  "carbs": 24.0
+ },
+ {
+  "name": "Protéine en poudre chocolat",
+  "off_name": "Chocolat en poudre",
+  "cal": 375.0,
+  "prot": 4.8,
+  "fat": 2.2,
+  "carbs": 81.0
+ },
+ {
+  "name": "Protéine en poudre vanille",
+  "off_name": "Protéines en poudre",
+  "cal": 417.0,
+  "prot": 77.3,
+  "fat": 7.5,
+  "carbs": 10.0
+ },
+ {
+  "name": "Protéine en poudre vanille (whey)",
+  "off_name": "Whey proteine Vanille",
+  "cal": 366.0,
+  "prot": 75.92,
+  "fat": 5.12,
+  "carbs": 3.89
+ },
+ {
+  "name": "Prunes",
+  "off_name": "Prunes",
+  "cal": 171.0,
+  "prot": 2.5,
+  "fat": 0.2,
+  "carbs": 35.6
+ },
+ {
+  "name": "Puff Pastry",
+  "off_name": "Puff pastry",
+  "cal": 481.0,
+  "prot": 0.0,
+  "fat": 25.5,
+  "carbs": 62.7
+ },
+ {
+  "name": "pulpe açaí",
+  "off_name": "Pulpe d'açaí",
+  "cal": 76.0,
+  "prot": 1.0,
+  "fat": 6.2,
+  "carbs": 2.9
+ },
+ {
+  "name": "Pulpe d'açaï",
+  "off_name": "Pulpe d'açaí",
+  "cal": 76.0,
+  "prot": 1.0,
+  "fat": 6.2,
+  "carbs": 2.9
+ },
+ {
+  "name": "Pumpkin",
+  "off_name": "Pumpkin spice",
+  "cal": 394.0,
+  "prot": 11.0,
+  "fat": 6.6,
+  "carbs": 60.0
+ },
+ {
+  "name": "pumpkin seeds",
+  "off_name": "Pumpkin seeds",
+  "cal": 594.0,
+  "prot": 30.2,
+  "fat": 49.1,
+  "carbs": 4.7
+ },
+ {
+  "name": "purée d'açaí",
+  "off_name": "Puree d ail",
+  "cal": 304.0,
+  "prot": 3.9,
+  "fat": 28.0,
+  "carbs": 5.0
+ },
+ {
+  "name": "purée de tomates",
+  "off_name": "Purée De Tomates",
+  "cal": 25.0,
+  "prot": 1.16,
+  "fat": 0.16,
+  "carbs": 4.5
+ },
+ {
+  "name": "pâte brisée",
+  "off_name": "Pâte brisée",
+  "cal": 362.0,
+  "prot": 6.0,
+  "fat": 18.0,
+  "carbs": 44.0
+ },
+ {
+  "name": "pâte curry vert",
+  "off_name": "PATE DE CURRY VERT",
+  "cal": 156.0,
+  "prot": 1.6,
+  "fat": 12.0,
+  "carbs": 8.7
+ },
+ {
+  "name": "Pâte de curry vert",
+  "off_name": "PATE DE CURRY VERT",
+  "cal": 156.0,
+  "prot": 1.6,
+  "fat": 12.0,
+  "carbs": 8.7
+ },
+ {
+  "name": "pâte miso",
+  "off_name": "Pâte miso",
+  "cal": 186.0,
+  "prot": 11.0,
+  "fat": 6.1,
+  "carbs": 19.0
+ },
+ {
+  "name": "pâtes",
+  "off_name": "Pâtes",
+  "cal": 289.0,
+  "prot": 9.2,
+  "fat": 4.4,
+  "carbs": 52.0
+ },
+ {
+  "name": "Pâtes (penne ou fusilli)",
+  "off_name": "Pâtes Fusilli",
+  "cal": 348.0,
+  "prot": 12.0,
+  "fat": 1.1,
+  "carbs": 71.0
+ },
+ {
+  "name": "Pâtes complètes",
+  "off_name": "Pâtes Complètes",
+  "cal": 351.0,
+  "prot": 12.0,
+  "fat": 1.7,
+  "carbs": 68.0
+ },
+ {
+  "name": "Pâtes complètes (penne ou fusilli)",
+  "off_name": "Pâtes Fusilli Complètes",
+  "cal": 352.0,
+  "prot": 11.5,
+  "fat": 2.4,
+  "carbs": 67.0
+ },
+ {
+  "name": "pâtes sèches",
+  "off_name": "Tomates séchés",
+  "cal": 114.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 25.0
+ },
+ {
+  "name": "pâtes à cannelloni",
+  "off_name": "Cannelloni",
+  "cal": 354.0,
+  "prot": 12.5,
+  "fat": 1.5,
+  "carbs": 71.0
+ },
+ {
+  "name": "pâtes à lasagne",
+  "off_name": "Pâtes à lasagnes",
+  "cal": 274.0,
+  "prot": 9.6,
+  "fat": 2.5,
+  "carbs": 52.0
+ },
+ {
+  "name": "Pépites de chocolat noir",
+  "off_name": "Pepites de chocolat noir",
+  "cal": 567.0,
+  "prot": 4.0,
+  "fat": 39.0,
+  "carbs": 48.0
+ },
+ {
+  "name": "quiche aux fines herbes",
+  "off_name": "Ail aux fines herbes",
+  "cal": 57.0,
+  "prot": 3.1,
+  "fat": 2.5,
+  "carbs": 5.6
+ },
+ {
+  "name": "quinoa",
+  "off_name": "Quinoa",
+  "cal": 368.0,
+  "prot": 14.0,
+  "fat": 6.1,
+  "carbs": 57.0
+ },
+ {
+  "name": "Quinoa cuit (ou riz)",
+  "off_name": "Riz & Quinoa",
+  "cal": 155.0,
+  "prot": 3.9,
+  "fat": 2.4,
+  "carbs": 27.9
+ },
+ {
+  "name": "Quinoa sec",
+  "off_name": "Quinoa",
+  "cal": 391.0,
+  "prot": 14.0,
+  "fat": 6.1,
+  "carbs": 67.0
+ },
+ {
+  "name": "Radis",
+  "off_name": "Radis",
+  "cal": 14.0,
+  "prot": 0.7,
+  "fat": 0.0,
+  "carbs": 1.9
+ },
+ {
+  "name": "raisins",
+  "off_name": "Raisins",
+  "cal": 484.0,
+  "prot": 4.7,
+  "fat": 23.5,
+  "carbs": 63.5
+ },
+ {
+  "name": "Raisins secs",
+  "off_name": "raisins secs",
+  "cal": 329.0,
+  "prot": 3.5,
+  "fat": 0.7,
+  "carbs": 75.0
+ },
+ {
+  "name": "Ras el hanout",
+  "off_name": "Ras El Hanout",
+  "cal": 294.0,
+  "prot": 7.7,
+  "fat": 6.3,
+  "carbs": 47.2
+ },
+ {
+  "name": "Raspberries",
+  "off_name": "Raspberries",
+  "cal": 32.0,
+  "prot": 1.2,
+  "fat": 0.3,
+  "carbs": 4.7
+ },
+ {
+  "name": "Ravioli",
+  "off_name": "Ravioli",
+  "cal": 97.0,
+  "prot": 3.9,
+  "fat": 2.9,
+  "carbs": 13.0
+ },
+ {
+  "name": "Raw King Prawns",
+  "off_name": "King Prawns",
+  "cal": 232.0,
+  "prot": 12.6,
+  "fat": 19.4,
+  "carbs": 1.3
+ },
+ {
+  "name": "Raw Vegetables",
+  "off_name": "Vegetable",
+  "cal": 460.0,
+  "prot": 10.0,
+  "fat": 17.0,
+  "carbs": 66.0
+ },
+ {
+  "name": "red bell pepper",
+  "off_name": "Red pepper powder",
+  "cal": 300.0,
+  "prot": 20.0,
+  "fat": 10.0,
+  "carbs": 40.0
+ },
+ {
+  "name": "red cabbage",
+  "off_name": "Red cabbage",
+  "cal": 519.0,
+  "prot": 2.3,
+  "fat": 34.0,
+  "carbs": 51.0
+ },
+ {
+  "name": "Red Chilli",
+  "off_name": "Chilli",
+  "cal": 166.0,
+  "prot": 0.5,
+  "fat": 0.0,
+  "carbs": 40.0
+ },
+ {
+  "name": "Red Chilli powder",
+  "off_name": "Chilli Powder Mild",
+  "cal": 295.0,
+  "prot": 13.6,
+  "fat": 9.9,
+  "carbs": 20.9
+ },
+ {
+  "name": "Red Potatoes",
+  "off_name": "Potatoes",
+  "cal": 128.0,
+  "prot": 1.6,
+  "fat": 3.5,
+  "carbs": 21.0
+ },
+ {
+  "name": "Refried Beans",
+  "off_name": "Refried Beans",
+  "cal": 129.0,
+  "prot": 6.5,
+  "fat": 2.4,
+  "carbs": 16.9
+ },
+ {
+  "name": "rice",
+  "off_name": "Rice",
+  "cal": 380.0,
+  "prot": 7.8,
+  "fat": 3.2,
+  "carbs": 81.0
+ },
+ {
+  "name": "rice cake",
+  "off_name": "Rice cake",
+  "cal": 400.0,
+  "prot": 10.0,
+  "fat": 0.0,
+  "carbs": 80.0
+ },
+ {
+  "name": "rice noodles",
+  "off_name": "Rice noodles",
+  "cal": 361.0,
+  "prot": 6.7,
+  "fat": 0.6,
+  "carbs": 81.9
+ },
+ {
+  "name": "Rice Paper Sheets",
+  "off_name": "Rice Paper",
+  "cal": 349.0,
+  "prot": 3.6,
+  "fat": 1.0,
+  "carbs": 81.0
+ },
+ {
+  "name": "Rice Vinegar",
+  "off_name": "Rice vinegar",
+  "cal": 124.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 29.0
+ },
+ {
+  "name": "Ricotta",
+  "off_name": "Ricotta",
+  "cal": 112.0,
+  "prot": 7.0,
+  "fat": 8.0,
+  "carbs": 3.0
+ },
+ {
+  "name": "rigatoni",
+  "off_name": "Rigatoni",
+  "cal": 351.0,
+  "prot": 14.0,
+  "fat": 4.0,
+  "carbs": 70.0
+ },
+ {
+  "name": "riz",
+  "off_name": "Riz",
+  "cal": 339.0,
+  "prot": 9.8,
+  "fat": 1.2,
+  "carbs": 66.9
+ },
+ {
+  "name": "Riz arborio",
+  "off_name": "Riz Arborio",
+  "cal": 347.0,
+  "prot": 6.9,
+  "fat": 1.3,
+  "carbs": 77.0
+ },
+ {
+  "name": "Riz basmati",
+  "off_name": "Riz basmati",
+  "cal": 354.0,
+  "prot": 6.7,
+  "fat": 0.4,
+  "carbs": 80.4
+ },
+ {
+  "name": "Riz basmati cru",
+  "off_name": "Riz Basmati",
+  "cal": 350.0,
+  "prot": 7.4,
+  "fat": 0.6,
+  "carbs": 78.0
+ },
+ {
+  "name": "Riz blanc",
+  "off_name": "Riz rond blanc",
+  "cal": 355.0,
+  "prot": 7.5,
+  "fat": 0.5,
+  "carbs": 80.0
+ },
+ {
+  "name": "riz blanc cuit",
+  "off_name": "Riz rond blanc",
+  "cal": 350.0,
+  "prot": 6.6,
+  "fat": 0.6,
+  "carbs": 79.0
+ },
+ {
+  "name": "Riz complet",
+  "off_name": "Riz complet",
+  "cal": 348.0,
+  "prot": 7.9,
+  "fat": 2.9,
+  "carbs": 71.0
+ },
+ {
+  "name": "Riz complet cuit",
+  "off_name": "Riz Complet Cuit",
+  "cal": 349.0,
+  "prot": 7.3,
+  "fat": 2.2,
+  "carbs": 73.9
+ },
+ {
+  "name": "Riz jasmin",
+  "off_name": "Riz jasmin",
+  "cal": 354.0,
+  "prot": 6.7,
+  "fat": 0.4,
+  "carbs": 80.4
+ },
+ {
+  "name": "Riz rond",
+  "off_name": "Riz rond",
+  "cal": 345.0,
+  "prot": 6.9,
+  "fat": 0.5,
+  "carbs": 79.0
+ },
+ {
+  "name": "riz vinaigré",
+  "off_name": "Riz Vinaigré",
+  "cal": 133.0,
+  "prot": 2.1,
+  "fat": 0.5,
+  "carbs": 30.0
+ },
+ {
+  "name": "riz à sushi",
+  "off_name": "Riz à sushi",
+  "cal": 169.0,
+  "prot": 2.3,
+  "fat": 0.9,
+  "carbs": 37.8
+ },
+ {
+  "name": "roasted almonds",
+  "off_name": "Roasted Almonds",
+  "cal": 612.0,
+  "prot": 26.3,
+  "fat": 52.0,
+  "carbs": 4.3
+ },
+ {
+  "name": "Rocket",
+  "off_name": "Rocket egg",
+  "cal": 541.0,
+  "prot": 6.9,
+  "fat": 32.0,
+  "carbs": 56.0
+ },
+ {
+  "name": "rolled oats",
+  "off_name": "Rolled Overnight Oats",
+  "cal": 375.0,
+  "prot": 12.5,
+  "fat": 6.25,
+  "carbs": 67.5
+ },
+ {
+  "name": "Romarin",
+  "off_name": "Romarin",
+  "cal": 4.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Romarin frais",
+  "off_name": "Romarin",
+  "cal": 1.0,
+  "prot": 0.1,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Romarin séché",
+  "off_name": "Romarin",
+  "cal": 1.0,
+  "prot": 0.1,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Roquette",
+  "off_name": "Roquette",
+  "cal": 31.0,
+  "prot": 2.5,
+  "fat": 0.3,
+  "carbs": 3.2
+ },
+ {
+  "name": "rosemary",
+  "off_name": "French rosemary",
+  "cal": 644.0,
+  "prot": 24.1,
+  "fat": 53.8,
+  "carbs": 10.1
+ },
+ {
+  "name": "Rumsteck",
+  "off_name": "Rumsteck Le Charolais",
+  "cal": 107.0,
+  "prot": 23.0,
+  "fat": 1.3,
+  "carbs": 0.7
+ },
+ {
+  "name": "Russet Potato",
+  "off_name": "Russet potatoes",
+  "cal": 74.0,
+  "prot": 2.02,
+  "fat": 0.0,
+  "carbs": 17.56
+ },
+ {
+  "name": "rye crackers",
+  "off_name": "Crackers",
+  "cal": 397.0,
+  "prot": 6.8,
+  "fat": 8.5,
+  "carbs": 71.0
+ },
+ {
+  "name": "Sake",
+  "off_name": "Sake Mei Kwei Lu",
+  "cal": 33.0,
+  "prot": 0.1,
+  "fat": 0.1,
+  "carbs": 8.41
+ },
+ {
+  "name": "Salade",
+  "off_name": "Salade",
+  "cal": 1.0,
+  "prot": 66.0,
+  "fat": 1.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "Salade romaine",
+  "off_name": "Salade romaine",
+  "cal": 203.0,
+  "prot": 8.0,
+  "fat": 11.0,
+  "carbs": 17.0
+ },
+ {
+  "name": "Salade verte (mesclun)",
+  "off_name": "Salade Verte",
+  "cal": 12.0,
+  "prot": 1.1,
+  "fat": 0.1,
+  "carbs": 1.2
+ },
+ {
+  "name": "salmon",
+  "off_name": "Salmon",
+  "cal": 146.0,
+  "prot": 21.62,
+  "fat": 5.93,
+  "carbs": 0.0
+ },
+ {
+  "name": "salsa",
+  "off_name": "Salsa",
+  "cal": 39.0,
+  "prot": 1.5,
+  "fat": 0.5,
+  "carbs": 6.8
+ },
+ {
+  "name": "Salt",
+  "off_name": "Sea salt",
+  "cal": 428.0,
+  "prot": 6.0,
+  "fat": 13.0,
+  "carbs": 69.0
+ },
+ {
+  "name": "sardines",
+  "off_name": "Sardines",
+  "cal": 229.0,
+  "prot": 23.5,
+  "fat": 15.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Sardines fraîches",
+  "off_name": "Sardinade fraiche",
+  "cal": 549.0,
+  "prot": 10.0,
+  "fat": 56.0,
+  "carbs": 1.1
+ },
+ {
+  "name": "sauce curry",
+  "off_name": "Sauce curry",
+  "cal": 80.0,
+  "prot": 1.1,
+  "fat": 3.6,
+  "carbs": 9.8
+ },
+ {
+  "name": "Sauce césar légère",
+  "off_name": "Sauce César",
+  "cal": 351.0,
+  "prot": 2.2,
+  "fat": 34.4,
+  "carbs": 7.6
+ },
+ {
+  "name": "sauce de poisson",
+  "off_name": "Sauce De Poisson",
+  "cal": 60.0,
+  "prot": 10.0,
+  "fat": 0.0,
+  "carbs": 5.0
+ },
+ {
+  "name": "Sauce soja allégée",
+  "off_name": "Sauce soja allegee en sel",
+  "cal": 107.0,
+  "prot": 9.7,
+  "fat": 0.0,
+  "carbs": 6.9
+ },
+ {
+  "name": "Sauce soja réduite en sodium",
+  "off_name": "Sauce Soja (réduite en sel -40%)",
+  "cal": 61.0,
+  "prot": 8.8,
+  "fat": 0.5,
+  "carbs": 6.5
+ },
+ {
+  "name": "Sauce tomate",
+  "off_name": "Sauce tomate",
+  "cal": 80.0,
+  "prot": 1.7,
+  "fat": 5.1,
+  "carbs": 5.6
+ },
+ {
+  "name": "sauce Worcestershire",
+  "off_name": "Sauce Worcestershire",
+  "cal": 100.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 20.0
+ },
+ {
+  "name": "Sauerkraut",
+  "off_name": "Choucroute",
+  "cal": 24.0,
+  "prot": 1.3,
+  "fat": 0.5,
+  "carbs": 3.3
+ },
+ {
+  "name": "saumon",
+  "off_name": "Saumon",
+  "cal": 209.0,
+  "prot": 20.09,
+  "fat": 13.61,
+  "carbs": 0.0
+ },
+ {
+  "name": "Saumon frais",
+  "off_name": "Saumon frais",
+  "cal": 209.0,
+  "prot": 20.9,
+  "fat": 13.6,
+  "carbs": 0.0
+ },
+ {
+  "name": "Saumon fumé",
+  "off_name": "Saumon fumé",
+  "cal": 169.0,
+  "prot": 21.8,
+  "fat": 9.11,
+  "carbs": 0.0
+ },
+ {
+  "name": "Sausages",
+  "off_name": "Sausages",
+  "cal": 121.0,
+  "prot": 6.6,
+  "fat": 4.6,
+  "carbs": 11.4
+ },
+ {
+  "name": "Sea Salt",
+  "off_name": "Sea salt",
+  "cal": 428.0,
+  "prot": 6.0,
+  "fat": 13.0,
+  "carbs": 69.0
+ },
+ {
+  "name": "seasonal vegetables",
+  "off_name": "Sea vegetable",
+  "cal": 78.0,
+  "prot": 13.5,
+  "fat": 2.9,
+  "carbs": 0.0
+ },
+ {
+  "name": "Seasoning",
+  "off_name": "Seasoning",
+  "cal": 480.0,
+  "prot": 6.0,
+  "fat": 44.0,
+  "carbs": 15.0
+ },
+ {
+  "name": "seed crackers",
+  "off_name": "Three Seed Crackers",
+  "cal": 463.0,
+  "prot": 15.9,
+  "fat": 20.4,
+  "carbs": 52.8
+ },
+ {
+  "name": "Sel",
+  "off_name": "Sel",
+  "cal": 828.0,
+  "prot": 0.0,
+  "fat": 92.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "sel",
+  "off_name": "Sel",
+  "cal": 132.0,
+  "prot": 1.5,
+  "fat": 0.0,
+  "carbs": 30.3
+ },
+ {
+  "name": "Sel de mer",
+  "off_name": "Sel de mer",
+  "cal": 13.0,
+  "prot": 0.6,
+  "fat": 0.2,
+  "carbs": 2.0
+ },
+ {
+  "name": "Sel et poivre",
+  "off_name": "Sel et Poivre",
+  "cal": 411.0,
+  "prot": 15.6,
+  "fat": 10.8,
+  "carbs": 58.2
+ },
+ {
+  "name": "Sel fin",
+  "off_name": "Vatel sel fin",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Sel fleur de sel",
+  "off_name": "Fleur de sel",
+  "cal": 3.0,
+  "prot": 5.0,
+  "fat": 3.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "Semi-skimmed Milk",
+  "off_name": "Semi-skimmed Milk",
+  "cal": 50.0,
+  "prot": 3.4,
+  "fat": 1.7,
+  "carbs": 5.0
+ },
+ {
+  "name": "semoule",
+  "off_name": "Semoule",
+  "cal": 360.0,
+  "prot": 0.3,
+  "fat": 1.2,
+  "carbs": 87.0
+ },
+ {
+  "name": "Semoule de couscous",
+  "off_name": "Semoule de couscous",
+  "cal": 357.0,
+  "prot": 12.0,
+  "fat": 1.8,
+  "carbs": 72.0
+ },
+ {
+  "name": "Semoule fine",
+  "off_name": "Semoule fine",
+  "cal": 360.0,
+  "prot": 12.0,
+  "fat": 2.0,
+  "carbs": 72.0
+ },
+ {
+  "name": "Serrano Ham",
+  "off_name": "Serrano",
+  "cal": 222.0,
+  "prot": 31.8,
+  "fat": 10.1,
+  "carbs": 1.1
+ },
+ {
+  "name": "Sesame oil",
+  "off_name": "Pure Sesame Oil",
+  "cal": 929.0,
+  "prot": 0.0,
+  "fat": 100.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Sesame Seed",
+  "off_name": "Sesame Seed Oil",
+  "cal": 899.0,
+  "prot": 0.0,
+  "fat": 99.9,
+  "carbs": 0.0
+ },
+ {
+  "name": "Sesame Seed Burger Buns",
+  "off_name": "Sesame burger buns",
+  "cal": 286.0,
+  "prot": 8.5,
+  "fat": 5.5,
+  "carbs": 49.0
+ },
+ {
+  "name": "Sesame Seed Oil",
+  "off_name": "Sesame Seed Oil",
+  "cal": 899.0,
+  "prot": 0.0,
+  "fat": 99.9,
+  "carbs": 0.0
+ },
+ {
+  "name": "sesame seeds",
+  "off_name": "Sesame seeds imp",
+  "cal": 528.0,
+  "prot": 22.0,
+  "fat": 41.0,
+  "carbs": 18.0
+ },
+ {
+  "name": "Shallots",
+  "off_name": "Hallots",
+  "cal": 346.0,
+  "prot": 12.01,
+  "fat": 9.9,
+  "carbs": 57.6
+ },
+ {
+  "name": "shortcrust pastry",
+  "off_name": "Shortcrust Pastry Sheet",
+  "cal": 422.0,
+  "prot": 6.0,
+  "fat": 24.3,
+  "carbs": 40.5
+ },
+ {
+  "name": "shredded coconut",
+  "off_name": "Shredded coconut",
+  "cal": 660.0,
+  "prot": 6.9,
+  "fat": 65.0,
+  "carbs": 24.0
+ },
+ {
+  "name": "Shredded Meat",
+  "off_name": "Shredded crab meat",
+  "cal": 45.0,
+  "prot": 9.2,
+  "fat": 0.6,
+  "carbs": 0.8
+ },
+ {
+  "name": "Shredded Mexican Cheese",
+  "off_name": "Tex mex shredded cheese",
+  "cal": 120.0,
+  "prot": 7.0,
+  "fat": 9.0,
+  "carbs": 2.0
+ },
+ {
+  "name": "shrimp",
+  "off_name": "VEGAN SHRIMP",
+  "cal": 240.0,
+  "prot": 4.0,
+  "fat": 11.0,
+  "carbs": 31.0
+ },
+ {
+  "name": "Sirloin steak",
+  "off_name": "2 Sirloin Steaks",
+  "cal": 201.0,
+  "prot": 21.6,
+  "fat": 12.7,
+  "carbs": 0.0
+ },
+ {
+  "name": "Sirop d'agave",
+  "off_name": "Sirop D'agave",
+  "cal": 310.0,
+  "prot": 0.0,
+  "fat": 0.5,
+  "carbs": 76.0
+ },
+ {
+  "name": "Sirop d'érable",
+  "off_name": "Sirop d’erable",
+  "cal": 220.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 54.0
+ },
+ {
+  "name": "skim milk",
+  "off_name": "Skimmed milk",
+  "cal": 350.0,
+  "prot": 12.5,
+  "fat": 1.2,
+  "carbs": 70.5
+ },
+ {
+  "name": "skimmed milk",
+  "off_name": "Skimmed milk",
+  "cal": 350.0,
+  "prot": 12.5,
+  "fat": 1.2,
+  "carbs": 70.5
+ },
+ {
+  "name": "Skir nature",
+  "off_name": "Skyr nature",
+  "cal": 61.0,
+  "prot": 11.0,
+  "fat": 0.2,
+  "carbs": 3.7
+ },
+ {
+  "name": "skyr",
+  "off_name": "Skyr",
+  "cal": 68.0,
+  "prot": 12.8,
+  "fat": 0.3,
+  "carbs": 3.6
+ },
+ {
+  "name": "Skyr nature",
+  "off_name": "Skyr Nature",
+  "cal": 64.0,
+  "prot": 11.0,
+  "fat": 1.0,
+  "carbs": 4.4
+ },
+ {
+  "name": "Skyr nature 0%",
+  "off_name": "Skyr Nature",
+  "cal": 64.0,
+  "prot": 11.0,
+  "fat": 1.0,
+  "carbs": 4.4
+ },
+ {
+  "name": "Skyr nature 0% MG",
+  "off_name": "Skyr nature",
+  "cal": 63.0,
+  "prot": 11.0,
+  "fat": 0.2,
+  "carbs": 3.1
+ },
+ {
+  "name": "Skyr vanille",
+  "off_name": "Skyr vanille",
+  "cal": 79.0,
+  "prot": 8.6,
+  "fat": 0.2,
+  "carbs": 11.0
+ },
+ {
+  "name": "Smoked Haddock",
+  "off_name": "Smoked haddock fishcakes",
+  "cal": 154.0,
+  "prot": 9.9,
+  "fat": 4.6,
+  "carbs": 17.9
+ },
+ {
+  "name": "Smoked Paprika",
+  "off_name": "Smoked Paprika baked corn snacks",
+  "cal": 431.0,
+  "prot": 7.6,
+  "fat": 15.57,
+  "carbs": 70.0
+ },
+ {
+  "name": "smoked salmon",
+  "off_name": "Smoked salmon",
+  "cal": 218.0,
+  "prot": 23.2,
+  "fat": 12.5,
+  "carbs": 0.0
+ },
+ {
+  "name": "smoky paprika",
+  "off_name": "Paprika",
+  "cal": 539.0,
+  "prot": 5.8,
+  "fat": 33.1,
+  "carbs": 53.0
+ },
+ {
+  "name": "Soba noodles",
+  "off_name": "Soba",
+  "cal": 356.0,
+  "prot": 17.0,
+  "fat": 1.6,
+  "carbs": 66.0
+ },
+ {
+  "name": "sour cream",
+  "off_name": "sour cream",
+  "cal": 148.0,
+  "prot": 8.6,
+  "fat": 10.4,
+  "carbs": 5.0
+ },
+ {
+  "name": "Soured cream and chive dip",
+  "off_name": "Sour cream & chive dip",
+  "cal": 169.0,
+  "prot": 4.7,
+  "fat": 14.2,
+  "carbs": 4.9
+ },
+ {
+  "name": "soy sauce",
+  "off_name": "Soy Sauce",
+  "cal": 93.3,
+  "prot": 10.7,
+  "fat": 0.0,
+  "carbs": 6.67
+ },
+ {
+  "name": "soya milk",
+  "off_name": "Soy milk",
+  "cal": 68.0,
+  "prot": 2.3,
+  "fat": 2.7,
+  "carbs": 8.5
+ },
+ {
+  "name": "spaghetti",
+  "off_name": "Spaghetti",
+  "cal": 310.0,
+  "prot": 11.0,
+  "fat": 1.5,
+  "carbs": 63.0
+ },
+ {
+  "name": "spinach",
+  "off_name": "Spinach",
+  "cal": 23.0,
+  "prot": 2.86,
+  "fat": 0.39,
+  "carbs": 3.63
+ },
+ {
+  "name": "Spirulina",
+  "off_name": "Spirulina",
+  "cal": 350.0,
+  "prot": 70.0,
+  "fat": 7.14,
+  "carbs": 22.0
+ },
+ {
+  "name": "Spray d'huile de coco",
+  "off_name": "nu3  kokosöl",
+  "cal": 820.0,
+  "prot": 0.0,
+  "fat": 91.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Squash",
+  "off_name": "Squash 2 Litre",
+  "cal": 19.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 4.7
+ },
+ {
+  "name": "Squid",
+  "off_name": "Squid Ink Tortelloni",
+  "cal": 278.0,
+  "prot": 10.6,
+  "fat": 6.6,
+  "carbs": 42.4
+ },
+ {
+  "name": "Starch",
+  "off_name": "Starch Pudding Powder Mix",
+  "cal": 375.0,
+  "prot": 0.14,
+  "fat": 0.03,
+  "carbs": 97.5
+ },
+ {
+  "name": "steak de boeuf",
+  "off_name": "Steaks de Bœuf",
+  "cal": 129.0,
+  "prot": 19.0,
+  "fat": 5.9,
+  "carbs": 0.0
+ },
+ {
+  "name": "Steak de thon",
+  "off_name": "Steak de thon",
+  "cal": 157.0,
+  "prot": 25.1,
+  "fat": 6.0,
+  "carbs": 0.6
+ },
+ {
+  "name": "Steak haché 5%",
+  "off_name": "Steak haché 5%",
+  "cal": 129.0,
+  "prot": 21.0,
+  "fat": 5.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Steak haché de bœuf",
+  "off_name": "Steak haché de boeuf",
+  "cal": 211.0,
+  "prot": 19.0,
+  "fat": 15.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "stir-fry vegetables",
+  "off_name": "Vegetable Stir Fry",
+  "cal": 35.0,
+  "prot": 2.1,
+  "fat": 0.43,
+  "carbs": 4.57
+ },
+ {
+  "name": "strawberries",
+  "off_name": "Strawberries",
+  "cal": 320.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 80.0
+ },
+ {
+  "name": "Sucre",
+  "off_name": "Sucré",
+  "cal": 91.0,
+  "prot": 4.0,
+  "fat": 2.0,
+  "carbs": 14.0
+ },
+ {
+  "name": "Sucre en poudre",
+  "off_name": "Sucre en poudre",
+  "cal": 400.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 100.0
+ },
+ {
+  "name": "Sucre roux",
+  "off_name": "Sucre roux",
+  "cal": 385.0,
+  "prot": 1.9,
+  "fat": 0.0,
+  "carbs": 94.4
+ },
+ {
+  "name": "Sucre vanillé",
+  "off_name": "Sucre vanillé",
+  "cal": 401.0,
+  "prot": 0.5,
+  "fat": 0.5,
+  "carbs": 99.7
+ },
+ {
+  "name": "Sugar",
+  "off_name": "Sugar",
+  "cal": 398.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 99.8
+ },
+ {
+  "name": "Sugar Syrup",
+  "off_name": "My syrup",
+  "cal": 3.33,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Sun-Dried Tomatoes",
+  "off_name": "Sun dried tomatoes",
+  "cal": 210.0,
+  "prot": 8.3,
+  "fat": 0.9,
+  "carbs": 33.6
+ },
+ {
+  "name": "sunflower oil",
+  "off_name": "Sunflower Oil",
+  "cal": 899.0,
+  "prot": 0.1,
+  "fat": 99.9,
+  "carbs": 0.0
+ },
+ {
+  "name": "sunflower seed butter",
+  "off_name": "Sunflower seed butter",
+  "cal": 656.25,
+  "prot": 25.0,
+  "fat": 53.12,
+  "carbs": 15.62
+ },
+ {
+  "name": "sunflower seeds",
+  "off_name": "Sunflower seeds",
+  "cal": 599.0,
+  "prot": 23.4,
+  "fat": 47.5,
+  "carbs": 16.4
+ },
+ {
+  "name": "sushi rice",
+  "off_name": "Sushi Rice",
+  "cal": 354.0,
+  "prot": 6.7,
+  "fat": 0.5,
+  "carbs": 80.0
+ },
+ {
+  "name": "sweet chilli sauce",
+  "off_name": "Sweet Chilli Sauce",
+  "cal": 178.0,
+  "prot": 0.5,
+  "fat": 0.5,
+  "carbs": 42.9
+ },
+ {
+  "name": "Sweet Peppadew Peppers",
+  "off_name": "Sweet pepper",
+  "cal": 295.0,
+  "prot": 12.0,
+  "fat": 15.0,
+  "carbs": 28.0
+ },
+ {
+  "name": "sweet potato",
+  "off_name": "Sweet Potato",
+  "cal": 522.0,
+  "prot": 7.0,
+  "fat": 25.0,
+  "carbs": 64.0
+ },
+ {
+  "name": "sweet potatoes",
+  "off_name": "Sweet potatoes",
+  "cal": 130.0,
+  "prot": 2.0,
+  "fat": 3.5,
+  "carbs": 21.0
+ },
+ {
+  "name": "sweet smoked paprika",
+  "off_name": "Sweet Paprika",
+  "cal": 501.0,
+  "prot": 4.7,
+  "fat": 31.0,
+  "carbs": 51.0
+ },
+ {
+  "name": "Sweetened Condensed Milk",
+  "off_name": "Sweetened condensed milk",
+  "cal": 331.0,
+  "prot": 7.6,
+  "fat": 9.0,
+  "carbs": 55.0
+ },
+ {
+  "name": "Sésame",
+  "off_name": "Sésame",
+  "cal": 573.0,
+  "prot": 18.0,
+  "fat": 50.0,
+  "carbs": 23.0
+ },
+ {
+  "name": "taco shells",
+  "off_name": "Taco Shells",
+  "cal": 481.0,
+  "prot": 7.41,
+  "fat": 22.2,
+  "carbs": 63.0
+ },
+ {
+  "name": "tagliatelle",
+  "off_name": "Tagliatelle",
+  "cal": 271.0,
+  "prot": 9.6,
+  "fat": 2.1,
+  "carbs": 52.6
+ },
+ {
+  "name": "Tahini",
+  "off_name": "Tahini",
+  "cal": 631.0,
+  "prot": 18.8,
+  "fat": 55.4,
+  "carbs": 9.2
+ },
+ {
+  "name": "Tahini Paste",
+  "off_name": "Tahini paste",
+  "cal": 573.0,
+  "prot": 12.0,
+  "fat": 50.0,
+  "carbs": 12.0
+ },
+ {
+  "name": "Tamarind Paste",
+  "off_name": "Tamarind",
+  "cal": 259.0,
+  "prot": 3.1,
+  "fat": 0.6,
+  "carbs": 57.0
+ },
+ {
+  "name": "tartine de pain complet",
+  "off_name": "Tartines de Pain Blé Complet",
+  "cal": 382.0,
+  "prot": 13.0,
+  "fat": 5.0,
+  "carbs": 67.0
+ },
+ {
+  "name": "Tempeh",
+  "off_name": "Tempeh",
+  "cal": 179.0,
+  "prot": 19.0,
+  "fat": 9.4,
+  "carbs": 0.5
+ },
+ {
+  "name": "teriyaki sauce",
+  "off_name": "Teriyaki Sauce",
+  "cal": 153.0,
+  "prot": 5.7,
+  "fat": 0.2,
+  "carbs": 37.0
+ },
+ {
+  "name": "Thai curry paste",
+  "off_name": "Thai Curry Paste",
+  "cal": 98.0,
+  "prot": 1.7,
+  "fat": 5.5,
+  "carbs": 8.5
+ },
+ {
+  "name": "Thai red curry paste",
+  "off_name": "Pâte de cari rouge thaï",
+  "cal": 200.0,
+  "prot": 1.33,
+  "fat": 16.7,
+  "carbs": 13.3
+ },
+ {
+  "name": "thon",
+  "off_name": "Thon",
+  "cal": 101.0,
+  "prot": 24.0,
+  "fat": 0.5,
+  "carbs": 0.0
+ },
+ {
+  "name": "Thon en conserve",
+  "off_name": "Thon dans l'Eau (en Conserve)",
+  "cal": 99.0,
+  "prot": 23.0,
+  "fat": 0.8,
+  "carbs": 0.5
+ },
+ {
+  "name": "Thon en conserve (à l'eau)",
+  "off_name": "Thon dans l'Eau (en Conserve)",
+  "cal": 99.0,
+  "prot": 23.0,
+  "fat": 0.8,
+  "carbs": 0.5
+ },
+ {
+  "name": "Thon en conserve au naturel",
+  "off_name": "Thon au Naturel",
+  "cal": 99.0,
+  "prot": 23.0,
+  "fat": 0.8,
+  "carbs": 0.5
+ },
+ {
+  "name": "Thym",
+  "off_name": "Thym",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Thym sec",
+  "off_name": "Thym",
+  "cal": 1.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Thyme",
+  "off_name": "Thyme",
+  "cal": 398.0,
+  "prot": 6.0,
+  "fat": 4.5,
+  "carbs": 82.0
+ },
+ {
+  "name": "Tiger Prawns",
+  "off_name": "PRAWNS",
+  "cal": 76.0,
+  "prot": 17.0,
+  "fat": 0.7,
+  "carbs": 0.0
+ },
+ {
+  "name": "Tikka masala paste",
+  "off_name": "Tikka",
+  "cal": 270.0,
+  "prot": 3.0,
+  "fat": 22.9,
+  "carbs": 7.8
+ },
+ {
+  "name": "tikka masala sauce",
+  "off_name": "Tikka Masala Sauce",
+  "cal": 182.0,
+  "prot": 1.8,
+  "fat": 15.8,
+  "carbs": 7.2
+ },
+ {
+  "name": "tofu",
+  "off_name": "Tofu",
+  "cal": 122.0,
+  "prot": 12.6,
+  "fat": 7.1,
+  "carbs": 1.0
+ },
+ {
+  "name": "Tofu ferme",
+  "off_name": "Tofu Ferme",
+  "cal": 99.8,
+  "prot": 9.91,
+  "fat": 5.32,
+  "carbs": 1.76
+ },
+ {
+  "name": "Tofu fumé",
+  "off_name": "Tofu fumé",
+  "cal": 118.0,
+  "prot": 15.0,
+  "fat": 6.3,
+  "carbs": 0.9
+ },
+ {
+  "name": "Tofu soyeux",
+  "off_name": "Tofu Soyeux",
+  "cal": 54.0,
+  "prot": 5.2,
+  "fat": 2.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Tomate",
+  "off_name": "Tomate (fraîche, corrigé)",
+  "cal": 18.0,
+  "prot": 0.9,
+  "fat": 0.2,
+  "carbs": 2.6
+ },
+ {
+  "name": "Tomate cerise",
+  "off_name": "Tomate cerise",
+  "cal": 24.6,
+  "prot": 1.64,
+  "fat": 0.0,
+  "carbs": 4.92
+ },
+ {
+  "name": "Tomates",
+  "off_name": "Tomates",
+  "cal": 19.3,
+  "prot": 0.86,
+  "fat": 0.26,
+  "carbs": 2.49
+ },
+ {
+  "name": "Tomates cerises",
+  "off_name": "Tomates cerises",
+  "cal": 19.3,
+  "prot": 0.86,
+  "fat": 0.26,
+  "carbs": 2.49
+ },
+ {
+  "name": "Tomates concassées",
+  "off_name": "Tomates concassées",
+  "cal": 33.0,
+  "prot": 1.9,
+  "fat": 0.0,
+  "carbs": 5.3
+ },
+ {
+  "name": "Tomates concassées en conserve",
+  "off_name": "Tomates en conserves",
+  "cal": 22.0,
+  "prot": 1.2,
+  "fat": 0.5,
+  "carbs": 3.0
+ },
+ {
+  "name": "Tomates pelées",
+  "off_name": "Tomates pelées",
+  "cal": 20.0,
+  "prot": 1.2,
+  "fat": 0.2,
+  "carbs": 3.0
+ },
+ {
+  "name": "Tomates pelées en conserve",
+  "off_name": "Tomates en conserves",
+  "cal": 22.0,
+  "prot": 1.2,
+  "fat": 0.5,
+  "carbs": 3.0
+ },
+ {
+  "name": "tomates séchées",
+  "off_name": "Tomates séchées",
+  "cal": 114.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 25.0
+ },
+ {
+  "name": "tomato",
+  "off_name": "Tomato-dip",
+  "cal": 278.0,
+  "prot": 6.0,
+  "fat": 0.0,
+  "carbs": 68.0
+ },
+ {
+  "name": "Tomato Ketchup",
+  "off_name": "Tomato ketchup",
+  "cal": 106.0,
+  "prot": 1.1,
+  "fat": 0.5,
+  "carbs": 23.6
+ },
+ {
+  "name": "tomato paste",
+  "off_name": "Toamato paste",
+  "cal": 90.9,
+  "prot": 3.03,
+  "fat": 0.0,
+  "carbs": 18.2
+ },
+ {
+  "name": "Tomato puree",
+  "off_name": "Tomato puree",
+  "cal": 33.3,
+  "prot": 1.67,
+  "fat": 0.0,
+  "carbs": 6.67
+ },
+ {
+  "name": "tomato sauce",
+  "off_name": "Tomato sauce",
+  "cal": 25.0,
+  "prot": 1.64,
+  "fat": 0.0,
+  "carbs": 4.92
+ },
+ {
+  "name": "tomatoes",
+  "off_name": "Tomatoes on the vine",
+  "cal": 20.0,
+  "prot": 0.7,
+  "fat": 0.3,
+  "carbs": 3.1
+ },
+ {
+  "name": "Toor dal",
+  "off_name": "Toor dall plain",
+  "cal": 372.0,
+  "prot": 33.0,
+  "fat": 2.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "tortilla",
+  "off_name": "Tortilla",
+  "cal": 310.0,
+  "prot": 8.5,
+  "fat": 6.9,
+  "carbs": 52.0
+ },
+ {
+  "name": "Tortilla blé complet",
+  "off_name": "Torti blé complet",
+  "cal": 346.0,
+  "prot": 13.0,
+  "fat": 2.2,
+  "carbs": 65.0
+ },
+ {
+  "name": "Tortilla de blé",
+  "off_name": "Tortillas de blé",
+  "cal": 300.0,
+  "prot": 8.7,
+  "fat": 5.3,
+  "carbs": 52.3
+ },
+ {
+  "name": "Tortilla de blé complet",
+  "off_name": "Torti blé complet",
+  "cal": 346.0,
+  "prot": 13.0,
+  "fat": 2.2,
+  "carbs": 65.0
+ },
+ {
+  "name": "tortilla wrap",
+  "off_name": "Tortilla Wrap",
+  "cal": 326.0,
+  "prot": 9.4,
+  "fat": 7.3,
+  "carbs": 54.6
+ },
+ {
+  "name": "Tortillas",
+  "off_name": "Tortillas",
+  "cal": 292.0,
+  "prot": 7.9,
+  "fat": 6.4,
+  "carbs": 49.7
+ },
+ {
+  "name": "trail mix",
+  "off_name": "Trail Mix",
+  "cal": 368.0,
+  "prot": 6.9,
+  "fat": 15.6,
+  "carbs": 50.6
+ },
+ {
+  "name": "Tuna",
+  "off_name": "Tuna",
+  "cal": 214.0,
+  "prot": 23.0,
+  "fat": 13.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "turkey breast",
+  "off_name": "Roast turkey breast",
+  "cal": 110.0,
+  "prot": 24.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "turkey breast slices",
+  "off_name": "Honey Roasted Turkey Breast Slices",
+  "cal": 111.0,
+  "prot": 16.0,
+  "fat": 3.0,
+  "carbs": 5.0
+ },
+ {
+  "name": "tzatziki",
+  "off_name": "Tzatziki",
+  "cal": 126.0,
+  "prot": 4.7,
+  "fat": 9.2,
+  "carbs": 5.8
+ },
+ {
+  "name": "Unsalted Beef Stock",
+  "off_name": "Beef Stock",
+  "cal": 15.0,
+  "prot": 2.6,
+  "fat": 0.4,
+  "carbs": 0.1
+ },
+ {
+  "name": "Unsalted Butter",
+  "off_name": "Unsalted Butter",
+  "cal": 111.0,
+  "prot": 0.6,
+  "fat": 12.0,
+  "carbs": 0.6
+ },
+ {
+  "name": "Unsweetened Coconut Milk",
+  "off_name": "Unsweetened Coconutmilk",
+  "cal": 18.8,
+  "prot": 0.0,
+  "fat": 1.67,
+  "carbs": 0.83
+ },
+ {
+  "name": "vanilla",
+  "off_name": "Vanilla",
+  "cal": 582.0,
+  "prot": 7.5,
+  "fat": 41.7,
+  "carbs": 41.7
+ },
+ {
+  "name": "vanilla ice cream",
+  "off_name": "Vanilla ice cream",
+  "cal": 244.19,
+  "prot": 3.49,
+  "fat": 16.28,
+  "carbs": 19.77
+ },
+ {
+  "name": "Vanilla protein powder",
+  "off_name": "protein powder",
+  "cal": 160.0,
+  "prot": 30.0,
+  "fat": 2.5,
+  "carbs": 4.0
+ },
+ {
+  "name": "vanilla sugar",
+  "off_name": "Vanilla Sugar 10 X",
+  "cal": 394.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 98.6
+ },
+ {
+  "name": "Vanilla yogurt",
+  "off_name": "Vanilla yogurt",
+  "cal": 145.0,
+  "prot": 3.1,
+  "fat": 8.1,
+  "carbs": 13.0
+ },
+ {
+  "name": "veau",
+  "off_name": "Le veau",
+  "cal": 213.0,
+  "prot": 11.1,
+  "fat": 16.7,
+  "carbs": 4.2
+ },
+ {
+  "name": "vegan butter",
+  "off_name": "Vegan butter",
+  "cal": 478.0,
+  "prot": 3.2,
+  "fat": 50.6,
+  "carbs": 3.1
+ },
+ {
+  "name": "vegetable broth",
+  "off_name": "Organic Vegetable Broth",
+  "cal": 8.0,
+  "prot": 0.42,
+  "fat": 0.0,
+  "carbs": 1.67
+ },
+ {
+  "name": "Vegetable ravioli",
+  "off_name": "Ravioli végétarien",
+  "cal": 80.0,
+  "prot": 1.7,
+  "fat": 2.3,
+  "carbs": 11.0
+ },
+ {
+  "name": "Vegetable Stock Cube",
+  "off_name": "Organic Vegetable Stock Cubes",
+  "cal": 7.0,
+  "prot": 0.0,
+  "fat": 0.4,
+  "carbs": 0.7
+ },
+ {
+  "name": "Vin blanc sec",
+  "off_name": "Vin blanc sec",
+  "cal": 26.0,
+  "prot": 1.6,
+  "fat": 0.01,
+  "carbs": 3.0
+ },
+ {
+  "name": "vinaigre",
+  "off_name": "Vinaigre",
+  "cal": 199.0,
+  "prot": 1.2,
+  "fat": 0.0,
+  "carbs": 48.0
+ },
+ {
+  "name": "Vinaigre balsamique",
+  "off_name": "Vinaigre balsamique",
+  "cal": 263.0,
+  "prot": 0.3,
+  "fat": 0.0,
+  "carbs": 61.0
+ },
+ {
+  "name": "Vinaigre de cidre",
+  "off_name": "Vinaigre de cidre",
+  "cal": 1.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 0.0
+ },
+ {
+  "name": "Vinaigre de riz",
+  "off_name": "Vinaigre de riz",
+  "cal": 29.0,
+  "prot": 0.5,
+  "fat": 0.0,
+  "carbs": 6.8
+ },
+ {
+  "name": "Vinaigrette Dressing",
+  "off_name": "Sauce vinaigrette dressing",
+  "cal": 481.0,
+  "prot": 0.7,
+  "fat": 51.0,
+  "carbs": 3.9
+ },
+ {
+  "name": "vine leaves",
+  "off_name": "Stuffed vine leaves",
+  "cal": 135.0,
+  "prot": 6.0,
+  "fat": 6.0,
+  "carbs": 13.5
+ },
+ {
+  "name": "waffles",
+  "off_name": "Waffles",
+  "cal": 260.0,
+  "prot": 8.0,
+  "fat": 8.0,
+  "carbs": 40.0
+ },
+ {
+  "name": "walnuts",
+  "off_name": "Walnuts",
+  "cal": 715.0,
+  "prot": 15.2,
+  "fat": 65.2,
+  "carbs": 13.7
+ },
+ {
+  "name": "water",
+  "off_name": "Water",
+  "cal": 2.0,
+  "prot": 0.5,
+  "fat": 0.5,
+  "carbs": 0.5
+ },
+ {
+  "name": "Whey protein",
+  "off_name": "Whey Protein",
+  "cal": 397.0,
+  "prot": 71.7,
+  "fat": 8.0,
+  "carbs": 8.3
+ },
+ {
+  "name": "whey protein powder",
+  "off_name": "Chocolate Whey Protein Powder",
+  "cal": 424.24,
+  "prot": 72.73,
+  "fat": 12.12,
+  "carbs": 9.09
+ },
+ {
+  "name": "whey protéine vanille",
+  "off_name": "Whey proteine Vanille",
+  "cal": 366.0,
+  "prot": 75.92,
+  "fat": 5.12,
+  "carbs": 3.89
+ },
+ {
+  "name": "Whipping Cream",
+  "off_name": "WHIPPING CREAM",
+  "cal": 336.0,
+  "prot": 2.1,
+  "fat": 35.0,
+  "carbs": 3.2
+ },
+ {
+  "name": "white fish",
+  "off_name": "White",
+  "cal": 502.0,
+  "prot": 4.8,
+  "fat": 25.2,
+  "carbs": 63.7
+ },
+ {
+  "name": "white rice",
+  "off_name": "White Rice",
+  "cal": 129.0,
+  "prot": 2.66,
+  "fat": 0.28,
+  "carbs": 27.9
+ },
+ {
+  "name": "White Vinegar",
+  "off_name": "White Rice Vinegar",
+  "cal": 18.0,
+  "prot": 0.2,
+  "fat": 0.1,
+  "carbs": 0.9
+ },
+ {
+  "name": "White wine",
+  "off_name": "White",
+  "cal": 502.0,
+  "prot": 4.8,
+  "fat": 25.2,
+  "carbs": 63.7
+ },
+ {
+  "name": "Whole chicken",
+  "off_name": "Chicken",
+  "cal": 274.0,
+  "prot": 6.0,
+  "fat": 10.2,
+  "carbs": 49.6
+ },
+ {
+  "name": "whole grain bread",
+  "off_name": "Whole Grain Bread",
+  "cal": 232.56,
+  "prot": 11.63,
+  "fat": 4.65,
+  "carbs": 44.19
+ },
+ {
+  "name": "whole grain bun",
+  "off_name": "Whole grain",
+  "cal": 279.0,
+  "prot": 11.6,
+  "fat": 3.49,
+  "carbs": 48.8
+ },
+ {
+  "name": "whole grain crackers",
+  "off_name": "wholegrain wheat crackers",
+  "cal": 424.0,
+  "prot": 17.4,
+  "fat": 23.0,
+  "carbs": 52.8
+ },
+ {
+  "name": "whole grain pasta",
+  "off_name": "Whole grain",
+  "cal": 279.0,
+  "prot": 11.6,
+  "fat": 3.49,
+  "carbs": 48.8
+ },
+ {
+  "name": "whole grain wrap",
+  "off_name": "Whole grain",
+  "cal": 279.0,
+  "prot": 11.6,
+  "fat": 3.49,
+  "carbs": 48.8
+ },
+ {
+  "name": "whole milk",
+  "off_name": "Whole Milk",
+  "cal": 60.0,
+  "prot": 3.22,
+  "fat": 3.25,
+  "carbs": 4.52
+ },
+ {
+  "name": "whole wheat bagel",
+  "off_name": "Whole wheat bread",
+  "cal": 240.0,
+  "prot": 9.0,
+  "fat": 5.0,
+  "carbs": 40.0
+ },
+ {
+  "name": "whole wheat bread",
+  "off_name": "Whole Wheat Bread",
+  "cal": 259.0,
+  "prot": 9.13,
+  "fat": 4.11,
+  "carbs": 47.14
+ },
+ {
+  "name": "whole wheat bun",
+  "off_name": "Whole wheat bread",
+  "cal": 240.0,
+  "prot": 9.0,
+  "fat": 5.0,
+  "carbs": 40.0
+ },
+ {
+  "name": "whole wheat flour",
+  "off_name": "Kabaya Sakusaku Panda Milk Chocolate Biscuits",
+  "cal": 479.0,
+  "prot": 7.14,
+  "fat": 21.43,
+  "carbs": 64.29
+ },
+ {
+  "name": "whole wheat pasta",
+  "off_name": "Penne Whole Wheat Pasta (Castagno)",
+  "cal": 344.0,
+  "prot": 12.0,
+  "fat": 2.7,
+  "carbs": 64.0
+ },
+ {
+  "name": "whole wheat tortilla",
+  "off_name": "Tortilla Whole Wheat",
+  "cal": 314.0,
+  "prot": 9.3,
+  "fat": 7.0,
+  "carbs": 52.0
+ },
+ {
+  "name": "whole wheat tortillas",
+  "off_name": "Whole Wheat Tortillas",
+  "cal": 286.0,
+  "prot": 8.0,
+  "fat": 6.0,
+  "carbs": 47.0
+ },
+ {
+  "name": "whole wheat wrap",
+  "off_name": "4 Bakery Wraps Whole Wheat",
+  "cal": 289.0,
+  "prot": 9.3,
+  "fat": 6.0,
+  "carbs": 46.0
+ },
+ {
+  "name": "wild rice",
+  "off_name": "Giant wild rice",
+  "cal": 360.0,
+  "prot": 12.8,
+  "fat": 1.0,
+  "carbs": 73.2
+ },
+ {
+  "name": "yaourt",
+  "off_name": "Yaourt",
+  "cal": 96.0,
+  "prot": 6.6,
+  "fat": 2.0,
+  "carbs": 12.9
+ },
+ {
+  "name": "Yaourt de soja",
+  "off_name": "Yaourt de soja bio myrtille",
+  "cal": 81.0,
+  "prot": 3.8,
+  "fat": 2.1,
+  "carbs": 11.5
+ },
+ {
+  "name": "Yaourt grec",
+  "off_name": "yaourt grec",
+  "cal": 124.0,
+  "prot": 6.0,
+  "fat": 10.0,
+  "carbs": 4.5
+ },
+ {
+  "name": "yaourt grec 0%",
+  "off_name": "Yaourt grec 0%",
+  "cal": 54.0,
+  "prot": 10.3,
+  "fat": 0.0,
+  "carbs": 3.0
+ },
+ {
+  "name": "Yaourt grec entier",
+  "off_name": "Yaourt entier",
+  "cal": 69.0,
+  "prot": 4.0,
+  "fat": 3.5,
+  "carbs": 4.8
+ },
+ {
+  "name": "Yaourt grec entier (10%)",
+  "off_name": "Yaourt entier",
+  "cal": 69.0,
+  "prot": 4.0,
+  "fat": 3.5,
+  "carbs": 4.8
+ },
+ {
+  "name": "Yaourt grec nature",
+  "off_name": "Yaourt grec nature",
+  "cal": 132.0,
+  "prot": 6.0,
+  "fat": 10.0,
+  "carbs": 4.5
+ },
+ {
+  "name": "Yaourt grec nature (0% ou entier)",
+  "off_name": "Yaourt nature entier",
+  "cal": 70.0,
+  "prot": 3.47,
+  "fat": 3.67,
+  "carbs": 6.7
+ },
+ {
+  "name": "Yaourt grec nature (10% MG)",
+  "off_name": "Yaourt grec nature",
+  "cal": 132.0,
+  "prot": 6.0,
+  "fat": 10.0,
+  "carbs": 4.5
+ },
+ {
+  "name": "Yaourt nature",
+  "off_name": "Yaourt nature",
+  "cal": 46.0,
+  "prot": 4.0,
+  "fat": 1.0,
+  "carbs": 5.3
+ },
+ {
+  "name": "yaourt nature 0%",
+  "off_name": "Yaourt nature 0%",
+  "cal": 47.0,
+  "prot": 4.6,
+  "fat": 0.0,
+  "carbs": 7.2
+ },
+ {
+  "name": "Yaourt nature entier",
+  "off_name": "Yaourt nature entier",
+  "cal": 71.1,
+  "prot": 4.09,
+  "fat": 3.63,
+  "carbs": 4.8
+ },
+ {
+  "name": "Yaourt skyr nature",
+  "off_name": "Yaourt nature",
+  "cal": 1.0,
+  "prot": 1.0,
+  "fat": 1.0,
+  "carbs": 1.0
+ },
+ {
+  "name": "Yeast",
+  "off_name": "Yeast Extract",
+  "cal": 260.0,
+  "prot": 34.0,
+  "fat": 0.5,
+  "carbs": 30.0
+ },
+ {
+  "name": "yogurt",
+  "off_name": "Yogurt",
+  "cal": 99.9,
+  "prot": 3.2,
+  "fat": 3.4,
+  "carbs": 14.0
+ },
+ {
+  "name": "Zeste de citron",
+  "off_name": "Citron Zeste",
+  "cal": 271.0,
+  "prot": 0.0,
+  "fat": 0.0,
+  "carbs": 68.0
+ },
+ {
+  "name": "zucchini",
+  "off_name": "Zucchini",
+  "cal": 16.0,
+  "prot": 1.21,
+  "fat": 0.18,
+  "carbs": 3.35
+ },
+ {
+  "name": "Échalote",
+  "off_name": "Échalote",
+  "cal": 25.0,
+  "prot": 1.9,
+  "fat": 0.1,
+  "carbs": 3.2
+ },
+ {
+  "name": "épices",
+  "off_name": "Épices pizza",
+  "cal": 273.0,
+  "prot": 10.0,
+  "fat": 6.6,
+  "carbs": 65.6
+ },
+ {
+  "name": "épices tandoori",
+  "off_name": "50G EPICES  TANDOORI DUCROS",
+  "cal": 345.0,
+  "prot": 13.1,
+  "fat": 14.7,
+  "carbs": 27.1
+ },
+ {
+  "name": "Épinards",
+  "off_name": "Epinards",
+  "cal": 27.0,
+  "prot": 3.0,
+  "fat": 0.14,
+  "carbs": 1.9
+ },
+ {
+  "name": "Épinards frais",
+  "off_name": "Épinards.",
+  "cal": 35.0,
+  "prot": 3.7,
+  "fat": 0.8,
+  "carbs": 1.8
+ },
+ {
+  "name": "Œuf",
+  "off_name": "Oeuf",
+  "cal": 145.0,
+  "prot": 12.3,
+  "fat": 10.3,
+  "carbs": 0.7
+ },
+ {
+  "name": "Œuf fermier",
+  "off_name": "Oeuf fermier plein air x12",
+  "cal": 140.0,
+  "prot": 12.7,
+  "fat": 9.83,
+  "carbs": 0.27
+ },
+ {
+  "name": "Œufs",
+  "off_name": "Œufs",
+  "cal": 140.0,
+  "prot": 12.7,
+  "fat": 9.83,
+  "carbs": 0.27
+ },
+ {
+  "name": "Œufs durs",
+  "off_name": "Oeufs durs",
+  "cal": 139.0,
+  "prot": 13.0,
+  "fat": 9.8,
+  "carbs": 0.0
+ },
+ {
+  "name": "Œufs fermiers",
+  "off_name": "6 oeufs fermiers",
+  "cal": 155.0,
+  "prot": 13.0,
+  "fat": 11.0,
+  "carbs": 1.1
+ }
+]

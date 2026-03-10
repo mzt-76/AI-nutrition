@@ -22,6 +22,7 @@
 5. **No docs unless asked**: Do not create documentation files unless explicitly requested.
 6. **Never grow `src/agent.py`**: It has 6 fixed tools. New functionality → new skill scripts only.
 7. **Skill scripts are orchestrators, not reimplementers**: Calculation/domain logic lives in `src/nutrition/` — import it, never rewrite it. Other imports (`src.tools`, `src.clients`, stdlib, third-party) are fine. The rule is about duplication, not import restriction.
+7b. **Tunable constants in `src/nutrition/constants.py`**: All pipeline-tunable parameters (scoring weights, macro tolerances, calorie adjustments, MILP bounds, LLM params) are centralized in one file. Import from there — never hardcode magic numbers inline. See the file for the full list (27 constants, organized by domain).
 8. **Test all calculation functions**: Happy path + error cases. Nutrition logic is critical.
 9. **Run linters before committing**: `ruff format src/ tests/ && ruff check src/ tests/ && mypy src/`
 10. **`scripts/` are LLM-free**: Scripts in `scripts/` must never import `anthropic`, `openai`, or any LLM client. They may only use `src.nutrition.*`, `src.clients.get_supabase_client()`, and stdlib. If a task requires an LLM, it belongs in `skills/` as a skill script instead. This is enforced by `tests/test_scripts_no_llm.py`.
@@ -69,6 +70,7 @@
 - **Meal plan visual page**: `/plans/:id` route fetches from `GET /api/meal-plans/{plan_id}` and renders with DayPlanCard/MacroGauges
 - **Do not use lovable-tagger** — it was removed from the project
 
+**Meal-planning pipeline:** select recipes (v2b sliding budget) → MILP per-ingredient optimize (v2f `portion_optimizer_v2.py`) → validate → repair. Tunable constants in `src/nutrition/constants.py`.
 **Skills:** `nutrition-calculating` | `meal-planning` | `food-tracking` | `shopping-list` | `weekly-coaching` | `knowledge-searching` | `body-analyzing`
 
 **Run commands:** See `.claude/reference/dev-commands.md`

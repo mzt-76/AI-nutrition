@@ -145,8 +145,11 @@ AI-nutrition/
 │   │   ├── validators.py           # Input validation
 │   │   ├── recipe_db.py            # Recipe database operations
 │   │   ├── meal_distribution.py    # Macro distribution
+│   │   ├── constants.py            # 27 tunable pipeline parameters (centralized)
+│   │   ├── ingredient_roles.py     # Ingredient → culinary role mapping (MILP)
+│   │   ├── portion_optimizer_v2.py # MILP per-ingredient optimizer (scipy.milp)
 │   │   ├── portion_scaler.py       # Portion scaling
-│   │   ├── openfoodfacts_client.py # OpenFoodFacts API (275K products)
+│   │   ├── openfoodfacts_client.py # OpenFoodFacts API (264K products)
 │   │   └── meal_plan_formatter.py  # Output formatting
 │   └── RAG_Pipeline/               # Document sync (Google Drive / Local)
 │
@@ -444,7 +447,8 @@ All new endpoints require JWT authentication (same pattern as existing endpoints
 | Database | Supabase (PostgreSQL + pgvector) | All data + vector search |
 | Long-Term Memory | mem0 | Cross-session preference tracking |
 | Web Search | Brave Search API | Recent nutritional information |
-| Food Database | OpenFoodFacts | 275K French products for macro lookup |
+| Food Database | OpenFoodFacts | 264K French products for macro lookup |
+| Optimizer | scipy.optimize.milp | Per-ingredient MILP portion optimization |
 
 ### Frontend
 
@@ -472,8 +476,8 @@ All new endpoints require JWT authentication (same pattern as existing endpoints
 
 | Tool | Purpose |
 |------|---------|
-| pytest + pytest-asyncio | Unit tests (366 passing) |
-| pydantic-evals | LLM behavior evaluation (13 datasets, 50 cases) |
+| pytest + pytest-asyncio | Unit tests (697 passing) |
+| pydantic-evals | LLM behavior evaluation (13 datasets, 50+ cases) |
 | ruff | Linting + formatting |
 | mypy | Type checking |
 | ESLint | Frontend linting |
@@ -487,13 +491,32 @@ All new endpoints require JWT authentication (same pattern as existing endpoints
 | Skill | Scripts | Purpose |
 |-------|---------|---------|
 | `nutrition-calculating` | `calculate_nutritional_needs` | BMR, TDEE, macro targets |
-| `meal-planning` | `generate_day_plan`, `generate_week_plan`, `generate_shopping_list`, `generate_custom_recipe`, `fetch_stored_meal_plan`, `select_recipes`, `validate_day`, `scale_portions`, `seed_recipe_db` | Full meal planning pipeline |
+| `meal-planning` | `generate_day_plan`, `generate_week_plan`, `generate_shopping_list`, `generate_custom_recipe`, `fetch_stored_meal_plan`, `select_recipes`, `validate_day`, `scale_portions`, `seed_recipe_db` | Full meal planning pipeline (see 9.1) |
 | `weekly-coaching` | `calculate_weekly_adjustments`, `set_baseline` | Adaptive weekly feedback |
 | `knowledge-searching` | `retrieve_relevant_documents`, `web_search` | RAG + Brave search |
 | `body-analyzing` | `image_analysis` | GPT-4 Vision body composition |
 | `skill-creator` | `init_skill`, `package_skill`, `quick_validate` | Meta: create new skills |
 
 **Pattern:** Agent calls `load_skill(name)` → reads SKILL.md → calls `run_skill_script(name, script, params)`. Adding a new skill = only touch `skills/<name>/`.
+
+### 9.1 Meal-Planning Pipeline (v2f)
+
+```
+1. select_recipes()     — sequential selection with v2b sliding macro budget
+                          (each slot adjusts targets based on previously selected meals)
+2. scale_portions()     — MILP per-ingredient optimizer (portion_optimizer_v2.py)
+                          - Variables: one per scalable ingredient (not per recipe)
+                          - Culinary roles: protein [0.5×–2.0×], starch [0.3×–2.5×],
+                            vegetable [0.7×–1.5×], fat_source [0.2×–1.5×], fixed [1.0×]
+                          - Discrete items (eggs, slices) → integer MILP variables
+                          - Divergence constraints: protein↔starch, protein↔vegetable,
+                            starch↔vegetable limited to 2× ratio
+                          - Fallback: uniform calorie-based scaling if infeasible
+3. validate_day()       — macro tolerance check per meal + day totals
+4. repair loop          — swap worst meal if validation fails (max 3 retries)
+```
+
+**Recipe DB:** 692 OFF-validated recipes across 4 meal types × 3 diet types × 15+ cuisines. All tunable parameters in `src/nutrition/constants.py` (27 constants).
 
 ---
 
