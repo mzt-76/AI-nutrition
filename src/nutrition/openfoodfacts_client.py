@@ -29,6 +29,7 @@ _CALORIE_CEILINGS: dict[str, int] = {
     "fruit": 130,
     "poisson_cru": 250,
     "viande_crue": 300,
+    "liquide_aqueux": 50,  # bouillons, vinaigres, sauce soja — NOT huiles/miel/sirops
 }
 
 # Ingredient keywords → category for calorie density check
@@ -108,6 +109,26 @@ _INGREDIENT_CATEGORIES: dict[str, str] = {
     "veau": "viande_crue",
     "porc": "viande_crue",
     "agneau": "viande_crue",
+    # Liquides aqueux (base eau, <50 kcal/100g en forme liquide)
+    # Exclut les liquides légitimement denses : huiles, miel, sirops, crème, lait de coco, mirin
+    "bouillon": "liquide_aqueux",
+    "bouillon de légumes": "liquide_aqueux",
+    "bouillon de poulet": "liquide_aqueux",
+    "bouillon de boeuf": "liquide_aqueux",
+    "bouillon de volaille": "liquide_aqueux",
+    "dashi": "liquide_aqueux",
+    "sauce soja": "liquide_aqueux",
+    "vinaigre blanc": "liquide_aqueux",
+    "vinaigre de vin": "liquide_aqueux",
+    "vinaigre de vin rouge": "liquide_aqueux",
+    "vinaigre de riz": "liquide_aqueux",
+    "vinaigre de cidre": "liquide_aqueux",
+    "sauce poisson": "liquide_aqueux",
+    "nuoc mam": "liquide_aqueux",
+    "fumet de poisson": "liquide_aqueux",
+    "fumet": "liquide_aqueux",
+    "fond de veau": "liquide_aqueux",
+    "fond de volaille": "liquide_aqueux",
 }
 
 # Densities for ml → g conversion
@@ -119,6 +140,12 @@ _ML_TO_G_DENSITY: dict[str, float] = {
     "crème": 1.01,
     "miel": 1.42,
     "eau": 1.0,
+    "bouillon": 1.0,
+    "sauce soja": 1.08,
+    "vinaigre": 1.01,
+    "dashi": 1.0,
+    "sauce poisson": 1.09,
+    "nuoc mam": 1.09,
 }
 _DEFAULT_ML_DENSITY = 1.0
 

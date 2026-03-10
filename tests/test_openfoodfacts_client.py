@@ -136,12 +136,59 @@ class TestCalorieDensityGuard:
         assert _calorie_density_plausible("quinoa", 368) is True
         assert _calorie_density_plausible("huile d'olive", 884) is True
 
+    def test_liquid_bouillon_plausible(self):
+        """Bouillon liquide réel à 2-5 kcal/100g → passe."""
+        assert _calorie_density_plausible("bouillon de légumes", 2) is True
+        assert _calorie_density_plausible("bouillon de poulet", 4) is True
+
+    def test_liquid_bouillon_implausible(self):
+        """Bouillon poudre à 200 kcal/100g mappé comme liquide → rejeté."""
+        assert _calorie_density_plausible("bouillon de légumes", 200) is False
+        assert _calorie_density_plausible("bouillon de poulet", 154) is False
+
+    def test_liquid_sauce_soja_plausible(self):
+        """Sauce soja liquide réelle à 34 kcal/100g → passe."""
+        assert _calorie_density_plausible("sauce soja", 34) is True
+
+    def test_liquid_sauce_soja_implausible(self):
+        """Sauce soja concentrée à 225 kcal/100g → rejeté."""
+        assert _calorie_density_plausible("sauce soja", 225) is False
+
+    def test_liquid_dashi_implausible(self):
+        """Dashi poudre à 312 kcal/100g → rejeté."""
+        assert _calorie_density_plausible("dashi", 312) is False
+
+    def test_liquid_vinegar_plausible(self):
+        """Vinaigre réel à 1-4 kcal/100g → passe."""
+        assert _calorie_density_plausible("vinaigre de vin rouge", 4) is True
+        assert _calorie_density_plausible("vinaigre blanc", 1) is True
+
+    def test_liquid_vinegar_implausible(self):
+        """Vinaigre mislabel à 86-118 kcal/100g → rejeté."""
+        assert _calorie_density_plausible("vinaigre de vin rouge", 118) is False
+        assert _calorie_density_plausible("vinaigre blanc", 86) is False
+
+    def test_dense_liquid_not_in_aqueous_category(self):
+        """Liquides légitimement denses ne sont PAS dans liquide_aqueux → passent."""
+        assert _calorie_density_plausible("mirin", 218) is True
+        assert _calorie_density_plausible("sauce teriyaki", 133) is True
+        assert _calorie_density_plausible("vinaigre balsamique", 88) is True
+
     def test_category_lookup(self):
         assert _get_ingredient_category("poivron rouge") == "légume"
         assert _get_ingredient_category("épinards frais") == "légume"
         assert _get_ingredient_category("pomme verte") == "fruit"
         assert _get_ingredient_category("blanc de poulet") == "viande_crue"
         assert _get_ingredient_category("quinoa") is None
+
+    def test_liquid_category_lookup(self):
+        assert _get_ingredient_category("bouillon de légumes") == "liquide_aqueux"
+        assert _get_ingredient_category("sauce soja") == "liquide_aqueux"
+        assert _get_ingredient_category("dashi") == "liquide_aqueux"
+        assert _get_ingredient_category("vinaigre de vin rouge") == "liquide_aqueux"
+        # NOT liquide_aqueux
+        assert _get_ingredient_category("mirin") is None
+        assert _get_ingredient_category("sauce teriyaki") is None
 
 
 class TestPickBestCandidate:

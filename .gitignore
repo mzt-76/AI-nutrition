@@ -105,3 +105,4 @@ generative_UI_project_example/
 .claude/code-reviews/
 .claude/plans/
 e2e-test-report*.md
+.claude/worktrees/
