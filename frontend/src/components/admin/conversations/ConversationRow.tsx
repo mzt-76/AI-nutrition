@@ -41,7 +41,7 @@ export const ConversationRow = ({
           className="p-0 h-auto text-blue-500 hover:text-blue-700 font-normal text-left truncate max-w-full"
           onClick={() => viewConversation(conversation)}
         >
-          <span className="truncate block">{conversation.title || 'Untitled conversation'}</span>
+          <span className="truncate block">{conversation.title || 'Conversation sans titre'}</span>
         </Button>
       </TableCell>
       <TableCell width="25%">

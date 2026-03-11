@@ -45,6 +45,28 @@ from pydantic_evals.evaluators import (
 from src.agent import agent, create_agent_deps
 
 # ---------------------------------------------------------------------------
+# Test user profiles — all required fields (used by evals and fixtures)
+# ---------------------------------------------------------------------------
+
+TEST_USER_PROFILE_A = {
+    "age": 24,
+    "gender": "male",
+    "height_cm": 191,
+    "weight_kg": 88,
+    "activity_level": "moderate",
+    "goals": {"muscle_gain": 10, "general_health": 8},
+}
+
+TEST_USER_PROFILE_B = {
+    "age": 24,
+    "gender": "male",
+    "height_cm": 191,
+    "weight_kg": 86,
+    "activity_level": "light",
+    "goals": {"muscle_gain": 9, "performance": 5},
+}
+
+# ---------------------------------------------------------------------------
 # User IDs (real Supabase profiles)
 # ---------------------------------------------------------------------------
 

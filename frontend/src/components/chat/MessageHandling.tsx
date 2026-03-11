@@ -285,7 +285,7 @@ export const useMessageHandling = ({
           computed_session_user_id: '',
           message: {
             type: 'ai',
-            content: `Error: ${errorMessage}`,
+            content: "Une erreur est survenue. Veuillez réessayer.",
           },
           created_at: new Date().toISOString(),
         };

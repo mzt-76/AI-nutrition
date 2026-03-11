@@ -221,6 +221,23 @@ FAT_PCT_OF_TOTAL: dict[str, float] = {
 }
 
 # =============================================================================
+# MEAL PLAN GENERATION -- used by generate_day_plan.py and generate_week_plan.py
+# =============================================================================
+
+# Max retries when validation fails (1 retry = 1 swap)
+MAX_RETRIES = 2
+
+# Warn when more than half the slots use LLM fallback
+LLM_FALLBACK_WARN_THRESHOLD = 0.5
+
+# Recipe selection calorie range: target / DIVISOR to target * MULTIPLIER
+CALORIE_RANGE_MIN_DIVISOR = 3
+CALORIE_RANGE_MAX_MULTIPLIER = 2
+
+# Auto-select snack structure when calories exceed this threshold
+SNACK_STRUCTURE_CALORIE_THRESHOLD = 2500
+
+# =============================================================================
 # SAFETY CONSTRAINTS -- hardcoded, never bypass (CLAUDE.md rule 3)
 # =============================================================================
 # Absolute minimum daily calorie intake to prevent metabolic harm.

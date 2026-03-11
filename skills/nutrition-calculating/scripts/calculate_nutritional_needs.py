@@ -12,6 +12,8 @@ import json
 import logging
 
 from src.nutrition.constants import (
+    MIN_CALORIES_MEN,
+    MIN_CALORIES_WOMEN,
     MUSCLE_GAIN_SURPLUS_KCAL,
     WEIGHT_LOSS_DEFICIT_KCAL,
 )
@@ -79,6 +81,10 @@ async def execute(**kwargs) -> str:
             target_calories = tdee - WEIGHT_LOSS_DEFICIT_KCAL  # Moderate deficit
         else:
             target_calories = tdee
+
+        # Safety floor — CLAUDE.md rule 3: never bypass minimum calories
+        min_cal = MIN_CALORIES_WOMEN if gender == "female" else MIN_CALORIES_MEN
+        target_calories = max(target_calories, min_cal)
 
         # Step 6: Calculate protein target with adaptive range
         protein_g, protein_per_kg, protein_range = calculate_protein_target(

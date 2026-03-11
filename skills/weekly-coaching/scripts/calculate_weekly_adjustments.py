@@ -13,7 +13,7 @@ References:
 
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from src.nutrition.adjustments import (
     analyze_weight_trend,
@@ -228,7 +228,7 @@ async def execute(**kwargs) -> str:
         if feedback_data.get("week_start_date"):
             week_start = datetime.fromisoformat(feedback_data["week_start_date"]).date()
         else:
-            today = datetime.now().date()
+            today = datetime.now(timezone.utc).date()
             week_start = today - timedelta(days=today.weekday())
 
         week_number = week_start.isocalendar()[1]
@@ -267,7 +267,7 @@ async def execute(**kwargs) -> str:
             update_data = {
                 "weeks_of_data": weeks_data,
                 "confidence_level": new_confidence,
-                "updated_at": datetime.now().isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat(),
             }
             try:
                 await supabase.table("user_learning_profile").update(update_data).eq(
@@ -277,17 +277,16 @@ async def execute(**kwargs) -> str:
             except Exception as e:
                 logger.warning(f"Could not update learning profile: {e}")
         else:
-            LEARNING_PROFILE_UUID = "550e8400-e29b-41d4-a716-446655440000"
             try:
                 upsert_data: dict = {
-                    "id": LEARNING_PROFILE_UUID,
+                    "user_id": user_id,
                     "weeks_of_data": 1,
                     "confidence_level": 0.3,
-                    "updated_at": datetime.now().isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
                 }
-                if user_id:
-                    upsert_data["user_id"] = user_id
-                await supabase.table("user_learning_profile").upsert(upsert_data).execute()
+                await supabase.table("user_learning_profile").upsert(
+                    upsert_data, on_conflict="user_id"
+                ).execute()
                 logger.info("New learning profile created")
             except Exception as e:
                 logger.warning(f"Could not create learning profile: {e}")

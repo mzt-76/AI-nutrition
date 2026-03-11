@@ -16,9 +16,10 @@ import logging
 import re
 import tempfile
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from src.nutrition.constants import SNACK_STRUCTURE_CALORIE_THRESHOLD
 from src.nutrition.meal_distribution import MEAL_STRUCTURES
 from src.nutrition.meal_planning import format_meal_plan_response
 from src.nutrition.meal_distribution import calculate_meal_macros_distribution
@@ -30,9 +31,6 @@ from src.nutrition.validators import sanitize_user_text
 logger = logging.getLogger(__name__)
 
 _DAY_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
-
-# Auto-select snack structure when calories exceed this threshold
-SNACK_STRUCTURE_CALORIE_THRESHOLD = 2500
 
 
 @dataclasses.dataclass
@@ -74,7 +72,7 @@ class _BatchState:
 
 def _get_current_monday() -> str:
     """Return the Monday of the current week in YYYY-MM-DD format."""
-    today = datetime.now()
+    today = datetime.now(timezone.utc)
     monday = today - timedelta(days=today.weekday())
     return monday.strftime("%Y-%m-%d")
 
@@ -220,7 +218,7 @@ async def execute(**kwargs) -> str:
         if num_days >= 7:
             start_date = _get_current_monday()
         else:
-            start_date = datetime.now().strftime("%Y-%m-%d")
+            start_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     target_calories_daily = kwargs.get("target_calories_daily")
     target_protein_g = kwargs.get("target_protein_g")
     target_carbs_g = kwargs.get("target_carbs_g")

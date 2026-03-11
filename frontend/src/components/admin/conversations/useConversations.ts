@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
 import { Conversation, Message } from '@/types/database.types';
@@ -24,7 +24,7 @@ export const useConversations = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const { toast } = useToast();
 
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -38,19 +38,18 @@ export const useConversations = () => {
     } catch (error) {
       logger.error('Error fetching conversations:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to fetch conversations',
+        title: 'Erreur',
+        description: 'Impossible de charger les conversations',
         variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [sortOrder, toast]);
 
   useEffect(() => {
     fetchConversations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortOrder]);
+  }, [fetchConversations]);
 
   // Filter conversations based on search query
   useEffect(() => {
@@ -76,8 +75,8 @@ export const useConversations = () => {
   const copyToClipboard = async (text: string) => {
     await safeWriteClipboard(text);
     toast({
-      title: 'Copied',
-      description: 'ID copied to clipboard',
+      title: 'Copié',
+      description: 'ID copié dans le presse-papiers',
     });
   };
 
@@ -101,8 +100,8 @@ export const useConversations = () => {
     } catch (error) {
       logger.error('Error fetching messages:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load conversation messages',
+        title: 'Erreur',
+        description: 'Impossible de charger les messages',
         variant: 'destructive',
       });
     } finally {

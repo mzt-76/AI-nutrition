@@ -45,3 +45,11 @@ run_skill_script("knowledge-searching", "web_search", {
 **Scripts disponibles** :
 - `scripts/retrieve_relevant_documents.py` : Embedding query → pgvector similarity search → top 4
 - `scripts/web_search.py` : Brave API / SearXNG → parse results → top 5 formatted
+
+## MealCard — quand tu suggères une recette
+
+Si ta réponse inclut une recette concrète (ingrédients + instructions), émets un marqueur `MealCard` à la fin, comme pour le skill `meal-planning`. Sans ce marqueur, la recette n'est pas sauvegardable par l'utilisateur.
+
+```
+<!--UI:MealCard:{"meal_type":"dejeuner","recipe_name":"Nom de la recette","calories":600,"macros":{"protein_g":45,"carbs_g":60,"fat_g":18},"ingredients":["..."],"instructions":"..."}-->
+```

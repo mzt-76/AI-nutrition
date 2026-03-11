@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, Security
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pathlib import Path
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -210,6 +210,17 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 app.add_middleware(SecurityHeadersMiddleware)
 
 
+@app.middleware("http")
+async def check_supabase_initialized(request_obj, call_next):
+    """Reject requests if Supabase client is not yet initialized."""
+    if supabase is None and request_obj.url.path.startswith("/api/"):
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "Service en cours de démarrage, veuillez réessayer."},
+        )
+    return await call_next(request_obj)
+
+
 security = HTTPBearer(auto_error=False)
 
 
@@ -378,6 +389,16 @@ async def agent_endpoint(
                         status_code=400,
                     )
 
+        # Sanitize user input early — before any DB write or LLM call
+        try:
+            sanitized_query = sanitize_user_text(request.query, 5000, "agent_query")
+        except ValueError:
+            return StreamingResponse(
+                _stream_error("Requête invalide.", request.session_id),
+                media_type="text/plain",
+                status_code=400,
+            )
+
         # Rate limit check (per-minute + daily)
         rate_limit_ok, rate_limit_msg = await check_rate_limit(
             supabase, request.user_id
@@ -390,9 +411,11 @@ async def agent_endpoint(
                 headers={"Retry-After": "60"},
             )
 
-        # Fire-and-forget request tracking
+        # Fire-and-forget request tracking (use sanitized query)
         task = asyncio.create_task(
-            store_request(supabase, request.request_id, request.user_id, request.query)
+            store_request(
+                supabase, request.request_id, request.user_id, sanitized_query
+            )
         )
         task.add_done_callback(_log_task_exception)
 
@@ -430,7 +453,7 @@ async def agent_endpoint(
                     supabase=supabase,
                     session_id=session_id,
                     message_type="human",
-                    content=request.query,
+                    content=sanitized_query,
                     files=file_attachments,
                 )
             except Exception as e:
@@ -448,7 +471,7 @@ async def agent_endpoint(
             memory_search_task = (
                 asyncio.create_task(
                     mem0_client.search(
-                        query=request.query,
+                        query=sanitized_query,
                         user_id=request.user_id,
                         limit=3,
                     )
@@ -484,7 +507,7 @@ async def agent_endpoint(
                 async def _save_memory() -> None:
                     try:
                         await mem0_client.add(
-                            [{"role": "user", "content": request.query}],
+                            [{"role": "user", "content": sanitized_query}],
                             user_id=request.user_id,
                         )
                     except Exception as e:
@@ -496,7 +519,7 @@ async def agent_endpoint(
         title_task = None
         if conversation_record and title_agent:
             title_task = asyncio.create_task(
-                generate_conversation_title(title_agent, request.query)
+                generate_conversation_title(title_agent, sanitized_query)
             )
 
         # Stream response
@@ -508,6 +531,7 @@ async def agent_endpoint(
                 memories_str=memories_str,
                 title_task=title_task,
                 ephemeral=request.ephemeral,
+                sanitized_query=sanitized_query,
             ),
             media_type="text/plain",
         )
@@ -651,7 +675,10 @@ async def food_search(
     auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Search for a food item and return its macros."""
-    q = q.strip()[:200]
+    try:
+        q = sanitize_user_text(q.strip(), 200, "food_search")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Requête invalide")
     if not q:
         raise HTTPException(status_code=400, detail="Le paramètre 'q' est requis")
 
@@ -953,6 +980,17 @@ async def upsert_recipe(
 ) -> dict[str, Any]:
     """Upsert a recipe by normalized name. Returns existing if found."""
 
+    # Atwater macro validation — reject recipes with incoherent macros
+    cal = body.calories_per_serving
+    atwater = body.protein_g_per_serving * 4 + body.carbs_g_per_serving * 4 + body.fat_g_per_serving * 9
+    if cal > 5 and atwater > 0:
+        discrepancy = abs(cal - atwater) / max(cal, atwater)
+        if discrepancy > 0.30:
+            raise HTTPException(
+                status_code=422,
+                detail="Données nutritionnelles incohérentes",
+            )
+
     name_norm = normalize_ingredient_name(body.name)
     meal_type_norm = body.meal_type.lower().replace("é", "e").replace("î", "i")
 
@@ -979,7 +1017,7 @@ async def upsert_recipe(
         "protein_g_per_serving": body.protein_g_per_serving,
         "carbs_g_per_serving": body.carbs_g_per_serving,
         "fat_g_per_serving": body.fat_g_per_serving,
-        "source": "user_validated",
+        "source": "user_saved",
     }
 
     result = await supabase.table("recipes").insert(row).execute()
@@ -1259,6 +1297,7 @@ async def _stream_agent_response(
     memories_str: str,
     title_task: asyncio.Task | None,
     ephemeral: bool = False,
+    sanitized_query: str = "",
 ):
     """Stream agent response as NDJSON chunks."""
     agent_deps = create_agent_deps(memories=memories_str, user_id=request.user_id)
@@ -1278,15 +1317,9 @@ async def _stream_agent_response(
             except Exception as e:
                 logger.warning(f"Error processing file {f.file_name}: {e}")
 
-    # Sanitize user input (defense-in-depth against prompt injection)
-    try:
-        sanitized_query = sanitize_user_text(request.query, 5000, "agent_query")
-    except ValueError:
-        yield json.dumps({"error": "Requête invalide."}) + "\n"
-        return
-
+    # Query already sanitized at entry point (agent_endpoint)
     # Build agent input: query + any binary contents
-    agent_input: str | list = sanitized_query
+    agent_input: str | list = sanitized_query or request.query
     if binary_contents:
         agent_input = [sanitized_query, *binary_contents]
 

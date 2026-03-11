@@ -14,13 +14,17 @@ import time
 from pathlib import Path
 
 from src.nutrition.constants import (
+    CALORIE_RANGE_MAX_MULTIPLIER,
+    CALORIE_RANGE_MIN_DIVISOR,
     DEFAULT_PREP_TIME_MINUTES,
+    LLM_FALLBACK_WARN_THRESHOLD,
     MACRO_RATIO_TOLERANCE_STRICT,
     MACRO_RATIO_TOLERANCE_WIDE,
     MACRO_TOLERANCE_CALORIES,
     MACRO_TOLERANCE_CARBS,
     MACRO_TOLERANCE_FAT,
     MACRO_TOLERANCE_PROTEIN,
+    MAX_RETRIES,
 )
 from src.nutrition.portion_optimizer_v2 import (
     apply_ingredient_scale_factors,
@@ -46,16 +50,6 @@ logger = logging.getLogger(__name__)
 
 # Day names in French
 DAY_NAMES_FR = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
-
-# Max retries when validation fails (1 retry = 1 swap)
-MAX_RETRIES = 2
-
-# Warn when more than half the slots use LLM fallback
-LLM_FALLBACK_WARN_THRESHOLD = 0.5
-
-# Recipe selection calorie range: target/DIVISOR to target*MULTIPLIER
-CALORIE_RANGE_MIN_DIVISOR = 3
-CALORIE_RANGE_MAX_MULTIPLIER = 2
 
 # Project root for sibling script imports
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent

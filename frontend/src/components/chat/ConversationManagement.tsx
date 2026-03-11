@@ -80,17 +80,6 @@ export const useConversationManagement = ({
     }
   }, [user, queryClient]);
 
-  // Update React Query cache directly (same API as useState setter)
-  const setConversations = useCallback(
-    (updater: Conversation[] | ((prev: Conversation[]) => Conversation[])) => {
-      queryClient.setQueryData<Conversation[]>(
-        ['conversations', user?.id],
-        typeof updater === 'function' ? (old) => updater(old ?? []) : updater,
-      );
-    },
-    [user?.id, queryClient],
-  );
-
   const handleNewChat = useCallback(() => {
     safeRemoveItem(sessionStorage, SESSION_KEY);
     safeRemoveItem(sessionStorage, SESSION_CONV_KEY);
@@ -124,7 +113,6 @@ export const useConversationManagement = ({
     conversations,
     selectedConversation,
     setSelectedConversation,
-    setConversations,
     loadConversations,
     handleNewChat,
     handleSelectConversation,

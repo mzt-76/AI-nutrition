@@ -279,7 +279,8 @@ def optimize_day_portions_v2(
 
     # Per-meal calorie balance constraints
     if use_meal_balance:
-        assert per_meal_targets is not None
+        if per_meal_targets is None:
+            raise ValueError("per_meal_targets required when use_meal_balance=True")
         for r_idx in range(n_recipes):
             row = np.zeros(n_vars)
             for v_idx, var in enumerate(scalable):

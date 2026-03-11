@@ -166,6 +166,16 @@ NE PAS entourer de `**bold**`, `📖`, ni de texte additionnel sur la même lign
 - Omettre le lien `/plans/{meal_plan_id}` — sinon pas de favori possible
 - Inventer des valeurs — tout vient du JSON retourné par le script
 
+## MealCard — OBLIGATOIRE pour toute recette
+
+Chaque fois que tu proposes une recette (individuelle OU dans un plan), tu DOIS émettre un marqueur `MealCard` à la fin de ta réponse. Les scripts de recette retournent un champ `ui_marker` — copie-le tel quel. Sans ce marqueur, la recette n'est pas sauvegardable.
+
+```
+[ton texte avec instructions, ingrédients, etc.]
+
+<!--UI:MealCard:{"meal_type":"dejeuner","recipe_name":"Poulet rôti aux herbes","calories":650,"macros":{"protein_g":52,"carbs_g":68,"fat_g":15},"prep_time":35,"ingredients":["Filet de poulet 200g","Riz complet 80g","Brocoli 150g"],"instructions":"1. Préchauffer le four à 200°C\n2. Assaisonner le poulet\n3. Cuire 25 min\n4. Cuire le riz et le brocoli en parallèle\n5. Dresser l'assiette"}-->
+```
+
 ## Sécurité allergènes
 Tolérance zéro — filtrage Python automatique en 2 couches.
 Voir `references/allergen_families.md`.

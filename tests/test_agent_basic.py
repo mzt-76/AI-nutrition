@@ -1,60 +1,10 @@
 """
-Basic agent tests to prevent API breakage.
+Basic agent tests — deterministic only (no real LLM calls).
 
-These tests ensure the agent's core functionality works and catch
-breaking changes in dependencies like Pydantic AI.
+Real LLM API compatibility tests are in evals/test_agent_e2e.py.
 """
 
-import pytest
-from src.agent import agent, create_agent_deps
-
-
-class TestAgentBasicFunctionality:
-    """Test basic agent operations to catch API changes."""
-
-    @pytest.mark.asyncio
-    async def test_agent_returns_result_with_output_attribute(self):
-        """
-        Test that agent.run() returns a result with .output attribute.
-
-        This test catches breaking changes in Pydantic AI's API.
-        Note: Pydantic AI 0.0.53+ uses .output for the result (renamed from .data).
-        """
-        deps = create_agent_deps()
-
-        result = await agent.run("Dis-moi bonjour en une phrase", deps=deps)
-
-        # CRITICAL: Test that result has .output attribute
-        assert hasattr(result, "output"), (
-            "AgentRunResult should have 'output' attribute. "
-            "If this fails, check Pydantic AI version and API changes."
-        )
-
-        # Test that .output returns a string
-        assert isinstance(
-            result.output, str
-        ), f"result.output should be string, got {type(result.output)}"
-
-        # Test that response is not empty
-        assert len(result.output) > 0, "Agent response should not be empty"
-
-    @pytest.mark.asyncio
-    async def test_agent_result_output_is_string(self):
-        """
-        Test that agent.run() result.output is a non-empty string.
-
-        This ensures the agent produces valid responses.
-        """
-        deps = create_agent_deps()
-
-        result = await agent.run("Réponds juste 'OK'", deps=deps)
-
-        # Verify output exists and is string
-        assert hasattr(
-            result, "output"
-        ), "AgentRunResult should have 'output' attribute"
-        assert isinstance(result.output, str), "result.output should be a string"
-        assert len(result.output) > 0, "Agent response should not be empty"
+from src.agent import create_agent_deps
 
 
 class TestAgentDependencies:

@@ -8,7 +8,6 @@ import logging
 import json
 from src.nutrition.quantity_rounding import round_quantity_smart
 
-from src.nutrition.meal_distribution import MEAL_STRUCTURES  # noqa: F401 — re-export
 
 logger = logging.getLogger(__name__)
 

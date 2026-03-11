@@ -269,7 +269,7 @@ async def check_rate_limit(
         return True, None
     except Exception as e:
         logger.error(f"Error checking rate limit: {e}")
-        return False, "Service temporairement indisponible, veuillez reessayer."
+        return True, None  # Fail open — don't block users on infrastructure failures
 
 
 async def store_request(

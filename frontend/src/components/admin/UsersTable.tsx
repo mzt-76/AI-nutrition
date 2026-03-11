@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -35,7 +35,7 @@ export const UsersTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -48,19 +48,18 @@ export const UsersTable = () => {
     } catch (error) {
       logger.error('Error fetching users:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to fetch users',
+        title: 'Erreur',
+        description: 'Impossible de charger les utilisateurs',
         variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchUsers]);
 
   // Filter users based on search query
   useEffect(() => {
@@ -100,8 +99,8 @@ export const UsersTable = () => {
   const copyToClipboard = async (text: string) => {
     await safeWriteClipboard(text);
     toast({
-      title: 'Copied',
-      description: 'ID copied to clipboard',
+      title: 'Copié',
+      description: 'ID copié dans le presse-papiers',
     });
   };
 
@@ -133,16 +132,16 @@ export const UsersTable = () => {
       );
 
         toast({
-        title: 'Success',
-        description: 'User updated successfully',
+        title: 'Succès',
+        description: 'Utilisateur mis à jour avec succès',
       });
 
       cancelEditing();
     } catch (error) {
       logger.error('Error updating user:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to update user',
+        title: 'Erreur',
+        description: 'Impossible de mettre à jour l\'utilisateur',
         variant: 'destructive',
       });
     } finally {
@@ -152,13 +151,13 @@ export const UsersTable = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-semibold mb-4">User Management</h2>
+      <h2 className="text-2xl font-semibold mb-4">Gestion des utilisateurs</h2>
       
       <div className="mb-4 relative">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search by ID, email or name..."
+            placeholder="Rechercher par ID, email ou nom..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 w-full"
@@ -172,7 +171,7 @@ export const UsersTable = () => {
             <TableRow>
               <TableHead width="20%">ID</TableHead>
               <TableHead width="30%">Email</TableHead>
-              <TableHead width="20%">Name</TableHead>
+              <TableHead width="20%">Nom</TableHead>
               <TableHead width="10%">Admin</TableHead>
               <TableHead width="20%">Actions</TableHead>
             </TableRow>
@@ -191,7 +190,7 @@ export const UsersTable = () => {
             ) : filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-4">
-                  {searchQuery ? 'No users found matching your search' : 'No users found'}
+                  {searchQuery ? 'Aucun utilisateur trouvé pour cette recherche' : 'Aucun utilisateur trouvé'}
                 </TableCell>
               </TableRow>
             ) : (
@@ -239,7 +238,7 @@ export const UsersTable = () => {
                         onCheckedChange={(value) => handleInputChange('is_admin', value)}
                       />
                     ) : (
-                      <span>{user.is_admin ? 'Yes' : 'No'}</span>
+                      <span>{user.is_admin ? 'Oui' : 'Non'}</span>
                     )}
                   </TableCell>
                   <TableCell width="20%">
@@ -271,7 +270,7 @@ export const UsersTable = () => {
                         variant="outline"
                         onClick={() => startEditing(user)}
                       >
-                        Edit
+                        Modifier
                       </Button>
                     )}
                   </TableCell>

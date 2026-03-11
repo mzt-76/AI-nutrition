@@ -5,10 +5,10 @@ Tests daily totals calculation, response formatting, and meal structures.
 """
 
 import json
+from src.nutrition.meal_distribution import MEAL_STRUCTURES
 from src.nutrition.meal_planning import (
     calculate_daily_totals,
     format_meal_plan_response,
-    MEAL_STRUCTURES,
 )
 
 

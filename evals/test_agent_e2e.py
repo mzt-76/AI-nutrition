@@ -623,3 +623,37 @@ async def test_scenario_6_one_day_plan():
     report = await dataset.evaluate(task=_run_agent)
     report.print(include_input=True)
     assert len(report.failures) == 0, f"Failures: {[f.name for f in report.failures]}"
+
+
+# ---------------------------------------------------------------------------
+# API compatibility tests — catch Pydantic AI breaking changes
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_agent_returns_result_with_output_attribute():
+    """E2E: agent.run() returns a result with .output attribute (catches Pydantic AI API changes)."""
+    from src.agent import agent, create_agent_deps
+
+    deps = create_agent_deps()
+    result = await agent.run("Dis-moi bonjour en une phrase", deps=deps)
+
+    assert hasattr(result, "output"), (
+        "AgentRunResult should have 'output' attribute. "
+        "If this fails, check Pydantic AI version and API changes."
+    )
+    assert isinstance(result.output, str), f"result.output should be string, got {type(result.output)}"
+    assert len(result.output) > 0, "Agent response should not be empty"
+
+
+@pytest.mark.asyncio
+async def test_agent_result_output_is_string():
+    """E2E: agent.run() result.output is a non-empty string."""
+    from src.agent import agent, create_agent_deps
+
+    deps = create_agent_deps()
+    result = await agent.run("Réponds juste 'OK'", deps=deps)
+
+    assert hasattr(result, "output"), "AgentRunResult should have 'output' attribute"
+    assert isinstance(result.output, str), "result.output should be a string"
+    assert len(result.output) > 0, "Agent response should not be empty"

@@ -61,7 +61,6 @@ export interface Database {
               zone: string;
             }>;
           };
-          message_data: string | null;
           created_at: string | null;
         };
         Insert: {
@@ -78,7 +77,6 @@ export interface Database {
               zone: string;
             }>;
           };
-          message_data?: string | null;
           created_at?: string | null;
         };
         Update: {
@@ -94,7 +92,6 @@ export interface Database {
               zone: string;
             }>;
           };
-          message_data?: string | null;
           created_at?: string | null;
         };
       };

@@ -31,14 +31,17 @@ _PATCH_TARGET = "log_food_entries.match_ingredient"
 
 @pytest.fixture
 def mock_supabase():
-    """Mock Supabase client with insert and select chains."""
+    """Mock Supabase client with upsert and select chains."""
     client = MagicMock()
     table_mock = MagicMock()
+    table_mock.upsert.return_value.execute = AsyncMock(
+        return_value=MagicMock(data=[{"id": "abc"}])
+    )
     table_mock.insert.return_value.execute = AsyncMock(
         return_value=MagicMock(data=[{"id": "abc"}])
     )
-    # select().eq().eq().eq().ilike().execute() returns no existing entry (new insert path)
-    table_mock.select.return_value.eq.return_value.eq.return_value.eq.return_value.ilike.return_value.execute = AsyncMock(
+    # select chain for entry_id modify path
+    table_mock.select.return_value.eq.return_value.limit.return_value.execute = AsyncMock(
         return_value=MagicMock(data=[])
     )
     client.table.return_value = table_mock
@@ -92,8 +95,8 @@ async def test_log_food_entries_basic(mock_supabase):
         assert data["log_date"] == "2026-03-05"
         assert data["meal_type"] == "dejeuner"
 
-        # Verify 2 inserts happened
-        assert mock_supabase.table.return_value.insert.call_count == 2
+        # Verify 2 upserts happened
+        assert mock_supabase.table.return_value.upsert.call_count == 2
 
 
 @pytest.mark.asyncio
@@ -148,12 +151,12 @@ async def test_log_food_entries_unmatched_ingredient(mock_supabase):
         assert data["success"] is True
         assert data["logged_items"][0]["calories"] == 0
         assert data["logged_items"][0]["confidence"] == 0
-        assert mock_supabase.table.return_value.insert.call_count == 1
+        assert mock_supabase.table.return_value.upsert.call_count == 1
 
 
 @pytest.mark.asyncio
-async def test_log_food_entries_insert_row_fields(mock_supabase):
-    """Verify the exact fields passed to Supabase insert."""
+async def test_log_food_entries_upsert_row_fields(mock_supabase):
+    """Verify the exact fields passed to Supabase upsert."""
     with patch(_PATCH_TARGET, new_callable=AsyncMock) as mock_match:
         mock_match.return_value = _make_match_result("oeuf", 1, 78, 6.3, 0.6, 5.3)
 
@@ -165,35 +168,24 @@ async def test_log_food_entries_insert_row_fields(mock_supabase):
             meal_type="petit-dejeuner",
         )
 
-        insert_call = mock_supabase.table.return_value.insert.call_args[0][0]
-        assert insert_call["user_id"] == "user-456"
-        assert insert_call["log_date"] == "2026-03-05"
-        assert insert_call["meal_type"] == "petit-dejeuner"
-        assert insert_call["food_name"] == "oeuf"
-        assert insert_call["quantity"] == 1
-        assert insert_call["unit"] == "pièces"
-        assert insert_call["source"] == "openfoodfacts"
+        upsert_call = mock_supabase.table.return_value.upsert.call_args[0][0]
+        assert upsert_call["user_id"] == "user-456"
+        assert upsert_call["log_date"] == "2026-03-05"
+        assert upsert_call["meal_type"] == "petit-dejeuner"
+        assert upsert_call["food_name"] == "oeuf"
+        assert upsert_call["quantity"] == 1
+        assert upsert_call["unit"] == "pièces"
+        assert upsert_call["source"] == "openfoodfacts"
 
 
 @pytest.mark.asyncio
-async def test_log_food_entries_updates_existing():
-    """When an entry already exists for the same food/date/meal, it updates instead of inserting."""
-    client = MagicMock()
-    table_mock = MagicMock()
-    # select chain returns an existing entry
-    table_mock.select.return_value.eq.return_value.eq.return_value.eq.return_value.ilike.return_value.execute = AsyncMock(
-        return_value=MagicMock(data=[{"id": "existing-id-1"}])
-    )
-    table_mock.update.return_value.eq.return_value.execute = AsyncMock(
-        return_value=MagicMock(data=[{"id": "existing-id-1"}])
-    )
-    client.table.return_value = table_mock
-
+async def test_log_food_entries_upsert_handles_duplicates(mock_supabase):
+    """Upsert handles duplicate entries via on_conflict instead of select+update."""
     with patch(_PATCH_TARGET, new_callable=AsyncMock) as mock_match:
         mock_match.return_value = _make_match_result("poulet", 300, 495, 93, 0, 10.8)
 
         result = await execute(
-            supabase=client,
+            supabase=mock_supabase,
             user_id="user-123",
             items=[{"name": "poulet", "quantity": 300, "unit": "g"}],
             log_date="2026-03-05",
@@ -204,12 +196,10 @@ async def test_log_food_entries_updates_existing():
         assert data["success"] is True
         assert data["item_count"] == 1
 
-        # Should update, not insert
-        table_mock.insert.assert_not_called()
-        table_mock.update.assert_called_once()
-        update_call = table_mock.update.call_args[0][0]
-        assert update_call["quantity"] == 300
-        assert update_call["calories"] == 495.0
+        # Uses upsert with on_conflict
+        mock_supabase.table.return_value.upsert.assert_called_once()
+        upsert_kwargs = mock_supabase.table.return_value.upsert.call_args[1]
+        assert upsert_kwargs["on_conflict"] == "user_id,log_date,meal_type,food_name"
 
 
 @pytest.mark.asyncio
@@ -217,11 +207,11 @@ async def test_log_food_entries_entry_id_update():
     """When entry_id is provided, update existing entry with new food name and recalculated macros."""
     client = MagicMock()
     table_mock = MagicMock()
-    # select().eq().single().execute() returns existing entry
-    table_mock.select.return_value.eq.return_value.single.return_value.execute = (
+    # select().eq().limit().execute() returns existing entry as list
+    table_mock.select.return_value.eq.return_value.limit.return_value.execute = (
         AsyncMock(
             return_value=MagicMock(
-                data={"quantity": 200, "unit": "g", "user_id": "user-123"}
+                data=[{"quantity": 200, "unit": "g", "user_id": "user-123"}]
             )
         )
     )
@@ -259,10 +249,10 @@ async def test_log_food_entries_entry_id_no_match():
     """When entry_id update can't match ingredient, return NO_MATCH error."""
     client = MagicMock()
     table_mock = MagicMock()
-    table_mock.select.return_value.eq.return_value.single.return_value.execute = (
+    table_mock.select.return_value.eq.return_value.limit.return_value.execute = (
         AsyncMock(
             return_value=MagicMock(
-                data={"quantity": 100, "unit": "g", "user_id": "user-123"}
+                data=[{"quantity": 100, "unit": "g", "user_id": "user-123"}]
             )
         )
     )
@@ -296,10 +286,10 @@ async def test_log_food_entries_entry_id_forbidden():
     """When entry_id belongs to different user, return FORBIDDEN error."""
     client = MagicMock()
     table_mock = MagicMock()
-    table_mock.select.return_value.eq.return_value.single.return_value.execute = (
+    table_mock.select.return_value.eq.return_value.limit.return_value.execute = (
         AsyncMock(
             return_value=MagicMock(
-                data={"quantity": 100, "unit": "g", "user_id": "other-user"}
+                data=[{"quantity": 100, "unit": "g", "user_id": "other-user"}]
             )
         )
     )

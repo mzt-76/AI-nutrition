@@ -95,16 +95,17 @@ async def execute(**kwargs) -> str:
             supabase.table("daily_food_log")
             .select("quantity, unit, user_id")
             .eq("id", entry_id)
-            .single()
+            .limit(1)
             .execute()
         )
         if not existing.data:
             return json.dumps({"error": "Entry not found", "code": "NOT_FOUND"})
-        if existing.data.get("user_id") != user_id:
+        entry_row = existing.data[0]
+        if entry_row.get("user_id") != user_id:
             return json.dumps({"error": "Not authorized", "code": "FORBIDDEN"})
 
-        qty = existing.data.get("quantity", 100)
-        unit = existing.data.get("unit", "g")
+        qty = entry_row.get("quantity", 100)
+        unit = entry_row.get("unit", "g")
 
         try:
             macros = await match_ingredient(new_food_name, qty, unit, supabase)
@@ -185,26 +186,10 @@ async def execute(**kwargs) -> str:
                 "source": "openfoodfacts",
             }
 
-            # Check if this food already exists for the same user/date/meal
-            existing = await (
-                supabase.table("daily_food_log")
-                .select("id")
-                .eq("user_id", user_id)
-                .eq("log_date", log_date)
-                .eq("meal_type", meal_type)
-                .ilike("food_name", food_name)
-                .execute()
-            )
-
-            if existing.data:
-                # Update existing entry instead of creating a duplicate
-                entry_id = existing.data[0]["id"]
-                update_fields = {k: v for k, v in row.items() if k != "user_id"}
-                await supabase.table("daily_food_log").update(update_fields).eq(
-                    "id", entry_id
-                ).execute()
-            else:
-                await supabase.table("daily_food_log").insert(row).execute()
+            # Upsert: insert or update if same user/date/meal/food already exists
+            await supabase.table("daily_food_log").upsert(
+                row, on_conflict="user_id,log_date,meal_type,food_name"
+            ).execute()
 
             total_calories += cal
             total_protein += prot

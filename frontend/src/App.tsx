@@ -101,6 +101,15 @@ const AppRoutes = () => {
   const { user, isRecovery } = useAuth();
   const isMobile = useIsMobile();
 
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        adminCache.clear();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <>
       {isRecovery && <PasswordRecoveryModal />}

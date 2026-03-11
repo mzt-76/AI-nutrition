@@ -26,23 +26,23 @@ class AgentRequest(BaseModel):
 class DailyLogCreate(BaseModel):
     user_id: str = Field(pattern=_UUID_PATTERN)
     log_date: str | None = None
-    meal_type: str
-    food_name: str
+    meal_type: str = Field(max_length=50)
+    food_name: str = Field(max_length=200)
     quantity: float = 1
-    unit: str = "portion"
+    unit: str = Field("portion", max_length=30)
     calories: float = 0
     protein_g: float = 0
     carbs_g: float = 0
     fat_g: float = 0
-    source: str = "openfoodfacts"
+    source: str = Field("openfoodfacts", max_length=50)
     meal_plan_id: str | None = Field(default=None, pattern=_UUID_PATTERN)
 
 
 class DailyLogUpdate(BaseModel):
-    meal_type: str | None = None
-    food_name: str | None = None
+    meal_type: str | None = Field(None, max_length=50)
+    food_name: str | None = Field(None, max_length=200)
     quantity: float | None = None
-    unit: str | None = None
+    unit: str | None = Field(None, max_length=30)
     calories: float | None = None
     protein_g: float | None = None
     carbs_g: float | None = None
@@ -81,17 +81,17 @@ class RecalculateRequest(BaseModel):
 
 
 class ShoppingListItemModel(BaseModel):
-    name: str
+    name: str = Field(max_length=200)
     quantity: float = 0
-    unit: str = ""
-    category: str = "other"
+    unit: str = Field("", max_length=30)
+    category: str = Field("other", max_length=50)
     checked: bool = False
 
 
 class ShoppingListCreate(BaseModel):
     user_id: str = Field(pattern=_UUID_PATTERN)
     meal_plan_id: str | None = Field(default=None, pattern=_UUID_PATTERN)
-    title: str
+    title: str = Field(max_length=200)
     items: list[ShoppingListItemModel]
 
 
