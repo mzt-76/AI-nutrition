@@ -1,0 +1,35 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: ai-nutrition-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    expose:
+      - "2019"
+      - "443/udp"
+    environment:
+      - AGENT_API_HOSTNAME=${AGENT_API_HOSTNAME:-":8001"}
+      - FRONTEND_HOSTNAME=${FRONTEND_HOSTNAME:-":8080"}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL:-internal}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data:rw
+      - caddy_config:/config:rw
+    depends_on:
+      - backend
+      - frontend
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -28,11 +28,14 @@ ENV/
 
 # Environment Variables
 .env
+.env dev
+.env prod
 .env.local
 .env.*.local
 .env.root.backup
 
 # MCP config (contains project-specific URLs and tokens)
+
 .mcp.json
 .claude/.mcp.json
 .claude/settings.local.json
@@ -107,3 +110,7 @@ generative_UI_project_example/
 .claude/plans/
 e2e-test-report*.md
 .claude/worktrees/
+
+# Docker
+rag-documents/
+google-credentials/

@@ -1,0 +1,102 @@
+services:
+  # Backend API (FastAPI + Agent + Skills)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-nutrition-backend
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      # LLM
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
+      - LLM_CHOICE=${LLM_CHOICE:-claude-haiku-4-5-20251001}
+      - LLM_API_KEY=${LLM_API_KEY}
+      - LLM_BASE_URL=${LLM_BASE_URL:-https://api.openai.com/v1}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - VISION_LLM_CHOICE=${VISION_LLM_CHOICE:-gpt-4o-mini}
+      # Embeddings
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-openai}
+      - EMBEDDING_API_KEY=${EMBEDDING_API_KEY}
+      - EMBEDDING_BASE_URL=${EMBEDDING_BASE_URL:-https://api.openai.com/v1}
+      - EMBEDDING_MODEL_CHOICE=${EMBEDDING_MODEL_CHOICE:-text-embedding-3-small}
+      # Database
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      # Search
+      - BRAVE_API_KEY=${BRAVE_API_KEY}
+      - SEARXNG_BASE_URL=${SEARXNG_BASE_URL}
+      # API
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:8080}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - SKILLS_DIR=skills
+      # Memory
+      - MEM0_LLM_CHOICE=${MEM0_LLM_CHOICE:-gpt-4o-mini}
+      # Observability (optional)
+      - LANGFUSE_PUBLIC_KEY=${LANGFUSE_PUBLIC_KEY}
+      - LANGFUSE_SECRET_KEY=${LANGFUSE_SECRET_KEY}
+      - LANGFUSE_HOST=${LANGFUSE_HOST:-https://cloud.langfuse.com}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # RAG Pipeline (document ingestion — separate from API)
+  rag-pipeline:
+    build:
+      context: ./src/RAG_Pipeline
+      dockerfile: Dockerfile
+    container_name: ai-nutrition-rag-pipeline
+    restart: always
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - RAG_PIPELINE_TYPE=${RAG_PIPELINE_TYPE:-local}
+      - RUN_MODE=${RUN_MODE:-continuous}
+      - RAG_PIPELINE_ID=${RAG_PIPELINE_ID}
+      - CHECK_INTERVAL=${CHECK_INTERVAL:-60}
+      # Database (same as backend)
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      # Embeddings (same as backend)
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-openai}
+      - EMBEDDING_BASE_URL=${EMBEDDING_BASE_URL:-https://api.openai.com/v1}
+      - EMBEDDING_API_KEY=${EMBEDDING_API_KEY}
+      - EMBEDDING_MODEL_CHOICE=${EMBEDDING_MODEL_CHOICE:-text-embedding-3-small}
+      # Google Drive (optional)
+      - GOOGLE_DRIVE_CREDENTIALS_JSON=${GOOGLE_DRIVE_CREDENTIALS_JSON}
+      - RAG_WATCH_FOLDER_ID=${RAG_WATCH_FOLDER_ID}
+      # Local files
+      - RAG_WATCH_DIRECTORY=${RAG_WATCH_DIRECTORY}
+    volumes:
+      - ./rag-documents:/app/Local_Files/data
+      - ./google-credentials:/app/Google_Drive/credentials
+
+  # Frontend (React SPA via nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_AGENT_ENDPOINT: ${VITE_AGENT_ENDPOINT:-http://localhost:8001/api/agent}
+        VITE_ENABLE_STREAMING: ${VITE_ENABLE_STREAMING:-true}
+        VITE_LANGFUSE_HOST_WITH_PROJECT: ${VITE_LANGFUSE_HOST_WITH_PROJECT}
+    container_name: ai-nutrition-frontend
+    restart: always
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      backend:
+        condition: service_healthy

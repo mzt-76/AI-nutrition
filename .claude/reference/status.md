@@ -1,6 +1,6 @@
 # Current Status
 
-**Phase:** Mobile MVP — Frontend refactoring + deployment
+**Phase:** Deployment — Docker infrastructure + production alignment
 **Full roadmap:** See `PRD.md` section 12
 
 **What's done:**
@@ -8,7 +8,7 @@
 - React frontend: chat + streaming + Supabase Auth + generative UI (7 components)
 - Multi-user isolation verified, 714+ unit tests passing, 13 eval datasets
 - OpenFoodFacts: 264K products (nettoyés Atwater), 1000+ cached ingredient mappings, online API fallback
-- Database: 16 tables, all RLS-enabled
+- Database: 17 tables (incl. rag_pipeline_state), all RLS-enabled
 - Generative UI committed (7 components, tests, evals)
 - PRD v3.0 + README updated
 
@@ -21,12 +21,33 @@
 ### Step 5: Integration + polish + deploy ✅
 ### Step 5b: Pre-deploy audit + PWA readiness ✅
 
-### Step 6: Deployment infrastructure
-- [ ] Préparer la base de données production (Supabase séparé, 14 migrations SQL, seed OpenFoodFacts + recettes)
-- [ ] Créer la config de déploiement (Dockerfile/Procfile selon plateforme)
-- [ ] Configurer les variables d'environnement production (CORS_ORIGINS, API keys, Supabase)
+### Step 6: Deployment infrastructure ✅
+- [x] Créer projet Supabase production (`bxmihxyishfvmvswxfby`)
+- [x] Schéma prod : `sql/0-all-tables.sql` exécuté (toutes les tables + RPC + indexes + RLS)
+- [x] Seed données référence : `scripts/copy_reference_tables.sh` (dev → CSV → prod via `psql \copy`)
+  - recipes: 712 rows, openfoodfacts_products: 264,495 rows, ingredient_mapping: 1,217 rows
+- [x] `.env prod` configuré (DATABASE_URL, Supabase keys, VITE_SUPABASE_ANON_KEY prod)
+- [x] Docker infrastructure complète :
+  - `Dockerfile` (backend, port 8001), `frontend/Dockerfile` (multi-stage build + nginx), `src/RAG_Pipeline/Dockerfile`
+  - `.dockerignore` (root, frontend/, src/RAG_Pipeline/)
+  - `frontend/nginx.conf` pour servir le React SPA
+  - `docker-compose.yml` : 3 services (backend:8001, rag-pipeline, frontend:8080)
+  - `docker-compose.caddy.yml` : déploiement cloud avec Caddy reverse proxy + auto SSL
+  - `Caddyfile` : hostnames env-driven routant vers backend/frontend
+  - `deploy.py` : script de déploiement (modes local vs cloud)
+  - `.env.example` complet avec documentation
+  - `src/RAG_Pipeline/docker_entrypoint.py` (modes continuous/single run)
+  - `src/RAG_Pipeline/common/state_manager.py` (persistance d'état DB-backed)
+- [x] Migration DB pour table `rag_pipeline_state` (créée en prod)
+- [x] RAG Pipeline aligné sur version cours v6 :
+  - `file_watcher.py` : state_manager integration, `save_state()`, `check_for_changes()` amélioré
+  - `drive_watcher.py` : idem + `ServiceAccountCredentials` pour déploiement cloud
+  - `db_handler.py` + `text_processor.py` : détection prod/dev pour chargement `.env`
+  - `state_manager.py` : docstrings complets (version cours)
+- [x] Tester le déploiement Docker complet (`docker compose up`) — 3 containers running
+- [x] RAG pipeline Google Drive fonctionnel (service account auth + scan fichiers)
+- [x] Créer le guide Docker (`.claude/reference/docker-guide.md`)
 - [ ] CI/CD pipeline (GitHub Actions : pytest, ruff, npm lint, npm build)
-- [ ] Deploy backend (Railway/Fly.io) + frontend (Vercel)
 - [ ] Smoke test end-to-end
 - [ ] TWA → APK generation + distribution
 
@@ -121,4 +142,6 @@ Skill réutilisable : `/seed-recipes` (`.claude/skills/seed-recipes/`)
 - [ ] **Critères de sélection recettes** — vérifier que les filtres (macro ratio, variété, cuisine) sont pertinents et que le pool de 692 recettes offre assez de choix pour tous les profils (perte de poids, prise de masse, vegan, etc.)
 - [ ] **Couverture ingredient_roles.py** — 155 mappings sur 1000+ ingrédients validés. Les "unknown" [0.75×–1.25×] sont conservateurs. Enrichir les rôles les plus fréquents pour améliorer l'optimisation MILP.
 - [ ] **Import recettes live** — utiliser le pipeline v2e avec les API (Spoonacular, TheMealDB) une fois les clés configurées. Priorité : sources FR (Marmiton, 750g).
-- [ ] **Deployment** — Step 6 du status : DB production, CI/CD, deploy backend+frontend
+- [ ] **CI/CD** — GitHub Actions : pytest, ruff, npm lint, npm build
+- [ ] **Smoke test e2e** — test automatisé du flow complet via Docker
+- [ ] **TWA → APK** — génération + distribution

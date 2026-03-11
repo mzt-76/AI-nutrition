@@ -1,0 +1,19 @@
+{
+    email {$LETSENCRYPT_EMAIL}
+}
+
+# Agent API reverse proxy
+{$AGENT_API_HOSTNAME} {
+    request_body {
+        max_size 10MB
+    }
+    reverse_proxy backend:8001
+}
+
+# Frontend reverse proxy
+{$FRONTEND_HOSTNAME} {
+    request_body {
+        max_size 10MB
+    }
+    reverse_proxy frontend:8080
+}

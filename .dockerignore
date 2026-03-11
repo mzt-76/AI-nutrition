@@ -1,0 +1,73 @@
+# Python caches
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Virtual environments
+venv
+.venv
+
+# Tests & dev — not needed in prod container
+tests/
+evals/
+scripts/
+conftest.py
+pytest.ini
+ruff.toml
+requirements-dev.txt
+
+# Frontend — separate container
+frontend/
+
+# RAG Pipeline — separate container
+src/RAG_Pipeline/
+
+# Dev-only files (not needed in prod container)
+src/cli.py
+src/streamlit_ui.py
+src/nutrition/openfoodfacts_import.py
+
+# Large data files (OpenFoodFacts dumps)
+src/nutrition/openfood/
+*.gz
+*.jsonl.gz
+
+# Documentation
+*.md
+PRD.md
+README.md
+CLAUDE.md
+
+# Course material & prototypes
+ai-agent-mastery/
+custom-agent-with-skills/
+fastapi-starter-for-ai-coding/
+generative_UI_project_example/
+prototype/
+nutrition references/
+
+# Environment files (secrets)
+.env
+.env.*
+".env dev"
+".env prod"
+.env.example
+
+# IDE / OS / tooling
+.vscode/
+.idea/
+.claude/
+e2e-screenshots/
+logs/
+
+# SQL migrations (run separately)
+sql/
+
+# Git & Docker
+.git
+.gitignore
+Dockerfile
+docker-compose*.yml

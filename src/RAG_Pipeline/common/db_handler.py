@@ -17,13 +17,17 @@ from text_processor import (
     extract_rows_from_csv,
 )
 
-# Load environment variables from the project root .env file
-# Get the path to the project root (4_Pydantic_AI_Agent directory)
-project_root = Path(__file__).resolve().parent.parent.parent
-dotenv_path = project_root / ".env"
+# Check if we're in production
+is_production = os.getenv("ENVIRONMENT") == "production"
 
-# Force override of existing environment variables
-load_dotenv(dotenv_path, override=True)
+if not is_production:
+    # Development: prioritize .env file
+    project_root = Path(__file__).resolve().parent.parent
+    dotenv_path = project_root / '.env'
+    load_dotenv(dotenv_path, override=True)
+else:
+    # Production: use cloud platform env vars only
+    load_dotenv()
 
 # Initialize Supabase client
 supabase_url = os.getenv("SUPABASE_URL")
