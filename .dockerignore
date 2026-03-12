@@ -65,6 +65,13 @@ logs/
 # SQL migrations (run separately)
 sql/
 
+# TWA / Android build
+twa/
+*.keystore
+*.jks
+*.apk
+*.aab
+
 # Git & Docker
 .git
 .gitignore

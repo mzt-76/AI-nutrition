@@ -60,7 +60,8 @@
 - [x] RLS policies verified between dev and prod (consistent)
 - [x] README rewritten (EN + FR) with accurate project numbers (718 tests, 712 recipes, 17 tables, etc.)
 - [ ] Smoke test end-to-end
-- [ ] TWA → APK generation + distribution
+- [x] Langfuse observability (SDK v3 + admin panel link)
+- [x] TWA → APK generation + distribution (assetlinks.json + Bubblewrap build)
 
 ---
 
@@ -165,4 +166,5 @@ Skill réutilisable : `/seed-recipes` (`.claude/skills/seed-recipes/`)
 - [ ] **Import recettes live** — utiliser le pipeline v2e avec les API (Spoonacular, TheMealDB) une fois les clés configurées. Priorité : sources FR (Marmiton, 750g).
 - [x] **CI/CD** — GitHub Actions : 11 workflows (lint, tests, coverage, Docker, security, license, bundle size)
 - [ ] **Smoke test e2e** — test automatisé du flow complet via Docker
-- [ ] **TWA → APK** — génération + distribution
+- [x] **TWA → APK** — génération + distribution
+- [x] **Langfuse** — observability SDK v3 + admin panel deeplinks
