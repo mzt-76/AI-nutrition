@@ -9,10 +9,6 @@ on:
     paths: ["frontend/**"]
   workflow_call:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   eslint:
     name: ESLint
