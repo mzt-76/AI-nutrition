@@ -1394,9 +1394,9 @@ async def _stream_agent_response(
                                         )
                                         + b"\n"
                                     )
-                                elif isinstance(
-                                    event, PartDeltaEvent
-                                ) and isinstance(event.delta, TextPartDelta):
+                                elif isinstance(event, PartDeltaEvent) and isinstance(
+                                    event.delta, TextPartDelta
+                                ):
                                     full_response += event.delta.content_delta
                                     yield (
                                         json.dumps({"text": full_response}).encode(
