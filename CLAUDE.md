@@ -32,7 +32,11 @@
     - **Always define a `TEST_USER_PROFILE` constant** at the top of every eval file with ALL required fields (age, gender, height_cm, weight_kg, activity_level, goals). Never rely on implicit profile data mid-file.
     - **Evals that test skills needing DB access** (meal-planning, weekly-coaching) must use `create_agent_deps(user_id=...)` with a real user ID from Supabase. Without `user_id`, the skill fails silently and the agent falls back to improvising.
 12. **`src/prompt.py` stays generic**: Skill-specific behavior (presentation formats, default params, routing exceptions) belongs in the skill's `SKILL.md` or `references/`, NOT in the system prompt. The system prompt only has rules that apply to ALL skills.
-13. **Frontend: design then test visually**: For any frontend task: (1) use `/frontend-design` skill to design the UI, (2) implement it, (3) test with `agent-browser` on both desktop (`1280x720`) and mobile (`390x844`) viewports. Always screenshot and verify before marking complete. See `.claude/reference/frontend-workflow.md` for login credentials, commands, and the full checklist.
+13. **CI-safe code**: Tests must pass in CI where only fake env vars exist. See `.claude/reference/ci-best-practices.md` for the full checklist. Key rules:
+    - **New env var?** → add a fake value in `.github/workflows/python-unit-tests.yml` env section.
+    - **Test needs real DB/API?** → mark it `@requires_real_db` (defined in `tests/test_openfoodfacts_client.py`). Never let a test hit a real service in CI.
+    - **Avoid top-level code that crashes on missing env vars.** Prefer lazy init or guard with `if os.getenv(...)`.
+14. **Frontend: design then test visually**: For any frontend task: (1) use `/frontend-design` skill to design the UI, (2) implement it, (3) test with `agent-browser` on both desktop (`1280x720`) and mobile (`390x844`) viewports. Always screenshot and verify before marking complete. See `.claude/reference/frontend-workflow.md` for login credentials, commands, and the full checklist.
 
 ---
 
@@ -88,6 +92,7 @@
 - **`meal-planning-workflow.md`** — full technical reference for the meal-planning skill (pipeline, data contracts, how to modify)
 - **`archon-mcp-reference.md`** — task management (only if Archon MCP is active)
 - **`frontend-workflow.md`** — frontend design + visual testing workflow with agent-browser (gitignored, contains test credentials)
+- **`ci-best-practices.md`** — CI env vars, test separation (unit vs integration), checklist before push
 - **`status.md`** — current completed work & next tasks
 
 ---
