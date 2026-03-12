@@ -23,11 +23,13 @@ jobs:
   backend-tests:
     name: Backend Tests
     needs: [backend-lint]
+    if: ${{ !failure() || needs.backend-lint.result == 'success' }}
     uses: ./.github/workflows/python-unit-tests.yml
 
   docker-builds:
     name: Docker Builds
     needs: [backend-tests, frontend-lint]
+    if: ${{ !failure() }}
     uses: ./.github/workflows/docker-builds.yml
 
   # frontend-e2e:
