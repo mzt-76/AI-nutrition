@@ -36,37 +36,41 @@ Save all outputs — they feed into teammate prompts.
 
 ## Phase 2: Create Team & Assign Scan Tasks
 
-Create an agent team with 4 specialized teammates. Each teammate scans its scope and writes findings to a shared file.
+**IMPORTANT**: Use the `TeamCreate` tool, NOT independent `Agent` subagents. The team enables inter-agent messaging and cross-review.
 
-**Team creation prompt** (adapt with Phase 1 context):
+### Step 2a: Create the team
 
-```
-Create an agent team called "audit" with 4 teammates:
+Use `TeamCreate` with `team_name: "audit"`. Save the returned `team_name` (may be randomized) for all subsequent calls.
 
-1. "backend" — Backend & Logic auditor
-   Scope: src/, skills/*/scripts/, scripts/
-   [Insert prompt from references/agent-prompts.md, filled with linter outputs]
+### Step 2b: Create tasks with dependencies
 
-2. "security" — Security & Data auditor
-   Scope: src/api.py, src/tools.py, src/db_utils.py, sql/, auth
-   [Insert prompt from references/agent-prompts.md, filled with linter outputs]
+Use `TaskCreate` to create 8 tasks:
+- Tasks 1-4: Scan tasks (one per auditor)
+- Tasks 5-8: Cross-review tasks (blocked by scan tasks per the review matrix in Phase 3)
 
-3. "frontend" — Frontend & UX auditor
-   Scope: frontend/src/
-   [Insert prompt from references/agent-prompts.md, filled with linter outputs]
+Set dependencies with `TaskUpdate.addBlockedBy` so cross-review tasks only unblock after their prerequisite scans complete.
 
-4. "standards" — Architecture & Standards auditor
-   Scope: tests/, evals/, config files, cross-cutting
-   [Insert prompt from references/agent-prompts.md, filled with linter outputs]
+### Step 2c: Spawn 4 teammates
 
-Each teammate writes findings to .claude/audits/wip/{name}-findings.md then messages me when done.
-```
+Use the `Agent` tool with these parameters for EACH teammate:
+- `team_name`: the team name from Step 2a
+- `name`: "backend" | "security" | "frontend" | "standards"
+- `subagent_type`: "general-purpose"
+- `run_in_background`: true
+
+Each teammate's prompt must include (from `references/agent-prompts.md`):
+- Their scope, dimensions, and project rules
+- Linter outputs from Phase 1
+- Instructions to: check TaskList → claim scan task → write findings → mark complete → check TaskList for cross-review → write review → message lead
+- The finding format and cross-review format
+
+**All 4 teammates are spawned in a single message (parallel launch).**
 
 Read `references/agent-prompts.md` for the full prompt templates with dimensions, project rules, and finding format.
 
 **Review methodology reference**: Each teammate should read `.claude/commands/validation/code-review-claude-code.md` for the shared review methodology — 8 analysis dimensions (logic, security, performance, quality, tests, breaking changes, standards, AI-specific patterns), severity rubric, and verification requirements. This ensures all teammates use the same quality bar and verification standards.
 
-**Wait for all 4 teammates to report scan complete before proceeding.**
+**Wait for all 4 teammates to report scan complete before proceeding to cross-review.**
 
 ---
 

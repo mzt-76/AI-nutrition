@@ -23,7 +23,7 @@ is_production = os.getenv("ENVIRONMENT") == "production"
 if not is_production:
     # Development: prioritize .env file
     project_root = Path(__file__).resolve().parent.parent
-    dotenv_path = project_root / '.env'
+    dotenv_path = project_root / ".env"
     load_dotenv(dotenv_path, override=True)
 else:
     # Production: use cloud platform env vars only

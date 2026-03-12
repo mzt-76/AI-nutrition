@@ -30,6 +30,7 @@ ENV/
 .env
 .env dev
 .env prod
+.env.prod
 .env.local
 .env.*.local
 .env.root.backup

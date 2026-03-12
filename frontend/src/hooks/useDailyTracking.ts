@@ -36,7 +36,6 @@ interface PlanDay {
 interface MealPlanDetail {
   id: string;
   plan_data: { days: PlanDay[] };
-  [key: string]: unknown;
 }
 
 export interface NutritionTargets {
@@ -84,6 +83,7 @@ export function useDailyTracking() {
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [planLoading, setPlanLoading] = useState(false);
+  const [profileIncomplete, setProfileIncomplete] = useState(false);
 
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
   const isSelectedToday = isToday(selectedDate);
@@ -104,6 +104,8 @@ export function useDailyTracking() {
         .single();
       if (error || !data) return; // Use default targets already set in state
       if (data) {
+        const hasTargets = data.target_calories != null && data.target_protein_g != null;
+        setProfileIncomplete(!hasTargets);
         setTargets({
           calories: data.target_calories ?? 2000,
           protein_g: data.target_protein_g ?? 150,
@@ -364,6 +366,7 @@ export function useDailyTracking() {
     activePlanId,
     loading,
     planLoading,
+    profileIncomplete,
     deleteEntry,
     updateEntryQuantity,
     updateEntryFood,

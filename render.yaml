@@ -1,0 +1,35 @@
+services:
+  # Frontend React Application (Static Site)
+  - type: web
+    name: ai-nutrition-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - fromGroup: frontend-env
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # Backend API + Agent + Skills (Docker)
+  - type: web
+    name: ai-nutrition-backend
+    runtime: docker
+    plan: starter
+    dockerfilePath: Dockerfile
+    dockerContext: .
+    envVars:
+      - fromGroup: backend-env
+    healthCheckPath: /health
+
+# Note: This project uses external Supabase database
+# No database defined here - configure Supabase separately
+
+# Environment Variable Groups (populate manually in render.com dashboard)
+envVarGroups:
+  - name: frontend-env
+    envVars: []
+
+  - name: backend-env
+    envVars: []

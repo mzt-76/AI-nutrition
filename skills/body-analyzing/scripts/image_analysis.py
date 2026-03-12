@@ -27,6 +27,9 @@ async def execute(**kwargs) -> str:
     analysis_prompt = kwargs["analysis_prompt"]
     openai_client = kwargs["openai_client"]
 
+    if not image_url.startswith("https://"):
+        return "Error: image_url must use HTTPS"
+
     try:
         logger.info(f"Image analysis: {analysis_prompt[:50]}...")
 

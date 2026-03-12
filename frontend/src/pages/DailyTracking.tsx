@@ -28,6 +28,7 @@ const DailyTracking = () => {
     groupedEntries,
     planDayMeals,
     loading,
+    profileIncomplete,
     deleteEntry,
     updateEntryQuantity,
     updateEntryFood,
@@ -55,6 +56,14 @@ const DailyTracking = () => {
             onNext={goToNextDay}
             onToday={goToToday}
           />
+
+          {profileIncomplete && (
+            <div className="mx-4 mt-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+              <p className="text-sm text-yellow-200/90">
+                Veuillez d'abord renseigner votre profil (âge, poids, taille, objectifs) via le chat pour activer le suivi nutritionnel.
+              </p>
+            </div>
+          )}
 
           {loading ? (
             <div className="px-4 pt-4 space-y-6">

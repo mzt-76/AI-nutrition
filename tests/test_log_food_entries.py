@@ -41,8 +41,8 @@ def mock_supabase():
         return_value=MagicMock(data=[{"id": "abc"}])
     )
     # select chain for entry_id modify path
-    table_mock.select.return_value.eq.return_value.limit.return_value.execute = AsyncMock(
-        return_value=MagicMock(data=[])
+    table_mock.select.return_value.eq.return_value.limit.return_value.execute = (
+        AsyncMock(return_value=MagicMock(data=[]))
     )
     client.table.return_value = table_mock
     return client

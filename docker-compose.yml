@@ -11,14 +11,12 @@ services:
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-production}
       # LLM
-      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
       - LLM_CHOICE=${LLM_CHOICE:-claude-haiku-4-5-20251001}
       - LLM_API_KEY=${LLM_API_KEY}
       - LLM_BASE_URL=${LLM_BASE_URL:-https://api.openai.com/v1}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - VISION_LLM_CHOICE=${VISION_LLM_CHOICE:-gpt-4o-mini}
       # Embeddings
-      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-openai}
       - EMBEDDING_API_KEY=${EMBEDDING_API_KEY}
       - EMBEDDING_BASE_URL=${EMBEDDING_BASE_URL:-https://api.openai.com/v1}
       - EMBEDDING_MODEL_CHOICE=${EMBEDDING_MODEL_CHOICE:-text-embedding-3-small}
@@ -32,7 +30,6 @@ services:
       # API
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:8080}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - SKILLS_DIR=skills
       # Memory
       - MEM0_LLM_CHOICE=${MEM0_LLM_CHOICE:-gpt-4o-mini}
       # Observability (optional)
@@ -72,6 +69,12 @@ services:
       - RAG_WATCH_FOLDER_ID=${RAG_WATCH_FOLDER_ID}
       # Local files
       - RAG_WATCH_DIRECTORY=${RAG_WATCH_DIRECTORY}
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/rag-heartbeat"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     volumes:
       - ./rag-documents:/app/Local_Files/data
       - ./google-credentials:/app/Google_Drive/credentials
@@ -92,7 +95,7 @@ services:
     ports:
       - "8080:8080"
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3

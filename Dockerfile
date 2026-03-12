@@ -14,9 +14,9 @@ RUN groupadd -r appuser && useradd -r -g appuser -m -d /home/appuser appuser
 WORKDIR /app
 
 # Dependencies first (Docker layer cache)
-COPY requirements.txt .
+COPY requirements-prod.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements-prod.txt
 
 # Application code — only what the backend needs
 COPY src/ ./src/

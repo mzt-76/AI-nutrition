@@ -149,6 +149,8 @@ def _import_skill_script(skill_name: str, script_name: str):
     spec = importlib.util.spec_from_file_location(
         f"skill_script.{script_name}", script_path
     )
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load {script_path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

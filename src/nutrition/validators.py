@@ -8,6 +8,13 @@ import logging
 import re
 import unicodedata
 
+from src.nutrition.constants import (
+    MACRO_TOLERANCE_CALORIES,
+    MACRO_TOLERANCE_CARBS,
+    MACRO_TOLERANCE_FAT,
+    MACRO_TOLERANCE_PROTEIN,
+)
+
 logger = logging.getLogger(__name__)
 
 # Allergen family mappings - comprehensive list for family-based allergen detection
@@ -440,10 +447,10 @@ def validate_meal_plan_macros(
     target_protein: float,
     target_carbs: float,
     target_fat: float,
-    protein_tolerance: float = 0.05,
-    carbs_tolerance: float = 0.10,
-    fat_tolerance: float = 0.10,
-    calorie_tolerance: float = 0.10,
+    protein_tolerance: float = MACRO_TOLERANCE_PROTEIN,
+    carbs_tolerance: float = MACRO_TOLERANCE_CARBS,
+    fat_tolerance: float = MACRO_TOLERANCE_FAT,
+    calorie_tolerance: float = MACRO_TOLERANCE_CALORIES,
 ) -> dict:
     """
     Validate all days in a meal plan have macros within tolerance.
@@ -659,8 +666,10 @@ def validate_meal_plan_complete(
     target_macros: dict,
     user_allergens: list[str],
     meal_structure: str,
-    protein_tolerance: float = 0.05,
-    other_tolerance: float = 0.10,
+    protein_tolerance: float = MACRO_TOLERANCE_PROTEIN,
+    fat_tolerance: float = MACRO_TOLERANCE_FAT,
+    calorie_tolerance: float = MACRO_TOLERANCE_CALORIES,
+    carbs_tolerance: float = MACRO_TOLERANCE_CARBS,
 ) -> dict:
     """
     Comprehensive 4-level validation of meal plan with custom tolerances.
@@ -671,7 +680,7 @@ def validate_meal_plan_complete(
     Validation Levels:
     1. Structure: 7 days, required fields present
     2. Allergens: Zero tolerance for user allergens
-    3. Macros: Protein ±5%, carbs/fat ±10% (configurable)
+    3. Macros: Per-macro tolerances from constants.py
     4. Completeness: Correct number of meals per day
 
     Args:
@@ -691,8 +700,10 @@ def validate_meal_plan_complete(
             - calories, protein_g, carbs_g, fat_g
         user_allergens: List of user allergen strings (e.g., ["peanuts", "lactose"])
         meal_structure: Meal structure key (e.g., "3_meals_2_snacks")
-        protein_tolerance: Protein tolerance as decimal (default: 0.05 = ±5%)
-        other_tolerance: Carbs/fat tolerance as decimal (default: 0.10 = ±10%)
+        protein_tolerance: Protein tolerance (default: ±5% from constants)
+        fat_tolerance: Fat tolerance (default: ±10% from constants)
+        calorie_tolerance: Calorie tolerance (default: ±10% from constants)
+        carbs_tolerance: Carbs tolerance (default: ±20% from constants)
 
     Returns:
         Dict with validation results:
@@ -726,8 +737,8 @@ def validate_meal_plan_complete(
     """
     logger.info(
         f"Starting 4-level meal plan validation: "
-        f"protein_tolerance=±{protein_tolerance*100}%, "
-        f"other_tolerance=±{other_tolerance*100}%"
+        f"protein=±{protein_tolerance*100}%, fat=±{fat_tolerance*100}%, "
+        f"calories=±{calorie_tolerance*100}%, carbs=±{carbs_tolerance*100}%"
     )
 
     validations = {}
@@ -755,9 +766,9 @@ def validate_meal_plan_complete(
         target_macros["carbs_g"],
         target_macros["fat_g"],
         protein_tolerance=protein_tolerance,
-        carbs_tolerance=other_tolerance,
-        fat_tolerance=other_tolerance,
-        calorie_tolerance=other_tolerance,
+        carbs_tolerance=carbs_tolerance,
+        fat_tolerance=fat_tolerance,
+        calorie_tolerance=calorie_tolerance,
     )
     validations["macros"] = macro_result
 

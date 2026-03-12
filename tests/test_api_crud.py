@@ -413,12 +413,19 @@ class TestFavoritesCreate:
     """Tests for POST /api/favorites."""
 
     def test_adds_favorite(self, auth_client):
-        created = {"id": "f-new", "user_id": USER_ID, "recipe_id": "00000000-0000-0000-0000-cccccccccccc"}
+        created = {
+            "id": "f-new",
+            "user_id": USER_ID,
+            "recipe_id": "00000000-0000-0000-0000-cccccccccccc",
+        }
         _setup_supabase(data=[created])
 
         resp = auth_client.post(
             "/api/favorites",
-            json={"user_id": USER_ID, "recipe_id": "00000000-0000-0000-0000-cccccccccccc"},
+            json={
+                "user_id": USER_ID,
+                "recipe_id": "00000000-0000-0000-0000-cccccccccccc",
+            },
         )
         assert resp.status_code == 200
         assert resp.json()["recipe_id"] == "00000000-0000-0000-0000-cccccccccccc"
@@ -426,7 +433,10 @@ class TestFavoritesCreate:
     def test_wrong_user_returns_403(self, auth_client):
         resp = auth_client.post(
             "/api/favorites",
-            json={"user_id": OTHER_USER_ID, "recipe_id": "00000000-0000-0000-0000-cccccccccccc"},
+            json={
+                "user_id": OTHER_USER_ID,
+                "recipe_id": "00000000-0000-0000-0000-cccccccccccc",
+            },
         )
         assert resp.status_code == 403
 

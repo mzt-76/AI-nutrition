@@ -173,6 +173,8 @@ async def update_my_profile_tool(
         ...     activity_level="sedentary"
         ... )
     """
+    PROTECTED_FIELDS = {"is_admin", "id", "email", "created_at"}
+
     try:
         logger.info("Updating user profile in database")
 
@@ -288,6 +290,10 @@ async def update_my_profile_tool(
             return json.dumps(
                 {"error": "No data provided to update", "code": "NO_DATA"}
             )
+
+        # Strip any protected fields that should never be modified via this tool
+        for field in PROTECTED_FIELDS:
+            update_data.pop(field, None)
 
         # Always update the timestamp
         update_data["updated_at"] = datetime.now(timezone.utc).isoformat()

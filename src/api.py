@@ -117,7 +117,7 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
 
     missing = [
         v
-        for v in ("SUPABASE_URL", "SUPABASE_SERVICE_KEY", "LLM_API_KEY")
+        for v in ("SUPABASE_URL", "SUPABASE_SERVICE_KEY", "LLM_API_KEY", "DATABASE_URL")
         if not os.getenv(v)
     ]
     if missing:
@@ -298,6 +298,7 @@ async def list_conversations(
     auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
     """List conversations for a user."""
+    _validate_uuid(user_id)
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
     response = await (
@@ -577,6 +578,7 @@ async def list_meal_plans(
     auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
     """List meal plans for a user (metadata only, no plan_data blob)."""
+    _validate_uuid(user_id)
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
@@ -696,6 +698,7 @@ async def get_daily_log(
     auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
     """Get food log entries for a user on a specific date."""
+    _validate_uuid(user_id)
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
@@ -728,6 +731,8 @@ async def create_daily_log(
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
     row = body.model_dump(exclude_none=True)
+    if "food_name" in row:
+        row["food_name"] = sanitize_user_text(row["food_name"], 200, "daily_log")
     result = await supabase.table("daily_food_log").insert(row).execute()
 
     if not result.data:
@@ -760,6 +765,11 @@ async def update_daily_log(
     updates = body.model_dump(exclude_none=True)
     if not updates:
         raise HTTPException(status_code=400, detail="Aucun champ à mettre à jour")
+
+    if "food_name" in updates:
+        updates["food_name"] = sanitize_user_text(
+            updates["food_name"], 200, "daily_log"
+        )
 
     # If food_name changed, recalculate macros via OpenFoodFacts
     if "food_name" in updates:
@@ -832,6 +842,7 @@ async def list_favorites(
     auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
     """List favorite recipes for a user, with joined recipe data."""
+    _validate_uuid(user_id)
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
@@ -947,6 +958,7 @@ async def check_favorite(
     auth_user: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Check if a recipe is already favorited by a user."""
+    _validate_uuid(user_id)
     _validate_uuid(recipe_id)
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
@@ -982,7 +994,11 @@ async def upsert_recipe(
 
     # Atwater macro validation — reject recipes with incoherent macros
     cal = body.calories_per_serving
-    atwater = body.protein_g_per_serving * 4 + body.carbs_g_per_serving * 4 + body.fat_g_per_serving * 9
+    atwater = (
+        body.protein_g_per_serving * 4
+        + body.carbs_g_per_serving * 4
+        + body.fat_g_per_serving * 9
+    )
     if cal > 5 and atwater > 0:
         discrepancy = abs(cal - atwater) / max(cal, atwater)
         if discrepancy > 0.30:
@@ -990,6 +1006,15 @@ async def upsert_recipe(
                 status_code=422,
                 detail="Données nutritionnelles incohérentes",
             )
+
+    # Sanitize user-provided text fields
+    body.name = sanitize_user_text(body.name, 200, "recipe")
+    if body.instructions:
+        body.instructions = sanitize_user_text(body.instructions, 5000, "recipe")
+    if body.ingredients:
+        for ing in body.ingredients:
+            if isinstance(ing, dict) and "name" in ing:
+                ing["name"] = sanitize_user_text(ing["name"], 200, "recipe")
 
     name_norm = normalize_ingredient_name(body.name)
     meal_type_norm = body.meal_type.lower().replace("é", "e").replace("î", "i")
@@ -1053,6 +1078,7 @@ async def list_shopping_lists(
     auth_user: dict[str, Any] = Depends(require_auth),
 ) -> list[dict[str, Any]]:
     """List all shopping lists for a user."""
+    _validate_uuid(user_id)
     if auth_user["id"] != user_id:
         raise HTTPException(status_code=403, detail="Accès non autorisé")
 
