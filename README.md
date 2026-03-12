@@ -308,7 +308,7 @@ This project was built for personal use and learning. Feel free to explore the c
 
 ## Acknowledgments
 
-- [AI Agent Mastery](https://www.skool.com/ai-agent-mastery) course by Brandon Hancock
+- [AI Agent Mastery](https://www.skool.com/ai-agent-mastery) course by Cole Medin and the [Dynamous](https://dynamous.ai/) community
 - [Pydantic AI](https://github.com/pydantic/pydantic-ai) framework
 - [OpenFoodFacts](https://world.openfoodfacts.org/) open food database
 - Nutritional science: ISSN, Mifflin et al. (1990), Helms et al. (2014)

@@ -9,3 +9,4 @@ iniconfig==2.1.0
 types-requests==2.32.0.20250328
 pydantic-evals==1.39.0
 mypy==1.15.0
+beautifulsoup4>=4.12.0
