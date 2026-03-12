@@ -2,7 +2,7 @@
 
 A full-stack AI nutrition coaching app — personalized meal plans, daily macro tracking, and adaptive weekly feedback. Built with **Pydantic AI**, **React 18**, **FastAPI**, and **Supabase**.
 
-> Built as part of the [AI Agent Mastery](https://www.skool.com/ai-agent-mastery) course (Modules 4 & 5).
+> Built as part of the AI Agent Mastery course by Cole Medin and the [Dynamous](https://dynamous.ai/) community.
 
 ---
 
@@ -308,7 +308,7 @@ This project was built for personal use and learning. Feel free to explore the c
 
 ## Acknowledgments
 
-- [AI Agent Mastery](https://www.skool.com/ai-agent-mastery) course by Cole Medin and the [Dynamous](https://dynamous.ai/) community
+- AI Agent Mastery course by Cole Medin and the [Dynamous](https://dynamous.ai/) community
 - [Pydantic AI](https://github.com/pydantic/pydantic-ai) framework
 - [OpenFoodFacts](https://world.openfoodfacts.org/) open food database
 - Nutritional science: ISSN, Mifflin et al. (1990), Helms et al. (2014)
