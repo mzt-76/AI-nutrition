@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Copy } from 'lucide-react';
+import { Copy, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Conversation } from '@/types/database.types';
@@ -18,6 +18,11 @@ export const ConversationRow = ({
   viewConversation,
   copyToClipboard,
 }: ConversationRowProps) => {
+  const langfuseHost = import.meta.env.VITE_LANGFUSE_HOST_WITH_PROJECT as string | undefined;
+  const langfuseUrl = langfuseHost
+    ? `${langfuseHost}/sessions/${conversation.session_id}`
+    : null;
+
   // Parse the timestamp and format it with date-fns
   const formattedDate = React.useMemo(() => {
     try {
@@ -60,15 +65,30 @@ export const ConversationRow = ({
       <TableCell width="25%">
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs truncate max-w-[150px]">{conversation.session_id}</span>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => copyToClipboard(conversation.session_id)}
             className="h-6 w-6 flex-shrink-0"
           >
             <Copy className="h-3 w-3" />
           </Button>
         </div>
+      </TableCell>
+      <TableCell width="10%">
+        {langfuseUrl ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => window.open(langfuseUrl, '_blank')}
+            className="h-6 w-6 flex-shrink-0"
+            title="Ouvrir dans Langfuse"
+          >
+            <ExternalLink className="h-3 w-3" />
+          </Button>
+        ) : (
+          <span className="text-muted-foreground text-xs">—</span>
+        )}
       </TableCell>
     </TableRow>
   );

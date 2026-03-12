@@ -100,6 +100,7 @@ def _log_task_exception(task: asyncio.Task) -> None:  # type: ignore[type-arg]
 supabase: Any = None
 title_agent: Any = None
 mem0_client: Any = None
+langfuse_client: Any = None
 _http_client: httpx.AsyncClient | None = None
 
 
@@ -113,7 +114,7 @@ def _require_supabase() -> Any:
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # noqa: ARG001
     """Initialize and clean up global clients."""
-    global supabase, title_agent, mem0_client, _http_client
+    global supabase, title_agent, mem0_client, langfuse_client, _http_client
 
     missing = [
         v
@@ -148,6 +149,11 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
         logger.info("Agent model validated")
     except Exception as e:
         logger.error(f"Agent model configuration error: {e}", exc_info=True)
+
+    # Initialize Langfuse observability (optional — no-op if credentials missing)
+    from src.configure_langfuse import configure_langfuse
+
+    langfuse_client = configure_langfuse()
 
     _http_client = httpx.AsyncClient(
         timeout=30.0,
@@ -1350,92 +1356,114 @@ async def _stream_agent_response(
         agent_input = [sanitized_query, *binary_contents]
 
     skills_used: list[str] = []
-    try:
-        async with agent.iter(
-            agent_input,
-            deps=agent_deps,
-            message_history=pydantic_messages,
-        ) as run:
-            async for node in run:
-                if Agent.is_model_request_node(node):
-                    async with node.stream(run.ctx) as request_stream:
-                        async for event in request_stream:
-                            if (
-                                isinstance(event, PartStartEvent)
-                                and event.part.part_kind == "text"
-                            ):
-                                full_response += event.part.content
-                                yield (
-                                    json.dumps({"text": full_response}).encode("utf-8")
-                                    + b"\n"
-                                )
-                            elif isinstance(event, PartDeltaEvent) and isinstance(
-                                event.delta, TextPartDelta
-                            ):
-                                full_response += event.delta.content_delta
-                                yield (
-                                    json.dumps({"text": full_response}).encode("utf-8")
-                                    + b"\n"
-                                )
 
-        # Detect which skills were used (for frontend cache invalidation)
-        try:
-            for msg in run.result.all_messages():
-                if hasattr(msg, "parts"):
-                    for part in msg.parts:
-                        if (
-                            hasattr(part, "tool_name")
-                            and part.tool_name == "run_skill_script"
-                            and hasattr(part, "args")
-                        ):
-                            if isinstance(part.args, dict):
-                                skill = part.args.get("skill_name", "")
-                            else:
-                                # args might be ArgsJson — try parsing
-                                import re as _re
+    # Langfuse trace context — propagates user/session to auto-instrumented spans
+    from contextlib import nullcontext
 
-                                m = _re.search(
-                                    r'"skill_name"\s*:\s*"([^"]+)"',
-                                    str(part.args),
-                                )
-                                skill = m.group(1) if m else ""
-                            if skill and skill not in skills_used:
-                                skills_used.append(skill)
-        except Exception:
-            pass  # Non-critical — don't break streaming for this
+    if langfuse_client:
+        from langfuse import propagate_attributes
 
-        # Extract UI components from agent response
-        cleaned_text, ui_components = extract_ui_components(full_response)
-        if ui_components:
-            full_response = cleaned_text
-            for comp in ui_components:
-                yield (
-                    json.dumps({"type": "ui_component", **comp}).encode("utf-8") + b"\n"
-                )
-
-        # Store AI response (skip for ephemeral requests)
-        if not ephemeral:
-            try:
-                message_data = run.result.new_messages_json()
-                await store_message(
-                    supabase=supabase,
-                    session_id=session_id,
-                    message_type="ai",
-                    content=full_response,
-                    message_data=message_data,
-                    data={"request_id": request.request_id},
-                    ui_components=ui_components if ui_components else None,
-                )
-            except Exception as e:
-                logger.error(f"Failed to store AI response: {e}")
-
-    except Exception as e:
-        logger.error(f"Agent streaming error: {e}", exc_info=True)
-        error_text = (
-            "Désolé, une erreur est survenue lors du traitement de votre demande."
+        trace_context = propagate_attributes(
+            user_id=request.user_id,
+            session_id=session_id,
+            tags=["agent", "streaming"],
+            metadata={"query": sanitized_query or request.query},
         )
-        yield json.dumps({"text": error_text}).encode("utf-8") + b"\n"
-        full_response = error_text
+    else:
+        trace_context = nullcontext()
+
+    with trace_context:
+        try:
+            async with agent.iter(
+                agent_input,
+                deps=agent_deps,
+                message_history=pydantic_messages,
+            ) as run:
+                async for node in run:
+                    if Agent.is_model_request_node(node):
+                        async with node.stream(run.ctx) as request_stream:
+                            async for event in request_stream:
+                                if (
+                                    isinstance(event, PartStartEvent)
+                                    and event.part.part_kind == "text"
+                                ):
+                                    full_response += event.part.content
+                                    yield (
+                                        json.dumps({"text": full_response}).encode(
+                                            "utf-8"
+                                        )
+                                        + b"\n"
+                                    )
+                                elif isinstance(
+                                    event, PartDeltaEvent
+                                ) and isinstance(event.delta, TextPartDelta):
+                                    full_response += event.delta.content_delta
+                                    yield (
+                                        json.dumps({"text": full_response}).encode(
+                                            "utf-8"
+                                        )
+                                        + b"\n"
+                                    )
+
+            # Detect which skills were used (for frontend cache invalidation)
+            try:
+                for msg in run.result.all_messages():
+                    if hasattr(msg, "parts"):
+                        for part in msg.parts:
+                            if (
+                                hasattr(part, "tool_name")
+                                and part.tool_name == "run_skill_script"
+                                and hasattr(part, "args")
+                            ):
+                                if isinstance(part.args, dict):
+                                    skill = part.args.get("skill_name", "")
+                                else:
+                                    # args might be ArgsJson — try parsing
+                                    import re as _re
+
+                                    m = _re.search(
+                                        r'"skill_name"\s*:\s*"([^"]+)"',
+                                        str(part.args),
+                                    )
+                                    skill = m.group(1) if m else ""
+                                if skill and skill not in skills_used:
+                                    skills_used.append(skill)
+            except Exception:
+                pass  # Non-critical — don't break streaming for this
+
+            # Extract UI components from agent response
+            cleaned_text, ui_components = extract_ui_components(full_response)
+            if ui_components:
+                full_response = cleaned_text
+                for comp in ui_components:
+                    yield (
+                        json.dumps({"type": "ui_component", **comp}).encode("utf-8")
+                        + b"\n"
+                    )
+
+            # Store AI response (skip for ephemeral requests)
+            if not ephemeral:
+                try:
+                    message_data = run.result.new_messages_json()
+                    await store_message(
+                        supabase=supabase,
+                        session_id=session_id,
+                        message_type="ai",
+                        content=full_response,
+                        message_data=message_data,
+                        data={"request_id": request.request_id},
+                        ui_components=ui_components if ui_components else None,
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to store AI response: {e}")
+
+        except Exception as e:
+            logger.error(f"Agent streaming error: {e}", exc_info=True)
+            error_text = (
+                "Désolé, une erreur est survenue lors du traitement de votre demande."
+            )
+            yield json.dumps({"text": error_text}).encode("utf-8") + b"\n"
+            full_response = error_text
 
     # Final chunk with metadata
     conversation_title = None

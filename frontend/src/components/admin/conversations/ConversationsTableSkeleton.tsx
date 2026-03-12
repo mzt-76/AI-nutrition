@@ -21,6 +21,9 @@ export const ConversationsTableSkeleton = () => {
           <TableCell width="25%">
             <Skeleton className="h-4 w-full" />
           </TableCell>
+          <TableCell width="10%">
+            <Skeleton className="h-4 w-6" />
+          </TableCell>
         </TableRow>
       ))}
     </>

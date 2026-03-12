@@ -14,6 +14,7 @@ pydantic-ai[anthropic]==1.39.0
 anthropic==0.75.0
 openai>=2.14.0
 mem0ai>=1.0.5
+langfuse>=3.0.0
 
 # -- Database --
 supabase>=2.15.0

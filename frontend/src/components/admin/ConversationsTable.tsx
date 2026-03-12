@@ -40,16 +40,17 @@ export const ConversationsTable = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead width="20%" className="cursor-pointer" onClick={toggleSortOrder}>
+              <TableHead width="18%" className="cursor-pointer" onClick={toggleSortOrder}>
                 <div className="flex items-center space-x-1">
                   <Calendar className="h-4 w-4" />
                   <span>Created At</span>
                   <span className="ml-1">{sortOrder === 'desc' ? '↓' : '↑'}</span>
                 </div>
               </TableHead>
-              <TableHead width="30%">Title</TableHead>
-              <TableHead width="25%">User ID</TableHead>
+              <TableHead width="27%">Title</TableHead>
+              <TableHead width="20%">User ID</TableHead>
               <TableHead width="25%">Session ID</TableHead>
+              <TableHead width="10%">Langfuse</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -57,7 +58,7 @@ export const ConversationsTable = () => {
               <ConversationsTableSkeleton />
             ) : filteredConversations.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-4">
+                <TableCell colSpan={5} className="text-center py-4">
                   {searchQuery ? 'No conversations found matching your search' : 'No conversations found'}
                 </TableCell>
               </TableRow>
