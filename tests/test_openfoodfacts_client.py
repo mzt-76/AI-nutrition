@@ -12,11 +12,6 @@ import os
 import pytest
 
 from src.clients import get_async_supabase_client
-
-requires_real_db = pytest.mark.skipif(
-    os.getenv("SUPABASE_URL", "").startswith("https://fake"),
-    reason="Requires real Supabase DB (skipped in CI)",
-)
 from src.nutrition.openfoodfacts_client import (
     _calorie_density_plausible,
     _get_ingredient_category,
@@ -27,6 +22,11 @@ from src.nutrition.openfoodfacts_client import (
     match_ingredient,
     normalize_ingredient_name,
     search_food_local,
+)
+
+requires_real_db = pytest.mark.skipif(
+    os.getenv("SUPABASE_URL", "").startswith("https://fake"),
+    reason="Requires real Supabase DB (skipped in CI)",
 )
 
 
