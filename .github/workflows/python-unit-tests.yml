@@ -26,6 +26,8 @@ jobs:
     env:
       SUPABASE_URL: https://fake.supabase.co
       SUPABASE_SERVICE_KEY: fake-key
+      ANTHROPIC_API_KEY: fake-key-for-ci
+      LLM_API_KEY: fake-key-for-ci
       ENVIRONMENT: test
     steps:
       - uses: actions/checkout@v4

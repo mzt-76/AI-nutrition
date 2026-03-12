@@ -1,110 +1,132 @@
-# AI Nutrition Assistant
+# Assistant Nutrition IA
 
-A full-stack AI nutrition coaching app — personalized meal plans, daily macro tracking, and adaptive weekly feedback. Built with **Pydantic AI**, **React 18**, **FastAPI**, and **Supabase**.
-
-> Built as part of the AI Agent Mastery course by Cole Medin and the [Dynamous](https://dynamous.ai/) community.
+> Essayez-le : [ai-nutrition-frontend-78p7.onrender.com](https://ai-nutrition-frontend-78p7.onrender.com)
 
 ---
 
-## What It Does
+## Le projet
 
-- **Conversational AI coach** — ask anything about nutrition in natural French, get science-backed answers
-- **Calculates nutritional needs** using Mifflin-St Jeor (BMR, TDEE, macros) with automatic goal inference
-- **Generates weekly meal plans** with 712 recipes, MILP portion optimization, and allergen/preference filtering
-- **Creates shopping lists** from meal plans with ingredient aggregation and categorization
-- **Tracks daily intake** — log meals via chat, see real-time macro gauges with progress visualization
-- **Adapts weekly** based on weight trends, hunger, energy, sleep, and adherence rate
-- **Searches nutritional knowledge** via RAG (Supabase pgvector) and web search (Brave API)
-- **Analyzes body composition** from photos (GPT-4 Vision)
-- **Remembers preferences** across sessions (mem0 long-term memory)
-- **Generative UI** — 7 rich interactive components (nutrition summaries, macro gauges, meal cards, day plans) rendered inline in chat
+Ce projet est né d'une envie d'apprendre à construire un agent IA de bout en bout — du backend au déploiement, en passant par le frontend. L'idée : un assistant nutritionnel en français capable de calculer vos besoins caloriques, générer des plans repas personnalisés avec des vraies recettes, et suivre vos macros au quotidien.
+
+C'est une première version, construite dans le cadre du cours [AI Agent Mastery](https://dynamous.ai/) de Cole Medin. L'application est fonctionnelle et déployée — vous pouvez la tester directement via le lien ci-dessus.
 
 ---
 
-## Architecture
+## Ce qu'on peut faire
+
+### Chat — Parler nutrition avec l'IA
+
+L'onglet principal. Vous posez vos questions en français, l'assistant répond avec des conseils fondés sur la science nutritionnelle. Il peut calculer vos besoins (calories, protéines, glucides, lipides), générer un plan repas pour la semaine, créer une liste de courses, ou simplement répondre à vos questions sur la nutrition.
+
+Les réponses incluent des composants visuels interactifs directement dans le chat : résumés nutritionnels, jauges de macros, cartes de recettes.
+
+<p align="center">
+  <img src="e2e-screenshots/01-after-login.png" width="70%" alt="Chat — page d'accueil" />
+</p>
+<p align="center">
+  <img src="e2e-screenshots/10-mobile-chat.png" width="30%" alt="Chat — version mobile" />
+</p>
+
+### Suivi du Jour — Suivre ses macros
+
+L'onglet Suivi permet de visualiser ce que vous avez mangé dans la journée par rapport à vos objectifs. Une jauge circulaire pour les calories, des barres de progression pour protéines/glucides/lipides.
+
+Pour ajouter un aliment, tapez simplement "j'ai mangé..." — l'assistant cherche les macros dans une base de 264 000 produits français (OpenFoodFacts) et met à jour vos totaux.
+
+<p align="center">
+  <img src="e2e-screenshots/02-daily-tracking.png" width="70%" alt="Suivi du Jour — desktop" />
+</p>
+<p align="center">
+  <img src="e2e-screenshots/11-mobile-tracking.png" width="30%" alt="Suivi du Jour — mobile" />
+</p>
+
+### Bibliothèque — Plans, recettes et courses
+
+L'onglet Bibliothèque regroupe tout ce que l'assistant a généré pour vous :
+
+- **Plans** — vos plans repas hebdomadaires, avec le détail jour par jour (recettes, ingrédients, macros par repas)
+- **Recettes** — vos recettes favorites sauvegardées depuis le chat
+- **Courses** — les listes de courses générées à partir de vos plans
+
+<p align="center">
+  <img src="e2e-screenshots/07-meal-plan-detail.png" width="70%" alt="Détail d'un plan repas" />
+</p>
+<p align="center">
+  <img src="e2e-screenshots/05-bibliotheque-recettes.png" width="70%" alt="Recettes favorites" />
+</p>
+
+---
+
+## Comment c'est construit
+
+### Architecture
 
 ```
-Frontend (React 18 + TypeScript 5 + Vite 5)
-  │  Tabs: Chat · Suivi du Jour · Mes Plans
-  │  Supabase Auth · Generative UI · NDJSON streaming
+Frontend (React 18 + TypeScript + Vite)
+  │  3 onglets : Chat · Suivi du Jour · Bibliothèque
+  │  Auth Supabase · Generative UI · Streaming NDJSON
   │
   ↕  HTTPS / JWT
   │
 Backend (FastAPI)
-  │  Streaming NDJSON · JWT auth · Rate limiting
-  │  /api/agent · /api/conversations · /api/meal-plans
-  │  /api/daily-log · /api/favorite-recipes · /api/shopping-lists
+  │  Streaming NDJSON · Auth JWT · Rate limiting
   │
   ↕
   │
-Pydantic AI Agent (6 tools, progressive disclosure)
+Agent Pydantic AI (6 outils, système de skills)
   │
-  ├── nutrition-calculating/    BMR, TDEE, macros (Mifflin-St Jeor + ISSN)
-  ├── meal-planning/            Week/day plans, MILP optimizer, recipes
-  ├── food-tracking/            Daily food logging, macro summaries
-  ├── shopping-list/            Ingredient aggregation from meal plans
-  ├── weekly-coaching/          Adaptive adjustments + red flag detection
-  ├── knowledge-searching/      RAG (Supabase pgvector) + Brave web search
-  └── body-analyzing/           GPT-4 Vision body composition estimation
+  ├── nutrition-calculating/    Calcul besoins (Mifflin-St Jeor)
+  ├── meal-planning/            Plans repas + optimisation MILP
+  ├── food-tracking/            Suivi alimentaire quotidien
+  ├── shopping-list/            Listes de courses
+  ├── weekly-coaching/          Feedback hebdomadaire adaptatif
+  ├── knowledge-searching/      RAG + recherche web
+  └── body-analyzing/           Analyse photo (GPT-4 Vision)
   │
   ↕
   │
-Data Layer
-  ├── Supabase (PostgreSQL + pgvector) — 17 tables, RLS on all
-  ├── OpenFoodFacts (264K French products for precise macros)
-  └── mem0 (cross-session memory)
+Données
+  ├── Supabase (PostgreSQL + pgvector) — 17 tables, RLS
+  ├── OpenFoodFacts — 264K produits français
+  └── mem0 — mémoire inter-sessions
 ```
 
-**Key pattern**: The agent never calls domain logic directly. It loads a skill's `SKILL.md` to learn what scripts are available, then calls `run_skill_script()` which auto-injects all shared clients. Adding a new skill = only touching files inside `skills/<name>/`.
+L'agent ne contient pas de logique métier. Il charge un fichier `SKILL.md` pour découvrir les scripts disponibles, puis appelle `run_skill_script()` qui injecte automatiquement les clients partagés. Ajouter une fonctionnalité = ajouter un dossier dans `skills/`.
 
----
+### Stack technique
 
-## Tech Stack
-
-| Layer | Technology |
+| Couche | Technologie |
 |---|---|
 | **Frontend** | React 18, TypeScript 5, Vite 5, shadcn/ui, Tailwind CSS, Recharts, Zod |
 | **Backend** | FastAPI, Pydantic AI, Python 3.11+ |
 | **LLMs** | Claude Haiku 4.5 (agent) + GPT-4o-mini (vision, embeddings) |
-| **Database** | Supabase (PostgreSQL + pgvector), RLS on all 17 tables |
-| **Auth** | Supabase Auth (email/password + Google OAuth), JWT verification |
-| **Food data** | OpenFoodFacts (264K products, local full-text search) |
-| **Optimization** | SciPy MILP solver for portion scaling |
-| **Memory** | mem0 (cross-session preference tracking) |
-| **Web search** | Brave Search API |
-| **Testing** | pytest (718 tests) + pydantic-evals (21 eval files) |
-| **CI/CD** | GitHub Actions + Render (static site + Docker) |
-| **Linting** | ruff + mypy + ESLint |
+| **Base de données** | Supabase (PostgreSQL + pgvector), RLS sur 17 tables |
+| **Auth** | Supabase Auth (email/password + Google OAuth) |
+| **Données alimentaires** | OpenFoodFacts (264K produits, recherche locale) |
+| **Optimisation** | SciPy MILP pour le portionnement des recettes |
+| **Tests** | pytest (718 tests) + pydantic-evals (21 fichiers) |
+| **CI/CD** | GitHub Actions + Render |
 
----
+### Quelques chiffres
 
-## Project Numbers
-
-| Metric | Count |
+| | |
 |---|---|
-| Unit tests | **718** |
-| Eval files | **21** |
-| Skill domains | **7** |
-| Skill scripts | **15** |
-| Generative UI components | **7** |
-| Recipes in DB | **712** (OFF-validated) |
-| Ingredient mappings | **1,217** (auto-growing) |
-| OpenFoodFacts products | **264,495** (French, with nutrition data) |
-| RAG document chunks | **485** |
-| Database tables | **17** (all RLS-enabled) |
+| 718 tests unitaires | 7 domaines de compétences |
+| 712 recettes validées | 264 495 produits OpenFoodFacts |
+| 7 composants Generative UI | 17 tables (toutes avec RLS) |
 
 ---
 
 ## Quick Start
 
-### Prerequisites
+### Prérequis
 
 - Python 3.11+
-- Node.js 18+ (for frontend)
-- A Supabase project (free tier works)
-- API keys: Anthropic, OpenAI (embeddings + vision), optionally Brave Search
+- Node.js 18+
+- Un projet Supabase (le plan gratuit suffit)
+- Clés API : Anthropic, OpenAI (embeddings + vision), optionnellement Brave Search
 
-### 1. Clone & Install
+### Installation
 
 ```bash
 git clone https://github.com/mzt-76/AI-nutrition.git
@@ -112,131 +134,57 @@ cd AI-nutrition
 
 # Backend
 python -m venv venv
-source venv/bin/activate   # Linux/Mac
+source venv/bin/activate
 pip install -r requirements.txt
 
 # Frontend
-cd frontend
-npm install
-cd ..
+cd frontend && npm install && cd ..
 ```
 
-### 2. Configure Environment
+### Configuration
 
 ```bash
 cp .env.example .env
-# Edit .env with your API keys and Supabase credentials
+# Renseignez vos clés API et identifiants Supabase
 
 cp frontend/.env.example frontend/.env
-# Edit frontend/.env with your Supabase URL and anon key
+# Renseignez votre URL Supabase et clé anon
 ```
 
-### 3. Run
+### Lancement
 
 ```bash
-# Backend API
+# Backend
 uvicorn src.api:app --port 8001 --reload
 
-# Frontend (separate terminal)
+# Frontend (autre terminal)
 cd frontend && npm run dev
-
-# Or CLI only (no frontend needed)
-python -m src.cli
 ```
 
-The frontend runs on `http://localhost:8080`, the backend on `http://localhost:8001`.
+Le frontend tourne sur `http://localhost:8080`, le backend sur `http://localhost:8001`.
 
-### 4. Run Tests
+### Tests
 
 ```bash
 pytest tests/ -v
-
-# Linting
 ruff format src/ tests/ && ruff check src/ tests/ && mypy src/
 ```
 
 ---
 
-## Deployment
+## Remerciements
 
-The project deploys on **Render** with 2 services:
-- **Frontend**: Static site (free) — Vite build served via CDN
-- **Backend**: Docker web service — FastAPI + Agent + Skills
+Un remerciement particulier à **Cole Medin** pour son investissement dans la communauté [Dynamous AI](https://dynamous.ai/) et la création de son cours **AI Agent Mastery**, sans lequel ce projet n'aurait pas vu le jour.
 
-See `render.yaml` for the Blueprint configuration.
+Développé en collaboration avec **Claude Code** (Anthropic) — de la conception de l'architecture au debugging, en passant par le design frontend avec le skill `frontend-design`.
 
----
-
-## Project Structure
-
-```
-AI-nutrition/
-├── src/                           # Backend
-│   ├── agent.py                   # Pydantic AI agent (6 tools, never grows)
-│   ├── api.py                     # FastAPI (streaming NDJSON, JWT, CRUD)
-│   ├── tools.py                   # Profile tools (fetch + update)
-│   ├── prompt.py                  # System prompt (French nutrition coach)
-│   ├── clients.py                 # All API clients
-│   ├── db_utils.py                # DB operations (conversations, messages)
-│   ├── ui_components.py           # Generative UI marker extraction
-│   ├── skill_loader.py            # Skill discovery & progressive disclosure
-│   ├── nutrition/                 # Domain logic (11.6K LOC)
-│   │   ├── calculations.py        # BMR, TDEE, macros (Mifflin-St Jeor)
-│   │   ├── adjustments.py         # Weight trends, weekly adjustments
-│   │   ├── recipe_db.py           # Recipe CRUD with allergen filtering
-│   │   ├── portion_optimizer_v2.py # MILP per-ingredient optimizer
-│   │   ├── openfoodfacts_client.py # Local ingredient matching (264K products)
-│   │   └── ...
-│   └── RAG_Pipeline/              # Document sync (Google Drive + Local)
-│
-├── skills/                        # Self-contained skill domains
-│   ├── nutrition-calculating/     # SKILL.md + scripts/ + references/
-│   ├── meal-planning/             # Week plan, day plan, recipes, favorites
-│   ├── food-tracking/             # Daily food logging, summaries
-│   ├── shopping-list/             # Ingredient aggregation
-│   ├── weekly-coaching/           # Adaptive feedback + red flag protocol
-│   ├── knowledge-searching/       # RAG + web search
-│   └── body-analyzing/            # GPT-4 Vision analysis
-│
-├── frontend/                      # React 18 + TypeScript 5 + Vite 5
-│   └── src/
-│       ├── components/generative-ui/ # 7 rich UI components
-│       ├── components/ui/         # shadcn/ui primitives
-│       ├── hooks/                 # useDailyTracking, useAuth, etc.
-│       └── pages/                 # Chat, DailyTracking, MyPlans, MealPlanView
-│
-├── tests/                         # 718 unit tests
-├── evals/                         # 21 eval files (LLM behavior scoring)
-├── sql/                           # Database schema + migrations
-├── render.yaml                    # Render Blueprint (2 services)
-├── Dockerfile                     # Backend Docker image
-└── CLAUDE.md                      # Development rules & coding standards
-```
+Merci aux projets open source sur lesquels cette application s'appuie :
+- [Pydantic AI](https://github.com/pydantic/pydantic-ai) — framework agent
+- [OpenFoodFacts](https://world.openfoodfacts.org/) — base de données alimentaire ouverte
+- [shadcn/ui](https://ui.shadcn.com/) — composants UI
+- [Langfuse](https://langfuse.com/) — observabilité LLM
+- Sciences nutritionnelles : ISSN, Mifflin et al. (1990), Helms et al. (2014)
 
 ---
 
-## Safety Constraints (Hardcoded)
-
-```python
-MIN_CALORIES_WOMEN = 1200
-MIN_CALORIES_MEN = 1500
-ALLERGEN_ZERO_TOLERANCE = True    # Cross-checks all ingredients against user allergens
-DISLIKED_FOODS_FILTERED = True    # Recipe DB excludes disliked foods at query time
-```
-
-These are enforced in code, not prompts. The agent cannot bypass them.
-
----
-
-## Acknowledgments
-
-- AI Agent Mastery course by Cole Medin and the [Dynamous](https://dynamous.ai/) community
-- [Pydantic AI](https://github.com/pydantic/pydantic-ai) framework
-- [OpenFoodFacts](https://world.openfoodfacts.org/) open food database
-- Nutritional science: ISSN, Mifflin et al. (1990), Helms et al. (2014)
-
----
-
-## License
-
-This project was built for personal use and learning. Feel free to explore the code, use patterns, and adapt for your own projects.
+Créé par **Meuz** — projet personnel construit pour apprendre et partager.

@@ -1,16 +1,16 @@
 # Current Status
 
-**Phase:** Deployment — Docker infrastructure + production alignment
+**Phase:** Production — Deployed on Render (frontend + backend)
 **Full roadmap:** See `PRD.md` section 12
 
 **What's done:**
 - Backend complete: FastAPI + Pydantic AI agent + 6 skills + 17 scripts + JWT auth + RLS
 - React frontend: chat + streaming + Supabase Auth + generative UI (7 components)
-- Multi-user isolation verified, 714+ unit tests passing, 13 eval datasets
+- Multi-user isolation verified, 718 unit tests passing, 21 eval datasets
 - OpenFoodFacts: 264K products (nettoyés Atwater), 1000+ cached ingredient mappings, online API fallback
 - Database: 17 tables (incl. rag_pipeline_state), all RLS-enabled
 - Generative UI committed (7 components, tests, evals)
-- PRD v3.0 + README updated
+- PRD v3.1 + README updated (EN + FR)
 
 **Mobile MVP — Implementation Steps:**
 
@@ -48,6 +48,17 @@
 - [x] RAG pipeline Google Drive fonctionnel (service account auth + scan fichiers)
 - [x] Créer le guide Docker (`.claude/reference/docker-guide.md`)
 - [x] CI/CD pipeline (GitHub Actions : 11 workflows — lint, tests, coverage, Docker builds, security, license, bundle size, deploy template)
+- [x] CI fixes: pinned ruff==0.1.15, pydantic-ai[anthropic]==1.39.0, anthropic==0.75.0, ESM tailwind import, mypy continue-on-error
+- [x] Render deployment:
+  - `render.yaml` Blueprint (2 services: static frontend + Docker backend)
+  - Frontend: `https://ai-nutrition-frontend-78p7.onrender.com` (static site, Vite build via CDN)
+  - Backend: `https://ai-nutrition-backend-16c2.onrender.com` (Docker, FastAPI)
+  - `.env.prod` configured (CORS, Supabase prod keys, all API keys)
+  - Supabase Auth: Site URL + Redirect URLs configured for prod
+  - Google OAuth: consent screen configured, `supabase.co` authorized domain, published to production
+- [x] Production DB cleanup: test users/data removed, meuzeretl@gmail.com set as admin
+- [x] RLS policies verified between dev and prod (consistent)
+- [x] README rewritten (EN + FR) with accurate project numbers (718 tests, 712 recipes, 17 tables, etc.)
 - [ ] Smoke test end-to-end
 - [ ] TWA → APK generation + distribution
 
@@ -62,7 +73,7 @@
 ## Quick Fixes TODO
 
 - [ ] **Supabase `timeout`/`verify` DeprecationWarning** — `src/clients.py` : le constructeur `AsyncPostgrestClient` reçoit `timeout` et `verify` en params directs, mais les nouvelles versions de `supabase-py` attendent qu'ils soient configurés dans le `httpx.AsyncClient` sous-jacent. Pas bloquant, juste des warnings dans les logs. Fix : passer ces params via `httpx_client` au lieu du constructeur.
-- [ ] **Tailwind ESLint `require()` error** — `frontend/tailwind.config.ts:158` utilise `require()` au lieu d'un import ES. 1 erreur ESLint `@typescript-eslint/no-require-imports`. Fix : convertir en `import`.
+- [x] **Tailwind ESLint `require()` error** — Converti en ESM import dans `tailwind.config.ts`.
 
 ## Deferred Issues (from pre-deploy audit 2026-03-12)
 

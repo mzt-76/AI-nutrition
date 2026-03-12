@@ -1,8 +1,8 @@
 # Product Requirements Document: AI Nutrition Assistant
 
-**Version:** 3.0
-**Date:** March 4, 2026
-**Status:** Mobile MVP — Frontend refactoring + deployment
+**Version:** 3.2
+**Date:** March 12, 2026
+**Status:** Production — Deployed on Render
 **Author:** AI-Nutrition Team
 
 ---
@@ -16,7 +16,7 @@ The product combines advanced AI agent capabilities (progressive disclosure skil
 **Core Value Proposition:**
 > "Un nutritionniste IA qui te connaît, s'adapte à toi, et génère des plans repas personnalisés avec recettes et listes de courses — en tenant compte de tes préférences et résultats réels."
 
-**Current Goal:** Mobile-first MVP — deploy a responsive web app with daily tracking, meal plan consultation, and favorite recipes, then package as TWA (Android APK) for easy distribution to family & friends.
+**Current Goal:** Production deployment complete — responsive web app deployed on Render with daily tracking, meal plan consultation, and favorite recipes. Next: TWA (Android APK) for easy distribution to family & friends.
 
 **Dual Purpose:**
 1. **Portfolio showcase** — Full-stack app built from scratch to deployment (Python + React + Supabase + AI agent)
@@ -66,16 +66,21 @@ The product combines advanced AI agent capabilities (progressive disclosure skil
 ### 4.1 Deployment Strategy
 
 ```
-Phase 1: Web deploy  →  Phase 2: TWA (APK)  →  Phase 3: Capacitor (if needed)
+Phase 1: Web deploy ✅  →  Phase 2: TWA (APK)  →  Phase 3: Capacitor (if needed)
 ─────────────────────────────────────────────────────────────────────────────────
-Backend: Railway/Fly.io          (same)              (same)
-Frontend: Vercel/Netlify         (same)              (same)
+Backend: Render (Docker)         (same)              (same)
+Frontend: Render (Static CDN)    (same)              (same)
 Mobile: Browser access      →  Android APK      →  Native APK + iOS
                             (TWA wrapper)        (if commercial)
 ```
 
+**Deployed URLs:**
+- Frontend: `https://ai-nutrition-frontend-78p7.onrender.com`
+- Backend: `https://ai-nutrition-backend-16c2.onrender.com`
+
 **Rationale:**
 - Backend is fully decoupled via REST API — frontend choice is independent
+- Render Blueprint (`render.yaml`) for declarative 2-service deployment
 - TWA wraps the deployed web app in an APK shell (Chrome invisible, no URL bar)
 - Zero code change between web and TWA — same codebase
 - Capacitor reserved for later if native features needed (push notifications, offline)
@@ -116,7 +121,7 @@ Mobile: Browser access      →  Android APK      →  Native APK + iOS
                               ↕
 ┌─────────────────────────────────────────────────────────────┐
 │                    DATA LAYER (Supabase)                      │
-│  PostgreSQL + pgvector + RLS on all 13+ tables               │
+│  PostgreSQL + pgvector + RLS on all 17 tables               │
 │  user_profiles · meal_plans · recipes · daily_food_log       │
 │  conversations · messages · weekly_feedback                   │
 │  openfoodfacts_products (275K) · ingredient_mapping          │
@@ -171,7 +176,7 @@ AI-nutrition/
 │       ├── pages/                  # Chat, Login, Admin, MealPlanView
 │       └── types/                  # TypeScript types (database, generative-ui)
 │
-├── tests/                          # Deterministic unit tests (366 passing)
+├── tests/                          # Deterministic unit tests (718 passing)
 ├── evals/                          # Real LLM evaluations (scored, on demand)
 ├── sql/                            # DB migration files
 └── .claude/reference/              # Dev documentation
@@ -476,8 +481,8 @@ All new endpoints require JWT authentication (same pattern as existing endpoints
 
 | Tool | Purpose |
 |------|---------|
-| pytest + pytest-asyncio | Unit tests (697 passing) |
-| pydantic-evals | LLM behavior evaluation (13 datasets, 50+ cases) |
+| pytest + pytest-asyncio | Unit tests (718 passing) |
+| pydantic-evals | LLM behavior evaluation (21 datasets) |
 | ruff | Linting + formatting |
 | mypy | Type checking |
 | ESLint | Frontend linting |
@@ -516,7 +521,7 @@ All new endpoints require JWT authentication (same pattern as existing endpoints
 4. repair loop          — swap worst meal if validation fails (max 3 retries)
 ```
 
-**Recipe DB:** 692 OFF-validated recipes across 4 meal types × 3 diet types × 15+ cuisines. All tunable parameters in `src/nutrition/constants.py` (27 constants).
+**Recipe DB:** 712 OFF-validated recipes across 4 meal types × 3 diet types × 15+ cuisines. All tunable parameters in `src/nutrition/constants.py` (27 constants).
 
 ---
 
@@ -581,10 +586,13 @@ DISLIKED_FOODS_FILTERED = True
 - [ ] UI polish, animations, loading states
 - [ ] Mobile testing on real device
 
-### Day 7: Deployment
-- [ ] Backend deploy (Railway/Fly.io)
-- [ ] Frontend deploy (Vercel/Netlify)
-- [ ] Environment variables, DNS, CORS config
+### Day 7: Deployment ✅
+- [x] Backend deploy (Render — Docker web service)
+- [x] Frontend deploy (Render — static site CDN)
+- [x] Environment variables, DNS, CORS config
+- [x] Supabase Auth prod (Site URL, Redirect URLs, Google OAuth published)
+- [x] CI/CD pipeline green (GitHub Actions: ruff, ESLint, pytest, Docker builds)
+- [x] Production DB cleaned (test data removed, admin set)
 - [ ] TWA generation (PWABuilder or Bubblewrap) → APK
 - [ ] Send APK to family/friends for testing
 
@@ -637,4 +645,4 @@ Drive personnel (utilisateur) →  Son agent uniquement (ordonnances, bilans, r�
 
 ---
 
-**Version:** 3.1 | **Updated:** 2026-03-07
+**Version:** 3.2 | **Updated:** 2026-03-12

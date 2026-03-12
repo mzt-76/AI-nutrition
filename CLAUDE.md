@@ -1,7 +1,7 @@
 # AI Nutrition Assistant - Development Guide
 
 **Stack:** Python 3.11+ | Pydantic AI | React 18 | TypeScript 5 | Supabase
-**Status:** Active Development
+**Status:** Production (Render)
 
 **⚠️ Read `.claude/reference/dependency-safety-rules.md` before modifying code.**
 
@@ -98,4 +98,11 @@ Before starting work, try `find_tasks()`. If successful → use Archon for task 
 
 ---
 
-**Version:** 3.6 | **Updated:** 2026-03-04
+**Deployment:**
+- Frontend: `https://ai-nutrition-frontend-78p7.onrender.com` (static CDN)
+- Backend: `https://ai-nutrition-backend-16c2.onrender.com` (Docker)
+- DB: Supabase prod `bxmihxyishfvmvswxfby`
+- CI/CD: GitHub Actions → auto-deploy on Render
+- Config: `render.yaml` (Blueprint), `.env.prod` (gitignored)
+
+**Version:** 3.7 | **Updated:** 2026-03-12
