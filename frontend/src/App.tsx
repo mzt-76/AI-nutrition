@@ -32,7 +32,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="animate-pulse">Loading...</div>
+        <div className="animate-pulse">Chargement...</div>
       </div>
     );
   }
@@ -69,23 +69,23 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     }
     // Expired or missing — re-fetch
     adminCache.delete(user.id);
-    supabase
-      .from('user_profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .limit(1)
-      .then(({ data }) => {
-        const val = data?.[0]?.is_admin === true;
-        adminCache.set(user.id, { value: val, expiresAt: Date.now() + ADMIN_CACHE_TTL_MS });
-        setIsAdmin(val);
-      })
-      .catch(() => setIsAdmin(false));
+    void Promise.resolve(
+      supabase
+        .from('user_profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .limit(1)
+    ).then(({ data }) => {
+      const val = data?.[0]?.is_admin === true;
+      adminCache.set(user.id, { value: val, expiresAt: Date.now() + ADMIN_CACHE_TTL_MS });
+      setIsAdmin(val);
+    }).catch(() => setIsAdmin(false));
   }, [user]);
 
   if (loading || isAdmin === null) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="animate-pulse">Loading...</div>
+        <div className="animate-pulse">Chargement...</div>
       </div>
     );
   }
@@ -113,7 +113,7 @@ const AppRoutes = () => {
   return (
     <>
       {isRecovery && <PasswordRecoveryModal />}
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-background"><div className="animate-pulse">Loading...</div></div>}>
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-background"><div className="animate-pulse">Chargement...</div></div>}>
       <Routes>
         <Route
           path="/login"

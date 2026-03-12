@@ -112,7 +112,7 @@ export const useMessageHandling = ({
       const isNewConversation = !currentSessionId;
       const aiMessageId = `temp-${Date.now()}-ai`;
       let aiMessageCreated = false;
-      let completionReceived = false;
+      const completionReceivedRef = { current: false };
       const accumulatedComponents: UIComponentBlock[] = [];
 
       const response = await sendMessage(
@@ -183,8 +183,8 @@ export const useMessageHandling = ({
             });
           }
 
-          if (chunk.complete === true && !completionReceived) {
-            completionReceived = true;
+          if (chunk.complete === true && !completionReceivedRef.current) {
+            completionReceivedRef.current = true;
 
             if (chunk.session_id && chunk.session_id !== currentSessionId) {
               setMessages((prev) => {
@@ -194,7 +194,7 @@ export const useMessageHandling = ({
                 if (aiMessageIndex !== -1) {
                   updatedMessages[aiMessageIndex] = {
                     ...updatedMessages[aiMessageIndex],
-                    session_id: chunk.session_id,
+                    session_id: chunk.session_id!,
                   };
                 }
 
@@ -222,7 +222,7 @@ export const useMessageHandling = ({
         abortController.signal
       );
 
-      if (isMounted.current && !completionReceived) {
+      if (isMounted.current && !completionReceivedRef.current) {
         if (!aiMessageCreated) {
           const newAiMessage: Message = {
             id: aiMessageId,
@@ -238,7 +238,7 @@ export const useMessageHandling = ({
           setMessages((prev) => [...prev, newAiMessage]);
         } else {
           setTimeout(() => {
-            if (isMounted.current && !completionReceived) {
+            if (isMounted.current && !completionReceivedRef.current) {
               setMessages((prev) => {
                 const updatedMessages = [...prev];
                 const aiMessageIndex = updatedMessages.findIndex(msg => msg.id === aiMessageId);

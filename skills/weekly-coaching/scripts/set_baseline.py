@@ -121,9 +121,12 @@ async def execute(**kwargs) -> str:
 
         if existing.data:
             # Update existing baseline
-            await supabase.table("weekly_feedback").update(baseline_data).eq(
-                "id", existing.data[0]["id"]
-            ).execute()
+            await (
+                supabase.table("weekly_feedback")
+                .update(baseline_data)
+                .eq("id", existing.data[0]["id"])
+                .execute()
+            )
         else:
             # Insert new baseline
             await supabase.table("weekly_feedback").insert(baseline_data).execute()

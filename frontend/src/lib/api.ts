@@ -470,7 +470,7 @@ export const fetchMessages = async (session_id: string) => {
       .order('created_at', { ascending: true });
 
     if (error) throw error;
-    return data as Message[];
+    return data as unknown as Message[];
   } catch (error) {
     logger.error('Error fetching messages:', error);
     throw error;

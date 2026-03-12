@@ -125,9 +125,12 @@ async def execute(**kwargs) -> str:
             "carbs_g": round(macros.get("carbs_g", 0), 1),
             "fat_g": round(macros.get("fat_g", 0), 1),
         }
-        await supabase.table("daily_food_log").update(update_fields).eq(
-            "id", entry_id
-        ).execute()
+        await (
+            supabase.table("daily_food_log")
+            .update(update_fields)
+            .eq("id", entry_id)
+            .execute()
+        )
 
         logger.info(f"Updated entry {entry_id} to '{new_food_name}' for user {user_id}")
         return json.dumps(
@@ -187,9 +190,11 @@ async def execute(**kwargs) -> str:
             }
 
             # Upsert: insert or update if same user/date/meal/food already exists
-            await supabase.table("daily_food_log").upsert(
-                row, on_conflict="user_id,log_date,meal_type,food_name"
-            ).execute()
+            await (
+                supabase.table("daily_food_log")
+                .upsert(row, on_conflict="user_id,log_date,meal_type,food_name")
+                .execute()
+            )
 
             total_calories += cal
             total_protein += prot

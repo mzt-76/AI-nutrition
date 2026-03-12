@@ -47,7 +47,7 @@
 - [x] Tester le déploiement Docker complet (`docker compose up`) — 3 containers running
 - [x] RAG pipeline Google Drive fonctionnel (service account auth + scan fichiers)
 - [x] Créer le guide Docker (`.claude/reference/docker-guide.md`)
-- [ ] CI/CD pipeline (GitHub Actions : pytest, ruff, npm lint, npm build)
+- [x] CI/CD pipeline (GitHub Actions : 11 workflows — lint, tests, coverage, Docker builds, security, license, bundle size, deploy template)
 - [ ] Smoke test end-to-end
 - [ ] TWA → APK generation + distribution
 
@@ -58,6 +58,16 @@
 - [x] **M4. Sync Supabase client dans endpoints async** — ✅ Migré vers `SupabaseAsyncClient`. 81 `.execute()` calls await-ifiés, 16 source files + 14 test files. `get_async_supabase_client()` dans `src/clients.py`, sync client préservé pour `scripts/`.
 - [ ] **L5. Ruff E402 — 10 imports pas en haut de fichier** — intentionnel (après `sys.path` setup). Ajouter `# noqa: E402` ou configurer ruff pour ignorer ces fichiers.
 - [ ] **L6. Mypy — 140 erreurs pre-existantes** — surtout implicit Optional et types Pydantic AI v2. Nécessite un pass dédié mypy cleanup.
+
+## Quick Fixes TODO
+
+- [ ] **Supabase `timeout`/`verify` DeprecationWarning** — `src/clients.py` : le constructeur `AsyncPostgrestClient` reçoit `timeout` et `verify` en params directs, mais les nouvelles versions de `supabase-py` attendent qu'ils soient configurés dans le `httpx.AsyncClient` sous-jacent. Pas bloquant, juste des warnings dans les logs. Fix : passer ces params via `httpx_client` au lieu du constructeur.
+- [ ] **Tailwind ESLint `require()` error** — `frontend/tailwind.config.ts:158` utilise `require()` au lieu d'un import ES. 1 erreur ESLint `@typescript-eslint/no-require-imports`. Fix : convertir en `import`.
+
+## Deferred Issues (from pre-deploy audit 2026-03-12)
+
+- [ ] **Architecture: Service_role key → user-scoped tokens** — Le backend utilise `SUPABASE_SERVICE_KEY` pour toutes les opérations DB, ce qui bypass les 60+ RLS policies. RLS ne protège que le frontend (anon_key). Refactor nécessaire : créer un client Supabase par requête avec le JWT de l'utilisateur pour les endpoints user-facing, garder le service_key uniquement pour les opérations admin/système (skills, RAG pipeline). Prérequis : (1) mettre à jour les RLS DELETE policies (`USING (false)` → `USING (auth.uid() = user_id)` pour meal_plans, conversations, messages), (2) ajouter une policy INSERT authenticated sur recipes, (3) adapter les skill scripts pour recevoir le JWT. Rapport complet : `.claude/audits/audit-2026-03-12-0700.md`
+- [ ] **requirements.txt: garder `>=` pour l'instant** — L'audit recommandait `==` pour la reproductibilité Docker. Décision : on garde `>=` pour la flexibilité des mises à jour. À reconsidérer si un build Docker casse à cause d'une upgrade silencieuse.
 
 ## Improvement Ideas
 
@@ -142,6 +152,6 @@ Skill réutilisable : `/seed-recipes` (`.claude/skills/seed-recipes/`)
 - [ ] **Critères de sélection recettes** — vérifier que les filtres (macro ratio, variété, cuisine) sont pertinents et que le pool de 692 recettes offre assez de choix pour tous les profils (perte de poids, prise de masse, vegan, etc.)
 - [ ] **Couverture ingredient_roles.py** — 155 mappings sur 1000+ ingrédients validés. Les "unknown" [0.75×–1.25×] sont conservateurs. Enrichir les rôles les plus fréquents pour améliorer l'optimisation MILP.
 - [ ] **Import recettes live** — utiliser le pipeline v2e avec les API (Spoonacular, TheMealDB) une fois les clés configurées. Priorité : sources FR (Marmiton, 750g).
-- [ ] **CI/CD** — GitHub Actions : pytest, ruff, npm lint, npm build
+- [x] **CI/CD** — GitHub Actions : 11 workflows (lint, tests, coverage, Docker, security, license, bundle size)
 - [ ] **Smoke test e2e** — test automatisé du flow complet via Docker
 - [ ] **TWA → APK** — génération + distribution

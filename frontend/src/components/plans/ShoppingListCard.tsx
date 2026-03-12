@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Apple, Beef, Wheat, Milk, ShoppingCart, Package, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { ShoppingList, ShoppingListItem } from '@/types/database.types';
+import type { ShoppingList, ShoppingListItem, Json } from '@/types/database.types';
 import { updateShoppingList } from '@/lib/api';
 
 interface ShoppingListCardProps {
@@ -40,7 +40,7 @@ function formatShoppingTitle(title: string): string {
 export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardProps) {
   const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
-  const items = list.items ?? [];
+  const items = (list.items ?? []) as unknown as ShoppingListItem[];
   const checkedCount = items.filter((i) => i.checked).length;
 
   const grouped = items.reduce<Record<string, ShoppingListItem[]>>((acc, item) => {
@@ -54,7 +54,7 @@ export function ShoppingListCard({ list, onUpdate, onDelete }: ShoppingListCardP
       i === itemIndex ? { ...item, checked: !item.checked } : item,
     );
     // Optimistic update
-    onUpdate({ ...list, items: newItems });
+    onUpdate({ ...list, items: newItems as unknown as Json });
     try {
       await updateShoppingList(list.id, { items: newItems });
     } catch {

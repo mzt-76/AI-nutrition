@@ -27,10 +27,9 @@ interface MessageItemProps {
   onMealClick?: (data: MealDataFromPlan) => void;
 }
 
-interface CodeProps {
+interface CodeProps extends React.HTMLAttributes<HTMLElement> {
   inline?: boolean;
-  className?: string;
-  children: React.ReactNode;
+  node?: unknown;
 }
 
 export const MessageItem = memo(({ message, isLastMessage = false, onAction, onMealClick }: MessageItemProps) => {
@@ -148,11 +147,12 @@ export const MessageItem = memo(({ message, isLastMessage = false, onAction, onM
           // Ensure proper line break handling
           br: () => <br className="mb-2" />,
           // Handle code blocks with syntax highlighting
-          code({node: _node, inline, className, children, ...props}: CodeProps) {
+          code({inline, className, children, ...props}: CodeProps) {
             const match = /language-(\w+)/.exec(className || '');
             return !inline && match ? (
               <SyntaxHighlighter
-                style={atomDark}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                style={atomDark as any}
                 language={match[1]}
                 PreTag="div"
                 className="rounded-md !bg-gray-900 !p-4 !my-2"

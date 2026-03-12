@@ -270,9 +270,12 @@ async def execute(**kwargs) -> str:
                 "updated_at": datetime.now(timezone.utc).isoformat(),
             }
             try:
-                await supabase.table("user_learning_profile").update(update_data).eq(
-                    "id", learning_profile["id"]
-                ).execute()
+                await (
+                    supabase.table("user_learning_profile")
+                    .update(update_data)
+                    .eq("id", learning_profile["id"])
+                    .execute()
+                )
                 logger.info(f"Learning profile updated: {weeks_data} weeks of data")
             except Exception as e:
                 logger.warning(f"Could not update learning profile: {e}")
@@ -284,9 +287,11 @@ async def execute(**kwargs) -> str:
                     "confidence_level": 0.3,
                     "updated_at": datetime.now(timezone.utc).isoformat(),
                 }
-                await supabase.table("user_learning_profile").upsert(
-                    upsert_data, on_conflict="user_id"
-                ).execute()
+                await (
+                    supabase.table("user_learning_profile")
+                    .upsert(upsert_data, on_conflict="user_id")
+                    .execute()
+                )
                 logger.info("New learning profile created")
             except Exception as e:
                 logger.warning(f"Could not create learning profile: {e}")

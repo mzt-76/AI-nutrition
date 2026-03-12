@@ -90,6 +90,8 @@ def _import_sibling_script(script_name: str):
     spec = importlib.util.spec_from_file_location(
         f"meal_planning.{script_name}", script_path
     )
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load {script_path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -456,7 +458,9 @@ async def execute(**kwargs) -> str:
         if user_id:
             meal_plan_record["user_id"] = user_id
 
-        db_response = await supabase.table("meal_plans").insert(meal_plan_record).execute()
+        db_response = (
+            await supabase.table("meal_plans").insert(meal_plan_record).execute()
+        )
 
         if db_response.data:
             meal_plan_id = db_response.data[0].get("id", 0)

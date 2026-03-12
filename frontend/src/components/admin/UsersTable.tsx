@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -43,8 +43,8 @@ export const UsersTable = () => {
         .select('id, email, full_name, is_admin');
 
       if (error) throw error;
-      setUsers(data || []);
-      setFilteredUsers(data || []);
+      setUsers((data || []) as UserProfile[]);
+      setFilteredUsers((data || []) as UserProfile[]);
     } catch (error) {
       logger.error('Error fetching users:', error);
       toast({
