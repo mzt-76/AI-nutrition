@@ -40,7 +40,7 @@ jobs:
 
       - name: Generate license report
         if: always()
-        run: pip-licenses --format=csv -o python-licenses.csv
+        run: pip-licenses --format=csv > python-licenses.csv
 
       - name: Upload license report
         if: always()

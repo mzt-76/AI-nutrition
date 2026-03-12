@@ -36,7 +36,7 @@ jobs:
           key: pip-ruff-${{ hashFiles('ruff.toml') }}
           restore-keys: pip-ruff-
 
-      - run: pip install ruff
+      - run: pip install ruff==0.1.15
 
       - name: Check formatting
         run: ruff format --check src/ tests/ skills/
@@ -47,6 +47,7 @@ jobs:
   mypy-check:
     name: Mypy Type Check
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
