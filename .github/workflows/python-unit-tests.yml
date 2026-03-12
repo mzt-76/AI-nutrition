@@ -26,8 +26,10 @@ jobs:
     env:
       SUPABASE_URL: https://fake.supabase.co
       SUPABASE_SERVICE_KEY: fake-key
+      DATABASE_URL: postgresql://fake:fake@localhost:5432/fake
       ANTHROPIC_API_KEY: fake-key-for-ci
       LLM_API_KEY: fake-key-for-ci
+      EMBEDDING_API_KEY: fake-key-for-ci
       ENVIRONMENT: test
     steps:
       - uses: actions/checkout@v4

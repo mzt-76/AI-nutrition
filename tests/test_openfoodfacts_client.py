@@ -7,9 +7,16 @@ Tests:
 - normalize_ingredient_name: String normalization
 """
 
+import os
+
 import pytest
 
 from src.clients import get_async_supabase_client
+
+requires_real_db = pytest.mark.skipif(
+    os.getenv("SUPABASE_URL", "").startswith("https://fake"),
+    reason="Requires real Supabase DB (skipped in CI)",
+)
 from src.nutrition.openfoodfacts_client import (
     _calorie_density_plausible,
     _get_ingredient_category,
@@ -316,6 +323,7 @@ class TestUnitToMultiplier:
         assert _unit_to_multiplier(1, "pièces", "muffin anglais") == pytest.approx(0.57)
 
 
+@requires_real_db
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "ingredient,should_match",
@@ -356,6 +364,7 @@ async def test_search_food_local(ingredient, should_match):
         ), f"Expected no confident match for '{ingredient}'"
 
 
+@requires_real_db
 @pytest.mark.asyncio
 async def test_match_ingredient_basic():
     """Test basic ingredient matching with nutrition calculation."""
@@ -376,6 +385,7 @@ async def test_match_ingredient_basic():
         assert result["calories"] > 100  # Chicken has ~165 kcal per 100g
 
 
+@requires_real_db
 @pytest.mark.asyncio
 async def test_match_ingredient_cache():
     """Test cache-first strategy.
