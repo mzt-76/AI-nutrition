@@ -1,0 +1,64 @@
+name: Frontend Bundle Size
+
+on:
+  push:
+    branches: [main]
+    paths: ["frontend/**"]
+  pull_request:
+    branches: [main]
+    paths: ["frontend/**"]
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-bundle:
+    name: Bundle Size Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install & build
+        run: cd frontend && npm ci && npm run build
+
+      - name: Check bundle size
+        run: |
+          echo "=== Bundle size breakdown ==="
+          du -sh frontend/dist/assets/*.js 2>/dev/null | sort -rh || echo "No JS files found"
+          du -sh frontend/dist/assets/*.css 2>/dev/null | sort -rh || echo "No CSS files found"
+          echo ""
+
+          # Calculate total JS size (gzip)
+          TOTAL_GZIP=0
+          for f in frontend/dist/assets/*.js; do
+            if [ -f "$f" ]; then
+              SIZE=$(gzip -c "$f" | wc -c)
+              TOTAL_GZIP=$((TOTAL_GZIP + SIZE))
+              echo "$(basename "$f"): $((SIZE / 1024))KB gzip"
+            fi
+          done
+
+          TOTAL_KB=$((TOTAL_GZIP / 1024))
+          echo ""
+          echo "Total JS (gzip): ${TOTAL_KB}KB"
+
+          # Fail if over 500KB gzip
+          MAX_KB=500
+          if [ "$TOTAL_KB" -gt "$MAX_KB" ]; then
+            echo "::error::Bundle size ${TOTAL_KB}KB exceeds limit of ${MAX_KB}KB (gzip)"
+            exit 1
+          else
+            echo "Bundle size OK (${TOTAL_KB}KB / ${MAX_KB}KB limit)"
+          fi

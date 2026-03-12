@@ -1,0 +1,41 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-lint:
+    name: Backend Lint
+    uses: ./.github/workflows/backend-ruff.yml
+
+  frontend-lint:
+    name: Frontend Lint
+    uses: ./.github/workflows/frontend-eslint.yml
+
+  backend-tests:
+    name: Backend Tests
+    needs: [backend-lint]
+    uses: ./.github/workflows/python-unit-tests.yml
+
+  docker-builds:
+    name: Docker Builds
+    needs: [backend-tests, frontend-lint]
+    uses: ./.github/workflows/docker-builds.yml
+
+  # frontend-e2e:
+  #   name: Frontend E2E
+  #   needs: [frontend-lint]
+  #   uses: ./.github/workflows/frontend-playwright.yml
+
+  # deploy:
+  #   name: Deploy
+  #   needs: [docker-builds]
+  #   uses: ./.github/workflows/deploy.yml

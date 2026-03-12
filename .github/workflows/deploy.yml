@@ -1,0 +1,53 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Deployment target"
+        required: true
+        type: string
+        default: "staging"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deployment target"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: staging
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy (not configured)
+        run: echo "Deployment not configured yet. Target:${{ inputs.environment }}"
+
+      # Uncomment and configure when ready:
+      #
+      # - name: Deploy via SSH
+      #   uses: appleboy/ssh-action@v1
+      #   with:
+      #     host: ${{ secrets.DEPLOY_HOST }}
+      #     username: ${{ secrets.DEPLOY_USER }}
+      #     key: ${{ secrets.DEPLOY_SSH_KEY }}
+      #     script: |
+      #       cd /opt/ai-nutrition
+      #       git pull origin main
+      #       python deploy.py --type cloud
+      #
+      # - name: Health check
+      #   run: |
+      #     sleep 10
+      #     curl -f http://${{ secrets.DEPLOY_HOST }}:8001/health || exit 1

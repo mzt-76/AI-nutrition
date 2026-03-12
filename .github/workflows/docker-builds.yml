@@ -1,0 +1,72 @@
+name: Docker Builds
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - "frontend/Dockerfile"
+      - "src/RAG_Pipeline/Dockerfile"
+      - "docker-compose.yml"
+      - "requirements*.txt"
+      - "frontend/package*.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "Dockerfile"
+      - "frontend/Dockerfile"
+      - "src/RAG_Pipeline/Dockerfile"
+      - "docker-compose.yml"
+      - "requirements*.txt"
+      - "frontend/package*.json"
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-backend:
+    name: Build Backend Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t ai-nutrition-backend:ci -f Dockerfile .
+
+      - name: Verify image
+        run: |
+          docker image inspect ai-nutrition-backend:ci --format='Size: {{.Size}}'
+
+  build-rag-pipeline:
+    name: Build RAG Pipeline Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build RAG pipeline image
+        run: docker build -t ai-nutrition-rag:ci -f src/RAG_Pipeline/Dockerfile src/RAG_Pipeline/
+
+      - name: Verify image
+        run: |
+          docker image inspect ai-nutrition-rag:ci --format='Size: {{.Size}}'
+
+  build-frontend:
+    name: Build Frontend Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build frontend image
+        run: |
+          docker build -t ai-nutrition-frontend:ci \
+            --build-arg VITE_SUPABASE_URL=https://placeholder.supabase.co \
+            --build-arg VITE_SUPABASE_ANON_KEY=placeholder \
+            --build-arg VITE_AGENT_ENDPOINT=http://localhost:8001/api/agent \
+            --build-arg VITE_ENABLE_STREAMING=true \
+            -f frontend/Dockerfile frontend/
+
+      - name: Verify image
+        run: |
+          docker image inspect ai-nutrition-frontend:ci --format='Size: {{.Size}}'

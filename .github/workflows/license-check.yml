@@ -1,0 +1,79 @@
+name: License Compliance
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Monday 6h UTC
+  push:
+    branches: [main]
+    paths:
+      - "requirements*.txt"
+      - "frontend/package*.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "requirements*.txt"
+      - "frontend/package*.json"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-licenses:
+    name: Python License Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pip-licenses
+          pip install -r requirements.txt
+
+      - name: Check for copyleft licenses
+        run: pip-licenses --fail-on="GPL;AGPL"
+
+      - name: Generate license report
+        if: always()
+        run: pip-licenses --format=csv -o python-licenses.csv
+
+      - name: Upload license report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-licenses
+          path: python-licenses.csv
+          retention-days: 30
+
+  frontend-licenses:
+    name: Frontend License Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: cd frontend && npm ci
+
+      - name: Check for copyleft licenses
+        run: cd frontend && npx license-checker --failOn "GPL-2.0;GPL-3.0;AGPL-3.0"
+
+      - name: Generate license report
+        if: always()
+        run: cd frontend && npx license-checker --csv --out frontend-licenses.csv
+
+      - name: Upload license report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-licenses
+          path: frontend/frontend-licenses.csv
+          retention-days: 30

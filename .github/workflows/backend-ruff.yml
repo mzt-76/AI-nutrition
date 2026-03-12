@@ -1,0 +1,70 @@
+name: Backend Lint & Type Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "skills/**"
+      - "tests/**"
+      - "ruff.toml"
+      - "requirements*.txt"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "skills/**"
+      - "tests/**"
+      - "ruff.toml"
+      - "requirements*.txt"
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ruff-lint:
+    name: Ruff Format & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-ruff-${{ hashFiles('ruff.toml') }}
+          restore-keys: pip-ruff-
+
+      - run: pip install ruff
+
+      - name: Check formatting
+        run: ruff format --check src/ tests/ skills/
+
+      - name: Lint
+        run: ruff check src/ tests/ skills/
+
+  mypy-check:
+    name: Mypy Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-mypy-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: pip-mypy-
+
+      - run: pip install -r requirements-dev.txt
+
+      - name: Type check
+        run: mypy src/ --ignore-missing-imports
