@@ -62,6 +62,7 @@
 - [ ] Smoke test end-to-end
 - [x] Langfuse observability (SDK v3 + admin panel link)
 - [x] TWA → APK generation + distribution (assetlinks.json + Bubblewrap build)
+- [x] TWA fix: assetlinks.json package_name mismatch corrigé (com.ainutrition.app → com.onrender.ai_nutrition_frontend_78p7.twa)
 
 ---
 
@@ -168,3 +169,4 @@ Skill réutilisable : `/seed-recipes` (`.claude/skills/seed-recipes/`)
 - [ ] **Smoke test e2e** — test automatisé du flow complet via Docker
 - [x] **TWA → APK** — génération + distribution
 - [x] **Langfuse** — observability SDK v3 + admin panel deeplinks
+- [x] **Documentation technique** — `docs/twa-digital-asset-links.md` + `docs/concepts-cles-a-maitriser.md` (TWA, MILP, Pydantic AI, Supabase RLS, NDJSON streaming, OpenFoodFacts, Docker/Render)

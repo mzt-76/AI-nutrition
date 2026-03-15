@@ -94,6 +94,8 @@
 - **`frontend-workflow.md`** — frontend design + visual testing workflow with agent-browser (gitignored, contains test credentials)
 - **`ci-best-practices.md`** — CI env vars, test separation (unit vs integration), checklist before push
 - **`status.md`** — current completed work & next tasks
+- **`docs/twa-digital-asset-links.md`** — TWA/APK setup, Digital Asset Links verification, common pitfalls
+- **`docs/concepts-cles-a-maitriser.md`** — 6 key technical concepts explained (MILP, Pydantic AI, Supabase RLS, NDJSON, OpenFoodFacts, Docker/Render)
 
 ---
 
@@ -110,4 +112,4 @@ Before starting work, try `find_tasks()`. If successful → use Archon for task 
 - CI/CD: GitHub Actions → auto-deploy on Render
 - Config: `render.yaml` (Blueprint), `.env.prod` (gitignored)
 
-**Version:** 3.7 | **Updated:** 2026-03-12
+**Version:** 3.7 | **Updated:** 2026-03-15
