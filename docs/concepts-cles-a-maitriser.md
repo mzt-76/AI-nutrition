@@ -144,15 +144,21 @@ Agent (LLM) : "C'est du meal-planning"
   → le script s'execute et retourne le resultat
 ```
 
-**Pourquoi ce pattern ?** Ajouter une fonctionnalite = creer un dossier dans `skills/`,
-sans jamais toucher au code de l'agent. Separation des responsabilites.
+**Pourquoi ce pattern ?** Deux raisons :
+1. **Minimiser le contexte LLM** — si on chargeait les 7 skills + leurs docs + leurs parametres
+   en permanence, le contexte de l'agent serait enorme et il se perdrait. Avec `load_skill`,
+   le SKILL.md n'est charge QUE quand c'est pertinent. L'agent travaille avec un contexte leger.
+2. **Separation des responsabilites** — ajouter une fonctionnalite = creer un dossier dans
+   `skills/`, sans jamais toucher au code de l'agent.
 
 ### Ce que tu peux dire en entretien
 
 > "L'architecture est un agent IA avec un systeme de skills modulaire. L'agent a 6 outils
-> generiques et charge dynamiquement des skills specialises. Ajouter une fonctionnalite
-> ne touche pas au code de l'agent — c'est un pattern plugin. Le framework est Pydantic AI,
-> qui assure le typage fort des parametres d'outils."
+> generiques et charge dynamiquement des skills specialises. Le but principal c'est de
+> minimiser le contexte du LLM — on ne charge la documentation d'un skill que quand
+> l'utilisateur en a besoin, sinon l'agent serait surcharge. Et ca permet aussi d'ajouter
+> des fonctionnalites sans toucher au code de l'agent — c'est un pattern plugin.
+> Le framework est Pydantic AI, qui assure le typage fort des parametres d'outils."
 
 ---
 
