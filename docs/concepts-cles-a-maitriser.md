@@ -89,8 +89,10 @@ Chaque ingredient a un role culinaire qui determine ses bornes :
 Sans cette contrainte, le solveur pourrait proposer : "200g de poulet + 30g de riz"
 → un plat desequilibre culinairement.
 
-La contrainte dit : l'ecart moyen entre les groupes (proteine vs feculent vs legume)
-ne doit pas depasser 2x. Si le poulet est a x1.5, le riz ne peut pas etre en dessous de x0.75.
+La contrainte dit : le **ratio** entre le groupe le plus amplifie et le moins amplifie
+ne doit pas depasser 2. Autrement dit, un groupe ne peut pas etre scale plus de 2 fois
+plus qu'un autre. Exemple : si le poulet est a x1.5, le riz ne peut pas etre en dessous
+de x0.75 (car 1.5 / 0.75 = 2, la limite).
 
 ### Ce que tu peux dire en entretien
 
