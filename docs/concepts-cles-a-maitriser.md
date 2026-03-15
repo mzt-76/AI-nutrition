@@ -188,8 +188,8 @@ CREATE POLICY "user_sees_own_plans" ON meal_plans
   FOR SELECT USING (auth.uid() = user_id);
 ```
 
-**Pourquoi c'est important :** meme si le code backend a un bug, la base de donnees
-elle-meme empeche l'acces aux donnees des autres. C'est une defense en profondeur.
+**Pourquoi c'est important :** c'est une defense en profondeur — la securite est dans
+la base elle-meme, pas uniquement dans le code applicatif.
 
 ### Notre architecture auth
 
@@ -198,16 +198,31 @@ Utilisateur → Frontend React → Supabase Auth (email/Google OAuth)
                                     ↓ JWT token
               Frontend → Backend FastAPI (verifie le JWT)
                                     ↓ user_id extrait du token
-              Backend → Supabase DB (toutes les requetes filtrees par user_id)
+              Backend → Supabase DB (avec service_key)
 ```
+
+### Nuance importante : notre backend bypass les RLS
+
+Actuellement, le backend utilise la `SUPABASE_SERVICE_KEY` (cle admin) pour toutes
+les requetes DB. Cette cle **bypass toutes les RLS policies** — elles ne protegent
+que le frontend (qui utilise la `anon_key`).
+
+L'isolation des donnees cote backend repose donc sur le **code applicatif**
+(les `.eq("user_id", user_id)` dans chaque requete), pas sur les RLS.
+
+C'est une **dette technique identifiee**. L'evolution prevue :
+- Creer un client Supabase par requete avec le JWT de l'utilisateur
+- Garder la service_key uniquement pour les operations admin/systeme
+- Comme ca, les RLS protegeraient aussi cote backend
 
 ### Ce que tu peux dire en entretien
 
 > "La base est sur Supabase (PostgreSQL). L'authentification utilise Supabase Auth
-> avec email et Google OAuth. Les donnees sont isolees par utilisateur via Row Level Security —
-> c'est une politique de securite au niveau de la base, pas du code applicatif.
-> Meme si le backend avait une faille, un utilisateur ne pourrait pas acceder
-> aux donnees d'un autre."
+> avec email et Google OAuth. J'ai mis en place 60+ policies Row Level Security
+> pour isoler les donnees par utilisateur. Actuellement le backend utilise une cle admin
+> qui bypass les RLS — c'est une dette technique identifiee. L'evolution prevue est
+> de passer a des tokens user-scoped pour que les RLS s'appliquent aussi cote backend,
+> en defense en profondeur."
 
 ---
 
