@@ -160,6 +160,20 @@ Skill réutilisable : `/seed-recipes` (`.claude/skills/seed-recipes/`)
 
 ---
 
+## NEXT v2: Generative UI — composants autonomes hors bulle de chat
+
+Actuellement les composants UI (MacroGauges, DayPlanCard, etc.) sont rendus DANS la bulle de texte.
+Idee : les rendre comme des blocs independants dans le flux de conversation, pleine largeur,
+entre les bulles de texte. L'agent pourrait repondre avec uniquement des graphiques/cartes
+quand c'est plus pertinent que du texte.
+
+- Changement principalement frontend (ComponentRenderer sort du MessageBubble)
+- Le backend emet deja des chunks `ui_component` separes — pas de changement necessaire
+- Inspiration : apps IA modernes (ChatGPT canvas, Perplexity, etc.)
+- Effort estime : ~demi-journee
+
+---
+
 ## BACKLOG
 
 - [ ] **Critères de sélection recettes** — vérifier que les filtres (macro ratio, variété, cuisine) sont pertinents et que le pool de 692 recettes offre assez de choix pour tous les profils (perte de poids, prise de masse, vegan, etc.)
