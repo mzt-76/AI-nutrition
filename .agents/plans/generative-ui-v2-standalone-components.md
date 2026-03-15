@@ -1,8 +1,9 @@
 # Plan : Generative UI v2 — Composants autonomes hors bulle de chat
 
-**Branche** : `dev/generative-ui-v2`
+**Branche** : `dev/generative-ui-v2` (séparée de main — on merge que si ça nous plaît)
 **Effort estimé** : ~demi-journée
 **Risque** : faible (changement frontend only, pas de modif backend/DB)
+**Dépendances** : aucune nouvelle librairie (animations CSS natif, pas Framer Motion)
 
 ---
 
@@ -157,8 +158,17 @@ update de messages → les blocs composants apparaissent au fur et à mesure.
 
 3. **Messages humains** : jamais de composants → toujours un bloc `message`.
 
-4. **Animations** : les blocs composants autonomes devraient avoir une animation d'entrée
-   (fade-in + slide-up) pour un effet "wow". Utiliser les transitions CSS existantes.
+4. **Animations** : les blocs composants autonomes doivent avoir une animation d'entrée
+   (fade-in + slide-up) via **CSS natif** (`@keyframes`), PAS Framer Motion.
+   Raison : nos composants apparaissent en streaming et ne disparaissent pas,
+   donc on n'a pas besoin de `AnimatePresence`. CSS suffit et évite +150 KB de bundle.
+   ```css
+   @keyframes fadeSlideUp {
+     from { opacity: 0; transform: translateY(10px); }
+     to { opacity: 1; transform: translateY(0); }
+   }
+   .component-standalone { animation: fadeSlideUp 0.3s ease-out; }
+   ```
 
 ---
 
@@ -178,3 +188,12 @@ update de messages → les blocs composants apparaissent au fur et à mesure.
 - Pas de drag & drop ou réorganisation
 - Pas de changement backend (le format NDJSON reste identique)
 - Pas de nouveau composant — on utilise les 7 existants
+- Pas de Framer Motion — CSS natif uniquement (trade-off : pas d'animations de sortie, mais on n'en a pas besoin)
+- Pas de skill `/frontend-design` nécessaire — le changement est structurel (où ça se rend), pas visuel (comment ça ressemble)
+
+## Stratégie de branche
+
+Branche `dev/generative-ui-v2` séparée de `main`.
+- `main` = MVP stable en prod, on ne touche pas
+- `dev/generative-ui-v2` = expérimentation, on merge dans main seulement si le résultat nous plaît
+- Si ça nous convient pas → on supprime la branche, pas de conséquence
