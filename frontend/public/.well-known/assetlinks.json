@@ -3,7 +3,7 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.ainutrition.app",
+      "package_name": "com.onrender.ai_nutrition_frontend_78p7.twa",
       "sha256_cert_fingerprints": [
         "01:3E:F1:B8:B1:30:F1:7A:B7:BC:0C:E2:94:E5:DF:FB:4D:A2:A2:9D:E5:81:B2:4E:6C:42:90:2B:BC:C8:97:C2"
       ]
