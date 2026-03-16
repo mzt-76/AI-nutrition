@@ -113,7 +113,7 @@ run_skill_script("meal-planning", "add_favorite_recipe", {
 | `vary_breakfast` | bool | false | true si l'utilisateur veut varier le petit-déj |
 | `batch_days` | int | - | Jours consécutifs avec même plat (batch cooking) |
 | `notes` | str | - | Texte libre, parsé automatiquement en `custom_requests` (legacy — préférer `custom_requests` structuré) |
-| `meal_structure` | str | auto | NE PAS spécifier sauf demande explicite |
+| `meal_structure` | str | auto | `3_consequent_meals` (3 repas, 0 collation), `3_meals_1_preworkout` (3 repas + 1 collation), `3_meals_2_snacks`, `4_meals`. Auto-detecte si omis (≥2500 kcal → ajoute collation). Specifier quand l'utilisateur demande un nombre de repas precis ou "sans collation". |
 
 ## Paramètres add_favorite_recipe
 
@@ -141,6 +141,11 @@ run_skill_script("meal-planning", "add_favorite_recipe", {
 - "jeudi soir saumon grillé" → `custom_requests: {"Jeudi": {"diner": "saumon grillé"}}`
 - "samedi matin pancakes" → `custom_requests: {"Samedi": {"petit-dejeuner": "pancakes protéinés"}}`
 - "demain midi poulet grillé" → `custom_requests: {"Demain": {"dejeuner": "poulet grillé"}}` (résolu automatiquement)
+
+### Structure repas → `meal_structure`
+- "3 repas sans collation" / "supprime la collation" / "juste 3 repas" → `meal_structure: "3_consequent_meals"`
+- "ajoute une collation pre-workout" → `meal_structure: "3_meals_1_preworkout"`
+- "4 repas egaux" → `meal_structure: "4_meals"`
 
 **Règle** : dès qu'un jour est nommé + un repas + un plat → utiliser `custom_requests`, PAS `meal_preferences`.
 **Clés jour** : `Lundi`, `Mardi`, `Mercredi`, `Jeudi`, `Vendredi`, `Samedi`, `Dimanche` (majuscule initiale). Aussi accepté : `Demain`, `Aujourd'hui`, `Après-demain` (résolu automatiquement).

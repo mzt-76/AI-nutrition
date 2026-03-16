@@ -85,6 +85,7 @@
 ## Improvement Ideas
 
 - [ ] **Macro redistribution quand une recette favorite est pinned** — Quand une recette favorite est forcée dans un slot (Niveau 2), `calculate_meal_macros_distribution` devrait ajuster les cibles macro des slots restants pour compenser le profil fixe de la favorite. Actuellement le MILP optimise tous les slots contre la distribution uniforme originale, ce qui cause un drift carbs/fat quand la favorite a un profil macro atypique (ex: -24% carbs observé en test). Implémentation : après favorite lookup, soustraire les macros de la favorite des cibles journalières, redistribuer le reste sur les slots non-remplis.
+- [ ] **Verrouiller les portions des recettes favorites dans le MILP** — Quand l'utilisateur ajoute sa propre recette et l'utilise dans un plan, le MILP modifie les quantités d'ingrédients (ex: huile d'olive réduite de 2 à 1 cuillère, poulet de 215g à 169g). L'utilisateur s'attend à garder sa recette telle quelle. Fix : ajouter un paramètre `locked_recipe_indices` à `optimize_day_portions_v2()` — les recettes verrouillées contribuent leurs macros fixes, seuls les autres repas sont optimisés pour compenser. Option B plus simple : bounds ultra-serrés (0.95–1.05) pour les favorites au lieu du verrouillage complet.
 
 Rapport complet : `.claude/code-reviews/pre-deploy-review-20260307.md`
 

@@ -59,19 +59,22 @@ async def execute(**kwargs) -> str:
                 }
             )
 
-        # 2. Fetch all log entries for the date
+        # 2. Fetch all log entries for the date (including item details)
         log_resp = await (
             supabase.table("daily_food_log")
-            .select("calories, protein_g, carbs_g, fat_g, meal_type")
+            .select(
+                "food_name, quantity, unit, calories, protein_g, carbs_g, fat_g, meal_type"
+            )
             .eq("user_id", user_id)
             .eq("log_date", log_date)
             .execute()
         )
         entries = log_resp.data or []
 
-        # 3. Sum consumed macros
+        # 3. Sum consumed macros + group items by meal_type
         consumed = {"calories": 0.0, "protein_g": 0.0, "carbs_g": 0.0, "fat_g": 0.0}
         meals_seen: set[str] = set()
+        meals_detail: dict[str, list[dict]] = {}
         for entry in entries:
             consumed["calories"] += entry.get("calories") or 0
             consumed["protein_g"] += entry.get("protein_g") or 0
@@ -80,6 +83,17 @@ async def execute(**kwargs) -> str:
             meal = entry.get("meal_type")
             if meal:
                 meals_seen.add(meal)
+                meals_detail.setdefault(meal, []).append(
+                    {
+                        "food_name": entry.get("food_name", ""),
+                        "quantity": entry.get("quantity"),
+                        "unit": entry.get("unit", ""),
+                        "calories": entry.get("calories") or 0,
+                        "protein_g": entry.get("protein_g") or 0,
+                        "carbs_g": entry.get("carbs_g") or 0,
+                        "fat_g": entry.get("fat_g") or 0,
+                    }
+                )
 
         # Round consumed values
         consumed = {k: round(v, 1) for k, v in consumed.items()}
@@ -106,6 +120,7 @@ async def execute(**kwargs) -> str:
                 "remaining": remaining,
                 "entries_count": len(entries),
                 "meals_logged": sorted(meals_seen),
+                "meals_detail": {k: meals_detail[k] for k in sorted(meals_detail)},
             },
             ensure_ascii=False,
         )

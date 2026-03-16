@@ -63,6 +63,9 @@ SAMPLE_PROFILE = {
 
 SAMPLE_LOG = [
     {
+        "food_name": "flocons d'avoine",
+        "quantity": 80,
+        "unit": "g",
         "calories": 500,
         "protein_g": 40,
         "carbs_g": 60,
@@ -70,6 +73,9 @@ SAMPLE_LOG = [
         "meal_type": "petit-dejeuner",
     },
     {
+        "food_name": "poulet grille",
+        "quantity": 200,
+        "unit": "g",
         "calories": 700,
         "protein_g": 50,
         "carbs_g": 80,
@@ -77,6 +83,9 @@ SAMPLE_LOG = [
         "meal_type": "dejeuner",
     },
     {
+        "food_name": "riz basmati",
+        "quantity": 150,
+        "unit": "g",
         "calories": 250,
         "protein_g": 20,
         "carbs_g": 30,
@@ -113,6 +122,40 @@ async def test_happy_path_consumed_and_remaining():
     }
     assert result["entries_count"] == 3
     assert result["meals_logged"] == ["dejeuner", "petit-dejeuner"]
+
+
+@pytest.mark.asyncio
+async def test_meals_detail_groups_items_by_meal_type():
+    """meals_detail returns individual food items grouped by meal_type."""
+    sb = _mock_supabase(profile_data=[SAMPLE_PROFILE], log_data=SAMPLE_LOG)
+    raw = await execute(supabase=sb, user_id="user-123", log_date="2026-03-06")
+    result = json.loads(raw)
+
+    assert "meals_detail" in result
+    detail = result["meals_detail"]
+
+    # petit-dejeuner has 1 item
+    assert len(detail["petit-dejeuner"]) == 1
+    breakfast_item = detail["petit-dejeuner"][0]
+    assert breakfast_item["food_name"] == "flocons d'avoine"
+    assert breakfast_item["quantity"] == 80
+    assert breakfast_item["unit"] == "g"
+    assert breakfast_item["calories"] == 500
+
+    # dejeuner has 2 items
+    assert len(detail["dejeuner"]) == 2
+    dejeuner_names = {item["food_name"] for item in detail["dejeuner"]}
+    assert dejeuner_names == {"poulet grille", "riz basmati"}
+
+
+@pytest.mark.asyncio
+async def test_meals_detail_empty_when_no_entries():
+    """meals_detail is empty dict when no entries logged."""
+    sb = _mock_supabase(profile_data=[SAMPLE_PROFILE], log_data=[])
+    raw = await execute(supabase=sb, user_id="user-123", log_date="2026-03-06")
+    result = json.loads(raw)
+
+    assert result["meals_detail"] == {}
 
 
 @pytest.mark.asyncio

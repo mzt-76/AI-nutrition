@@ -22,7 +22,7 @@ description: >-
 | Script | Action |
 |--------|--------|
 | `log_food_entries` | Ecrire des aliments dans `daily_food_log` (INSERT ou UPDATE) |
-| `get_daily_summary` | Lire le bilan calorique/macros du jour (consomme vs objectifs) |
+| `get_daily_summary` | Lire le bilan du jour : macros consomme/restant + detail par repas (aliments, quantites, macros) |
 
 ## Parametres `log_food_entries`
 
@@ -47,7 +47,7 @@ Ex : "pates carbonara" → pates 150g + lardons 50g + creme 30ml + oeuf 1 + parm
 
 **Recette issue de la conversation** : Quand l'utilisateur demande de logger une recette qu'on vient de generer, reprendre EXACTEMENT les ingredients et quantites de la recette. Ne pas reestimer — utiliser les donnees deja presentes dans la conversation. Determiner le `meal_type` selon le contexte.
 
-**Lecture du tracker** : Quand l'utilisateur demande ce qu'il a mange ou veut voir son suivi, appeler `get_daily_summary`.
+**Lecture du tracker** : Quand l'utilisateur demande ce qu'il a mange ou veut voir son suivi, appeler `get_daily_summary`. La reponse inclut `meals_detail` avec chaque aliment (nom, quantite, unite, macros) groupe par repas — utile pour repondre a "qu'est-ce que j'ai mange ce matin ?" ou reutiliser un repas dans un plan.
 
 ## Exemples
 
