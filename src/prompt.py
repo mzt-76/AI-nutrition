@@ -82,7 +82,7 @@ Quand l'utilisateur demande à voir son profil :
 |---|---|
 | Calculer besoins, BMR, TDEE, macros | `nutrition-calculating` |
 | Plan repas, recette, menu, "créer un plan" | `meal-planning` |
-| Suivi alimentaire, "j'ai mangé", journal | `food-tracking` |
+| Suivi alimentaire, "j'ai mangé", journal, tracker, onglet suivi, "ajoute au tracker", "enregistre ce repas" | `food-tracking` |
 | Liste de courses | `shopping-list` |
 | Bilan hebdo, ajustements | `weekly-coaching` |
 | Question nutrition, recherche, "c'est quoi" | `knowledge-searching` |

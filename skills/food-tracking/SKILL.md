@@ -1,30 +1,37 @@
 ---
 name: food-tracking
 description: >-
-    Suivi alimentaire et food logging. Enregistrement d'aliments dans le journal
-    alimentaire via `log_food_entries` ("j'ai mange...", suivi rapide) et
-    consultation du bilan calorique du jour via `get_daily_summary`
-    ("combien il me reste ?", "mon bilan du jour").
-category: tracking
+    Suivi alimentaire et journal de repas. Utiliser quand l'utilisateur :
+    (1) declare avoir mange ("j'ai mange...", "j'ai pris..."),
+    (2) demande d'ajouter un repas/recette a son tracker ou onglet suivi
+    ("ajoute ca a mon tracker", "mets dans mon suivi", "enregistre ce repas",
+    "log cette recette"),
+    (3) demande de logger une recette qu'on vient de generer dans la conversation,
+    (4) fait reference a l'onglet "Suivi du Jour" de l'application,
+    (5) demande son bilan calorique ou ce qu'il lui reste ("combien il me reste ?",
+    "mon bilan du jour", "qu'est-ce que j'ai mange ?"),
+    (6) demande des conseils pour completer son quota calorique,
+    (7) veut modifier une entree existante dans son journal alimentaire.
+    Deux scripts : `log_food_entries` (ecriture) et `get_daily_summary` (lecture).
 ---
 
-# Food Tracking - Suivi Alimentaire
+# Food Tracking
 
-## Quand utiliser
+## Scripts
 
-- L'utilisateur declare avoir mange quelque chose
-- Suivi alimentaire / enregistrement d'aliments
-- Modification d'une entree existante dans le journal
-- L'utilisateur demande combien de calories/macros il lui reste aujourd'hui
-- L'utilisateur demande un bilan ou resume de sa journee alimentaire
-- L'utilisateur demande des conseils pour finir/completer son quota calorique
+| Script | Action |
+|--------|--------|
+| `log_food_entries` | Ecrire des aliments dans `daily_food_log` (INSERT ou UPDATE) |
+| `get_daily_summary` | Lire le bilan calorique/macros du jour (consomme vs objectifs) |
 
-## Outils disponibles
+## Parametres `log_food_entries`
 
-| Script | Description |
-|--------|-------------|
-| `log_food_entries` | Enregistrer des aliments dans le journal alimentaire (daily_food_log) |
-| `get_daily_summary` | Consulter le bilan calorique/macros du jour (consomme vs objectifs) |
+| Parametre | Type | Requis | Description |
+|-----------|------|--------|-------------|
+| `items` | list | **oui** | Liste d'objets `{name: str, quantity: float, unit: str}`. Chaque item = 1 ingredient simple. Cle = `name` (pas `food_name`). |
+| `log_date` | str | non | YYYY-MM-DD. Defaut = aujourd'hui. Cle = `log_date` (pas `date`). |
+| `meal_type` | str | non | `"petit-dejeuner"` \| `"dejeuner"` \| `"diner"` \| `"collation"`. Defaut = `"dejeuner"`. Au **niveau racine**, pas dans chaque item. |
+| `entry_id` | str | non | ID d'une entree existante a modifier. Le premier item de `items` remplace l'aliment (recalcul macros via OFF). |
 
 ## Parametres `get_daily_summary`
 
@@ -32,44 +39,51 @@ category: tracking
 |-----------|------|--------|-------------|
 | `log_date` | str | non | YYYY-MM-DD. Defaut = aujourd'hui. |
 
-## Parametres `log_food_entries`
+## Regles
 
-Les noms de parametres ci-dessous sont les noms exacts a utiliser.
+**Decomposition obligatoire** : Toujours decomposer les plats composes en ingredients individuels avec quantites estimees AVANT d'appeler `log_food_entries`. Le script ne traite que des ingredients simples.
 
-| Parametre | Type | Requis | Description |
-|-----------|------|--------|-------------|
-| `items` | list | **oui** | Liste d'objets `{name: str, quantity: float, unit: str}`. Chaque item = 1 ingredient simple. La cle de chaque objet doit etre `name` (pas `food_name`). |
-| `log_date` | str | non | YYYY-MM-DD. Defaut = aujourd'hui. La cle doit etre `log_date` (pas `date`). |
-| `meal_type` | str | non | `"petit-dejeuner"` \| `"dejeuner"` \| `"diner"` \| `"collation"`. Defaut = `"dejeuner"`. Ce parametre doit etre au **niveau racine** des parametres, pas a l'interieur de chaque item. |
-| `entry_id` | str | non | ID d'une entree existante a modifier. Si fourni, le premier item de `items` remplace l'aliment de cette entree (recalcul macros via OFF). |
+Ex : "pates carbonara" → pates 150g + lardons 50g + creme 30ml + oeuf 1 + parmesan 20g.
 
-**Regle de decomposition** : Si l'utilisateur mentionne un plat compose (ex: "pates carbonara", "salade nicoise"), le decomposer en ingredients individuels avec des quantites estimees pour 1 portion AVANT d'appeler le script. Le script ne traite que des ingredients simples.
+**Recette issue de la conversation** : Quand l'utilisateur demande de logger une recette qu'on vient de generer, reprendre EXACTEMENT les ingredients et quantites de la recette. Ne pas reestimer — utiliser les donnees deja presentes dans la conversation. Determiner le `meal_type` selon le contexte.
 
-## Execution
+**Lecture du tracker** : Quand l'utilisateur demande ce qu'il a mange ou veut voir son suivi, appeler `get_daily_summary`.
+
+## Exemples
 
 ```python
-# Enregistrer des aliments (suivi alimentaire)
-# IMPORTANT : AVANT d'appeler log_food_entries, decomposer les plats composes
-# en ingredients individuels avec quantites estimees pour 1 portion.
-# Ex: "pates carbo" -> pates 150g + lardons 50g + creme 30ml + oeuf 1 + parmesan 20g
+# Ingredients simples
 run_skill_script("food-tracking", "log_food_entries", {
     "items": [
         {"name": "poulet grille", "quantity": 200, "unit": "g"},
         {"name": "riz basmati", "quantity": 150, "unit": "g"}
     ],
-    "log_date": "2026-03-05",
     "meal_type": "dejeuner"
 })
 
-# Modifier un aliment existant (ex: "yaourt" -> "skyr")
+# Recette complete depuis la conversation (reprendre les ingredients exacts)
+run_skill_script("food-tracking", "log_food_entries", {
+    "items": [
+        {"name": "escalope de poulet", "quantity": 400, "unit": "g"},
+        {"name": "farine de ble noir", "quantity": 50, "unit": "g"},
+        {"name": "riz blanc", "quantity": 100, "unit": "g"},
+        {"name": "poivron rouge", "quantity": 100, "unit": "g"},
+        {"name": "oignon", "quantity": 60, "unit": "g"},
+        {"name": "tomate", "quantity": 80, "unit": "g"},
+        {"name": "creme fraiche allegee", "quantity": 60, "unit": "ml"},
+        {"name": "huile d'olive", "quantity": 8, "unit": "ml"}
+    ],
+    "meal_type": "dejeuner"
+})
+
+# Modifier un aliment existant
 run_skill_script("food-tracking", "log_food_entries", {
     "entry_id": "uuid-de-l-entree",
     "items": [{"name": "skyr", "quantity": 200, "unit": "g"}],
-    "log_date": "2026-03-05",
     "meal_type": "petit-dejeuner"
 })
 
-# Consulter le bilan du jour (consomme vs objectifs)
+# Bilan du jour
 run_skill_script("food-tracking", "get_daily_summary", {})
 
 # Bilan d'une date specifique
