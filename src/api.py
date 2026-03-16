@@ -162,6 +162,8 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
 
     logger.info("API startup complete")
     yield
+    if langfuse_client:
+        langfuse_client.flush()
     await _http_client.aclose()
     logger.info("API shutdown")
 
