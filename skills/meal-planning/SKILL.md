@@ -1,7 +1,8 @@
 ---
 name: meal-planning
 description: >-
-    Plans de repas personnalisés. CHARGER CE SKILL DÈS qu'un plan/recette/menu est demandé.
+    Plans de repas personnalisés. CHARGER CE SKILL DÈS qu'un plan/recette/menu est demandé,
+    ou quand l'utilisateur veut ajouter en favoris / sauvegarder une recette.
     2 routes : recettes DB (rapide, défaut) ou custom LLM (si plat spécifique mentionné).
     Défaut : 3 jours, même petit-déj, repas variés.
 
@@ -14,6 +15,7 @@ category: planning
 - Demande de plan de repas (1+ jours)
 - Demande de recette spécifique
 - Récupération d'un plan existant
+- Ajouter une recette en favoris / sauvegarder une recette
 
 ## Comportement agent
 - TOUJOURS poser **1 question groupée** avant de générer, sauf si l'utilisateur dit explicitement "go" / "lance" / "par défaut". La question doit couvrir :
@@ -39,6 +41,8 @@ category: planning
 - Passer via `meal_preferences` → déclenche `generate_custom_recipe` (Claude Haiku 4.5)
 - Recette sauvegardée en DB pour réutilisation future
 
+**Règle clé — recette custom + plan** : quand l'utilisateur demande un plan incluant une recette custom générée dans la conversation (qui a un `recipe_id`), **d'abord** appeler `add_favorite_recipe` avec ce `recipe_id`, **puis** `generate_week_plan` avec `custom_requests` référençant le nom de la recette. Le pipeline retrouvera la recette via le lookup favoris.
+
 **Règle clé** : toute mention de plat ou d'ingrédient spécifique = route custom.
 - "fais-moi un plan" → route DB
 - "je veux de la baguette le matin" → `meal_preferences: {"petit-dejeuner": "baguette et chocolat chaud"}`
@@ -51,6 +55,7 @@ category: planning
 | `generate_week_plan` | Générer un plan (1-7 jours) |
 | `generate_custom_recipe` | Recette unique sur demande |
 | `fetch_stored_meal_plan` | Récupérer un plan existant |
+| `add_favorite_recipe` | Ajouter une recette aux favoris de l'utilisateur |
 
 ```python
 # Plan par défaut (1 jour)
@@ -90,6 +95,12 @@ run_skill_script("meal-planning", "generate_custom_recipe", {
 
 # Récupérer un plan existant
 run_skill_script("meal-planning", "fetch_stored_meal_plan", {"week_start": "2026-02-23"})
+
+# Ajouter une recette aux favoris (recipe_id vient de generate_custom_recipe)
+run_skill_script("meal-planning", "add_favorite_recipe", {
+    "recipe_id": "abc-123-uuid",
+    "notes": "Ma recette d'escalope maison"
+})
 ```
 
 ## Paramètres generate_week_plan
@@ -103,6 +114,13 @@ run_skill_script("meal-planning", "fetch_stored_meal_plan", {"week_start": "2026
 | `batch_days` | int | - | Jours consécutifs avec même plat (batch cooking) |
 | `notes` | str | - | Texte libre, parsé automatiquement en `custom_requests` (legacy — préférer `custom_requests` structuré) |
 | `meal_structure` | str | auto | NE PAS spécifier sauf demande explicite |
+
+## Paramètres add_favorite_recipe
+
+| Param | Type | Obligatoire | Description |
+|-------|------|------------|-------------|
+| `recipe_id` | str | oui | UUID de la recette (retourné par `generate_custom_recipe`) |
+| `notes` | str | non | Note libre sur la recette |
 
 ## Paramètres generate_custom_recipe
 
