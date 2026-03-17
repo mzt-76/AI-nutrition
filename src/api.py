@@ -1493,6 +1493,10 @@ async def _stream_agent_response(
 
     yield json.dumps(final_data).encode("utf-8") + b"\n"
 
+    # Flush Langfuse traces immediately — Render kills idle containers aggressively
+    if langfuse_client:
+        langfuse_client.flush()
+
 
 async def _stream_error(error_message: str, session_id: str):
     """Stream an error response as NDJSON."""

@@ -55,7 +55,9 @@ def configure_langfuse() -> Any:
         return langfuse
 
     except ImportError as e:
-        logger.warning("langfuse package not installed (%s). Tracing disabled.", e)
+        logger.error(
+            "langfuse package not installed (%s). Add it to requirements-prod.txt!", e
+        )
         return None
     except Exception as e:
         logger.warning("Langfuse initialization failed: %s", e)
