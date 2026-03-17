@@ -32,6 +32,12 @@ _CALORIE_CEILINGS: dict[str, int] = {
     "liquide_aqueux": 50,  # bouillons, vinaigres, sauce soja — NOT huiles/miel/sirops
 }
 
+# Calorie density FLOORS per food category (kcal/100g).
+# If an OFF product is BELOW this for its category, it's likely a drink/flavored product.
+_CALORIE_FLOORS: dict[str, int] = {
+    "fruit_a_coque": 400,  # nuts are 500-700 kcal/100g; anything <400 is a drink/yogurt
+}
+
 # Ingredient keywords → category for calorie density check
 _INGREDIENT_CATEGORIES: dict[str, str] = {
     # Légumes
@@ -129,6 +135,27 @@ _INGREDIENT_CATEGORIES: dict[str, str] = {
     "fumet": "liquide_aqueux",
     "fond de veau": "liquide_aqueux",
     "fond de volaille": "liquide_aqueux",
+    # Fruits à coque (nuts/seeds — high calorie density)
+    "noix": "fruit_a_coque",
+    "amande": "fruit_a_coque",
+    "amandes": "fruit_a_coque",
+    "noisette": "fruit_a_coque",
+    "noisettes": "fruit_a_coque",
+    "cajou": "fruit_a_coque",
+    "pistache": "fruit_a_coque",
+    "pistaches": "fruit_a_coque",
+    "cacahuète": "fruit_a_coque",
+    "cacahuete": "fruit_a_coque",
+    "cacahuètes": "fruit_a_coque",
+    "cacahuetes": "fruit_a_coque",
+    "pécan": "fruit_a_coque",
+    "pecan": "fruit_a_coque",
+    "mélange noix": "fruit_a_coque",
+    "melange noix": "fruit_a_coque",
+    "noix de cajou": "fruit_a_coque",
+    "noix de pécan": "fruit_a_coque",
+    "noix de pecan": "fruit_a_coque",
+    "noix de macadamia": "fruit_a_coque",
 }
 
 # Densities for ml → g conversion
@@ -190,6 +217,26 @@ _PIECE_WEIGHTS: dict[str, float] = {
 }
 
 
+# Average weights for kitchen/volume units (grams)
+_KITCHEN_UNIT_WEIGHTS: dict[str, float] = {
+    "cuillère à café": 5.0,
+    "cuillere a cafe": 5.0,
+    "cac": 5.0,
+    "c. à café": 5.0,
+    "c. a cafe": 5.0,
+    "cuillère à soupe": 15.0,
+    "cuillere a soupe": 15.0,
+    "cas": 15.0,
+    "c. à soupe": 15.0,
+    "c. a soupe": 15.0,
+    "vaporisation": 1.0,
+    "pincée": 1.0,
+    "pincee": 1.0,
+    "tasse": 240.0,
+    "verre": 200.0,
+}
+
+
 def _unit_to_multiplier(quantity: float, unit: str, ingredient_name: str) -> float:
     """Convert quantity+unit to a per-100g multiplier for nutrition calculation."""
     if unit == "g":
@@ -200,6 +247,11 @@ def _unit_to_multiplier(quantity: float, unit: str, ingredient_name: str) -> flo
         return (quantity * 1000.0) / 100.0
     if unit == "l":
         return _ml_to_g(quantity * 1000.0, ingredient_name) / 100.0
+    # Kitchen/volume units (cuillère, pincée, verre, etc.)
+    unit_lower = unit.lower().strip()
+    for key, weight_g in _KITCHEN_UNIT_WEIGHTS.items():
+        if key in unit_lower or unit_lower in key:
+            return (quantity * weight_g) / 100.0
     # Discrete units — look up weight per piece
     name_lower = ingredient_name.lower().strip()
     for key, weight_g in _PIECE_WEIGHTS.items():
@@ -270,10 +322,10 @@ def _calorie_density_plausible(ingredient_name: str, calories_per_100g: float) -
     category = _get_ingredient_category(ingredient_name)
     if category is None:
         return True
+
+    # Check ceiling (too high → dried/processed)
     ceiling = _CALORIE_CEILINGS.get(category)
-    if ceiling is None:
-        return True
-    if calories_per_100g > ceiling:
+    if ceiling is not None and calories_per_100g > ceiling:
         logger.warning(
             "Calorie density implausible for '%s' (category=%s): "
             "%.0f kcal/100g > ceiling %d — likely dried/processed product",
@@ -283,6 +335,20 @@ def _calorie_density_plausible(ingredient_name: str, calories_per_100g: float) -
             ceiling,
         )
         return False
+
+    # Check floor (too low → drink/flavored product mismatched as solid food)
+    floor = _CALORIE_FLOORS.get(category)
+    if floor is not None and calories_per_100g < floor:
+        logger.warning(
+            "Calorie density too LOW for '%s' (category=%s): "
+            "%.0f kcal/100g < floor %d — likely a drink/flavored product",
+            ingredient_name,
+            category,
+            calories_per_100g,
+            floor,
+        )
+        return False
+
     return True
 
 

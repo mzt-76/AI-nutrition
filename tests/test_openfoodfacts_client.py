@@ -181,12 +181,39 @@ class TestCalorieDensityGuard:
         assert _calorie_density_plausible("sauce teriyaki", 133) is True
         assert _calorie_density_plausible("vinaigre balsamique", 88) is True
 
+    # Nut calorie floor tests (Bug 2 fix)
+    def test_nuts_plausible(self):
+        """Real nuts at 580-650 kcal/100g → passes."""
+        assert _calorie_density_plausible("amandes", 580) is True
+        assert _calorie_density_plausible("noix de cajou", 553) is True
+        assert _calorie_density_plausible("mélange noix", 607) is True
+
+    def test_nuts_implausible_drink(self):
+        """Almond-hazelnut milk at 32 kcal/100g matched as 'nuts' → rejected."""
+        assert _calorie_density_plausible("mélange noix", 32) is False
+        assert _calorie_density_plausible("amandes", 45) is False
+        assert _calorie_density_plausible("noisettes", 100) is False
+
+    def test_nuts_borderline(self):
+        """Nut product at exactly 400 kcal/100g → passes (floor is exclusive)."""
+        assert _calorie_density_plausible("noix", 400) is True
+        assert _calorie_density_plausible("noix", 399) is False
+
     def test_category_lookup(self):
         assert _get_ingredient_category("poivron rouge") == "légume"
         assert _get_ingredient_category("épinards frais") == "légume"
         assert _get_ingredient_category("pomme verte") == "fruit"
         assert _get_ingredient_category("blanc de poulet") == "viande_crue"
         assert _get_ingredient_category("quinoa") is None
+
+    def test_nut_category_lookup(self):
+        assert _get_ingredient_category("amandes") == "fruit_a_coque"
+        assert (
+            _get_ingredient_category("mélange noix, amande, noisette")
+            == "fruit_a_coque"
+        )
+        assert _get_ingredient_category("noix de cajou") == "fruit_a_coque"
+        assert _get_ingredient_category("cacahuètes grillées") == "fruit_a_coque"
 
     def test_liquid_category_lookup(self):
         assert _get_ingredient_category("bouillon de légumes") == "liquide_aqueux"
@@ -261,6 +288,32 @@ class TestPickBestCandidate:
     def test_empty_candidates(self):
         assert _pick_best_candidate([], "poulet") is None
 
+    def test_rejects_drink_for_nuts(self):
+        """Almond-hazelnut milk should be rejected when searching for nuts."""
+        candidates = [
+            {
+                "name": "Amande Noisette (boisson)",
+                "confidence": 0.85,
+                "calories_per_100g": 32,
+                "protein_g_per_100g": 0.5,
+                "carbs_g_per_100g": 3.2,
+                "fat_g_per_100g": 1.0,
+                "code": "3229820789910",
+            },
+            {
+                "name": "Mélange de noix",
+                "confidence": 0.80,
+                "calories_per_100g": 607,
+                "protein_g_per_100g": 16,
+                "carbs_g_per_100g": 18,
+                "fat_g_per_100g": 52,
+                "code": "999",
+            },
+        ]
+        best = _pick_best_candidate(candidates, "mélange noix")
+        assert best is not None
+        assert best["name"] == "Mélange de noix"
+
     def test_low_confidence_rejected(self):
         candidates = [
             {
@@ -321,6 +374,53 @@ class TestUnitToMultiplier:
     def test_pieces_muffin_anglais(self):
         # 1 muffin anglais = 57g → multiplier = 0.57
         assert _unit_to_multiplier(1, "pièces", "muffin anglais") == pytest.approx(0.57)
+
+    # Kitchen unit tests (Bug 1 fix)
+    def test_cuillere_a_cafe(self):
+        # 1 cuillère à café = 5g → multiplier = 0.05
+        assert _unit_to_multiplier(1, "cuillère à café", "miel") == pytest.approx(0.05)
+
+    def test_cuillere_a_soupe(self):
+        # 1 cuillère à soupe = 15g → multiplier = 0.15
+        assert _unit_to_multiplier(1, "cuillère à soupe", "huile") == pytest.approx(
+            0.15
+        )
+
+    def test_pincee(self):
+        # 1 pincée = 1g → multiplier = 0.01
+        assert _unit_to_multiplier(1, "pincée", "sel") == pytest.approx(0.01)
+
+    def test_vaporisation(self):
+        # 1 vaporisation = 1g → multiplier = 0.01
+        assert _unit_to_multiplier(1, "vaporisation", "huile de coco") == pytest.approx(
+            0.01
+        )
+
+    def test_tasse(self):
+        # 1 tasse = 240g → multiplier = 2.4
+        assert _unit_to_multiplier(1, "tasse", "farine") == pytest.approx(2.4)
+
+    def test_verre(self):
+        # 1 verre = 200g → multiplier = 2.0
+        assert _unit_to_multiplier(1, "verre", "lait") == pytest.approx(2.0)
+
+    def test_cas_abbreviation(self):
+        # "cas" → cuillère à soupe = 15g
+        assert _unit_to_multiplier(2, "cas", "beurre") == pytest.approx(0.3)
+
+    def test_cac_abbreviation(self):
+        # "cac" → cuillère à café = 5g
+        assert _unit_to_multiplier(1, "cac", "vanille") == pytest.approx(0.05)
+
+    def test_cuillere_without_accent(self):
+        # accent-free variant
+        assert _unit_to_multiplier(1, "cuillere a cafe", "sucre") == pytest.approx(0.05)
+
+    def test_honey_teaspoon_calories(self):
+        """Honey 1 tsp: 320 kcal/100g × 0.05 = 16 kcal (not 3.2)."""
+        multiplier = _unit_to_multiplier(1, "cuillère à café", "miel")
+        calories = 320 * multiplier
+        assert calories == pytest.approx(16.0)
 
 
 @requires_real_db
