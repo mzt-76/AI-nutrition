@@ -2,7 +2,7 @@
 name: meal-planning
 description: >-
     Plans de repas personnalisés. CHARGER CE SKILL DÈS qu'un plan/recette/menu est demandé,
-    ou quand l'utilisateur veut ajouter en favoris / sauvegarder une recette.
+    ou quand l'utilisateur veut gérer ses favoris (ajouter, lister, rechercher, supprimer).
     2 routes : recettes DB (rapide, défaut) ou custom LLM (si plat spécifique mentionné).
     Défaut : 3 jours, même petit-déj, repas variés.
 
@@ -16,6 +16,9 @@ category: planning
 - Demande de recette spécifique
 - Récupération d'un plan existant
 - Ajouter une recette en favoris / sauvegarder une recette
+- Consulter ses recettes favorites / mes favoris / mes recettes sauvegardées
+- Retrouver une recette favorite par nom
+- Supprimer un favori / retirer une recette des favoris
 
 ## Comportement agent
 - TOUJOURS poser **1 question groupée** avant de générer, sauf si l'utilisateur dit explicitement "go" / "lance" / "par défaut". La question doit couvrir :
@@ -56,6 +59,8 @@ category: planning
 | `generate_custom_recipe` | Recette unique sur demande |
 | `fetch_stored_meal_plan` | Récupérer un plan existant |
 | `add_favorite_recipe` | Ajouter une recette aux favoris de l'utilisateur |
+| `get_user_favorites` | Lister les recettes favorites de l'utilisateur (avec filtre optionnel par nom) |
+| `remove_favorite_recipe` | Supprimer une recette des favoris |
 
 ```python
 # Plan par défaut (1 jour)
@@ -101,6 +106,18 @@ run_skill_script("meal-planning", "add_favorite_recipe", {
     "recipe_id": "abc-123-uuid",
     "notes": "Ma recette d'escalope maison"
 })
+
+# Lister tous les favoris
+run_skill_script("meal-planning", "get_user_favorites", {})
+
+# Chercher un favori par nom
+run_skill_script("meal-planning", "get_user_favorites", {"name": "poulet grillé"})
+
+# Supprimer par nom
+run_skill_script("meal-planning", "remove_favorite_recipe", {"recipe_name": "poulet grillé"})
+
+# Supprimer par ID (retourné par get_user_favorites)
+run_skill_script("meal-planning", "remove_favorite_recipe", {"favorite_id": "abc-123-uuid"})
 ```
 
 ## Paramètres generate_week_plan
@@ -121,6 +138,19 @@ run_skill_script("meal-planning", "add_favorite_recipe", {
 |-------|------|------------|-------------|
 | `recipe_id` | str | oui | UUID de la recette (retourné par `generate_custom_recipe`) |
 | `notes` | str | non | Note libre sur la recette |
+
+## Paramètres get_user_favorites
+
+| Param | Type | Obligatoire | Description |
+|-------|------|------------|-------------|
+| `name` | str | non | Filtre par nom (recherche fuzzy par mots) |
+
+## Paramètres remove_favorite_recipe
+
+| Param | Type | Obligatoire | Description |
+|-------|------|------------|-------------|
+| `favorite_id` | str | non* | UUID du favori (retourné par `get_user_favorites`) |
+| `recipe_name` | str | non* | Nom de la recette (recherche fuzzy). *Au moins un des deux requis. |
 
 ## Paramètres generate_custom_recipe
 
