@@ -102,7 +102,13 @@ export const MealSection = memo(function MealSection({ mealType, entries, onDele
 
       {/* Inline add row */}
       {adding && (
-        <div className="flex items-center gap-1.5 py-1.5 px-2 -mx-1 rounded-lg bg-white/[0.02]">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          className="flex items-center gap-1.5 py-1.5 px-2 -mx-1 rounded-lg bg-white/[0.02]"
+        >
           {submitting ? (
             <Loader2 className="w-3 h-3 text-emerald-400 animate-spin shrink-0" />
           ) : (
@@ -112,6 +118,7 @@ export const MealSection = memo(function MealSection({ mealType, entries, onDele
             ref={inputRef}
             type="text"
             maxLength={100}
+            enterKeyHint="done"
             className="text-sm text-gray-300 bg-white/10 border border-emerald-500/30 rounded px-1.5 py-0.5 flex-1 min-w-0
               placeholder:text-gray-600 outline-none focus:border-emerald-500/50 transition-colors
               disabled:opacity-50 disabled:cursor-not-allowed"
@@ -121,18 +128,21 @@ export const MealSection = memo(function MealSection({ mealType, entries, onDele
             placeholder="Nom de l'aliment..."
             onChange={(e) => setNameDraft(e.target.value)}
             onBlur={() => {
-              // Only cancel on blur if empty and not submitting
-              if (!nameDraft.trim() && !submitting) handleCancel();
+              if (submitting) return;
+              if (nameDraft.trim()) {
+                handleSubmit();
+              } else {
+                handleCancel();
+              }
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSubmit();
               if (e.key === 'Escape') handleCancel();
             }}
           />
           {submitting && (
             <span className="text-[10px] text-gray-500 shrink-0">Recherche...</span>
           )}
-        </div>
+        </form>
       )}
     </div>
   );
