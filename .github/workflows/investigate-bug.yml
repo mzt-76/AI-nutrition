@@ -1,0 +1,78 @@
+name: "Bug Investigation (Niveau 1)"
+
+# Triggers immediately when an issue gets the 'user-feedback' label
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  investigate:
+    # Only run when the label added is 'user-feedback'
+    if: github.event.label.name == 'user-feedback'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: pip install langfuse httpx supabase python-dotenv
+
+      - name: Investigate bug
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          allowed_tools: "Bash(PYTHONPATH=. python scripts/*),Bash(gh issue comment *),Read,Glob,Grep"
+          prompt: |
+            You are an automated bug investigator for the AI Nutrition Assistant project.
+
+            ## Issue to investigate
+
+            **Issue #${{ github.event.issue.number }}**: ${{ github.event.issue.title }}
+
+            **Description:**
+            ${{ github.event.issue.body }}
+
+            ## Your workflow
+
+            1. DECIDE which data sources you need based on the issue:
+               - **Agent/response bugs** (wrong answer, skill failure) → run: `PYTHONPATH=. python scripts/investigate_bugs.py --langfuse --hours 48 --format json`
+               - **Conversation/data bugs** (missing data, truncated response) → run: `PYTHONPATH=. python scripts/investigate_bugs.py --supabase --hours 48 --format json`
+               - **UI/frontend bugs** (display, navigation, styling) → just read the code, no script needed
+               - **Both** → run with `--langfuse --supabase`
+               - If the issue has a session ID, add `--session-id "..."` to the command
+
+            2. Analyze: combine script output (if any) with code analysis.
+               - Read the relevant source files to understand the code path
+               - Identify root cause
+               - Determine severity (critical/high/medium/low)
+               - Propose a specific fix with file paths and function names
+
+            3. Post a diagnostic comment on the issue:
+               ```
+               gh issue comment ${{ github.event.issue.number }} --body "..."
+               ```
+               The comment must include:
+               - **Root cause analysis**: what went wrong and why
+               - **Evidence**: trace IDs, code references, conversation snippets (if applicable)
+               - **Suggested fix**: specific files, functions, and changes
+               - **Severity**: critical/high/medium/low
+
+            ## Rules
+            - Never modify code. Only investigate and report.
+            - Be specific: include file paths, line numbers, function names.
+            - If you can't determine root cause, say so and suggest what to investigate manually.
+            - Write the diagnostic comment in French.
+        env:
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_BASE_URL: https://cloud.langfuse.com
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,42 @@
+name: "User Feedback / Bug Report"
+description: "Report a bug or unexpected behavior"
+labels: ["user-feedback"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug or unexpected behavior
+    validations:
+      required: true
+  - type: input
+    id: session_id
+    attributes:
+      label: Session ID (optional)
+      description: "If you have the conversation URL, paste the session ID here"
+      placeholder: "e.g., abc123~3"
+    validations:
+      required: false
+  - type: input
+    id: when
+    attributes:
+      label: When did it happen?
+      description: "Approximate date/time"
+      placeholder: "e.g., 2026-03-24 14h"
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area?
+      options:
+        - Meal planning
+        - Food tracking
+        - Nutrition calculation
+        - Shopping list
+        - Weekly coaching
+        - Chat / General
+        - Mobile app
+        - Other
+    validations:
+      required: false
