@@ -1,0 +1,98 @@
+name: "Proactive Monitoring (Niveau 2)"
+
+# Runs every 2 days at 06:00 UTC
+on:
+  schedule:
+    - cron: "0 6 */2 * *"
+  workflow_dispatch: # Manual trigger for testing
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: pip install langfuse httpx supabase python-dotenv
+
+      - name: Scan production health
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowedTools "Bash(PYTHONPATH=. python scripts/*),Bash(gh issue *),Bash(gh search *),Read,Glob,Grep"'
+          prompt: |
+            You are a proactive health monitor for the AI Nutrition Assistant production app.
+
+            ## Step 1: Collect data
+
+            Run the data fetcher with ALL sources:
+            `PYTHONPATH=. python scripts/investigate_bugs.py --langfuse --supabase --hours 48 --format json`
+
+            ## Step 2: Analyze the data
+
+            Look for these anomaly patterns in the output:
+
+            ### Error patterns
+            - Traces with ERROR-level observations (skill script crashes, API timeouts)
+            - Traces with unusually high latency (>15s for a simple query, >60s for meal planning)
+            - Tool calls that returned errors or empty results
+
+            ### Conversation patterns
+            - Abandoned conversations: user sent a message but no AI response exists
+            - Very short AI responses for complex queries (likely truncated or failed)
+            - Sessions with many back-and-forth on the same topic (user struggling)
+            - Conversations where the agent fell back to generic responses instead of using a skill
+
+            ### Nutrition quality patterns
+            - Meal plans with macro deviations >20% from targets
+            - Repeated similar queries from same user (unsatisfactory results)
+
+            ## Step 3: Report findings
+
+            ### If issues found:
+            First check open issues to avoid duplicates:
+            `gh issue list --label user-feedback --state open --json number,title,body`
+            `gh issue list --label auto-detected --state open --json number,title,body`
+
+            For each NEW distinct issue, create a GitHub issue:
+            `gh issue create --label "user-feedback" --label "auto-detected" --title "..." --body "..."`
+
+            The issue body must include:
+            - **Ce qui a été détecté**: traces, sessions, messages d'erreur spécifiques
+            - **Impact**: combien d'utilisateurs/sessions affectés sur les 48h
+            - **Hypothèse de cause**: quel code path est probablement responsable
+            - **Plan d'implémentation**: fichiers, fonctions, changements nécessaires
+            - **Sévérité**: critical / high / medium / low
+
+            If a match with an existing issue exists, add a comment instead of creating a duplicate.
+
+            ### If all clear:
+            Post a health summary on the monitoring issue:
+            `gh issue list --label monitoring --json number` to find it, then:
+            `gh issue comment <number> --body "## Health Check — $(date -I)
+            ✅ Tout est OK. Scan 48h: X traces analysées, Y conversations vérifiées. Aucune anomalie détectée.
+            **Stats**: latence moyenne Xms, X invocations de skills, X utilisateurs uniques."`
+
+            ## Rules
+            - Never modify code. Only investigate and report.
+            - Be specific: trace IDs, session IDs, file paths, line numbers.
+            - Distinguish between confirmed bugs (ERROR traces) and suspicious patterns (heuristic).
+            - Don't create issues for known/expected behavior (e.g., Langfuse auth warnings on startup).
+            - If you find >5 distinct issues, prioritize the top 5 by severity.
+            - Write in French.
+        env:
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_BASE_URL: https://cloud.langfuse.com
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          GH_TOKEN: ${{ github.token }}
