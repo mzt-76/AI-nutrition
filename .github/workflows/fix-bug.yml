@@ -1,14 +1,17 @@
-name: "Bug Fix (on /fix command)"
+name: "Bug Assistant (conversation + /fix)"
 
+# Responds to ALL comments on user-feedback issues
 on:
   issue_comment:
     types: [created]
 
 jobs:
-  fix:
+  respond:
+    # Only on user-feedback issues, not on PRs, and ignore bot comments
     if: >
       !github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/fix')
+      contains(toJSON(github.event.issue.labels.*.name), 'user-feedback') &&
+      github.event.comment.user.type != 'Bot'
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -26,66 +29,52 @@ jobs:
       - name: Install Python dependencies
         run: pip install langfuse httpx supabase python-dotenv
 
-      - name: Fix bug
+      - name: Respond to comment
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          trigger_phrase: "/fix"
-          claude_args: '--allowedTools "Bash(git *),Bash(gh pr create *),Bash(PYTHONPATH=. python -m pytest *),Bash(ruff *),Bash(mypy *),Read,Edit,Write,Glob,Grep"'
+          claude_args: '--allowedTools "Bash(git *),Bash(gh *),Bash(PYTHONPATH=. python *),Bash(cd frontend *),Bash(ruff *),Bash(mypy *),Read,Edit,Write,Glob,Grep"'
           prompt: |
-            You are an automated bug fixer for the AI Nutrition Assistant project.
+            You are a bug assistant for the AI Nutrition Assistant project.
+            You are having a conversation on a GitHub issue. Read ALL previous comments for context.
 
-            ## Issue to fix
+            ## Issue
 
             **Issue #${{ github.event.issue.number }}**: ${{ github.event.issue.title }}
 
             **Description:**
             ${{ github.event.issue.body }}
 
-            ## Instructions
+            ## Latest comment from user
 
-            1. Read the diagnostic comment(s) on this issue to understand the root cause and suggested fix.
-               The diagnostic was posted by a previous investigation workflow.
+            ${{ github.event.comment.body }}
 
-            2. Create a new branch: `fix/issue-${{ github.event.issue.number }}`
+            ## Your behavior
 
-            3. Implement the fix:
-               - Follow the suggested fix from the diagnostic comment
-               - Keep changes minimal and focused
-               - Follow existing code patterns and conventions
-               - Add type hints (Python) or proper types (TypeScript)
+            **If the comment is `/fix`:**
+            1. Read the implementation plan from your previous diagnostic comment on this issue
+            2. Create a branch: `fix/issue-${{ github.event.issue.number }}`
+            3. Implement the fix following the plan exactly
+            4. Run validation (ruff, mypy, tests, tsc as appropriate)
+            5. Commit: `fix: <description> (closes #${{ github.event.issue.number }})`
+            6. Create a PR with `gh pr create` referencing the issue
+            7. Comment on the issue with a link to the PR
 
-            4. Run validation:
-               - Python changes: `ruff format <files> && ruff check <files> && mypy <files> --ignore-missing-imports`
-               - TypeScript changes: `cd frontend && npx tsc --noEmit`
-               - Run relevant tests: `PYTHONPATH=. python -m pytest <test_files> -v`
-
-            5. Commit with a descriptive message referencing the issue:
-               `fix: <description> (closes #${{ github.event.issue.number }})`
-
-            6. Create a Pull Request:
-               ```
-               gh pr create \
-                 --title "fix: <short description>" \
-                 --body "Closes #${{ github.event.issue.number }}
-
-               ## Root cause
-               <from diagnostic>
-
-               ## Changes
-               <bullet list of changes>
-
-               ## Test plan
-               <how to verify>
-
-               🤖 Auto-fixed by Claude Code" \
-                 --base main
-               ```
+            **Otherwise (question, feedback, discussion):**
+            1. Read the issue description and all previous comments for full context
+            2. Respond helpfully — answer questions, refine the diagnostic, update the plan
+            3. If the user's feedback changes the plan, post an updated plan
+            4. Post your response as a comment with `gh issue comment`
 
             ## Rules
-            - Only fix what the diagnostic identified. Don't refactor surrounding code.
-            - If the fix requires changes you're unsure about, document it in the PR description.
-            - Always run linters/tests before creating the PR.
-            - Write commit messages and PR description in English.
+            - Be conversational and helpful.
+            - When implementing (`/fix`), follow the agreed plan. Don't improvise.
+            - Always run linters/tests before creating a PR.
+            - Write in French (except code and commit messages).
         env:
           GH_TOKEN: ${{ github.token }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_BASE_URL: https://cloud.langfuse.com
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}

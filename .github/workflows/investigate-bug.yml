@@ -7,7 +7,6 @@ on:
 
 jobs:
   investigate:
-    # Only run when the label added is 'user-feedback'
     if: github.event.label.name == 'user-feedback'
     runs-on: ubuntu-latest
     permissions:
@@ -53,23 +52,17 @@ jobs:
                - Read the relevant source files to understand the code path
                - Identify root cause
                - Determine severity (critical/high/medium/low)
-               - Propose a specific fix with file paths and function names
 
-            3. Post a diagnostic comment on the issue:
-               ```
-               gh issue comment ${{ github.event.issue.number }} --body "..."
-               ```
-               The comment must include:
-               - **Root cause analysis**: what went wrong and why
-               - **Evidence**: trace IDs, code references, conversation snippets (if applicable)
-               - **Suggested fix**: specific files, functions, and changes
+            3. Post a diagnostic comment on the issue with `gh issue comment` that includes:
+               - **Diagnostic**: root cause analysis with evidence (file paths, line numbers, trace IDs)
                - **Severity**: critical/high/medium/low
+               - **Plan d'implémentation**: step-by-step fix plan with specific files, functions, and changes to make. Be precise enough that a developer can review and approve.
 
             ## Rules
-            - Never modify code. Only investigate and report.
+            - Never modify code. Only investigate, diagnose, and propose a plan.
             - Be specific: include file paths, line numbers, function names.
             - If you can't determine root cause, say so and suggest what to investigate manually.
-            - Write the diagnostic comment in French.
+            - Write everything in French.
         env:
           LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
           LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
