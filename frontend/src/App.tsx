@@ -2,7 +2,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import Login from "./pages/Login";
@@ -100,6 +100,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 const AppRoutes = () => {
   const { user, isRecovery } = useAuth();
   const isMobile = useIsMobile();
+  const location = useLocation();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -110,10 +111,20 @@ const AppRoutes = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Chat stays permanently mounted so in-progress streaming is not interrupted when
+  // the user switches to another tab. Visibility is toggled via CSS instead.
+  const isChatRoute = location.pathname === '/';
+
   return (
     <>
       {isRecovery && <PasswordRecoveryModal />}
     <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-background"><div className="animate-pulse">Chargement...</div></div>}>
+      {/* Always mounted for authenticated users — hidden on non-chat routes */}
+      {user && (
+        <div style={{ display: isChatRoute ? undefined : 'none' }}>
+          <Chat />
+        </div>
+      )}
       <Routes>
         <Route
           path="/login"
@@ -121,11 +132,7 @@ const AppRoutes = () => {
         />
         <Route
           path="/"
-          element={
-            <ProtectedRoute>
-              <Chat />
-            </ProtectedRoute>
-          }
+          element={<ProtectedRoute>{null}</ProtectedRoute>}
         />
         <Route
           path="/admin"
