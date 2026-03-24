@@ -6,7 +6,6 @@ on:
 
 jobs:
   fix:
-    # Only run when someone comments "/fix" on an issue
     if: >
       !github.event.issue.pull_request &&
       contains(github.event.comment.body, '/fix')
@@ -31,6 +30,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          trigger_phrase: "/fix"
           claude_args: '--allowedTools "Bash(git *),Bash(gh pr create *),Bash(PYTHONPATH=. python -m pytest *),Bash(ruff *),Bash(mypy *),Read,Edit,Write,Glob,Grep"'
           prompt: |
             You are an automated bug fixer for the AI Nutrition Assistant project.
