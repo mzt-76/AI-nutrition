@@ -4,7 +4,7 @@
 **Full roadmap:** See `PRD.md` section 12
 
 **What's done:**
-- Backend complete: FastAPI + Pydantic AI agent + 6 skills + 17 scripts + JWT auth + RLS
+- Backend complete: FastAPI + Pydantic AI agent + 6 skills + 19 scripts + JWT auth + RLS
 - React frontend: chat + streaming + Supabase Auth + generative UI (7 components)
 - Multi-user isolation verified, 718 unit tests passing, 21 eval datasets
 - OpenFoodFacts: 264K products (nettoyés Atwater), 1000+ cached ingredient mappings, online API fallback
@@ -138,9 +138,29 @@ Skill réutilisable : `/seed-recipes` (`.claude/skills/seed-recipes/`)
 
 ---
 
+## DONE: Favorites management scripts (2026-03-18) ✅
+
+Agent peut désormais lister/rechercher et supprimer les recettes favorites via le chat.
+- `get_user_favorites` : liste tous les favoris avec filtre fuzzy par nom
+- `remove_favorite_recipe` : supprime par favorite_id ou recipe_name (gestion ambiguïté)
+- SKILL.md mis à jour (triggers, paramètres, exemples)
+- 15 tests unitaires + 3 evals (100%)
+
+## DONE: Automated bug investigation workflow (2026-03-24) ✅
+
+Workflow complet de gestion des bugs via GitHub Actions + Claude Code :
+- `investigate-bug.yml` : enquête auto quand label `user-feedback` ajouté → diagnostic + plan d'implémentation
+- `fix-bug.yml` : assistant conversationnel sur l'issue + `/fix` pour créer une PR
+- `proactive-monitoring.yml` : scan Langfuse + Supabase toutes les 48h (cron)
+- `scripts/investigate_bugs.py` : data fetcher LLM-free (Langfuse traces + Supabase conversations)
+- `.github/ISSUE_TEMPLATE/user-feedback.yml` : formulaire de bug report structuré
+- 20 tests unitaires, 3 labels GitHub, 5 secrets configurés
+- Doc : `docs/bug-investigation-workflow.md`
+
 ## NEXT: Feature — Recettes favorites + vue détail
 
 ### Étape 1 : Vue détail recette + bouton favori
+- [x] **Backend**: scripts agent pour lister/supprimer les favoris (get_user_favorites, remove_favorite_recipe)
 - [ ] **Backend**: `POST /api/recipes` (upsert par nom) — insère une recette depuis plan_data
 - [ ] **Backend**: `GET /api/recipes/{id}` — fetch recette individuelle
 - [ ] **Frontend**: Composant `RecipeDetailDrawer` (modale bottom-sheet mobile)

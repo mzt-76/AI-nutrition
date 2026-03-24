@@ -96,6 +96,7 @@
 - **`status.md`** — current completed work & next tasks
 - **`docs/twa-digital-asset-links.md`** — TWA/APK setup, Digital Asset Links verification, common pitfalls
 - **`docs/concepts-cles-a-maitriser.md`** — 6 key technical concepts explained (MILP, Pydantic AI, Supabase RLS, NDJSON, OpenFoodFacts, Docker/Render)
+- **`docs/bug-investigation-workflow.md`** — automated bug investigation: 3 GitHub Actions workflows (investigate, conversational assistant + /fix, proactive monitoring)
 
 ---
 
@@ -110,6 +111,7 @@ Before starting work, try `find_tasks()`. If successful → use Archon for task 
 - Backend: `https://ai-nutrition-backend-16c2.onrender.com` (Docker)
 - DB: Supabase prod `bxmihxyishfvmvswxfby`
 - CI/CD: GitHub Actions → auto-deploy on Render
+- Bug workflows: 3 GitHub Actions (`investigate-bug`, `fix-bug`, `proactive-monitoring`) — see `docs/bug-investigation-workflow.md`
 - Config: `render.yaml` (Blueprint), `.env.prod` (gitignored)
 
 **Version:** 3.7 | **Updated:** 2026-03-15
