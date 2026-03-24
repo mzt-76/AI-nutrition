@@ -1,0 +1,91 @@
+name: "Bug Fix (on /fix command)"
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  fix:
+    # Only run when someone comments "/fix" on an issue
+    if: >
+      !github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/fix')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: pip install langfuse httpx supabase python-dotenv
+
+      - name: Fix bug
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowedTools "Bash(git *),Bash(gh pr create *),Bash(PYTHONPATH=. python -m pytest *),Bash(ruff *),Bash(mypy *),Read,Edit,Write,Glob,Grep"'
+          prompt: |
+            You are an automated bug fixer for the AI Nutrition Assistant project.
+
+            ## Issue to fix
+
+            **Issue #${{ github.event.issue.number }}**: ${{ github.event.issue.title }}
+
+            **Description:**
+            ${{ github.event.issue.body }}
+
+            ## Instructions
+
+            1. Read the diagnostic comment(s) on this issue to understand the root cause and suggested fix.
+               The diagnostic was posted by a previous investigation workflow.
+
+            2. Create a new branch: `fix/issue-${{ github.event.issue.number }}`
+
+            3. Implement the fix:
+               - Follow the suggested fix from the diagnostic comment
+               - Keep changes minimal and focused
+               - Follow existing code patterns and conventions
+               - Add type hints (Python) or proper types (TypeScript)
+
+            4. Run validation:
+               - Python changes: `ruff format <files> && ruff check <files> && mypy <files> --ignore-missing-imports`
+               - TypeScript changes: `cd frontend && npx tsc --noEmit`
+               - Run relevant tests: `PYTHONPATH=. python -m pytest <test_files> -v`
+
+            5. Commit with a descriptive message referencing the issue:
+               `fix: <description> (closes #${{ github.event.issue.number }})`
+
+            6. Create a Pull Request:
+               ```
+               gh pr create \
+                 --title "fix: <short description>" \
+                 --body "Closes #${{ github.event.issue.number }}
+
+               ## Root cause
+               <from diagnostic>
+
+               ## Changes
+               <bullet list of changes>
+
+               ## Test plan
+               <how to verify>
+
+               🤖 Auto-fixed by Claude Code" \
+                 --base main
+               ```
+
+            ## Rules
+            - Only fix what the diagnostic identified. Don't refactor surrounding code.
+            - If the fix requires changes you're unsure about, document it in the PR description.
+            - Always run linters/tests before creating the PR.
+            - Write commit messages and PR description in English.
+        env:
+          GH_TOKEN: ${{ github.token }}
