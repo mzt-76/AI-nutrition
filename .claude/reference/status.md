@@ -157,6 +157,11 @@ Workflow complet de gestion des bugs via GitHub Actions + Claude Code :
 - 20 tests unitaires, 3 labels GitHub, 5 secrets configurés
 - Doc : `docs/bug-investigation-workflow.md`
 
+**TODO pour ce workflow :**
+- [ ] **Review PR #3** (fix streaming tab-switch) — code auto-généré par Claude, à vérifier avant merge
+- [ ] **Vérifier quota Max** — chaque commentaire sur une issue user-feedback = 1 run Claude (~5-10 min). Surveiller la consommation.
+- [ ] **Renouveler le token OAuth** — `CLAUDE_CODE_OAUTH_TOKEN` expire, penser à `claude setup-token` + `gh secret set` quand ça casse
+
 ## NEXT: Feature — Recettes favorites + vue détail
 
 ### Étape 1 : Vue détail recette + bouton favori

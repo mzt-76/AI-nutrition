@@ -7,11 +7,11 @@ on:
 
 jobs:
   respond:
-    # Only on user-feedback issues, not on PRs, and ignore bot comments
+    # Only owner (mzt-76), only on user-feedback issues, not on PRs
     if: >
+      github.event.comment.user.login == 'mzt-76' &&
       !github.event.issue.pull_request &&
-      contains(toJSON(github.event.issue.labels.*.name), 'user-feedback') &&
-      github.event.comment.user.type != 'Bot'
+      contains(toJSON(github.event.issue.labels.*.name), 'user-feedback')
     runs-on: ubuntu-latest
     permissions:
       issues: write
