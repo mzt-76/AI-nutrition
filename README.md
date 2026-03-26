@@ -20,25 +20,12 @@ L'onglet principal. Vous posez vos questions en français, l'assistant répond a
 
 Les réponses incluent des composants visuels interactifs directement dans le chat : résumés nutritionnels, jauges de macros, cartes de recettes.
 
-<p align="center">
-  <img src="e2e-screenshots/01-after-login.png" width="70%" alt="Chat — page d'accueil" />
-</p>
-<p align="center">
-  <img src="e2e-screenshots/10-mobile-chat.png" width="30%" alt="Chat — version mobile" />
-</p>
-
 ### Suivi du Jour — Suivre ses macros
 
 L'onglet Suivi permet de visualiser ce que vous avez mangé dans la journée par rapport à vos objectifs. Une jauge circulaire pour les calories, des barres de progression pour protéines/glucides/lipides.
 
 Pour ajouter un aliment, tapez simplement "j'ai mangé..." — l'assistant cherche les macros dans une base de 264 000 produits français (OpenFoodFacts) et met à jour vos totaux.
 
-<p align="center">
-  <img src="e2e-screenshots/02-daily-tracking.png" width="70%" alt="Suivi du Jour — desktop" />
-</p>
-<p align="center">
-  <img src="e2e-screenshots/11-mobile-tracking.png" width="30%" alt="Suivi du Jour — mobile" />
-</p>
 
 ### Bibliothèque — Plans, recettes et courses
 
@@ -48,12 +35,6 @@ L'onglet Bibliothèque regroupe tout ce que l'assistant a généré pour vous :
 - **Recettes** — vos recettes favorites sauvegardées depuis le chat
 - **Courses** — les listes de courses générées à partir de vos plans
 
-<p align="center">
-  <img src="e2e-screenshots/07-meal-plan-detail.png" width="70%" alt="Détail d'un plan repas" />
-</p>
-<p align="center">
-  <img src="e2e-screenshots/05-bibliotheque-recettes.png" width="70%" alt="Recettes favorites" />
-</p>
 
 ---
 
@@ -187,4 +168,4 @@ Merci aux projets open source sur lesquels cette application s'appuie :
 
 ---
 
-Créé par **Meuz** — projet personnel construit pour apprendre et permettre à chacun de recevoir des conseils nutrionnels personalisés.
+Créé par **Loïc Meuzeret** — projet personnel construit pour apprendre et permettre à chacun d'avoir un assitant nutrionnel adapté à ses besoins.
