@@ -6,7 +6,7 @@
 
 ## Le projet
 
-Ce projet est né d'une envie d'apprendre à construire un agent IA de bout en bout — du backend au déploiement, en passant par le frontend. L'idée : un assistant nutritionnel en français capable de calculer vos besoins caloriques, générer des plans repas personnalisés avec des vraies recettes, et suivre vos macros au quotidien.
+Ce projet est né d'une envie d'apprendre à construire un agent IA de bout en bout. L'idée : un assistant nutritionnel en français capable de calculer vos besoins caloriques, générer des plans repas personnalisés avec des vraies recettes, et suivre vos macros au quotidien.
 
 C'est une première version, construite dans le cadre du cours [AI Agent Mastery](https://dynamous.ai/) de Cole Medin. L'application est fonctionnelle et déployée — vous pouvez la tester directement via le lien ci-dessus.
 
@@ -187,4 +187,4 @@ Merci aux projets open source sur lesquels cette application s'appuie :
 
 ---
 
-Créé par **Meuz** — projet personnel construit pour apprendre et partager.
+Créé par **Meuz** — projet personnel construit pour apprendre et permettre à chacun de recevoir des conseils nutrionnels personalisés.
