@@ -43,23 +43,26 @@ async def execute(**kwargs) -> str:
                 "created_at": fav.get("created_at"),
                 "recipe_name": recipe_data.get("name"),
                 "meal_type": recipe_data.get("meal_type"),
-                "calories": recipe_data.get("calories"),
-                "protein_g": recipe_data.get("protein_g"),
-                "carbs_g": recipe_data.get("carbs_g"),
-                "fat_g": recipe_data.get("fat_g"),
+                "calories": recipe_data.get("calories_per_serving"),
+                "protein_g": recipe_data.get("protein_g_per_serving"),
+                "carbs_g": recipe_data.get("carbs_g_per_serving"),
+                "fat_g": recipe_data.get("fat_g_per_serving"),
+                "ingredients": recipe_data.get("ingredients", []),
             }
         )
 
     # Apply fuzzy name filter if provided
     if name:
-        query_words = set(re.sub(r"[^\w\s]", "", name.lower()).split())
+        query_words = set(re.sub(r"[^\w\s]", " ", name.lower()).split())
         favorites = [
             f
             for f in favorites
             if query_words
             and query_words.issubset(
                 set(
-                    re.sub(r"[^\w\s]", "", (f.get("recipe_name") or "").lower()).split()
+                    re.sub(
+                        r"[^\w\s]", " ", (f.get("recipe_name") or "").lower()
+                    ).split()
                 )
             )
         ]

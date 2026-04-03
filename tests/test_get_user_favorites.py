@@ -26,6 +26,11 @@ execute = _mod.execute
 
 USER_ID = "1111-2222-3333-4444"
 
+_INGREDIENTS_POULET = [
+    {"name": "poulet", "quantity": 200, "unit": "g"},
+    {"name": "herbes de provence", "quantity": 5, "unit": "g"},
+]
+
 FAV_1 = {
     "id": "fav-1",
     "recipe_id": "recipe-1",
@@ -35,10 +40,11 @@ FAV_1 = {
     "recipes": {
         "name": "Poulet grillé aux herbes",
         "meal_type": "dejeuner",
-        "calories": 550,
-        "protein_g": 45,
-        "carbs_g": 30,
-        "fat_g": 20,
+        "calories_per_serving": 550,
+        "protein_g_per_serving": 45,
+        "carbs_g_per_serving": 30,
+        "fat_g_per_serving": 20,
+        "ingredients": _INGREDIENTS_POULET,
     },
 }
 
@@ -51,10 +57,11 @@ FAV_2 = {
     "recipes": {
         "name": "Saumon teriyaki et riz",
         "meal_type": "diner",
-        "calories": 620,
-        "protein_g": 40,
-        "carbs_g": 55,
-        "fat_g": 18,
+        "calories_per_serving": 620,
+        "protein_g_per_serving": 40,
+        "carbs_g_per_serving": 55,
+        "fat_g_per_serving": 18,
+        "ingredients": [{"name": "saumon", "quantity": 150, "unit": "g"}],
     },
 }
 
@@ -67,10 +74,31 @@ FAV_3 = {
     "recipes": {
         "name": "Poulet tikka masala",
         "meal_type": "dejeuner",
-        "calories": 580,
-        "protein_g": 42,
-        "carbs_g": 45,
-        "fat_g": 22,
+        "calories_per_serving": 580,
+        "protein_g_per_serving": 42,
+        "carbs_g_per_serving": 45,
+        "fat_g_per_serving": 22,
+        "ingredients": [{"name": "poulet", "quantity": 250, "unit": "g"}],
+    },
+}
+
+FAV_HYPHEN = {
+    "id": "fav-4",
+    "recipe_id": "recipe-4",
+    "user_id": USER_ID,
+    "notes": None,
+    "created_at": "2026-03-04T12:00:00Z",
+    "recipes": {
+        "name": "Bol Petit-Déjeuner Protéiné Équilibré",
+        "meal_type": "petit-dejeuner",
+        "calories_per_serving": 480,
+        "protein_g_per_serving": 35,
+        "carbs_g_per_serving": 50,
+        "fat_g_per_serving": 12,
+        "ingredients": [
+            {"name": "flocons d'avoine", "quantity": 80, "unit": "g"},
+            {"name": "skyr", "quantity": 150, "unit": "g"},
+        ],
     },
 }
 
@@ -132,6 +160,26 @@ class TestGetUserFavoritesHappyPath:
         assert fav["protein_g"] == 45
         assert fav["meal_type"] == "dejeuner"
         assert fav["notes"] == "Très bon"
+
+    @pytest.mark.asyncio
+    async def test_includes_ingredients(self):
+        sb = _mock_supabase(fav_data=[FAV_1])
+        result = json.loads(await execute(supabase=sb, user_id=USER_ID))
+        fav = result["favorites"][0]
+        assert fav["ingredients"] == _INGREDIENTS_POULET
+
+    @pytest.mark.asyncio
+    async def test_hyphenated_name_filter(self):
+        """'petit déjeuner' matches 'Bol Petit-Déjeuner Protéiné Équilibré'."""
+        sb = _mock_supabase(fav_data=[FAV_1, FAV_HYPHEN])
+        result = json.loads(
+            await execute(supabase=sb, user_id=USER_ID, name="bol petit")
+        )
+        assert result["count"] == 1
+        assert (
+            result["favorites"][0]["recipe_name"]
+            == "Bol Petit-Déjeuner Protéiné Équilibré"
+        )
 
     @pytest.mark.asyncio
     async def test_skips_favorites_without_recipe_data(self):

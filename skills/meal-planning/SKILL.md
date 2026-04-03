@@ -59,7 +59,7 @@ category: planning
 | `generate_custom_recipe` | Recette unique sur demande |
 | `fetch_stored_meal_plan` | Récupérer un plan existant |
 | `add_favorite_recipe` | Ajouter une recette aux favoris de l'utilisateur |
-| `get_user_favorites` | Lister les recettes favorites de l'utilisateur (avec filtre optionnel par nom) |
+| `get_user_favorites` | Lister les recettes favorites avec macros + ingredients (filtre optionnel par nom) |
 | `remove_favorite_recipe` | Supprimer une recette des favoris |
 
 ```python

@@ -49,6 +49,12 @@ Ex : "pates carbonara" → pates 150g + lardons 50g + creme 30ml + oeuf 1 + parm
 
 **Lecture du tracker** : Quand l'utilisateur demande ce qu'il a mange ou veut voir son suivi, appeler `get_daily_summary`. La reponse inclut `meals_detail` avec chaque aliment (nom, quantite, unite, macros) groupe par repas — utile pour repondre a "qu'est-ce que j'ai mange ce matin ?" ou reutiliser un repas dans un plan.
 
+**Recette favorite → tracker** : Quand l'utilisateur demande d'ajouter une recette favorite a son suivi :
+1. Appeler `get_user_favorites` (skill `meal-planning`) avec le nom de la recette
+2. Le resultat contient `ingredients` (liste `{name, quantity, unit}`) — les extraire
+3. Passer ces ingredients a `log_food_entries` avec le `meal_type` du favori
+Ne JAMAIS logger le nom de la recette comme un seul aliment — toujours decomposer en ingredients.
+
 ## Exemples
 
 ```python
@@ -81,6 +87,20 @@ run_skill_script("food-tracking", "log_food_entries", {
     "entry_id": "uuid-de-l-entree",
     "items": [{"name": "skyr", "quantity": 200, "unit": "g"}],
     "meal_type": "petit-dejeuner"
+})
+
+# Ajouter un favori au tracker (2 etapes)
+# Etape 1 : recuperer le favori et ses ingredients
+run_skill_script("meal-planning", "get_user_favorites", {"name": "poulet grillé"})
+# → retourne ingredients: [{"name": "poulet", "quantity": 200, "unit": "g"}, ...]
+
+# Etape 2 : logger les ingredients individuels
+run_skill_script("food-tracking", "log_food_entries", {
+    "items": [
+        {"name": "poulet", "quantity": 200, "unit": "g"},
+        {"name": "herbes de provence", "quantity": 5, "unit": "g"}
+    ],
+    "meal_type": "dejeuner"
 })
 
 # Bilan du jour
