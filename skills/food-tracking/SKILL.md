@@ -11,8 +11,11 @@ description: >-
     (5) demande son bilan calorique ou ce qu'il lui reste ("combien il me reste ?",
     "mon bilan du jour", "qu'est-ce que j'ai mange ?"),
     (6) demande des conseils pour completer son quota calorique,
-    (7) veut modifier une entree existante dans son journal alimentaire.
-    Deux scripts : `log_food_entries` (ecriture) et `get_daily_summary` (lecture).
+    (7) veut modifier une entree existante dans son journal alimentaire,
+    (8) veut supprimer une entree ("supprime", "enleve", "retire du suivi",
+    "delete", "efface").
+    Trois scripts : `log_food_entries` (ecriture), `get_daily_summary` (lecture),
+    `delete_food_entry` (suppression).
 ---
 
 # Food Tracking
@@ -23,6 +26,7 @@ description: >-
 |--------|--------|
 | `log_food_entries` | Ecrire des aliments dans `daily_food_log` (INSERT ou UPDATE) |
 | `get_daily_summary` | Lire le bilan du jour : macros consomme/restant + detail par repas (aliments, quantites, macros) |
+| `delete_food_entry` | Supprimer une entree du journal (par entry_id ou par recherche food_name) |
 
 ## Parametres `log_food_entries`
 
@@ -38,6 +42,17 @@ description: >-
 | Parametre | Type | Requis | Description |
 |-----------|------|--------|-------------|
 | `log_date` | str | non | YYYY-MM-DD. Defaut = aujourd'hui. |
+
+## Parametres `delete_food_entry`
+
+| Parametre | Type | Requis | Description |
+|-----------|------|--------|-------------|
+| `entry_id` | str | non* | UUID de l'entree a supprimer (prefere). |
+| `food_name` | str | non* | Nom de l'aliment a chercher (fuzzy). *Au moins un des deux requis. |
+| `meal_type` | str | non | Filtre par repas (avec `food_name`). |
+| `log_date` | str | non | YYYY-MM-DD. Defaut = aujourd'hui. |
+
+Si `food_name` matche plusieurs entrees → retourne la liste (`code: "AMBIGUOUS"`) pour que l'agent demande confirmation ou precise avec `entry_id`.
 
 ## Regles
 
@@ -101,6 +116,17 @@ run_skill_script("food-tracking", "log_food_entries", {
         {"name": "herbes de provence", "quantity": 5, "unit": "g"}
     ],
     "meal_type": "dejeuner"
+})
+
+# Supprimer par nom (recherche fuzzy dans les entrees du jour)
+run_skill_script("food-tracking", "delete_food_entry", {
+    "food_name": "riz basmati",
+    "meal_type": "dejeuner"
+})
+
+# Supprimer par entry_id (retourne par get_daily_summary dans meals_detail)
+run_skill_script("food-tracking", "delete_food_entry", {
+    "entry_id": "uuid-de-l-entree"
 })
 
 # Bilan du jour
