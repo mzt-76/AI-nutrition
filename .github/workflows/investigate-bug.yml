@@ -1,13 +1,16 @@
 name: "Bug Investigation (Niveau 1)"
 
-# Triggers immediately when an issue gets the 'user-feedback' label
+# Triggers as soon as the owner opens a new issue (any template).
+# We filter on the issue author to avoid running on:
+#   - Issues opened by the monitoring bot (which already includes a plan)
+#   - Issues opened by strangers (quota protection)
 on:
   issues:
-    types: [labeled]
+    types: [opened]
 
 jobs:
   investigate:
-    if: github.event.label.name == 'user-feedback'
+    if: github.event.issue.user.login == 'mzt-76'
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -30,7 +33,14 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: '--allowedTools "Bash(PYTHONPATH=. python scripts/*),Bash(gh issue comment *),Read,Glob,Grep"'
           prompt: |
-            You are an automated bug investigator for the AI Nutrition Assistant project.
+            You are an automated issue investigator for the AI Nutrition Assistant project.
+            The user has just opened a new issue. Read it and classify it into one of:
+            - **Bug report** (broken behavior, error, unexpected result)
+            - **Feature request** (new capability, enhancement)
+            - **UX/perf feedback** (something works but could be better)
+            - **Question** (clarification only)
+
+            Then handle it according to the right branch below.
 
             ## Issue to investigate
 
@@ -39,30 +49,45 @@ jobs:
             **Description:**
             ${{ github.event.issue.body }}
 
-            ## Your workflow
+            ## Workflow for BUG / UX-PERF issues
 
-            1. DECIDE which data sources you need based on the issue:
-               - **Agent/response bugs** (wrong answer, skill failure) → run: `PYTHONPATH=. python scripts/investigate_bugs.py --langfuse --hours 48 --format json`
-               - **Conversation/data bugs** (missing data, truncated response) → run: `PYTHONPATH=. python scripts/investigate_bugs.py --supabase --hours 48 --format json`
-               - **UI/frontend bugs** (display, navigation, styling) → just read the code, no script needed
+            1. DECIDE which data sources you need:
+               - **Agent/response bugs** (wrong answer, skill failure, performance) → `PYTHONPATH=. python scripts/investigate_bugs.py --langfuse --hours 48 --format json`
+               - **Conversation/data bugs** (missing data, truncated response, abandoned conv) → `PYTHONPATH=. python scripts/investigate_bugs.py --supabase --hours 48 --format json`
+               - **UI/frontend bugs** (display, navigation, styling, streaming) → read the code, no script needed
                - **Both** → run with `--langfuse --supabase`
-               - If the issue has a session ID, add `--session-id "..."` to the command
+               - If the issue has a session ID, add `--session-id "..."`
 
-            2. Analyze: combine script output (if any) with code analysis.
+            2. Analyze: combine script output with code analysis.
                - Read the relevant source files to understand the code path
-               - Identify root cause
+               - Identify root cause(s) — there may be several contributing factors
                - Determine severity (critical/high/medium/low)
 
-            3. Post a diagnostic comment on the issue with `gh issue comment` that includes:
-               - **Diagnostic**: root cause analysis with evidence (file paths, line numbers, trace IDs)
-               - **Severity**: critical/high/medium/low
-               - **Plan d'implémentation**: step-by-step fix plan with specific files, functions, and changes to make. Be precise enough that a developer can review and approve.
+            3. Post a diagnostic comment with `gh issue comment` containing:
+               - **Diagnostic**: cause racine, preuves (fichiers, lignes, trace IDs)
+               - **Sévérité**: critical/high/medium/low
+               - **Plan d'implémentation**: étapes précises, fichiers concernés, fonctions à modifier
 
-            ## Rules
-            - Never modify code. Only investigate, diagnose, and propose a plan.
-            - Be specific: include file paths, line numbers, function names.
-            - If you can't determine root cause, say so and suggest what to investigate manually.
-            - Write everything in French.
+            ## Workflow for FEATURE REQUEST
+
+            1. Read the relevant parts of the codebase to understand how the feature would fit
+            2. Post a comment with:
+               - **Compréhension**: reformulation de la feature pour confirmer l'intent
+               - **Impact codebase**: fichiers/modules concernés, dépendances
+               - **Plan d'implémentation**: étapes haut niveau, par ordre logique
+               - **Alternatives considérées**: autres approches + pourquoi celle-ci est préférable
+               - **Risques / questions ouvertes**: ce qu'il faut clarifier avant d'implémenter
+
+            ## Workflow for QUESTION
+
+            Just answer the question using `gh issue comment`. Read code if needed to give a precise answer.
+
+            ## Rules (all branches)
+
+            - **Never modify code.** Only investigate, propose, answer.
+            - Be specific: file paths, line numbers, function names.
+            - If you can't determine root cause / best approach, say so and suggest next steps.
+            - Write in French.
         env:
           LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
           LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
