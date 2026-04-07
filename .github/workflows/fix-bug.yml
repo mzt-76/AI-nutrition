@@ -36,7 +36,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: '--allowedTools "Bash(gh issue view*),Bash(gh issue comment*),Bash(PYTHONPATH=. python scripts/*),Read,Glob,Grep"'
+          claude_args: '--model claude-opus-4-6 --allowedTools "Bash(gh issue view*),Bash(gh issue comment*),Bash(PYTHONPATH=. python scripts/*),Read,Glob,Grep"'
           prompt: |
             You are a bug assistant for the AI Nutrition Assistant project.
             You are having an ASYNC conversation on a GitHub issue with the project owner.

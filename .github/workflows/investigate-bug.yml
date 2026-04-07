@@ -31,7 +31,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: '--allowedTools "Bash(PYTHONPATH=. python scripts/*),Bash(gh issue comment *),Read,Glob,Grep"'
+          claude_args: '--model claude-opus-4-6 --allowedTools "Bash(PYTHONPATH=. python scripts/*),Bash(gh issue comment *),Read,Glob,Grep"'
           prompt: |
             You are an automated issue investigator for the AI Nutrition Assistant project.
             The user has just opened a new issue. Read it and classify it into one of:
