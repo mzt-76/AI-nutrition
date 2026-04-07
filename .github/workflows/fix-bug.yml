@@ -1,22 +1,25 @@
-name: "Bug Assistant (conversation + /fix)"
+name: "Bug Assistant (conversation only)"
 
-# Responds to ALL comments on user-feedback issues
+# Responds to comments on user-feedback / auto-detected issues.
+# NOTE: Plan-only mode. No code changes, no PRs. Implementation is done
+# manually in a local Claude Code session where the user has full control.
 on:
   issue_comment:
     types: [created]
 
 jobs:
   respond:
-    # Only owner (mzt-76), only on user-feedback issues, not on PRs
+    # Only owner (mzt-76), only on user-feedback OR auto-detected issues, not on PRs.
+    # Skip comments from bots (including github-actions) to avoid loops.
     if: >
       github.event.comment.user.login == 'mzt-76' &&
       !github.event.issue.pull_request &&
-      contains(toJSON(github.event.issue.labels.*.name), 'user-feedback')
+      (contains(toJSON(github.event.issue.labels.*.name), 'user-feedback') ||
+       contains(toJSON(github.event.issue.labels.*.name), 'auto-detected'))
     runs-on: ubuntu-latest
     permissions:
       issues: write
-      contents: write
-      pull-requests: write
+      contents: read
       id-token: write
 
     steps:
@@ -33,10 +36,11 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: '--allowedTools "Bash(git *),Bash(gh *),Bash(PYTHONPATH=. python *),Bash(cd frontend *),Bash(ruff *),Bash(mypy *),Read,Edit,Write,Glob,Grep"'
+          claude_args: '--allowedTools "Bash(gh issue view*),Bash(gh issue comment*),Bash(PYTHONPATH=. python scripts/*),Read,Glob,Grep"'
           prompt: |
             You are a bug assistant for the AI Nutrition Assistant project.
-            You are having a conversation on a GitHub issue. Read ALL previous comments for context.
+            You are having an ASYNC conversation on a GitHub issue with the project owner.
+            Your job is to refine the diagnostic and implementation plan — NOTHING ELSE.
 
             ## Issue
 
@@ -49,28 +53,26 @@ jobs:
 
             ${{ github.event.comment.body }}
 
-            ## Your behavior
+            ## Your workflow
 
-            **If the comment is `/fix`:**
-            1. Read the implementation plan from your previous diagnostic comment on this issue
-            2. Create a branch: `fix/issue-${{ github.event.issue.number }}`
-            3. Implement the fix following the plan exactly
-            4. Run validation (ruff, mypy, tests, tsc as appropriate)
-            5. Commit: `fix: <description> (closes #${{ github.event.issue.number }})`
-            6. Create a PR with `gh pr create` referencing the issue
-            7. Comment on the issue with a link to the PR
+            1. Read the full issue context first:
+               `gh issue view ${{ github.event.issue.number }} --comments`
+            2. Understand what the user is asking — a question, a correction, a new angle,
+               a request to dig deeper, etc.
+            3. Re-read relevant source files if the user challenges your previous analysis.
+            4. If you need fresh data, you can re-run `investigate_bugs.py` with appropriate flags.
+            5. Post a helpful response with `gh issue comment ${{ github.event.issue.number }} --body "..."`.
+            6. If the plan needs updating, post the FULL updated plan (not just a diff).
 
-            **Otherwise (question, feedback, discussion):**
-            1. Read the issue description and all previous comments for full context
-            2. Respond helpfully — answer questions, refine the diagnostic, update the plan
-            3. If the user's feedback changes the plan, post an updated plan
-            4. Post your response as a comment with `gh issue comment`
+            ## Hard rules — do NOT cross these lines
 
-            ## Rules
+            - **Never modify code.** No Edit, no Write, no git branches, no PRs.
+            - **Never run tests, linters, or builds.** You don't have the tools for it anyway.
+            - If the user says "fix it", "implement it", "/fix", or anything similar:
+              politely remind them that implementation happens locally — they should open
+              Claude Code locally and say *"regarde l'issue #${{ github.event.issue.number }} et implémente le plan"*.
             - Be conversational and helpful.
-            - When implementing (`/fix`), follow the agreed plan. Don't improvise.
-            - Always run linters/tests before creating a PR.
-            - Write in French (except code and commit messages).
+            - Write in French.
         env:
           GH_TOKEN: ${{ github.token }}
           LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}

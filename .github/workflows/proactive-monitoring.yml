@@ -58,13 +58,16 @@ jobs:
 
             ## Step 3: Report findings
 
-            ### If issues found:
-            First check open issues to avoid duplicates:
-            `gh issue list --label user-feedback --state open --json number,title,body`
-            `gh issue list --label auto-detected --state open --json number,title,body`
+            ### 3a. Create issues for NEW anomalies (if any)
 
-            For each NEW distinct issue, create a GitHub issue:
-            `gh issue create --label "user-feedback" --label "auto-detected" --title "..." --body "..."`
+            First check open issues to avoid duplicates:
+            `gh issue list --label auto-detected --state open --json number,title,body`
+            `gh issue list --label user-feedback --state open --json number,title,body`
+
+            For each NEW distinct issue, create a GitHub issue with ONLY the `auto-detected` label
+            (do NOT add `user-feedback` — that label is reserved for issues the user opens manually,
+            and adding it here would trigger a redundant second investigation):
+            `gh issue create --label "auto-detected" --title "..." --body "..."`
 
             The issue body must include:
             - **Ce qui a été détecté**: traces, sessions, messages d'erreur spécifiques
@@ -73,14 +76,33 @@ jobs:
             - **Plan d'implémentation**: fichiers, fonctions, changements nécessaires
             - **Sévérité**: critical / high / medium / low
 
-            If a match with an existing issue exists, add a comment instead of creating a duplicate.
+            If a match with an existing issue exists, add a comment on that issue instead
+            (`gh issue comment <number> --body "..."`) and do NOT create a duplicate.
 
-            ### If all clear:
-            Post a health summary on the monitoring issue:
-            `gh issue list --label monitoring --json number` to find it, then:
-            `gh issue comment <number> --body "## Health Check — $(date -I)
-            ✅ Tout est OK. Scan 48h: X traces analysées, Y conversations vérifiées. Aucune anomalie détectée.
-            **Stats**: latence moyenne Xms, X invocations de skills, X utilisateurs uniques."`
+            ### 3b. ALWAYS post a health summary on the monitoring issue
+
+            Regardless of whether anomalies were found, post a health summary on the monitoring
+            issue (label `monitoring`). This gives a readable log of every scan over time.
+
+            Find the monitoring issue:
+            `gh issue list --label monitoring --state open --json number`
+
+            Then post the summary. Format:
+
+            ```
+            ## Health Check — <YYYY-MM-DD>
+
+            **Scan window**: 48h
+            **Stats**: X traces analysées, Y conversations, Z utilisateurs uniques, latence moyenne Wms
+
+            ### Anomalies
+            - ✅ Aucune anomalie détectée (si tout OK)
+            OR
+            - ⚠️ N anomalies remontées: #issue1, #issue2, ... (avec 1 ligne de description chacune)
+            ```
+
+            Command:
+            `gh issue comment <monitoring_issue_number> --body "..."`
 
             ## Rules
             - Never modify code. Only investigate and report.

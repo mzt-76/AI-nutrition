@@ -1,8 +1,11 @@
 # Workflow automatisé de gestion des bugs
 
-## Vue d'ensemble
+## Vue d'ensemble — mode "plan-only"
 
-Trois GitHub Actions travaillent ensemble pour détecter, diagnostiquer, discuter et corriger les bugs automatiquement via Claude Code.
+Trois GitHub Actions travaillent ensemble pour **détecter, diagnostiquer et discuter** les bugs.
+L'implémentation se fait manuellement en local — aucune modification de code, aucun commit,
+aucune PR n'est jamais créée automatiquement. Objectif : garder le contrôle humain sur la
+qualité du code qui entre dans `main`.
 
 ```
 ┌─────────────────┐     label ajouté      ┌──────────────────────┐
@@ -16,20 +19,23 @@ Trois GitHub Actions travaillent ensemble pour détecter, diagnostiquer, discute
                                                       ▼
 ┌─────────────────┐   tu commentes         ┌──────────────────────┐
 │  Tu discutes,   │ ──────────────────────▶│  Bug Assistant       │
-│  poses des      │   (n'importe quoi)     │  (fix-bug)           │
+│  poses des      │                        │  (fix-bug, plan-only)│
 │  questions      │                        │  → répond, ajuste    │
 └─────────────────┘                        └──────────────────────┘
                                                       │
-┌─────────────────┐   /fix                            │
-│  Tu valides     │ ──────────────────────▶  Claude implémente    │
-│  le plan        │                        │  le fix + crée PR    │
-└─────────────────┘                        └──────────────────────┘
+                                                      ▼
+                                           Tu ouvres Claude Code en
+                                           local quand tu es prêt à
+                                           implémenter — contrôle total
 
 ┌─────────────────┐   cron: */2 jours      ┌──────────────────────┐
 │  Automatique    │ ──────────────────────▶│  Niveau 2: Monitoring│
 │  (pas d'action  │   06:00 UTC            │  (proactive-monit.)  │
 │   de ta part)   │                        │  → scan Langfuse +   │
 └─────────────────┘                        │    Supabase          │
+                                           │  → crée issues       │
+                                           │    "auto-detected"   │
+                                           │  → post summary #2   │
                                            └──────────────────────┘
 ```
 
@@ -54,29 +60,29 @@ Trois GitHub Actions travaillent ensemble pour détecter, diagnostiquer, discute
 
 ---
 
-### 2. `fix-bug.yml` — Assistant conversationnel + /fix
+### 2. `fix-bug.yml` — Assistant conversationnel (plan-only)
 
-**Déclencheur :** N'importe quel commentaire sur une issue `user-feedback`
+**Déclencheur :** Commentaire de `mzt-76` sur une issue labellisée `user-feedback` OU `auto-detected`
 
-**Deux modes :**
+**Ce que fait Claude :**
+1. Lit l'issue + tous les commentaires précédents pour avoir le contexte
+2. Répond à ta question / ton feedback / ta demande de clarification
+3. Re-lit le code source si tu challenges le diagnostic
+4. Re-run `investigate_bugs.py` si tu lui demandes de creuser un angle précis
+5. Poste une réponse — et si le plan doit évoluer, il reposte le plan complet mis à jour
 
-#### Mode conversation (commentaire normal)
-Tu commentes → Claude répond. Tu peux :
-- Poser des questions sur le diagnostic
-- Donner du feedback ("je pense que c'est plutôt X")
-- Demander de préciser le plan
-- Claude ajuste son analyse et reposte un plan mis à jour
+**Ce qu'il ne fait JAMAIS :**
+- Modifier du code
+- Créer une branche
+- Lancer des tests ou des linters
+- Créer une PR
 
-#### Mode fix (`/fix`)
-Tu commentes `/fix` → Claude :
-1. Lit le plan d'implémentation validé
-2. Crée une branche `fix/issue-<number>`
-3. Implémente le fix
-4. Lance les linters + tests
-5. Crée une PR qui référence l'issue
-6. Poste un lien vers la PR sur l'issue
+Si tu commentes `/fix` (ou "implémente", etc.), il te rappellera poliment que
+l'implémentation se fait en local. Ouvre Claude Code sur ton PC et dis-lui
+*"regarde l'issue #N et implémente le plan"* — tu garderas le contrôle total
+sur la review et le commit.
 
-**Temps :** ~5-12 minutes selon la complexité
+**Temps :** ~3-5 minutes par réponse
 
 ---
 
@@ -87,8 +93,10 @@ Tu commentes `/fix` → Claude :
 **Ce que fait Claude :**
 1. Lance `scripts/investigate_bugs.py --langfuse --supabase --hours 48`
 2. Analyse les traces d'erreur, la latence, les conversations abandonnées
-3. Si anomalies détectées → crée des issues avec le label `auto-detected`
-4. Si tout va bien → poste un résumé "all clear" sur l'issue de monitoring (#2)
+3. Si anomalies détectées → crée des issues avec **uniquement** le label `auto-detected`
+   (pas `user-feedback`, pour éviter de re-trigger `investigate-bug.yml` en double)
+4. **Toujours** poste un health summary sur l'issue de monitoring (#2), qu'il y ait des
+   anomalies ou pas — ça te donne un journal de bord lisible de chaque scan
 
 **Temps :** ~5-10 minutes
 
