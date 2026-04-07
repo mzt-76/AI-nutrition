@@ -86,7 +86,7 @@ src/nutrition/openfood/*.jsonl.gz
 # Course reference projects (not part of this repo)
 custom-agent-with-skills/
 ai-agent-mastery/
-prototype/loveable_interface/
+prototype/
 fastapi-starter-for-ai-coding/
 
 # Agent workspace (internal) — keep plans/ tracked
