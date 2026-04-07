@@ -174,6 +174,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Headers required to bypass reverse-proxy buffering on the agent streaming endpoint.
+# Without these, Render (nginx-based) accumulates the full NDJSON response before
+# forwarding it to the client, which makes the streaming text appear all at once.
+# `X-Accel-Buffering: no` is the nginx-standard opt-out for buffered responses.
+NDJSON_STREAM_HEADERS = {
+    "X-Accel-Buffering": "no",
+    "Cache-Control": "no-cache",
+}
+
 # CORS — configurable via environment
 cors_origins = os.getenv("CORS_ORIGINS", "")
 _environment = os.getenv("ENVIRONMENT", "development")
@@ -542,7 +551,8 @@ async def agent_endpoint(
                 ephemeral=request.ephemeral,
                 sanitized_query=sanitized_query,
             ),
-            media_type="text/plain",
+            media_type="application/x-ndjson",
+            headers=NDJSON_STREAM_HEADERS,
         )
 
     except HTTPException:
@@ -554,7 +564,8 @@ async def agent_endpoint(
                 "Une erreur interne est survenue. Veuillez réessayer.",
                 request.session_id,
             ),
-            media_type="text/plain",
+            media_type="application/x-ndjson",
+            headers=NDJSON_STREAM_HEADERS,
         )
 
 

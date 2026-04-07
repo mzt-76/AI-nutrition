@@ -72,6 +72,38 @@
 - [ ] **L5. Ruff E402 — 10 imports pas en haut de fichier** — intentionnel (après `sys.path` setup). Ajouter `# noqa: E402` ou configurer ruff pour ignorer ces fichiers.
 - [ ] **L6. Mypy — 140 erreurs pre-existantes** — surtout implicit Optional et types Pydantic AI v2. Nécessite un pass dédié mypy cleanup.
 
+## Perf / UX improvements — streaming UX (issue #10)
+
+Diagnostiqués en analysant le flow `/api/agent`. Le fix critique (proxy buffering) a
+été appliqué — ces améliorations restent ouvertes pour fluidifier davantage.
+
+- [ ] **Fix 2 — Découpler `title_task` du chunk `complete: true`** — `src/api.py` dans
+  `_stream_agent_response` (~ligne 1482). Actuellement on `await title_task` avant
+  d'émettre le chunk final, ce qui laisse le spinner actif pendant 1–3s après la fin
+  du streaming. Solution : émettre `complete: true` immédiatement et gérer la mise à
+  jour du titre en arrière-plan via `asyncio.create_task` (même pattern que
+  `store_request`). `MessageHandling.tsx` n'utilise que `session_id` depuis ce
+  chunk, donc safe.
+
+- [ ] **Fix 3 — Vérification JWT locale (PyJWT)** — `src/api.py` fonction
+  `verify_token` (~ligne 235). Aujourd'hui chaque requête fait un round-trip HTTP
+  vers l'API Supabase Auth (~50–200ms sur Render Starter). Remplacer par une
+  vérification locale via `PyJWT` + `SUPABASE_JWT_SECRET` (Dashboard → Settings → API
+  → JWT Secret). Garder l'appel HTTP en fallback si le secret est absent.
+
+- [ ] **Fix 4 — `store_message` (user) fire-and-forget** — `src/api.py:460-469`.
+  Actuellement on `await store_message(...)` avant de démarrer le `StreamingResponse`,
+  ce qui ajoute ~50–100ms au TTFB. Transformer en `asyncio.create_task(...)` +
+  `add_done_callback(_log_task_exception)`, identique au pattern `store_request`
+  existant.
+
+- [ ] **Fix 5 — Optimiser le rendu markdown pendant le streaming** —
+  `frontend/src/components/chat/MessageItem.tsx:109-174`. Le `useMemo` pour
+  `ReactMarkdown` dépend de `message.content`, qui change à chaque chunk → parsing
+  AST complet à chaque update. Sur longues réponses ça lag. Solution : ajouter une
+  prop `isStreaming`, afficher `<span className="whitespace-pre-wrap">` pendant le
+  streaming, `ReactMarkdown` uniquement sur les messages finalisés.
+
 ## Quick Fixes TODO
 
 - [ ] **Supabase `timeout`/`verify` DeprecationWarning** — `src/clients.py` : le constructeur `AsyncPostgrestClient` reçoit `timeout` et `verify` en params directs, mais les nouvelles versions de `supabase-py` attendent qu'ils soient configurés dans le `httpx.AsyncClient` sous-jacent. Pas bloquant, juste des warnings dans les logs. Fix : passer ces params via `httpx_client` au lieu du constructeur.
