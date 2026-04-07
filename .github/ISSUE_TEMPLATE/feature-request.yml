@@ -1,0 +1,41 @@
+name: "Feature Request / Nouvelle idée"
+description: "Proposer une nouvelle fonctionnalité ou amélioration"
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Quelle est ton idée ?
+      description: Décris la feature ou l'amélioration que tu aimerais voir
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Pourquoi ?
+      description: Quel problème ça résout ou quel bénéfice ça apporte
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Quel domaine ?
+      options:
+        - Meal planning
+        - Food tracking
+        - Nutrition calculation
+        - Shopping list
+        - Weekly coaching
+        - Chat / General
+        - Mobile app
+        - Backend / Infra
+        - Other
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes additionnelles (optionnel)
+      description: Pistes d'implémentation, exemples, mockups, références
+    validations:
+      required: false
