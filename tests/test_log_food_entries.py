@@ -124,8 +124,8 @@ async def test_log_food_entries_no_user(mock_supabase):
 
 
 @pytest.mark.asyncio
-async def test_log_food_entries_unmatched_ingredient(mock_supabase):
-    """Unmatched ingredient logs with zero macros."""
+async def test_log_food_entries_unmatched_ingredient_skipped(mock_supabase):
+    """Unmatched ingredient with no LLM client is skipped, not logged at 0 kcal."""
     with patch(_PATCH_TARGET, new_callable=AsyncMock) as mock_match:
         mock_match.return_value = {
             "ingredient_name": "mystery food",
@@ -140,18 +140,153 @@ async def test_log_food_entries_unmatched_ingredient(mock_supabase):
             "confidence": 0,
             "cache_hit": False,
         }
+        with patch(
+            "log_food_entries.search_food_local",
+            new_callable=AsyncMock,
+            return_value=[],
+        ):
+            result = await execute(
+                supabase=mock_supabase,
+                user_id="user-123",
+                items=[{"name": "mystery food", "quantity": 100, "unit": "g"}],
+            )
+        data = json.loads(result)
+        assert data["success"] is False
+        assert data["code"] == "ALL_SKIPPED"
+        assert len(data["skipped_items"]) == 1
+        assert mock_supabase.table.return_value.upsert.call_count == 0
 
-        result = await execute(
-            supabase=mock_supabase,
-            user_id="user-123",
-            items=[{"name": "mystery food", "quantity": 100, "unit": "g"}],
-        )
 
+@pytest.mark.asyncio
+async def test_log_food_entries_llm_selects_off_candidate(mock_supabase):
+    """When OFF has low-confidence candidates, LLM picks the best one."""
+    mock_anthropic = AsyncMock()
+    mock_anthropic.messages.create.return_value = MagicMock(
+        content=[MagicMock(text="1")]
+    )
+    candidates = [
+        {
+            "name": "Pain aux graines",
+            "code": "123",
+            "calories_per_100g": 265,
+            "protein_g_per_100g": 8.5,
+            "carbs_g_per_100g": 44,
+            "fat_g_per_100g": 5.2,
+            "confidence": 0.42,
+        },
+        {
+            "name": "Baguette blanche",
+            "code": "456",
+            "calories_per_100g": 250,
+            "protein_g_per_100g": 8.0,
+            "carbs_g_per_100g": 50,
+            "fat_g_per_100g": 1.0,
+            "confidence": 0.38,
+        },
+    ]
+    with patch(_PATCH_TARGET, new_callable=AsyncMock) as mock_match:
+        mock_match.return_value = {
+            "ingredient_name": "baguette aux graines",
+            "matched_name": None,
+            "confidence": 0,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "cache_hit": False,
+        }
+        with patch(
+            "log_food_entries.search_food_local",
+            new_callable=AsyncMock,
+            return_value=candidates,
+        ):
+            result = await execute(
+                supabase=mock_supabase,
+                user_id="user-123",
+                anthropic_client=mock_anthropic,
+                items=[{"name": "baguette aux graines", "quantity": 80, "unit": "g"}],
+                meal_type="petit-dejeuner",
+            )
         data = json.loads(result)
         assert data["success"] is True
-        assert data["logged_items"][0]["calories"] == 0
-        assert data["logged_items"][0]["confidence"] == 0
+        assert data["logged_items"][0]["calories"] > 0
+        assert data["logged_items"][0]["source"] == "openfoodfacts"
         assert mock_supabase.table.return_value.upsert.call_count == 1
+
+
+@pytest.mark.asyncio
+async def test_log_food_entries_llm_estimates_macros(mock_supabase):
+    """When OFF has zero candidates, LLM estimates macros directly."""
+    mock_anthropic = AsyncMock()
+    mock_anthropic.messages.create.return_value = MagicMock(
+        content=[
+            MagicMock(
+                text='{"calories": 280, "protein_g": 9, "carbs_g": 48, "fat_g": 5}'
+            )
+        ]
+    )
+    with patch(_PATCH_TARGET, new_callable=AsyncMock) as mock_match:
+        mock_match.return_value = {
+            "ingredient_name": "plat maison exotique",
+            "matched_name": None,
+            "confidence": 0,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "cache_hit": False,
+        }
+        with patch(
+            "log_food_entries.search_food_local",
+            new_callable=AsyncMock,
+            return_value=[],
+        ):
+            result = await execute(
+                supabase=mock_supabase,
+                user_id="user-123",
+                anthropic_client=mock_anthropic,
+                items=[{"name": "plat maison exotique", "quantity": 100, "unit": "g"}],
+            )
+        data = json.loads(result)
+        assert data["success"] is True
+        assert data["logged_items"][0]["calories"] == 280
+        assert data["logged_items"][0]["source"] == "llm_estimated"
+
+
+@pytest.mark.asyncio
+async def test_log_food_entries_partial_success(mock_supabase):
+    """One item matches OFF, one is skipped → success but skipped_items present."""
+    with patch(_PATCH_TARGET, new_callable=AsyncMock) as mock_match:
+        mock_match.side_effect = [
+            _make_match_result("poulet", 200, 330, 62, 0, 7.2),
+            {
+                "ingredient_name": "xyz",
+                "matched_name": None,
+                "confidence": 0,
+                "calories": 0,
+                "protein_g": 0,
+                "carbs_g": 0,
+                "fat_g": 0,
+                "cache_hit": False,
+            },
+        ]
+        with patch(
+            "log_food_entries.search_food_local",
+            new_callable=AsyncMock,
+            return_value=[],
+        ):
+            result = await execute(
+                supabase=mock_supabase,
+                user_id="user-123",
+                items=[
+                    {"name": "poulet", "quantity": 200, "unit": "g"},
+                    {"name": "xyz", "quantity": 100, "unit": "g"},
+                ],
+            )
+        data = json.loads(result)
+        assert data["success"] is True
+        assert len(data["logged_items"]) == 1
+        assert len(data["skipped_items"]) == 1
 
 
 @pytest.mark.asyncio

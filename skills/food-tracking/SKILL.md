@@ -60,6 +60,8 @@ Si `food_name` matche plusieurs entrees → retourne la liste (`code: "AMBIGUOUS
 
 Ex : "pates carbonara" → pates 150g + lardons 50g + creme 30ml + oeuf 1 + parmesan 20g.
 
+**Echec de matching OFF** : Si `log_food_entries` retourne `skipped_items` non vide, mentionner explicitement a l'utilisateur les aliments non enregistres et proposer de reformuler le nom (plus generique, ex. "pain complet" au lieu de "baguette aux graines bio Carrefour") ou de fournir les macros manuellement.
+
 **Recette issue de la conversation** : Quand l'utilisateur demande de logger une recette qu'on vient de generer, reprendre EXACTEMENT les ingredients et quantites de la recette. Ne pas reestimer — utiliser les donnees deja presentes dans la conversation. Determiner le `meal_type` selon le contexte.
 
 **Lecture du tracker** : Quand l'utilisateur demande ce qu'il a mange ou veut voir son suivi, appeler `get_daily_summary`. La reponse inclut `meals_detail` avec chaque aliment (nom, quantite, unite, macros) groupe par repas — utile pour repondre a "qu'est-ce que j'ai mange ce matin ?" ou reutiliser un repas dans un plan.

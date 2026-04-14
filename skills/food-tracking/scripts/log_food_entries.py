@@ -7,11 +7,101 @@ Pattern: same parallel asyncio.gather as generate_custom_recipe.py.
 import asyncio
 import json
 import logging
+import re
 from datetime import date
 
-from src.nutrition.openfoodfacts_client import match_ingredient
+from src.nutrition.openfoodfacts_client import (
+    _calorie_density_plausible,
+    _passes_atwater_check,
+    _unit_to_multiplier,
+    match_ingredient,
+    search_food_local,
+)
+
+_LLM_MODEL = "claude-haiku-4-5-20251001"
+
+_LLM_SELECT_PROMPT = """L'utilisateur veut logger "{ingredient_name}".
+Voici les produits OpenFoodFacts les plus proches :
+{candidates_text}
+
+Quel numéro correspond le mieux à "{ingredient_name}" ?
+Réponds UNIQUEMENT avec le numéro (ex: 1). Si aucun ne correspond, réponds "0"."""
+
+_LLM_ESTIMATE_PROMPT = """Estime les macronutriments pour 100g de "{ingredient_name}".
+Réponds UNIQUEMENT en JSON : {{"calories": X, "protein_g": X, "carbs_g": X, "fat_g": X}}"""
 
 logger = logging.getLogger(__name__)
+
+
+async def _llm_select_candidate(
+    anthropic_client, ingredient_name: str, candidates: list[dict]
+) -> dict | None:
+    """Ask LLM to pick the best OFF candidate for an ingredient."""
+    if not anthropic_client or not candidates:
+        return None
+    lines = []
+    for i, c in enumerate(candidates, 1):
+        lines.append(
+            f"{i}. {c['name']} — {c['calories_per_100g']:.0f} kcal/100g "
+            f"(P:{c['protein_g_per_100g']:.1f} G:{c['carbs_g_per_100g']:.1f} "
+            f"L:{c['fat_g_per_100g']:.1f})"
+        )
+    prompt = _LLM_SELECT_PROMPT.format(
+        ingredient_name=ingredient_name,
+        candidates_text="\n".join(lines),
+    )
+    try:
+        message = await anthropic_client.messages.create(
+            model=_LLM_MODEL,
+            max_tokens=10,
+            temperature=0.0,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        choice = message.content[0].text.strip()
+        m = re.search(r"\d+", choice)
+        if not m:
+            return None
+        idx = int(m.group()) - 1
+        if 0 <= idx < len(candidates):
+            logger.info(
+                "LLM selected candidate #%d '%s' for '%s'",
+                idx + 1,
+                candidates[idx]["name"],
+                ingredient_name,
+            )
+            return candidates[idx]
+        return None  # LLM said "0" or out of range
+    except Exception as e:
+        logger.warning("LLM select failed for '%s': %s", ingredient_name, e)
+        return None
+
+
+async def _llm_estimate_macros(anthropic_client, ingredient_name: str) -> dict | None:
+    """Ask LLM to estimate macros when OFF has no data at all."""
+    if not anthropic_client:
+        return None
+    prompt = _LLM_ESTIMATE_PROMPT.format(ingredient_name=ingredient_name)
+    try:
+        message = await anthropic_client.messages.create(
+            model=_LLM_MODEL,
+            max_tokens=80,
+            temperature=0.0,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = message.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = "\n".join(raw.split("\n")[1:-1])
+        data = json.loads(raw)
+        logger.info("LLM estimated macros for '%s': %s", ingredient_name, data)
+        return {
+            "calories": float(data.get("calories", 0)),
+            "protein_g": float(data.get("protein_g", 0)),
+            "carbs_g": float(data.get("carbs_g", 0)),
+            "fat_g": float(data.get("fat_g", 0)),
+        }
+    except Exception as e:
+        logger.warning("LLM estimate failed for '%s': %s", ingredient_name, e)
+        return None
 
 
 async def execute(**kwargs) -> str:
@@ -163,18 +253,97 @@ async def execute(**kwargs) -> str:
 
         # Build rows and insert
         logged_items = []
+        skipped_items = []
         total_calories = 0.0
         total_protein = 0.0
         total_carbs = 0.0
         total_fat = 0.0
 
-        for item, macros in zip(items, macro_results):
-            cal = macros.get("calories", 0) if macros else 0
-            prot = macros.get("protein_g", 0) if macros else 0
-            carbs = macros.get("carbs_g", 0) if macros else 0
-            fat = macros.get("fat_g", 0) if macros else 0
+        anthropic_client = kwargs.get("anthropic_client")
 
+        for item, macros in zip(items, macro_results):
             food_name = item.get("name", "")
+            confidence = macros.get("confidence", 0) if macros else 0
+            source = "openfoodfacts"
+
+            if confidence == 0:
+                # --- LLM fallback ---
+                resolved = None
+
+                # Tier 1: fetch low-confidence OFF candidates, let LLM pick
+                try:
+                    raw_candidates = await search_food_local(food_name, supabase)
+                    valid_candidates = [
+                        c
+                        for c in raw_candidates
+                        if c["confidence"] >= 0.3
+                        and _passes_atwater_check(c)
+                        and _calorie_density_plausible(
+                            food_name, c["calories_per_100g"]
+                        )
+                    ]
+                except Exception:
+                    valid_candidates = []
+
+                if valid_candidates:
+                    selected = await _llm_select_candidate(
+                        anthropic_client, food_name, valid_candidates[:5]
+                    )
+                    if selected:
+                        multiplier = _unit_to_multiplier(
+                            item.get("quantity", 100),
+                            item.get("unit", "g"),
+                            food_name,
+                        )
+                        resolved = {
+                            "calories": round(
+                                selected["calories_per_100g"] * multiplier, 1
+                            ),
+                            "protein_g": round(
+                                selected["protein_g_per_100g"] * multiplier, 1
+                            ),
+                            "carbs_g": round(
+                                selected["carbs_g_per_100g"] * multiplier, 1
+                            ),
+                            "fat_g": round(selected["fat_g_per_100g"] * multiplier, 1),
+                        }
+                        confidence = 0.6
+                        source = "openfoodfacts"  # macros are still from OFF
+
+                # Tier 2: LLM estimates macros directly
+                if not resolved:
+                    estimated = await _llm_estimate_macros(anthropic_client, food_name)
+                    if estimated:
+                        multiplier = _unit_to_multiplier(
+                            item.get("quantity", 100),
+                            item.get("unit", "g"),
+                            food_name,
+                        )
+                        resolved = {
+                            "calories": round(estimated["calories"] * multiplier, 1),
+                            "protein_g": round(estimated["protein_g"] * multiplier, 1),
+                            "carbs_g": round(estimated["carbs_g"] * multiplier, 1),
+                            "fat_g": round(estimated["fat_g"] * multiplier, 1),
+                        }
+                        confidence = 0.4
+                        source = "llm_estimated"
+
+                # Both OFF and LLM failed → skip
+                if not resolved:
+                    skipped_items.append({"food_name": food_name, "reason": "no_match"})
+                    continue
+
+                cal = resolved["calories"]
+                prot = resolved["protein_g"]
+                carbs = resolved["carbs_g"]
+                fat = resolved["fat_g"]
+            else:
+                # Normal OFF match
+                cal = macros.get("calories", 0) if macros else 0
+                prot = macros.get("protein_g", 0) if macros else 0
+                carbs = macros.get("carbs_g", 0) if macros else 0
+                fat = macros.get("fat_g", 0) if macros else 0
+
             row = {
                 "user_id": user_id,
                 "log_date": log_date,
@@ -186,7 +355,7 @@ async def execute(**kwargs) -> str:
                 "protein_g": round(prot, 1),
                 "carbs_g": round(carbs, 1),
                 "fat_g": round(fat, 1),
-                "source": "openfoodfacts",
+                "source": source,
             }
 
             # Upsert: insert or update if same user/date/meal/food already exists
@@ -203,7 +372,7 @@ async def execute(**kwargs) -> str:
 
             logged_items.append(
                 {
-                    "food_name": item.get("name", ""),
+                    "food_name": food_name,
                     "quantity": item.get("quantity", 100),
                     "unit": item.get("unit", "g"),
                     "calories": round(cal, 1),
@@ -211,32 +380,36 @@ async def execute(**kwargs) -> str:
                     "carbs_g": round(carbs, 1),
                     "fat_g": round(fat, 1),
                     "matched_name": macros.get("matched_name") if macros else None,
-                    "confidence": macros.get("confidence", 0) if macros else 0,
+                    "confidence": confidence,
+                    "source": source,
                 }
             )
 
         logger.info(
             f"Logged {len(logged_items)} food items for user {user_id} "
             f"on {log_date}: {round(total_calories)} kcal"
+            + (f" ({len(skipped_items)} skipped)" if skipped_items else "")
         )
 
-        return json.dumps(
-            {
-                "success": True,
-                "logged_items": logged_items,
-                "totals": {
-                    "calories": round(total_calories, 1),
-                    "protein_g": round(total_protein, 1),
-                    "carbs_g": round(total_carbs, 1),
-                    "fat_g": round(total_fat, 1),
-                },
-                "log_date": log_date,
-                "meal_type": meal_type,
-                "item_count": len(logged_items),
+        result_data = {
+            "success": len(logged_items) > 0,
+            "logged_items": logged_items,
+            "skipped_items": skipped_items,
+            "totals": {
+                "calories": round(total_calories, 1),
+                "protein_g": round(total_protein, 1),
+                "carbs_g": round(total_carbs, 1),
+                "fat_g": round(total_fat, 1),
             },
-            indent=2,
-            ensure_ascii=False,
-        )
+            "log_date": log_date,
+            "meal_type": meal_type,
+            "item_count": len(logged_items),
+        }
+        if not logged_items and skipped_items:
+            result_data["error"] = "Aucun aliment matché"
+            result_data["code"] = "ALL_SKIPPED"
+
+        return json.dumps(result_data, indent=2, ensure_ascii=False)
 
     except Exception as e:
         logger.error(f"Error logging food entries: {e}", exc_info=True)
